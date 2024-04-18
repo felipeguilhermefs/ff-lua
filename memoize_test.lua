@@ -49,7 +49,7 @@ function test_nonFunction_returnNil()
   lu.assertNil(memoize(true))
   lu.assertNil(memoize("abc"))
   lu.assertNil(memoize(9))
-  -- lu.assertNil(memoize({1, 2, 3}))
+  lu.assertNil(memoize({1, 2, 3}))
 end
 
 function test_cacheNonTable_returnNil()

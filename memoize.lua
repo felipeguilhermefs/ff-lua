@@ -4,7 +4,8 @@ local function is_callable(fn)
     return true
   end
   if tfn == 'table' then
-    return is_callable(getmetatable(fn).__call)
+    local mt = getmetatable(fn)
+    return mt and is_callable(mt.__call)
   end
   return false
 end
