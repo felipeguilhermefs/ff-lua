@@ -1,5 +1,8 @@
 local function tail(text)
-  return text:sub(2, #text)
+  if type(text) == "string" then
+    return text:sub(2, #text)
+  end
+  return nil
 end
 
 return tail
