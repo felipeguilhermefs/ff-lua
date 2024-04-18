@@ -10,7 +10,7 @@ local function empty(value)
     return true
   end
 
-  return false
+  return nil
 end
 
 return empty
