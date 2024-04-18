@@ -1,3 +1,14 @@
+local function is_callable(fn)
+  local tfn = type(fn)
+  if tfn == 'function' then
+    return true
+  end
+  if tfn == 'table' then
+    return is_callable(getmetatable(fn).__call)
+  end
+  return false
+end
+
 local function get(cache, args)
   local level = cache
   for i=1, #args do
@@ -21,8 +32,11 @@ local function put(cache, args, value)
 end
 
 function memoize(fn, cache)
-  if type(fn) ~= 'function' then
-    error("Expected a function")
+  if not is_callable(fn) then
+    return nil
+  end
+  if cache and type(cache) ~= 'table' then
+    return nil
   end
 
   cache = cache or {}
