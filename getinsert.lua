@@ -1,7 +1,11 @@
-local function getinsert(dest, key, generate)
+local function getinsert(dest, key, compute)
+  if type(dest) ~= "table" then
+    return nil
+  end
+
   local value = dest[key]
   if not value then
-    value = generate(key)
+    value = compute(key)
     dest[key] = value
   end
   return value
