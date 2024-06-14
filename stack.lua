@@ -1,21 +1,25 @@
 local function stack()
-  local s = {}
+	local s = {}
 
-  s.push = function(item)
-    table.insert(s, item)
-  end
+	s.push = function(item)
+		table.insert(s, item)
+	end
 
-  s.pop = function()
-    if #s > 0 then
-      return table.remove(s, #s)
-    end
-  end
+	s.pop = function()
+		if #s > 0 then
+			return table.remove(s, #s)
+		end
+	end
 
-  s.empty = function()
-    return #s == 0
-  end
+	s.top = function()
+		return s[#s]
+	end
 
-  return s
+	s.empty = function()
+		return #s == 0
+	end
+
+	return s
 end
 
 return stack
