@@ -8,4 +8,4 @@ install:
 
 .PHONY: build
 build:
-	./luarocks build
+	./luarocks build --pack-binary-rock
