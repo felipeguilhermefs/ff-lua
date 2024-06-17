@@ -34,7 +34,7 @@ build = {
 		["ff.head"] = "src/head.lua",
 		["ff.memoize"] = "src/memoize.lua",
 		["ff.spy"] = "src/spy.lua",
-		["ff.stack"] = "src/stack.lua",
+		["ff.stack"] = "src/ds/stack.lua",
 		["ff.tail"] = "src/tail.lua",
 	},
 }

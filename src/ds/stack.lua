@@ -1,4 +1,4 @@
-local function stack()
+local function Stack()
 	local s = {}
 
 	s.push = function(item)
@@ -22,4 +22,4 @@ local function stack()
 	return s
 end
 
-return stack
+return Stack
