@@ -6,78 +6,78 @@ function TestEmpty()
 
 	lu.assertTrue(ll.empty())
 
-	ll.prepend(1)
+	ll.pushLeft(1)
 	lu.assertFalse(ll.empty())
 
 	ll.clear()
 	lu.assertTrue(ll.empty())
 
-	ll.append(2)
-	ll.append(3)
+	ll.pushRight(2)
+	ll.pushRight(3)
 	lu.assertFalse(ll.empty())
 
-	ll.drop()
-	ll.pop()
+	ll.popLeft()
+	ll.popRight()
 	lu.assertTrue(ll.empty())
 end
 
-function TestHead()
+function TestLeft()
 	local ll = LinkedList()
 
-	ll.prepend(1)
-	ll.prepend(2)
-	ll.prepend(3)
+	ll.pushLeft(1)
+	ll.pushLeft(2)
+	ll.pushLeft(3)
 
-	lu.assertEquals(3, ll.drop())
-	lu.assertEquals(2, ll.drop())
-	lu.assertEquals(1, ll.drop())
-	lu.assertNil(ll.drop())
+	lu.assertEquals(3, ll.popLeft())
+	lu.assertEquals(2, ll.popLeft())
+	lu.assertEquals(1, ll.popLeft())
+	lu.assertNil(ll.popLeft())
 
-	ll.prepend(1)
-	ll.prepend(2)
-	ll.prepend(3)
+	ll.pushLeft(1)
+	ll.pushLeft(2)
+	ll.pushLeft(3)
 
-	lu.assertEquals(1, ll.pop())
-	lu.assertEquals(2, ll.pop())
-	lu.assertEquals(3, ll.pop())
-	lu.assertNil(ll.pop())
+	lu.assertEquals(1, ll.popRight())
+	lu.assertEquals(2, ll.popRight())
+	lu.assertEquals(3, ll.popRight())
+	lu.assertNil(ll.popRight())
 end
 
-function TestTail()
+function TestRight()
 	local ll = LinkedList()
 
-	ll.append(1)
-	ll.append(2)
-	ll.append(3)
+	ll.pushRight(1)
+	ll.pushRight(2)
+	ll.pushRight(3)
 
-	lu.assertEquals(1, ll.drop())
-	lu.assertEquals(2, ll.drop())
-	lu.assertEquals(3, ll.drop())
-	lu.assertNil(ll.drop())
+	lu.assertEquals(1, ll.popLeft())
+	lu.assertEquals(2, ll.popLeft())
+	lu.assertEquals(3, ll.popLeft())
+	lu.assertNil(ll.popLeft())
 
-	ll.append(1)
-	ll.append(2)
-	ll.append(3)
+	ll.pushRight(1)
+	ll.pushRight(2)
+	ll.pushRight(3)
 
-	lu.assertEquals(3, ll.pop())
-	lu.assertEquals(2, ll.pop())
-	lu.assertEquals(1, ll.pop())
-	lu.assertNil(ll.pop())
+	lu.assertEquals(3, ll.popRight())
+	lu.assertEquals(2, ll.popRight())
+	lu.assertEquals(1, ll.popRight())
+	lu.assertNil(ll.popRight())
 end
 
 function TestReverse()
 	local ll = LinkedList()
 
-	ll.append(1)
-	ll.append(2)
-	ll.append(3)
+	ll.pushRight(1)
+	ll.pushRight(2)
+	ll.pushRight(3)
 
 	ll.reverse()
 
-	lu.assertEquals(1, ll.pop())
-	lu.assertEquals(2, ll.pop())
-	lu.assertEquals(3, ll.pop())
-	lu.assertNil(ll.pop())
+	lu.assertEquals(1, ll.popRight())
+	lu.assertEquals(2, ll.popRight())
+	lu.assertEquals(3, ll.popRight())
+	lu.assertNil(ll.popRight())
 end
 
 os.exit(lu.LuaUnit.run())

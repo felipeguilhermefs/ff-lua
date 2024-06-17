@@ -1,7 +1,8 @@
-local function Node(value, next)
+local function Node(value, left, right)
 	return {
 		value = value,
-		next = next,
+		left = left,
+		right = right,
 	}
 end
 
@@ -9,89 +10,86 @@ local function LinkedList()
 	local ll = {}
 
 	ll.empty = function()
-		return not ll.head
+		return not ll.left
 	end
 
 	ll.clear = function()
-		ll.head = nil
-		ll.tail = nil
+		ll.left = nil
+		ll.right = nil
 	end
 
-	ll.prepend = function(value)
-		ll.head = Node(value, ll.head)
-		ll.tail = ll.tail or ll.head
-	end
-
-	ll.append = function(value)
-		if not ll.tail then
-			ll.prepend(value)
-		else
-			ll.tail.next = Node(value)
-			ll.tail = ll.tail.next
+	ll.pushLeft = function(value)
+		ll.left = Node(value, nil, ll.left)
+		if ll.left.right then
+			ll.left.right.left = ll.left
 		end
+		ll.right = ll.right or ll.left
 	end
 
-	ll.drop = function()
-		if not ll.head then
+	ll.pushRight = function(value)
+		ll.right = Node(value, ll.right, nil)
+		if ll.right.left then
+			ll.right.left.right = ll.right
+		end
+		ll.left = ll.left or ll.right
+	end
+
+	ll.popLeft = function()
+		if not ll.left then
 			return nil
 		end
 
-		local value = ll.head.value
+		local value = ll.left.value
 
-		if ll.head == ll.tail then
+		if ll.left == ll.right then
 			ll.clear()
 		else
-			ll.head = ll.head.next
+			ll.left = ll.left.right
+			ll.left.left = nil
 		end
 
 		return value
 	end
 
-	ll.pop = function()
-		if not ll.head then
+	ll.popRight = function()
+		if not ll.left then
 			return nil
 		end
 
-		local value = ll.tail.value
+		local value = ll.right.value
 
-		if ll.head == ll.tail then
+		if ll.left == ll.right then
 			ll.clear()
 		else
-			local cur = ll.head
-			while cur do
-				if cur.next == ll.tail then
-					ll.tail = cur
-					cur.next = nil
-					break
-				else
-					cur = cur.next
-				end
-			end
+			ll.right = ll.right.left
+			ll.right.right = nil
 		end
 
 		return value
 	end
 
 	ll.reverse = function()
-		if not ll.head then
+		if not ll.left then
 			return
 		end
 
-		if ll.head == ll.tail then
+		if ll.left == ll.right then
 			return
 		end
 
-		local cur = ll.head
-		local prev = nil
-		local next = nil
-		ll.tail = ll.head
+		local cur = ll.left
+		local left = nil
+		local right = nil
 		while cur do
-			next = cur.next
-			cur.next = prev
-			prev = cur
-			cur = next
+			right = cur.right
+			cur.right = left
+			cur.left = right
+			cur = right
 		end
-		ll.head = prev
+
+		cur = ll.left
+		ll.left = ll.right
+		ll.right = cur
 	end
 
 	return ll
