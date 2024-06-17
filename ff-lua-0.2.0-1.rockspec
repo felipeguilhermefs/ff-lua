@@ -1,9 +1,9 @@
 rockspec_format = "3.0"
 package = "ff-lua"
-version = "0.1.0-1"
+version = "0.2.0-1"
 source = {
 	url = "git+https://github.com/felipeguilhermefs/ff-lua",
-	tag = "v0.1.0",
+	tag = "v0.2.0",
 }
 description = {
 	homepage = "https://github.com/felipeguilhermefs/ff-lua",
@@ -28,12 +28,13 @@ test_dependencies = {
 build = {
 	type = "builtin",
 	modules = {
-		empty = "src/empty.lua",
-		getinsert = "src/getinsert.lua",
-		head = "src/head.lua",
-		memoize = "src/memoize.lua",
-		spy = "src/spy.lua",
-		stack = "src/stack.lua",
-		tail = "src/tail.lua",
+		["ff"] = "src/init.lua",
+		["ff.empty"] = "src/empty.lua",
+		["ff.getinsert"] = "src/getinsert.lua",
+		["ff.head"] = "src/head.lua",
+		["ff.memoize"] = "src/memoize.lua",
+		["ff.spy"] = "src/spy.lua",
+		["ff.stack"] = "src/stack.lua",
+		["ff.tail"] = "src/tail.lua",
 	},
 }
