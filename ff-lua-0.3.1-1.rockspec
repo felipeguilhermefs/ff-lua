@@ -1,6 +1,6 @@
 rockspec_format = "3.0"
 package = "ff-lua"
-version = "0.3.1-1"
+version = "0.3.2-1"
 source = {
 	url = "git+https://github.com/felipeguilhermefs/ff-lua",
 	tag = "v0.3.1",
@@ -34,6 +34,7 @@ build = {
 		["ff.head"] = "src/head.lua",
 		["ff.linkedlist"] = "src/ds/linkedlist.lua",
 		["ff.memoize"] = "src/memoize.lua",
+		["ff.queue"] = "src/ds/queue.lua",
 		["ff.spy"] = "src/spy.lua",
 		["ff.stack"] = "src/ds/stack.lua",
 		["ff.tail"] = "src/tail.lua",
