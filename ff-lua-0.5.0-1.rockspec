@@ -30,8 +30,8 @@ build = {
 	modules = {
 		["ff"] = "src/init.lua",
 		["ff.empty"] = "src/empty.lua",
-		["ff.factorial"] = "src/factorial.lua",
-		["ff.fibonacci"] = "src/fibonacci.lua",
+		["ff.factorial"] = "src/math/factorial.lua",
+		["ff.fibonacci"] = "src/math/fibonacci.lua",
 		["ff.getinsert"] = "src/getinsert.lua",
 		["ff.head"] = "src/head.lua",
 		["ff.linkedlist"] = "src/ds/linkedlist.lua",
@@ -40,6 +40,6 @@ build = {
 		["ff.spy"] = "src/spy.lua",
 		["ff.stack"] = "src/ds/stack.lua",
 		["ff.tail"] = "src/tail.lua",
-		["ff.trunc"] = "src/trunc.lua",
+		["ff.trunc"] = "src/math/trunc.lua",
 	},
 }
