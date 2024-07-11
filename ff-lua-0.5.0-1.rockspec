@@ -1,6 +1,6 @@
 rockspec_format = "3.0"
 package = "ff-lua"
-version = "0.5.0-2"
+version = "0.5.0-3"
 source = {
 	url = "git+https://github.com/felipeguilhermefs/ff-lua",
 	tag = "v0.5.0",
@@ -29,17 +29,17 @@ build = {
 	type = "builtin",
 	modules = {
 		["ff"] = "src/init.lua",
-		["ff.empty"] = "src/empty.lua",
+		["ff.empty"] = "src/func/empty.lua",
 		["ff.factorial"] = "src/math/factorial.lua",
 		["ff.fibonacci"] = "src/math/fibonacci.lua",
-		["ff.getinsert"] = "src/getinsert.lua",
-		["ff.head"] = "src/head.lua",
+		["ff.getinsert"] = "src/helper/getinsert.lua",
+		["ff.head"] = "src/func/head.lua",
 		["ff.linkedlist"] = "src/ds/linkedlist.lua",
-		["ff.memoize"] = "src/memoize.lua",
+		["ff.memoize"] = "src/func/memoize.lua",
 		["ff.queue"] = "src/ds/queue.lua",
-		["ff.spy"] = "src/spy.lua",
+		["ff.spy"] = "src/test/spy.lua",
 		["ff.stack"] = "src/ds/stack.lua",
-		["ff.tail"] = "src/tail.lua",
+		["ff.tail"] = "src/func/tail.lua",
 		["ff.trunc"] = "src/math/trunc.lua",
 	},
 }
