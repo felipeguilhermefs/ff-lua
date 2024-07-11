@@ -3,7 +3,7 @@ package = "ff-lua"
 version = "0.4.0-1"
 source = {
 	url = "git+https://github.com/felipeguilhermefs/ff-lua",
-	tag = "v0.4.0",
+	tag = "v0.5.0",
 }
 description = {
 	homepage = "https://github.com/felipeguilhermefs/ff-lua",
@@ -30,6 +30,7 @@ build = {
 	modules = {
 		["ff"] = "src/init.lua",
 		["ff.empty"] = "src/empty.lua",
+		["ff.factorial"] = "src/factorial.lua",
 		["ff.getinsert"] = "src/getinsert.lua",
 		["ff.head"] = "src/head.lua",
 		["ff.linkedlist"] = "src/ds/linkedlist.lua",
@@ -38,5 +39,6 @@ build = {
 		["ff.spy"] = "src/spy.lua",
 		["ff.stack"] = "src/ds/stack.lua",
 		["ff.tail"] = "src/tail.lua",
+		["ff.trunc"] = "src/trunc.lua",
 	},
 }
