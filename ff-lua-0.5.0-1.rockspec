@@ -1,6 +1,6 @@
 rockspec_format = "3.0"
 package = "ff-lua"
-version = "0.5.0-3"
+version = "0.5.0-4"
 source = {
 	url = "git+https://github.com/felipeguilhermefs/ff-lua",
 	tag = "v0.5.0",
@@ -35,7 +35,9 @@ build = {
 		["ff.getinsert"] = "src/helper/getinsert.lua",
 		["ff.head"] = "src/func/head.lua",
 		["ff.linkedlist"] = "src/ds/linkedlist.lua",
+		["ff.max"] = "src/math/max.lua",
 		["ff.memoize"] = "src/func/memoize.lua",
+		["ff.min"] = "src/math/min.lua",
 		["ff.queue"] = "src/ds/queue.lua",
 		["ff.spy"] = "src/test/spy.lua",
 		["ff.stack"] = "src/ds/stack.lua",
