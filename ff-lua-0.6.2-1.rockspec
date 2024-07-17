@@ -1,9 +1,9 @@
 rockspec_format = "3.0"
 package = "ff-lua"
-version = "0.6.1-1"
+version = "0.6.2-1"
 source = {
 	url = "git+https://github.com/felipeguilhermefs/ff-lua",
-	tag = "v0.6.1",
+	tag = "v0.6.2",
 }
 description = {
 	homepage = "https://github.com/felipeguilhermefs/ff-lua",
@@ -29,6 +29,7 @@ build = {
 	type = "builtin",
 	modules = {
 		["ff"] = "src/init.lua",
+		["ff.binarytree"] = "src/ds/binarytree.lua",
 		["ff.empty"] = "src/func/empty.lua",
 		["ff.factorial"] = "src/math/factorial.lua",
 		["ff.fibonacci"] = "src/math/fibonacci.lua",

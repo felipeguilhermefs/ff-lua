@@ -1,4 +1,5 @@
 return {
+	binarytree = require("ff.binarytree"),
 	empty = require("ff.empty"),
 	factorial = require("ff.factorial"),
 	fibonacci = require("ff.fibonacci"),
