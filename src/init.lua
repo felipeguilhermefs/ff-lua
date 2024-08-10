@@ -5,6 +5,7 @@ return {
 	fibonacci = require("ff.fibonacci"),
 	getinsert = require("ff.getinsert"),
 	head = require("ff.head"),
+	heap = require("ff.heap"),
 	linkedlist = require("ff.linkedlist"),
 	max = require("ff.max"),
 	memoize = require("ff.memoize"),
