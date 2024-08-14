@@ -13,6 +13,7 @@
 --	:size() - Returns the number of items in the heap.
 --	:empty() - Returns if the heap is empty or not
 --
+
 local Heap = { __items = nil, __comparator = nil }
 Heap.__index = Heap
 

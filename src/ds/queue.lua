@@ -6,8 +6,9 @@
 --		Returns nil if empty.
 --	:peek() - Returns the item in the front of the queue
 --		Returns nil if empty.
---	:empty() - Returns if the heap is empty or not
+--	:empty() - Returns if the queue is empty or not
 --
+
 local Queue = { __front = nil }
 Queue.__index = Queue
 

@@ -1,25 +1,42 @@
-local function Stack()
-	local s = {}
+-- Stack:
+--	.new() - Creates a new instance of a stack
+--	:push(item) - Adds an item to the top of the stack
+--		item: any item
+--	:pop() - Removes and returns the item in the top of the stack
+--		Returns nil if empty.
+--	:top() - Returns the item in the top of the stack
+--		Returns nil if empty.
+--	:empty() - Returns if the stack is empty or not
+--
 
-	s.push = function(item)
-		table.insert(s, item)
+local Stack = { __items = nil }
+Stack.__index = Stack
+
+function Stack:push(item)
+	table.insert(self.__items, item)
+end
+
+function Stack:pop()
+	if not self:empty() then
+		return table.remove(self.__items, #self.__items)
 	end
+end
 
-	s.pop = function()
-		if #s > 0 then
-			return table.remove(s, #s)
-		end
+function Stack:top()
+	if not self:empty() then
+		return self.__items[#self.__items]
 	end
+end
 
-	s.top = function()
-		return s[#s]
-	end
+function Stack:empty()
+	return #self.__items == 0
+end
 
-	s.empty = function()
-		return #s == 0
-	end
-
-	return s
+function Stack.new()
+	local new = {}
+	setmetatable(new, Stack)
+	new.__items = {}
+	return new
 end
 
 return Stack

@@ -10,7 +10,7 @@
 --		Returns nil if empty.
 --	:reverse() - Reverses the linked list inplace
 --	:clear() - Empties the list
---	:empty() - Returns if the heap is empty or not
+--	:empty() - Returns if the list is empty or not
 --
 
 local LinkedList = { __front = nil, __back = nil }
