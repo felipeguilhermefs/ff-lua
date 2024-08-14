@@ -8,44 +8,159 @@ local function Node(val, left, right)
 	}
 end
 
-local function insert(node, val)
+local function NaturalComparator(a, b)
+	if a > b then
+		return 1
+	end
+
+	if a < b then
+		return -1
+	else
+		return 0
+	end
+end
+
+local BinaryTree = { __root = nil, __comparator = nil }
+BinaryTree.__index = BinaryTree
+
+function BinaryTree:empty()
+	return not self.__root
+end
+
+function BinaryTree:clear()
+	self.__root = nil
+end
+
+function BinaryTree:insert(item)
+	self.__root = self:__insert(self.__root, item)
+end
+
+function BinaryTree:remove(item)
+	self.__root = self:__remove(self.__root, item)
+end
+
+function BinaryTree:min()
+	local min = self:__min(self.__root)
+	if min then
+		return min.value
+	end
+end
+
+function BinaryTree:max()
+	local max = self.__root
+	while max and max.right do
+		max = max.right
+	end
+	if max then
+		return max.value
+	end
+end
+
+function BinaryTree:contains(item)
+	local cur = self.__root
+	while cur do
+		local comp = self.__comparator(item, cur.value)
+		if comp == 0 then
+			return true
+		end
+
+		if comp == 1 then
+			cur = cur.right
+		else
+			cur = cur.left
+		end
+	end
+
+	return false
+end
+
+function BinaryTree:preorder()
+	local nodes = Stack.new()
+	nodes:push(self.__root)
+	return function()
+		if nodes:empty() then
+			return nil
+		end
+
+		local node = nodes:pop()
+		if node.right then
+			nodes:push(node.right)
+		end
+
+		if node.left then
+			nodes:push(node.left)
+		end
+
+		return node.value
+	end
+end
+
+function BinaryTree:inorder()
+	local nodes = {}
+	self:__inorder(self.__root, nodes)
+	local index = 0
+	return function()
+		if index <= #nodes then
+			index = index + 1
+			return nodes[index]
+		end
+	end
+end
+
+function BinaryTree:postorder()
+	local nodes = {}
+	self:__postorder(self.__root, nodes)
+	local index = 0
+	return function()
+		if index <= #nodes then
+			index = index + 1
+			return nodes[index]
+		end
+	end
+end
+
+function BinaryTree:array()
+	local arr = {}
+	for val in self:preorder() do
+		table.insert(arr, val)
+	end
+	return arr
+end
+
+function BinaryTree:__insert(node, item)
 	if not node then
-		return Node(val)
+		return Node(item)
 	end
 
-	if val > node.value then
-		node.right = insert(node.right, val)
+	local comp = self.__comparator(item, node.value)
+
+	if comp == 1 then
+		node.right = self:__insert(node.right, item)
 	end
 
-	if val < node.value then
-		node.left = insert(node.left, val)
+	if comp == -1 then
+		node.left = self:__insert(node.left, item)
 	end
 
 	return node
 end
 
-local function minNode(node)
-	local cur = node
-	while cur and cur.left do
-		cur = cur.left
-	end
-	return cur
-end
-
-local function remove(node, val)
+function BinaryTree:__remove(node, item)
 	if not node then
 		return nil
 	end
 
-	if val < node.value then
-		node.left = remove(node.left, val)
+	local comp = self.__comparator(item, node.value)
+
+	if comp == -1 then
+		node.left = self:__remove(node.left, item)
 	end
 
-	if val > node.value then
-		node.right = remove(node.right, val)
+	if comp == 1 then
+		node.right = self:__remove(node.right, item)
 	end
 
-	if val == node.value then
+	if comp == 0 then
 		if not node.left then
 			return node.right
 		end
@@ -54,142 +169,47 @@ local function remove(node, val)
 			return node.left
 		end
 
-		local min = minNode(node.right)
+		local min = self:__min(node.right)
 		node.value = min.value
-		node.right = remove(node.right, min.value)
+		node.right = self:__remove(node.right, min.value)
 	end
 
 	return node
 end
 
-local function inorder(node, arr)
+function BinaryTree:__min(node)
+	local cur = node
+	while cur and cur.left do
+		cur = cur.left
+	end
+	return cur
+end
+
+function BinaryTree:__inorder(node, arr)
 	if not node then
 		return nil
 	end
 
-	inorder(node.left, arr)
+	self:__inorder(node.left, arr)
 	table.insert(arr, node.value)
-	inorder(node.right, arr)
+	self:__inorder(node.right, arr)
 end
 
-local function postorder(node, arr)
+function BinaryTree:__postorder(node, arr)
 	if not node then
 		return nil
 	end
 
-	postorder(node.left, arr)
-	postorder(node.right, arr)
+	self:__postorder(node.left, arr)
+	self:__postorder(node.right, arr)
 	table.insert(arr, node.value)
 end
 
-local function BinaryTree()
-	local self = { _root = nil }
-
-	self.empty = function()
-		return not self._root
-	end
-
-	self.clear = function()
-		self._root = nil
-	end
-
-	self.insert = function(val)
-		self._root = insert(self._root, val)
-	end
-
-	self.remove = function(val)
-		self._root = remove(self._root, val)
-	end
-
-	self.min = function()
-		local min = minNode(self._root)
-		if min then
-			return min.value
-		end
-		return 0
-	end
-
-	self.max = function()
-		local max = self._root
-		while max and max.right do
-			max = max.right
-		end
-		if max then
-			return max.value
-		end
-		return 0
-	end
-
-	self.contains = function(val)
-		local cur = self._root
-		while cur do
-			if val == cur.value then
-				return true
-			end
-
-			if val > cur.value then
-				cur = cur.right
-			else
-				cur = cur.left
-			end
-		end
-		return false
-	end
-
-	self.preorder = function()
-		local nodes = Stack()
-		nodes.push(self._root)
-		return function()
-			if nodes.empty() then
-				return nil
-			end
-
-			local node = nodes.pop()
-			if node.right then
-				nodes.push(node.right)
-			end
-
-			if node.left then
-				nodes.push(node.left)
-			end
-
-			return node.value
-		end
-	end
-
-	self.inorder = function()
-		local nodes = {}
-		inorder(self._root, nodes)
-		local index = 0
-		return function()
-			if index <= #nodes then
-				index = index + 1
-				return nodes[index]
-			end
-		end
-	end
-
-	self.postorder = function()
-		local nodes = {}
-		postorder(self._root, nodes)
-		local index = 0
-		return function()
-			if index <= #nodes then
-				index = index + 1
-				return nodes[index]
-			end
-		end
-	end
-
-	self.array = function()
-		local arr = {}
-		for val in self.preorder() do
-			table.insert(arr, val)
-		end
-		return arr
-	end
-
-	return self
+function BinaryTree.new(comparator)
+	local new = {}
+	setmetatable(new, BinaryTree)
+	new.__comparator = comparator or NaturalComparator
+	return new
 end
 
 return BinaryTree
