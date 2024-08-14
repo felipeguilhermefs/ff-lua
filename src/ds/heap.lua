@@ -3,15 +3,15 @@
 --		comparator: (a,b) -> boolean. Default: MinComparator
 --			Comparator should return true if "a" should appear before "b"
 --	:heapify(array) - Swap heap items by the provided array and mutates it into a heap structure.
---		array: table array. Default: {}
---	:push(item) - adds an item to the heap
---		item: any non nil item
---	:pop() - removes and returns the first item of the heap.
+--		array: Table array. Default: {}
+--	:push(item) - Adds an item to the heap
+--		item: Any non nil item
+--	:pop() - Removes and returns the first item of the heap.
 --		Returns nil if empty.
---	:peek() - returns the first item of the heap.
+--	:peek() - Returns the first item of the heap.
 --		Returns nil if empty.
---	:size() - returns the number of items in the heap.
---	:empty() - returns if the heap is empty or not
+--	:size() - Returns the number of items in the heap.
+--	:empty() - Returns if the heap is empty or not
 --
 local Heap = { __items = nil, __comparator = nil }
 Heap.__index = Heap

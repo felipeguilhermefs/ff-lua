@@ -1,98 +1,117 @@
-local function Node(value, left, right)
+-- LinkedList:
+--	.new() - Creates a new instance of a (doubly) linked list
+--	:pushFront(item) - Adds an item to the front of the list
+--		item: Any item
+--	:pushBack(item) - Adds an item to the back of the list
+--		item: any item
+--	:popFront() - Removes and returns the item in the front of the list
+--		Returns nil if empty.
+--	:popBack() - Removes and returns the item from the back of the list
+--		Returns nil if empty.
+--	:reverse() - Reverses the linked list inplace
+--	:clear() - Empties the list
+--	:empty() - Returns if the heap is empty or not
+--
+
+local LinkedList = { __front = nil, __back = nil }
+LinkedList.__index = LinkedList
+
+local function Node(value, prev, next)
 	return {
 		value = value,
-		left = left,
-		right = right,
+		prev = prev,
+		next = next,
 	}
 end
 
-local function LinkedList()
-	local ll = {}
+function LinkedList:empty()
+	return not self.__front
+end
 
-	ll.empty = function()
-		return not ll.left
+function LinkedList:clear()
+	self.__front = nil
+	self.__back = nil
+end
+
+function LinkedList:pushFront(item)
+	self.__front = Node(item, nil, self.__front)
+	if self.__front.next then
+		self.__front.next.prev = self.__front
+	end
+	self.__back = self.__back or self.__front
+end
+
+function LinkedList:pushBack(item)
+	self.__back = Node(item, self.__back, nil)
+	if self.__back.prev then
+		self.__back.prev.next = self.__back
+	end
+	self.__front = self.__front or self.__back
+end
+
+function LinkedList:popFront()
+	if self:empty() then
+		return nil
 	end
 
-	ll.clear = function()
-		ll.left = nil
-		ll.right = nil
+	local item = self.__front.value
+
+	if self.__front == self.__back then
+		self:clear()
+	else
+		self.__front = self.__front.next
+		self.__front.prev = nil
 	end
 
-	ll.pushLeft = function(value)
-		ll.left = Node(value, nil, ll.left)
-		if ll.left.right then
-			ll.left.right.left = ll.left
-		end
-		ll.right = ll.right or ll.left
+	return item
+end
+
+function LinkedList:popBack()
+	if self:empty() then
+		return nil
 	end
 
-	ll.pushRight = function(value)
-		ll.right = Node(value, ll.right, nil)
-		if ll.right.left then
-			ll.right.left.right = ll.right
-		end
-		ll.left = ll.left or ll.right
+	local item = self.__back.value
+
+	if self.__back == self.__front then
+		self:clear()
+	else
+		self.__back = self.__back.prev
+		self.__back.next = nil
 	end
 
-	ll.popLeft = function()
-		if not ll.left then
-			return nil
-		end
+	return item
+end
 
-		local value = ll.left.value
-
-		if ll.left == ll.right then
-			ll.clear()
-		else
-			ll.left = ll.left.right
-			ll.left.left = nil
-		end
-
-		return value
+function LinkedList:reverse()
+	if self:empty() then
+		return
 	end
 
-	ll.popRight = function()
-		if not ll.left then
-			return nil
-		end
-
-		local value = ll.right.value
-
-		if ll.left == ll.right then
-			ll.clear()
-		else
-			ll.right = ll.right.left
-			ll.right.right = nil
-		end
-
-		return value
+	if self.__front == self.__back then
+		return
 	end
 
-	ll.reverse = function()
-		if not ll.left then
-			return
-		end
-
-		if ll.left == ll.right then
-			return
-		end
-
-		local cur = ll.left
-		local left = nil
-		local right = nil
-		while cur do
-			right = cur.right
-			cur.right = left
-			cur.left = right
-			cur = right
-		end
-
-		cur = ll.left
-		ll.left = ll.right
-		ll.right = cur
+	local cur = self.__front
+	local prev = nil
+	local next = nil
+	while cur do
+		next = cur.next
+		cur.next = prev
+		cur.prev = next
+		cur = next
 	end
 
-	return ll
+	cur = self.__front
+	self.__front = self.__back
+	self.__back = cur
+end
+
+function LinkedList.new()
+	local new = {}
+	setmetatable(new, LinkedList)
+
+	return new
 end
 
 return LinkedList
