@@ -1,89 +1,113 @@
-local function less(a, b)
+-- Heap:
+--	.new(comparator) - Creates a new instance of heap
+--		comparator: (a,b) -> boolean. Default: MinComparator
+--			Comparator should return true if "a" should appear before "b"
+--	:heapify(array) - Swap heap items by the provided array and mutates it into a heap structure.
+--		array: table array. Default: {}
+--	:push(item) - adds an item to the heap
+--		item: any non nil item
+--	:pop() - removes and returns the first item of the heap.
+--		Returns nil if empty.
+--	:peek() - returns the first item of the heap.
+--		Returns nil if empty.
+--	:size() - returns the number of items in the heap.
+--	:empty() - returns if the heap is empty or not
+--
+local Heap = { __items = nil, __comparator = nil }
+Heap.__index = Heap
+
+local function MinComparator(a, b)
 	return a < b
 end
 
-local function Heap(items, comparator)
-	local heap = {
-		_before = comparator or less,
-		_items = items or {},
-	}
+function Heap:size()
+	return #self.__items
+end
 
-	heap.size = function()
-		return #heap._items
+function Heap:empty()
+	return self:size() == 0
+end
+
+function Heap:push(item)
+	if item then
+		table.insert(self.__items, item)
+		self:__siftUp(self:size())
+	end
+end
+
+function Heap:pop()
+	if self:empty() then
+		return nil
 	end
 
-	heap.empty = function()
-		return heap.size() == 0
+	if self:size() == 1 then
+		return table.remove(self.__items, 1)
 	end
 
-	heap.push = function(item)
-		table.insert(heap._items, item)
-		heap._siftUp(heap.size())
-	end
+	local root = self.__items[1]
+	self.__items[1] = table.remove(self.__items, self:size())
+	self:__siftDown(1)
+	return root
+end
 
-	heap.pop = function()
-		if heap.empty() then
-			return nil
+function Heap:peek()
+	if self:empty() then
+		return nil
+	end
+	return self.__items[1]
+end
+
+function Heap:heapify(items)
+	self.__items = items or {}
+	for i = self:size(), 1, -1 do
+		self:__siftDown(i)
+	end
+end
+
+function Heap:__siftUp(index)
+	local parent = index // 2
+	while index > 1 and self:__before(index, parent) do
+		self:__swap(index, parent)
+		index = parent
+		parent = index // 2
+	end
+end
+
+function Heap:__siftDown(index)
+	local child = index * 2
+	while child <= self:size() do
+		if child + 1 <= self:size() and self:__before(child + 1, child) then
+			child = child + 1
 		end
 
-		if heap.size() == 1 then
-			return table.remove(heap._items, 1)
+		if self:__before(index, child) then
+			break
 		end
 
-		local root = heap._items[1]
-		heap._items[1] = table.remove(heap._items, heap.size())
-		heap._siftDown(1)
-		return root
+		self:__swap(child, index)
+		index = child
+		child = index * 2
 	end
+end
 
-	heap.peek = function()
-		if heap.empty() then
-			return nil
-		end
-		return heap._items[1]
-	end
+function Heap:__before(i, j)
+	return self.__comparator(self.__items[i], self.__items[j])
+end
 
-	heap._heapify = function()
-		for i = heap.size(), 1, -1 do
-			heap._siftDown(i)
-		end
-	end
+function Heap:__swap(i, j)
+	local temp = self.__items[i]
+	self.__items[i] = self.__items[j]
+	self.__items[j] = temp
+end
 
-	heap._siftUp = function(index)
-		local parent = index // 2
-		while index > 1 and heap._before(heap._items[index], heap._items[parent]) do
-			heap._swap(index, parent)
-			index = parent
-			parent = index // 2
-		end
-	end
+function Heap.new(comparator)
+	local new = {}
+	setmetatable(new, Heap)
 
-	heap._siftDown = function(index)
-		local child = index * 2
-		while child <= heap.size() do
-			if child + 1 <= heap.size() and heap._before(heap._items[child + 1], heap._items[child]) then
-				child = child + 1
-			end
+	new.__comparator = comparator or MinComparator
+	new.__items = {}
 
-			if heap._before(heap._items[index], heap._items[child]) then
-				break
-			end
-
-			heap._swap(child, index)
-			index = child
-			child = 2 * index
-		end
-	end
-
-	heap._swap = function(a, b)
-		local temp = heap._items[a]
-		heap._items[a] = heap._items[b]
-		heap._items[b] = temp
-	end
-
-	heap._heapify()
-
-	return heap
+	return new
 end
 
 return Heap
