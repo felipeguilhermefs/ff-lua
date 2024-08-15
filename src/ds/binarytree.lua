@@ -1,3 +1,26 @@
+-- BinaryTree:
+--	.new(comparator) - Creates a new instance of a binary tree
+--		comparator: (a, b) -> -1|0|1. Default: NaturalComparator
+--			Ex:
+--				if a < b then -1
+--				if a > b then 1
+--				if a == b then 0
+--	:insert(item) - Adds an item to the tree
+--		item: any item
+--	:remove(item) - Removes an item from the tree
+--		item: any item
+--	:min() - Returns the mininum item (leftmost) from the tree
+--	:max() - Returns the maximum item (rightmost) from the tree
+--	:contains(item) - Checks if item is present in the tree
+--		item: any item
+--	:preorder() - Returns an iterator that traverses the tree in preorder
+--	:inorder() - Returns an iterator that traverses the tree in inorder
+--	:postorder() - Returns an iterator that traverses the tree in postorder
+--	:array() - Returns an ordered table array
+--	:empty() - Returns if the tree is empty or not
+--	:clear() - Empties the tree
+--
+
 local Stack = require("ff.stack")
 
 local function Node(val, left, right)
