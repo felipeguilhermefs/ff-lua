@@ -64,4 +64,27 @@ function TestRemove()
 	lu.assertTrue(map:contains("g"))
 end
 
+function TestCompute()
+	local map = HashMap.new()
+
+	lu.assertEquals(
+		1,
+		map:compute("a", function()
+			return 1
+		end)
+	)
+	lu.assertEquals(
+		1,
+		map:compute("a", function()
+			return 2
+		end)
+	)
+	lu.assertEquals(
+		9,
+		map:compute(3, function(key)
+			return key * key
+		end)
+	)
+end
+
 os.exit(lu.LuaUnit.run())
