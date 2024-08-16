@@ -15,22 +15,30 @@
 --		fn: (key) -> any
 --	:empty() - Returns if the map is empty or not
 --	:clear() - Empties the map
+--	:len() - Returns the number of items in the map
 --
 
-local HashMap = { __items = nil }
+local HashMap = { __items = nil, __len = nil }
 HashMap.__index = HashMap
 
+function HashMap:len()
+	return self.__len
+end
+
 function HashMap:empty()
-	local next = next -- optimization to use local array of upvalues to lookup next
-	return next(self.__items) == nil
+	return self:len() == 0
 end
 
 function HashMap:clear()
 	self.__items = {}
+	self.__len = 0
 end
 
 function HashMap:put(key, value)
-	self.__items[key] = value
+	if key ~= nil and value ~= nil then
+		self.__items[key] = value
+		self.__len = self.__len + 1
+	end
 end
 
 function HashMap:get(key, default)
@@ -42,7 +50,10 @@ function HashMap:contains(key)
 end
 
 function HashMap:remove(key)
-	self.__items[key] = nil
+	if self.__items[key] ~= nil then
+		self.__items[key] = nil
+		self.__len = self.__len - 1
+	end
 end
 
 function HashMap:compute(key, fn)
@@ -58,6 +69,7 @@ function HashMap.new()
 	local new = {}
 	setmetatable(new, HashMap)
 	new.__items = {}
+	new.__len = 0
 	return new
 end
 
