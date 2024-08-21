@@ -41,6 +41,17 @@ function TestDropLeastRecentUsed()
 	lu.assertNil(cache:get("b"))
 end
 
+function TestUpdateValueWithoutDroping()
+	local cache = LRUCache.new(2)
+
+	cache:put("a", 1)
+	cache:put("b", 2)
+	cache:put("a", 3)
+
+	lu.assertEquals(3, cache:get("a"))
+	lu.assertEquals(2, cache:get("b"))
+end
+
 function TestEvict()
 	local cache = LRUCache.new(2)
 
