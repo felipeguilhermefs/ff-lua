@@ -8,7 +8,7 @@
 --		Returns nil if empty.
 --
 
-local HashMap = require("ff.hashmap")
+local HashMap = require("ff.collections.hashmap")
 
 local function Entry(key, value, prev, next)
 	return { key = key, value = value, prev = prev, next = next }

@@ -1,17 +1,23 @@
 return {
-	binarytree = require("ff.binarytree"),
+	cache = {
+		lru = require("ff.cache.lru"),
+	},
+	collections = {
+		binarytree = require("ff.collections.binarytree"),
+		hashmap = require("ff.collections.hashmap"),
+		heap = require("ff.collections.heap"),
+		linkedlist = require("ff.collections.linkedlist"),
+		queue = require("ff.collections.queue"),
+		stack = require("ff.collections.stack"),
+	},
 	empty = require("ff.empty"),
 	factorial = require("ff.factorial"),
 	fibonacci = require("ff.fibonacci"),
-	hashmap = require("ff.hashmap"),
 	head = require("ff.head"),
-	heap = require("ff.heap"),
-	linkedlist = require("ff.linkedlist"),
 	max = require("ff.max"),
 	memoize = require("ff.memoize"),
 	min = require("ff.min"),
 	spy = require("ff.spy"),
-	stack = require("ff.stack"),
 	tail = require("ff.tail"),
 	trunc = require("ff.trunc"),
 }

@@ -21,7 +21,7 @@
 --	:clear() - Empties the tree
 --
 
-local Stack = require("ff.stack")
+local Stack = require("ff.collections.stack")
 
 local function Node(val, left, right)
 	return {
