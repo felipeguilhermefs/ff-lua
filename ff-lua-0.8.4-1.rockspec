@@ -28,7 +28,6 @@ test_dependencies = {
 build = {
 	type = "builtin",
 	modules = {
-		["ff"] = "src/init.lua",
 		["ff.cache.lru"] = "src/cache/lru.lua",
 		["ff.collections.binarytree"] = "src/collections/binarytree.lua",
 		["ff.collections.hashmap"] = "src/collections/hashmap.lua",
