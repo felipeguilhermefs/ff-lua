@@ -1,9 +1,9 @@
 rockspec_format = "3.0"
 package = "ff-lua"
-version = "0.8.3-1"
+version = "0.8.4-1"
 source = {
 	url = "git+https://github.com/felipeguilhermefs/ff-lua",
-	tag = "v0.8.3",
+	tag = "v0.8.4",
 }
 description = {
 	homepage = "https://github.com/felipeguilhermefs/ff-lua",
@@ -33,6 +33,7 @@ build = {
 		["ff.empty"] = "src/func/empty.lua",
 		["ff.factorial"] = "src/math/factorial.lua",
 		["ff.fibonacci"] = "src/math/fibonacci.lua",
+		["ff.hashmap"] = "src/ds/hashmap.lua",
 		["ff.head"] = "src/func/head.lua",
 		["ff.heap"] = "src/ds/heap.lua",
 		["ff.linkedlist"] = "src/ds/linkedlist.lua",
