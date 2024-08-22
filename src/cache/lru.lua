@@ -1,11 +1,13 @@
--- Stack:
---	.new() - Creates a new instance of a stack
---	:get(key) - Adds an item to the top of the stack
---		item: any item
---	:put(key, value) - Removes and returns the item in the top of the stack
---		Returns nil if empty.
---	:evict(key) - Returns the item in the top of the stack
---		Returns nil if empty.
+-- LRUCache:
+--	.new(capacity) - Creates a new instance of a cache
+--		capacity: number of items that the cache can hold
+--	:get(key) - Returns a item from the cache associated to the key. Returns nil if not found.
+--		key: any hashable key
+--	:put(key, value) - Adds a key-value pair to the cache.
+--		key: any hashable key
+--		value: any value
+--	:evict(key) - Removes a item from the cache associated to the key.
+--		key: any hashable key.
 --
 
 local HashMap = require("ff.collections.hashmap")
