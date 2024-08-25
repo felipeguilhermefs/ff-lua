@@ -43,7 +43,7 @@ function LRUCache.new(capacity)
 
 	-- head and tail are fixed to make adding and removing from the
 	-- queue simpler, as checking the borders for `nil` is not needed
-	-- since the values are always there.
+	-- since
 	local head = Entry.new(0, 0)
 	local tail = Entry.new(0, 0)
 	head.next = tail
@@ -60,9 +60,9 @@ end
 -----------------------------------------------------------------------------
 ---Returns the value from the cache that is associated with the key.
 ---
----@param  key? any  Key used for lookup the value in the cache
+---@param  key any  Key used for lookup the value in the cache
 ---
----@return any       Value associated with key, or `nil` if not found
+---@return any      Value associated with key, or `nil` if not found
 -----------------------------------------------------------------------------
 function LRUCache:get(key)
 	if key == nil then
@@ -80,8 +80,8 @@ end
 -----------------------------------------------------------------------------
 ---Adds a value to the cache associated by a lookup key.
 ---
----@param  key?    any Key that will be used for lookup the value in the cache, `nil` will be ignored.
----@param  value?  any Value to be stored in the cache, `nil` will be ignored.
+---@param  key    any Key that will be used for lookup the value in the cache, `nil` will be ignored.
+---@param  value  any Value to be stored in the cache, `nil` will be ignored.
 ---
 ---@return boolean     `true` if value was added, false otherwise.
 -----------------------------------------------------------------------------
@@ -109,9 +109,9 @@ end
 -----------------------------------------------------------------------------
 ---Removes a value from the cache that is associated with the key.
 ---
----@param  key? any Key used for lookup the value in the cache
+---@param  key    any Key used for lookup the value in the cache
 ---
----@return boolean  `true` if value was present, false otherwise.
+---@return boolean    `true` if value was present, false otherwise.
 -----------------------------------------------------------------------------
 function LRUCache:evict(key)
 	if key == nil then
@@ -131,7 +131,7 @@ end
 ---Appends an entry to the head and attach it to the map for quick lookup.
 ---
 ---@param  entry Entry  Most recently used entry that needs to go to the
----                        front of the queue.
+---                     front of the queue.
 ---
 ---@private
 -----------------------------------------------------------------------------
@@ -150,7 +150,7 @@ end
 ---Drops an entry from the queue and from the map.
 ---
 ---@param  entry Entry  Most recently used entry that needs to go to the
----                        front of the queue.
+---                     front of the queue.
 ---
 ---@private
 -----------------------------------------------------------------------------
