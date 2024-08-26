@@ -21,8 +21,9 @@ end
 ---Returns the number of entries in the map.
 ---
 ---@return number
+---@private
 -----------------------------------------------------------------------------
-function HashMap:len()
+function HashMap:__len()
 	return self._len
 end
 
@@ -32,7 +33,7 @@ end
 ---@return boolean
 -----------------------------------------------------------------------------
 function HashMap:empty()
-	return self:len() == 0
+	return #self == 0
 end
 
 -----------------------------------------------------------------------------
@@ -95,8 +96,6 @@ function HashMap:remove(key)
 	self._len = self._len - 1
 end
 
---		fn: (key) -> any
---
 -----------------------------------------------------------------------------
 ---Returns the value that is associated with the key. Computes and stores the value if it was not present already.
 ---

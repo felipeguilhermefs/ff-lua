@@ -97,7 +97,7 @@ function LRUCache:put(key, value)
 		self:_add(entry)
 	else
 		-- just need to check the capacity if a new entry is added.
-		if self._items:len() >= self._cap then
+		if #self._items >= self._cap then
 			self:_remove(self._tail.prev)
 		end
 

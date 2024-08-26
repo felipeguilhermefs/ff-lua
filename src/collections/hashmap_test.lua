@@ -57,14 +57,14 @@ function TestRemove()
 
 	map:put("f", false)
 	map:put("g", true)
-	lu.assertEquals(2, map:len())
+	lu.assertEquals(2, #map)
 
 	map:remove("f")
 
 	lu.assertFalse(map:contains("f"))
 	lu.assertTrue(map:contains("g"))
 
-	lu.assertEquals(1, map:len())
+	lu.assertEquals(1, #map)
 end
 
 function TestCompute()
@@ -102,9 +102,9 @@ function TestNil()
 
 	lu.assertFalse(map:contains(nil))
 
-	lu.assertEquals(0, map:len())
+	lu.assertEquals(0, #map)
 	map:remove(nil)
-	lu.assertEquals(0, map:len())
+	lu.assertEquals(0, #map)
 end
 
 os.exit(lu.LuaUnit.run())
