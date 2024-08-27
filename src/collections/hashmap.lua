@@ -18,13 +18,39 @@ function HashMap.new()
 end
 
 -----------------------------------------------------------------------------
----Returns the number of entries in the map.
----
----@return number
----@private
+---Empties the map
 -----------------------------------------------------------------------------
-function HashMap:__len()
-	return self._len
+function HashMap:clear()
+	self._entries = {}
+	self._len = 0
+end
+
+-----------------------------------------------------------------------------
+---Returns the value that is associated with the key. Computes and stores the value if it was not present already.
+---
+---@param  key  any                Key used for lookup the value.
+---@param  fun  fun(key: any): any Function used to compute/generate the value.
+---
+---@return any                     Value associated with key, or computed by the fn.
+-----------------------------------------------------------------------------
+function HashMap:compute(key, fun)
+	local value = self:get(key)
+	if value == nil then
+		value = fun(key)
+		self:put(key, value)
+	end
+	return value
+end
+
+-----------------------------------------------------------------------------
+---Checks if there is a value associated with the key.
+---
+---@param  key     any  Key used for lookup the value.
+---
+---@return boolean
+-----------------------------------------------------------------------------
+function HashMap:contains(key)
+	return self._entries[key] ~= nil
 end
 
 -----------------------------------------------------------------------------
@@ -37,11 +63,15 @@ function HashMap:empty()
 end
 
 -----------------------------------------------------------------------------
----Empties the map
+---Returns the value that is associated with the key.
+---
+---@param  key      any  Key used for lookup the value.
+---@param  default? any?  Value to be returned if an entry is not found.
+---
+---@return any?      Value associated with key, or default if notthing is found
 -----------------------------------------------------------------------------
-function HashMap:clear()
-	self._entries = {}
-	self._len = 0
+function HashMap:get(key, default)
+	return self._entries[key] or default
 end
 
 -----------------------------------------------------------------------------
@@ -60,29 +90,6 @@ function HashMap:put(key, value)
 end
 
 -----------------------------------------------------------------------------
----Returns the value that is associated with the key.
----
----@param  key      any  Key used for lookup the value.
----@param  default? any?  Value to be returned if an entry is not found.
----
----@return any?      Value associated with key, or default if notthing is found
------------------------------------------------------------------------------
-function HashMap:get(key, default)
-	return self._entries[key] or default
-end
-
------------------------------------------------------------------------------
----Checks if there is a value associated with the key.
----
----@param  key     any  Key used for lookup the value.
----
----@return boolean
------------------------------------------------------------------------------
-function HashMap:contains(key)
-	return self._entries[key] ~= nil
-end
-
------------------------------------------------------------------------------
 ---Removes a value associated with the key.
 ---
 ---@param  key any Key used for lookup the value.
@@ -97,20 +104,13 @@ function HashMap:remove(key)
 end
 
 -----------------------------------------------------------------------------
----Returns the value that is associated with the key. Computes and stores the value if it was not present already.
+---Returns the number of entries in the map.
 ---
----@param  key  any                Key used for lookup the value.
----@param  fun  fun(key: any): any Function used to compute/generate the value.
----
----@return any                     Value associated with key, or computed by the fn.
+---@return number
+---@private
 -----------------------------------------------------------------------------
-function HashMap:compute(key, fun)
-	local value = self:get(key)
-	if value == nil then
-		value = fun(key)
-		self:put(key, value)
-	end
-	return value
+function HashMap:__len()
+	return self._len
 end
 
 return HashMap

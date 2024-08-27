@@ -21,12 +21,12 @@ function Entry.new(key, value)
 end
 
 ---@class LRUCache
----@field private _cap   number               Cache's maximum size.
----@field private _items HashMap<any, Entry>  Map for quick lookup.
----@field private _head  Entry                Entry at the front of the queue.
----                                           It points to the most recent entry.
----@field private _tail  Entry                Entry at the back of the queue.
----                                           It points to the least recent entry.
+---@field private _cap   number                Cache's maximum size.
+---@field private _lookup HashMap<any, Entry>  Map for quick lookup.
+---@field private _head  Entry                 Entry at the front of the queue.
+---                                            It points to the most recent entry.
+---@field private _tail  Entry                 Entry at the back of the queue.
+---                                            It points to the least recent entry.
 local LRUCache = {}
 LRUCache.__index = LRUCache
 
@@ -51,10 +51,31 @@ function LRUCache.new(capacity)
 
 	return setmetatable({
 		_cap = capacity,
-		_items = HashMap.new(),
+		_lookup = HashMap.new(),
 		_head = head,
 		_tail = tail,
 	}, LRUCache)
+end
+
+-----------------------------------------------------------------------------
+---Removes a value from the cache that is associated with the key.
+---
+---@param  key    any Key used for lookup the value in the cache
+---
+---@return boolean    `true` if value was present, false otherwise.
+-----------------------------------------------------------------------------
+function LRUCache:evict(key)
+	if key == nil then
+		return false
+	end
+
+	local entry = self._lookup:get(key)
+	if entry == nil then
+		return false
+	end
+
+	self:_remove(entry)
+	return true
 end
 
 -----------------------------------------------------------------------------
@@ -69,7 +90,7 @@ function LRUCache:get(key)
 		return nil
 	end
 
-	local entry = self._items:get(key)
+	local entry = self._lookup:get(key)
 	if entry then
 		self:_remove(entry)
 		self:_add(entry)
@@ -90,40 +111,19 @@ function LRUCache:put(key, value)
 		return false
 	end
 
-	local entry = self._items:get(key)
+	local entry = self._lookup:get(key)
 	if entry then
 		self:_remove(entry)
 		entry.value = value
 		self:_add(entry)
 	else
 		-- just need to check the capacity if a new entry is added.
-		if #self._items >= self._cap then
+		if #self._lookup >= self._cap then
 			self:_remove(self._tail.prev)
 		end
 
 		self:_add(Entry.new(key, value))
 	end
-	return true
-end
-
------------------------------------------------------------------------------
----Removes a value from the cache that is associated with the key.
----
----@param  key    any Key used for lookup the value in the cache
----
----@return boolean    `true` if value was present, false otherwise.
------------------------------------------------------------------------------
-function LRUCache:evict(key)
-	if key == nil then
-		return false
-	end
-
-	local entry = self._items:get(key)
-	if entry == nil then
-		return false
-	end
-
-	self:_remove(entry)
 	return true
 end
 
@@ -143,7 +143,7 @@ function LRUCache:_add(entry)
 	temp.prev = entry
 	self._head.next = entry
 	entry.prev = self._head
-	self._items:put(entry.key, entry)
+	self._lookup:put(entry.key, entry)
 end
 
 -----------------------------------------------------------------------------
@@ -159,7 +159,17 @@ function LRUCache:_remove(entry)
 	-- of removing from a doubly linked list.
 	entry.prev.next = entry.next
 	entry.next.prev = entry.prev
-	self._items:remove(entry.key)
+	self._lookup:remove(entry.key)
+end
+
+-----------------------------------------------------------------------------
+---Returns the number of entries in the cache.
+---
+---@return number
+---@private
+-----------------------------------------------------------------------------
+function LRUCache:__len()
+	return #self._lookup
 end
 
 return LRUCache
