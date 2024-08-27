@@ -1,9 +1,9 @@
 rockspec_format = "3.0"
 package = "ff-lua"
-version = "0.8.5-2"
+version = "0.9.0-1"
 source = {
 	url = "git+https://github.com/felipeguilhermefs/ff-lua",
-	tag = "v0.8.5",
+	tag = "v0.9.0",
 }
 description = {
 	homepage = "https://github.com/felipeguilhermefs/ff-lua",
