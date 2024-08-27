@@ -13,6 +13,25 @@ function TestEmpty()
 	lu.assertTrue(q:empty())
 end
 
+function TestLen()
+	local q = Queue.new()
+
+	lu.assertEquals(0, #q)
+
+	q:enqueue(5)
+	q:enqueue(6)
+	q:enqueue(7)
+	lu.assertEquals(3, #q)
+
+	q:dequeue()
+	q:dequeue()
+	lu.assertEquals(1, #q)
+
+	q:dequeue()
+	q:dequeue()
+	lu.assertEquals(0, #q)
+end
+
 function TestGeneral()
 	local q = Queue.new()
 
@@ -28,6 +47,31 @@ function TestGeneral()
 	lu.assertEquals(30, q:peek())
 	lu.assertEquals(30, q:dequeue())
 	lu.assertTrue(q:empty())
+end
+
+function TestCapacity()
+	local q = Queue.new(2)
+
+	lu.assertTrue(q:enqueue(1))
+	lu.assertEquals(1, #q)
+
+	lu.assertTrue(q:enqueue(2))
+	lu.assertEquals(2, #q)
+
+	lu.assertFalse(q:enqueue(3))
+	lu.assertEquals(2, #q)
+
+	lu.assertEquals(1, q:dequeue())
+	lu.assertEquals(1, #q)
+
+	lu.assertTrue(q:enqueue(3))
+	lu.assertEquals(2, #q)
+end
+
+function TestInitialization()
+	lu.assertError(Queue.new, "a")
+	lu.assertError(Queue.new, true)
+	lu.assertError(Queue.new, -1)
 end
 
 os.exit(lu.LuaUnit.run())
