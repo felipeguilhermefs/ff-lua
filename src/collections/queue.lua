@@ -1,24 +1,24 @@
----@class (private) Entry
----@field value any    Stores the value of this entry.
----@field next  Entry? Points to an entry further back in the queue.
-local Entry = {}
-Entry.__index = Entry
+---@class (private) QNode
+---@field value any    Stores the value of this node.
+---@field next  QNode? Points to a node further back in the queue.
+local QNode = {}
+QNode.__index = QNode
 
 -----------------------------------------------------------------------------
----Creates a new instance of Entry
+---Creates a new instance of QNode.
 ---
----@param  value any
----@param  next Entry?
+---@param  value  any
+---@param  next   QNode?
 ---
----@return Entry      New instance
+---@return QNode  New instance
 -----------------------------------------------------------------------------
-function Entry.new(value, next)
-	return setmetatable({ value = value, next = next }, Entry)
+function QNode.new(value, next)
+	return setmetatable({ value = value, next = next }, QNode)
 end
 
 ---@class Queue
----@field private _front     Entry?   Wrapper marking the first spot in the queue.
----@field private _back      Entry?   Wrapper marking the last spot in the queue.
+---@field private _front     QNode?   Wrapper marking the first spot in the queue.
+---@field private _back      QNode?   Wrapper marking the last spot in the queue.
 ---@field private _len       number   Number of items in the queue.
 ---@field private _capacity  number?  Maximum number of items allowed in the queue.
 local Queue = {}
@@ -27,7 +27,8 @@ Queue.__index = Queue
 -----------------------------------------------------------------------------
 ---Creates a new instance of the queue.
 ---
----@param  capacity number? Maximum size desired for this queue. If not provided, there will be no maximum capacity.
+---@param  capacity number? Maximum size desired for this queue. If not
+---                         provided, there will be no maximum capacity.
 ---
 ---@return Queue
 -----------------------------------------------------------------------------
@@ -61,14 +62,14 @@ function Queue:enqueue(value)
 		return false
 	end
 
-	local entry = Entry.new(value, nil)
+	local node = QNode.new(value, nil)
 
 	if self._back then
-		self._back.next = entry
+		self._back.next = node
 	else
-		self._front = entry
+		self._front = node
 	end
-	self._back = entry
+	self._back = node
 	self._len = self._len + 1
 	return true
 end
@@ -119,7 +120,7 @@ function Queue:empty()
 end
 
 -----------------------------------------------------------------------------
----Empties the queue
+---Empties the queue.
 -----------------------------------------------------------------------------
 function Queue:clear()
 	self._front = nil

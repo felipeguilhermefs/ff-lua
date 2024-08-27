@@ -26,12 +26,13 @@ function HashMap:clear()
 end
 
 -----------------------------------------------------------------------------
----Returns the value that is associated with the key. Computes and stores the value if it was not present already.
+---Returns the value that is associated with the key. Computes and stores
+---the value if it was not present already.
 ---
 ---@param  key  any                Key used for lookup the value.
----@param  fun  fun(key: any): any Function used to compute/generate the value.
+---@param  fun  fun(key: any): any Function used to compute the value.
 ---
----@return any                     Value associated with key, or computed by the fn.
+---@return any                     Value associated with key, or computed.
 -----------------------------------------------------------------------------
 function HashMap:compute(key, fun)
 	local value = self:get(key)
@@ -65,10 +66,11 @@ end
 -----------------------------------------------------------------------------
 ---Returns the value that is associated with the key.
 ---
----@param  key      any  Key used for lookup the value.
----@param  default? any?  Value to be returned if an entry is not found.
+---@param  key      any   Key used for lookup the value.
+---@param  default  any?  Value to be returned if an entry is not found.
 ---
----@return any?      Value associated with key, or default if notthing is found
+---@return any?           Value associated with key, or default if nothing
+---                       is found.
 -----------------------------------------------------------------------------
 function HashMap:get(key, default)
 	return self._entries[key] or default
@@ -77,7 +79,7 @@ end
 -----------------------------------------------------------------------------
 ---Adds a value to the map associated by a lookup key.
 ---
----@param  key    any Key that will be used for lookup the value, `nil` will be ignored.
+---@param  key    any Key used for lookup the value, `nil` will be ignored.
 ---@param  value  any Value to be stored, `nil` will be ignored.
 -----------------------------------------------------------------------------
 function HashMap:put(key, value)

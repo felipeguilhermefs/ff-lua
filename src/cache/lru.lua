@@ -1,32 +1,32 @@
 local HashMap = require("ff.collections.hashmap")
 
----@class (private) Entry
----@field key   any    Stores the key that is used for the lookup.
----@field value any    Stores the value of this entry.
----@field prev  Entry? Points to a more recently used entry.
----@field next  Entry? Points to a less recently used entry.
-local Entry = {}
-Entry.__index = Entry
+---@class (private) LRUNode
+---@field key   any      Stores the key that is used for the lookup.
+---@field value any      Stores the value of this node.
+---@field prev  LRUNode? Points to a more recently used node.
+---@field next  LRUNode? Points to a less recently used node.
+local LRUNode = {}
+LRUNode.__index = LRUNode
 
 -----------------------------------------------------------------------------
----Creates a new instance of Entry
+---Creates a new instance of LRUNode
 ---
 ---@param  key   any  Key that will be used for a lookup.
 ---@param  value any  Value to be stored.
 ---
----@return Entry      New instance
+---@return LRUNode    New instance
 -----------------------------------------------------------------------------
-function Entry.new(key, value)
-	return setmetatable({ key = key, value = value }, Entry)
+function LRUNode.new(key, value)
+	return setmetatable({ key = key, value = value }, LRUNode)
 end
 
 ---@class LRUCache
----@field private _cap   number                Cache's maximum size.
----@field private _lookup HashMap<any, Entry>  Map for quick lookup.
----@field private _head  Entry                 Entry at the front of the queue.
----                                            It points to the most recent entry.
----@field private _tail  Entry                 Entry at the back of the queue.
----                                            It points to the least recent entry.
+---@field private _cap    number                 Cache's maximum size.
+---@field private _lookup HashMap<any, LRUNode>  Map for quick lookup.
+---@field private _head   LRUNode                LRUNode at the front of the queue.
+---                                              It points to the most recent node.
+---@field private _tail   LRUNode                LRUNode at the back of the queue.
+---                                              It points to the least recent node.
 local LRUCache = {}
 LRUCache.__index = LRUCache
 
@@ -44,8 +44,8 @@ function LRUCache.new(capacity)
 	-- head and tail are fixed to make adding and removing from the
 	-- queue simpler, as checking the borders for `nil` is not needed
 	-- since
-	local head = Entry.new(0, 0)
-	local tail = Entry.new(0, 0)
+	local head = LRUNode.new(0, 0)
+	local tail = LRUNode.new(0, 0)
 	head.next = tail
 	tail.prev = head
 
@@ -69,12 +69,12 @@ function LRUCache:evict(key)
 		return false
 	end
 
-	local entry = self._lookup:get(key)
-	if entry == nil then
+	local node = self._lookup:get(key)
+	if node == nil then
 		return false
 	end
 
-	self:_remove(entry)
+	self:_remove(node)
 	return true
 end
 
@@ -90,11 +90,11 @@ function LRUCache:get(key)
 		return nil
 	end
 
-	local entry = self._lookup:get(key)
-	if entry then
-		self:_remove(entry)
-		self:_add(entry)
-		return entry.value
+	local node = self._lookup:get(key)
+	if node then
+		self:_remove(node)
+		self:_add(node)
+		return node.value
 	end
 end
 
@@ -104,66 +104,66 @@ end
 ---@param  key    any Key that will be used for lookup the value in the cache, `nil` will be ignored.
 ---@param  value  any Value to be stored in the cache, `nil` will be ignored.
 ---
----@return boolean     `true` if value was added, false otherwise.
+---@return boolean    `true` if value was added, false otherwise.
 -----------------------------------------------------------------------------
 function LRUCache:put(key, value)
 	if key == nil or value == nil then
 		return false
 	end
 
-	local entry = self._lookup:get(key)
-	if entry then
-		self:_remove(entry)
-		entry.value = value
-		self:_add(entry)
+	local node = self._lookup:get(key)
+	if node then
+		self:_remove(node)
+		node.value = value
+		self:_add(node)
 	else
-		-- just need to check the capacity if a new entry is added.
+		-- just need to check the capacity if a new node is added.
 		if #self._lookup >= self._cap then
 			self:_remove(self._tail.prev)
 		end
 
-		self:_add(Entry.new(key, value))
+		self:_add(LRUNode.new(key, value))
 	end
 	return true
 end
 
 -----------------------------------------------------------------------------
----Appends an entry to the head and attach it to the map for quick lookup.
+---Appends an node to the head and attach it to the map for quick lookup.
 ---
----@param  entry Entry  Most recently used entry that needs to go to the
+---@param  node LRUNode Most recently used node that needs to go to the
 ---                     front of the queue.
 ---
 ---@private
 -----------------------------------------------------------------------------
-function LRUCache:_add(entry)
+function LRUCache:_add(node)
 	-- since we have the head fixed, we just need to make it point to
-	-- the most recently used entry.
+	-- the most recently used node.
 	local temp = self._head.next
-	entry.next = temp
-	temp.prev = entry
-	self._head.next = entry
-	entry.prev = self._head
-	self._lookup:put(entry.key, entry)
+	node.next = temp
+	temp.prev = node
+	self._head.next = node
+	node.prev = self._head
+	self._lookup:put(node.key, node)
 end
 
 -----------------------------------------------------------------------------
----Drops an entry from the queue and from the map.
+---Drops an node from the queue and from the map.
 ---
----@param  entry Entry  Most recently used entry that needs to go to the
+---@param  node LRUNode Most recently used node that needs to go to the
 ---                     front of the queue.
 ---
 ---@private
 -----------------------------------------------------------------------------
-function LRUCache:_remove(entry)
+function LRUCache:_remove(node)
 	-- since we have head and tail fixed we can ignore common corner cases
 	-- of removing from a doubly linked list.
-	entry.prev.next = entry.next
-	entry.next.prev = entry.prev
-	self._lookup:remove(entry.key)
+	node.prev.next = node.next
+	node.next.prev = node.prev
+	self._lookup:remove(node.key)
 end
 
 -----------------------------------------------------------------------------
----Returns the number of entries in the cache.
+---Returns the number of nodes in the cache.
 ---
 ---@return number
 ---@private
