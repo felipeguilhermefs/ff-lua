@@ -1,6 +1,6 @@
 rockspec_format = "3.0"
 package = "ff-lua"
-version = "0.9.0-2"
+version = "0.9.0-3"
 source = {
 	url = "git+https://github.com/felipeguilhermefs/ff-lua",
 	tag = "v0.9.0",
@@ -29,6 +29,7 @@ build = {
 	type = "builtin",
 	modules = {
 		["ff.cache.lru"] = "src/cache/lru.lua",
+		["ff.collections.array"] = "src/collections/array.lua",
 		["ff.collections.binarytree"] = "src/collections/binarytree.lua",
 		["ff.collections.hashmap"] = "src/collections/hashmap.lua",
 		["ff.collections.heap"] = "src/collections/heap.lua",
