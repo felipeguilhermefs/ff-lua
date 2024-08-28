@@ -21,6 +21,7 @@
 --	:clear() - Empties the tree
 --
 
+local Comparator = require("ff.func.comparator")
 local Stack = require("ff.collections.stack")
 
 local function Node(val, left, right)
@@ -31,46 +32,41 @@ local function Node(val, left, right)
 	}
 end
 
-local function NaturalComparator(a, b)
-	if a > b then
-		return 1
-	end
-
-	if a < b then
-		return -1
-	else
-		return 0
-	end
-end
-
-local BinaryTree = { __root = nil, __comparator = nil }
+local BinaryTree = {}
 BinaryTree.__index = BinaryTree
 
+function BinaryTree.new(comparator)
+	return setmetatable({
+		_comparator = comparator or Comparator.natural,
+		_root = nil,
+	}, BinaryTree)
+end
+
 function BinaryTree:empty()
-	return not self.__root
+	return not self._root
 end
 
 function BinaryTree:clear()
-	self.__root = nil
+	self._root = nil
 end
 
 function BinaryTree:insert(item)
-	self.__root = self:__insert(self.__root, item)
+	self._root = self:_insert(self._root, item)
 end
 
 function BinaryTree:remove(item)
-	self.__root = self:__remove(self.__root, item)
+	self._root = self:_remove(self._root, item)
 end
 
 function BinaryTree:min()
-	local min = self:__min(self.__root)
+	local min = self:_min(self._root)
 	if min then
 		return min.value
 	end
 end
 
 function BinaryTree:max()
-	local max = self.__root
+	local max = self._root
 	while max and max.right do
 		max = max.right
 	end
@@ -80,9 +76,9 @@ function BinaryTree:max()
 end
 
 function BinaryTree:contains(item)
-	local cur = self.__root
+	local cur = self._root
 	while cur do
-		local comp = self.__comparator(item, cur.value)
+		local comp = self._comparator(item, cur.value)
 		if comp == 0 then
 			return true
 		end
@@ -99,7 +95,7 @@ end
 
 function BinaryTree:preorder()
 	local nodes = Stack.new()
-	nodes:push(self.__root)
+	nodes:push(self._root)
 	return function()
 		if nodes:empty() then
 			return nil
@@ -120,7 +116,7 @@ end
 
 function BinaryTree:inorder()
 	local nodes = {}
-	self:__inorder(self.__root, nodes)
+	self:_inorder(self._root, nodes)
 	local index = 0
 	return function()
 		if index <= #nodes then
@@ -132,7 +128,7 @@ end
 
 function BinaryTree:postorder()
 	local nodes = {}
-	self:__postorder(self.__root, nodes)
+	self:_postorder(self._root, nodes)
 	local index = 0
 	return function()
 		if index <= #nodes then
@@ -150,37 +146,37 @@ function BinaryTree:array()
 	return arr
 end
 
-function BinaryTree:__insert(node, item)
+function BinaryTree:_insert(node, item)
 	if not node then
 		return Node(item)
 	end
 
-	local comp = self.__comparator(item, node.value)
+	local comp = self._comparator(item, node.value)
 
 	if comp == 1 then
-		node.right = self:__insert(node.right, item)
+		node.right = self:_insert(node.right, item)
 	end
 
 	if comp == -1 then
-		node.left = self:__insert(node.left, item)
+		node.left = self:_insert(node.left, item)
 	end
 
 	return node
 end
 
-function BinaryTree:__remove(node, item)
+function BinaryTree:_remove(node, item)
 	if not node then
 		return nil
 	end
 
-	local comp = self.__comparator(item, node.value)
+	local comp = self._comparator(item, node.value)
 
 	if comp == -1 then
-		node.left = self:__remove(node.left, item)
+		node.left = self:_remove(node.left, item)
 	end
 
 	if comp == 1 then
-		node.right = self:__remove(node.right, item)
+		node.right = self:_remove(node.right, item)
 	end
 
 	if comp == 0 then
@@ -192,15 +188,15 @@ function BinaryTree:__remove(node, item)
 			return node.left
 		end
 
-		local min = self:__min(node.right)
+		local min = self:_min(node.right)
 		node.value = min.value
-		node.right = self:__remove(node.right, min.value)
+		node.right = self:_remove(node.right, min.value)
 	end
 
 	return node
 end
 
-function BinaryTree:__min(node)
+function BinaryTree:_min(node)
 	local cur = node
 	while cur and cur.left do
 		cur = cur.left
@@ -208,31 +204,24 @@ function BinaryTree:__min(node)
 	return cur
 end
 
-function BinaryTree:__inorder(node, arr)
+function BinaryTree:_inorder(node, arr)
 	if not node then
 		return nil
 	end
 
-	self:__inorder(node.left, arr)
+	self:_inorder(node.left, arr)
 	table.insert(arr, node.value)
-	self:__inorder(node.right, arr)
+	self:_inorder(node.right, arr)
 end
 
-function BinaryTree:__postorder(node, arr)
+function BinaryTree:_postorder(node, arr)
 	if not node then
 		return nil
 	end
 
-	self:__postorder(node.left, arr)
-	self:__postorder(node.right, arr)
+	self:_postorder(node.left, arr)
+	self:_postorder(node.right, arr)
 	table.insert(arr, node.value)
-end
-
-function BinaryTree.new(comparator)
-	local new = {}
-	setmetatable(new, BinaryTree)
-	new.__comparator = comparator or NaturalComparator
-	return new
 end
 
 return BinaryTree
