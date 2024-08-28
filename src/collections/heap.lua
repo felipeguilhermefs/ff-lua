@@ -1,114 +1,158 @@
--- Heap:
---	.new(comparator) - Creates a new instance of heap
---		comparator: (a,b) -> boolean. Default: MinComparator
---			Comparator should return true if "a" should appear before "b"
---	:heapify(array) - Swap heap items by the provided array and mutates it into a heap structure.
---		array: Table array. Default: {}
---	:push(item) - Adds an item to the heap
---		item: Any non nil item
---	:pop() - Removes and returns the first item of the heap.
---		Returns nil if empty.
---	:peek() - Returns the first item of the heap.
---		Returns nil if empty.
---	:size() - Returns the number of items in the heap.
---	:empty() - Returns if the heap is empty or not
---
+local Array = require("ff.collections.array")
+local Comparator = require("ff.func.comparator")
 
-local Heap = { __items = nil, __comparator = nil }
+---@class Heap
+---@field private _comparator fun(a: any, b: any): -1|0|1 Defaults to a "Natural Order".
+---@field private _entries    Array                       Array holding the entries.
+local Heap = {}
 Heap.__index = Heap
 
-local function MinComparator(a, b)
-	return a < b
+-----------------------------------------------------------------------------
+---Creates a new instance of the heap.
+---
+---@param comparator fun(a: any, b: any): -1|0|1 Defaults to "Natural Order".
+---
+---@return Heap
+-----------------------------------------------------------------------------
+function Heap.new(comparator)
+	return setmetatable({
+		_comparator = comparator or Comparator.natural,
+		_entries = Array.new(),
+	}, Heap)
 end
 
-function Heap:size()
-	return #self.__items
-end
-
+-----------------------------------------------------------------------------
+---Returns whether the heap is empty or not.
+---
+---@return boolean
+-----------------------------------------------------------------------------
 function Heap:empty()
-	return self:size() == 0
+	return #self == 0
 end
 
-function Heap:push(item)
-	if item then
-		table.insert(self.__items, item)
-		self:__siftUp(self:size())
+-----------------------------------------------------------------------------
+---Swap heap entries by the provided array and mutates it into a heap structure.
+---
+---@param array table<any>|Array
+-----------------------------------------------------------------------------
+function Heap:heapify(array)
+	self._entries = Array.new(array)
+	for i = #self, 1, -1 do
+		self:_siftDown(i)
 	end
 end
 
+-----------------------------------------------------------------------------
+---Returns the first entry of the heap, or `nil` if empty.
+---
+---@return any?
+-----------------------------------------------------------------------------
+function Heap:peek()
+	if not self:empty() then
+		return self._entries:get(1)
+	end
+end
+
+-----------------------------------------------------------------------------
+---Removes and returns the first entry of the heap, or `nil` if empty.
+---
+---@return any?
+-----------------------------------------------------------------------------
 function Heap:pop()
 	if self:empty() then
 		return nil
 	end
 
-	if self:size() == 1 then
-		return table.remove(self.__items, 1)
+	if #self == 1 then
+		return self._entries:remove(1)
 	end
 
-	local root = self.__items[1]
-	self.__items[1] = table.remove(self.__items, self:size())
-	self:__siftDown(1)
+	local root = self._entries:get(1)
+	local last = self._entries:remove(#self)
+	self._entries:put(last, 1)
+	self:_siftDown(1)
 	return root
 end
 
-function Heap:peek()
-	if self:empty() then
-		return nil
+-----------------------------------------------------------------------------
+---Adds a value to the heap, ignores if `nil`.
+---
+---@param value any?
+---
+---@return boolean   `true` if value was added to the heap.
+-----------------------------------------------------------------------------
+function Heap:push(value)
+	if value == nil then
+		return false
 	end
-	return self.__items[1]
+
+	self._entries:insert(value)
+	self:_siftUp(#self)
+	return true
 end
 
-function Heap:heapify(items)
-	self.__items = items or {}
-	for i = self:size(), 1, -1 do
-		self:__siftDown(i)
-	end
-end
-
-function Heap:__siftUp(index)
+-----------------------------------------------------------------------------
+---Fix the heap structure from index to root. (Bottom up)
+---
+---@param index number
+---
+---@private
+-----------------------------------------------------------------------------
+function Heap:_siftUp(index)
 	local parent = index // 2
-	while index > 1 and self:__before(index, parent) do
-		self:__swap(index, parent)
+	while index > 1 and self:_before(index, parent) do
+		self._entries:swap(index, parent)
 		index = parent
 		parent = index // 2
 	end
 end
 
-function Heap:__siftDown(index)
+-----------------------------------------------------------------------------
+---Fix the heap structure from index to leaf. (Top down)
+---
+---@param index number
+---
+---@private
+-----------------------------------------------------------------------------
+function Heap:_siftDown(index)
 	local child = index * 2
-	while child <= self:size() do
-		if child + 1 <= self:size() and self:__before(child + 1, child) then
+	while child <= #self do
+		if child + 1 <= #self and self:_before(child + 1, child) then
 			child = child + 1
 		end
 
-		if self:__before(index, child) then
+		if self:_before(index, child) then
 			break
 		end
 
-		self:__swap(child, index)
+		self._entries:swap(child, index)
 		index = child
 		child = index * 2
 	end
 end
 
-function Heap:__before(i, j)
-	return self.__comparator(self.__items[i], self.__items[j])
+-----------------------------------------------------------------------------
+---Check if index `i` should come before `j` in the heap structure.
+---
+---@param i number
+---@param j number
+---
+---@return boolean
+---
+---@private
+-----------------------------------------------------------------------------
+function Heap:_before(i, j)
+	return self._comparator(self._entries:get(i), self._entries:get(j)) == Comparator.LESS
 end
 
-function Heap:__swap(i, j)
-	local temp = self.__items[i]
-	self.__items[i] = self.__items[j]
-	self.__items[j] = temp
-end
-
-function Heap.new(comparator)
-	local new = {}
-	setmetatable(new, Heap)
-
-	new.__comparator = comparator or MinComparator
-	new.__items = {}
-
-	return new
+-----------------------------------------------------------------------------
+---Returns the number of entries in the heap.
+---
+---@return number
+---@private
+-----------------------------------------------------------------------------
+function Heap:__len()
+	return #self._entries
 end
 
 return Heap

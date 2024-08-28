@@ -1,4 +1,5 @@
 local lu = require("luaunit")
+local Comparator = require("comparator")
 local Heap = require("heap")
 
 function TestEmpty()
@@ -61,9 +62,7 @@ function TestHeapify()
 end
 
 function TestComparator()
-	local function max(a, b)
-		return a > b
-	end
+	local max = Comparator.reverse(Comparator.natural)
 
 	local h = Heap.new(max)
 	h:heapify({ 5, 7, 9 })
@@ -100,7 +99,15 @@ end
 
 function TestStructure()
 	local function max(a, b)
-		return a.priority > b.priority
+		if a.priority < b.priority then
+			return Comparator.GREATER
+		end
+
+		if a.priority > b.priority then
+			return Comparator.LESS
+		end
+
+		return Comparator.EQUAL
 	end
 
 	local function obj(priority, value)
