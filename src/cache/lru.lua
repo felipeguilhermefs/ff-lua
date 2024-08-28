@@ -43,7 +43,6 @@ function LRUCache.new(capacity)
 
 	-- head and tail are fixed to make adding and removing from the
 	-- queue simpler, as checking the borders for `nil` is not needed
-	-- since
 	local head = LRUNode.new(0, 0)
 	local tail = LRUNode.new(0, 0)
 	head.next = tail
