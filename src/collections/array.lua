@@ -5,7 +5,7 @@ local Array = {}
 Array.__index = Array
 
 -----------------------------------------------------------------------------
----Checks if it is an array, considers an empty table a array.
+---Checks if it is (probably) an array, considers an empty table a array.
 ---
 ---@param maybe any
 ---
@@ -32,19 +32,11 @@ end
 ---@return Array
 -----------------------------------------------------------------------------
 function Array.new(array)
-	local entries = {}
-
 	if array then
 		assert(Array.isTableArray(array), "Should be an array")
-
-		for _, value in ipairs(array) do
-			if value ~= nil then
-				table.insert(entries, value)
-			end
-		end
 	end
 
-	return setmetatable({ _entries = entries }, Array)
+	return setmetatable({ _entries = array or {} }, Array)
 end
 
 -----------------------------------------------------------------------------
