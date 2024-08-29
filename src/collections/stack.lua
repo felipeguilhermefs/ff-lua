@@ -13,6 +13,11 @@ function Stack.new()
 	return setmetatable({ _entries = {} }, Stack)
 end
 
+-----------------------------------------------------------------------------
+---Returns whether the stack is empty or not.
+---
+---@return boolean
+-----------------------------------------------------------------------------
 function Stack:empty()
 	return #self == 0
 end
