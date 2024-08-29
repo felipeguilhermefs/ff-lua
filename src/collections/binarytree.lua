@@ -27,6 +27,8 @@ end
 ---
 ---@field private _root       TreeNode?              Root of the tree, if `nil` it is empty.
 ---@field private _comparator fun(any, any): -1|0|1  Function used to keep the tree order.
+---@field private _len        number                 Number of entries in the tree.
+---
 local BinaryTree = {}
 BinaryTree.__index = BinaryTree
 
@@ -42,6 +44,7 @@ function BinaryTree.new(comparator)
 	return setmetatable({
 		_comparator = comparator or Comparator.natural,
 		_root = nil,
+		_len = 0,
 	}, BinaryTree)
 end
 
@@ -50,6 +53,7 @@ end
 -----------------------------------------------------------------------------
 function BinaryTree:clear()
 	self._root = nil
+	self._len = 0
 end
 
 -----------------------------------------------------------------------------
@@ -217,6 +221,7 @@ end
 -----------------------------------------------------------------------------
 function BinaryTree:_insert(node, entry)
 	if not node then
+		self._len = self._len + 1
 		return TreeNode.new(entry)
 	end
 
@@ -239,7 +244,7 @@ end
 ---@param node  TreeNode The node where to start the traversal.
 ---@param entry any      Entry to remove.
 ---
----@return TreeNode?     Node that was visited or `nil` if node is removed.
+---@return TreeNode?     New node at the position or `nil` if value not found.
 ---
 ---@private
 -----------------------------------------------------------------------------
@@ -260,10 +265,12 @@ function BinaryTree:_remove(node, entry)
 
 	if comp == _EQUAL then
 		if not node.left then
+			self._len = self._len - 1
 			return node.right
 		end
 
 		if not node.right then
+			self._len = self._len - 1
 			return node.left
 		end
 
@@ -322,6 +329,16 @@ function BinaryTree:_postorder(node, array)
 		self:_postorder(node.right, array)
 		table.insert(array, node.value)
 	end
+end
+
+-----------------------------------------------------------------------------
+---Returns the number of entries in the tree.
+---
+---@return number
+---@private
+-----------------------------------------------------------------------------
+function BinaryTree:__len()
+	return self._len
 end
 
 return BinaryTree

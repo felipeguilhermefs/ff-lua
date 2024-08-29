@@ -5,21 +5,27 @@ function TestEmpty()
 	local bt = BinaryTree.new()
 
 	lu.assertTrue(bt:empty())
+	lu.assertEquals(0, #bt)
 
 	bt:insert(1)
 	lu.assertFalse(bt:empty())
+	lu.assertEquals(1, #bt)
 
 	bt:clear()
 	lu.assertTrue(bt:empty())
+	lu.assertEquals(0, #bt)
 
 	bt:insert(2)
 	bt:insert(3)
 	lu.assertFalse(bt:empty())
+	lu.assertEquals(2, #bt)
 
 	bt:remove(2)
 	lu.assertFalse(bt:empty())
+	lu.assertEquals(1, #bt)
 	bt:remove(3)
 	lu.assertTrue(bt:empty())
+	lu.assertEquals(0, #bt)
 end
 
 function TestInsert()
