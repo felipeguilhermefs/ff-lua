@@ -1,40 +1,43 @@
--- BinaryTree:
---	.new(comparator) - Creates a new instance of a binary tree
---		comparator: (a, b) -> -1|0|1. Default: NaturalComparator
---			Ex:
---				if a < b then -1
---				if a > b then 1
---				if a == b then 0
---	:insert(item) - Adds an item to the tree
---		item: any item
---	:remove(item) - Removes an item from the tree
---		item: any item
---	:min() - Returns the mininum item (leftmost) from the tree
---	:max() - Returns the maximum item (rightmost) from the tree
---	:contains(item) - Checks if item is present in the tree
---		item: any item
---	:preorder() - Returns an iterator that traverses the tree in preorder
---	:inorder() - Returns an iterator that traverses the tree in inorder
---	:postorder() - Returns an iterator that traverses the tree in postorder
---	:array() - Returns an ordered table array
---	:empty() - Returns if the tree is empty or not
---	:clear() - Empties the tree
---
-
 local Comparator = require("ff.func.comparator")
 local Stack = require("ff.collections.stack")
 
-local function Node(val, left, right)
-	return {
+local _LESS = Comparator.less
+local _EQUAL = Comparator.equal
+local _GREATER = Comparator.greater
+
+---@class TreeNode
+---
+---@field value any
+---@field left  TreeNode?
+---@field right TreeNode?
+---
+---@private
+local TreeNode = {}
+TreeNode.__index = TreeNode
+
+function TreeNode.new(val, left, right)
+	return setmetatable({
 		value = val,
 		left = left,
 		right = right,
-	}
+	}, TreeNode)
 end
 
+---@class BinaryTree
+---
+---@field private _root       TreeNode?              Root of the tree, if `nil` it is empty.
+---@field private _comparator fun(any, any): -1|0|1  Function used to keep the tree order.
 local BinaryTree = {}
 BinaryTree.__index = BinaryTree
 
+-----------------------------------------------------------------------------
+---Creates a new instance of the binary tree.
+---
+---@param comparator fun(any, any): -1|0|1 If nothing is given a natural order
+---                                        a natural order will be used.
+---
+---@return BinaryTree
+-----------------------------------------------------------------------------
 function BinaryTree.new(comparator)
 	return setmetatable({
 		_comparator = comparator or Comparator.natural,
@@ -42,29 +45,61 @@ function BinaryTree.new(comparator)
 	}, BinaryTree)
 end
 
-function BinaryTree:empty()
-	return not self._root
-end
-
+-----------------------------------------------------------------------------
+---Empties the tree.
+-----------------------------------------------------------------------------
 function BinaryTree:clear()
 	self._root = nil
 end
 
-function BinaryTree:insert(item)
-	self._root = self:_insert(self._root, item)
-end
+-----------------------------------------------------------------------------
+---Checks if the entry is present in the tree.
+---
+---@param  entry any
+---
+---@return boolean
+-----------------------------------------------------------------------------
+function BinaryTree:contains(entry)
+	local cur = self._root
+	while cur do
+		local comp = self._comparator(entry, cur.value)
+		if comp == _EQUAL then
+			return true
+		end
 
-function BinaryTree:remove(item)
-	self._root = self:_remove(self._root, item)
-end
-
-function BinaryTree:min()
-	local min = self:_min(self._root)
-	if min then
-		return min.value
+		if comp == _GREATER then
+			cur = cur.right
+		else
+			cur = cur.left
+		end
 	end
+
+	return false
 end
 
+-----------------------------------------------------------------------------
+---Returns whether the tree is empty or not.
+---
+---@return boolean
+-----------------------------------------------------------------------------
+function BinaryTree:empty()
+	return not self._root
+end
+
+-----------------------------------------------------------------------------
+---Adds an entry to the tree.
+---
+---@param  entry  any
+-----------------------------------------------------------------------------
+function BinaryTree:insert(entry)
+	self._root = self:_insert(self._root, entry)
+end
+
+-----------------------------------------------------------------------------
+---Returns the maximum entry (rightmost) from the tree, `nil` if empty.
+---
+---@return any?
+-----------------------------------------------------------------------------
 function BinaryTree:max()
 	local max = self._root
 	while max and max.right do
@@ -75,24 +110,66 @@ function BinaryTree:max()
 	end
 end
 
-function BinaryTree:contains(item)
-	local cur = self._root
-	while cur do
-		local comp = self._comparator(item, cur.value)
-		if comp == 0 then
-			return true
-		end
-
-		if comp == 1 then
-			cur = cur.right
-		else
-			cur = cur.left
-		end
+-----------------------------------------------------------------------------
+---Returns the mininum entry (leftmost) from the tree.
+---
+---@return any?
+-----------------------------------------------------------------------------
+function BinaryTree:min()
+	local min = self:_min(self._root)
+	if min then
+		return min.value
 	end
-
-	return false
 end
 
+-----------------------------------------------------------------------------
+---Removes the entry from the tree.
+---
+---@param  entry any
+-----------------------------------------------------------------------------
+function BinaryTree:remove(entry)
+	self._root = self:_remove(self._root, entry)
+end
+
+-----------------------------------------------------------------------------
+---Returns an iterator that traverses the tree in inorder.
+---
+---@return Iterator<any>
+-----------------------------------------------------------------------------
+function BinaryTree:inorder()
+	local nodes = {}
+	self:_inorder(self._root, nodes)
+	local index = 0
+	return function()
+		if index <= #nodes then
+			index = index + 1
+			return nodes[index]
+		end
+	end
+end
+
+-----------------------------------------------------------------------------
+---Returns an iterator that traverses the tree in postorder.
+---
+---@return Iterator<any>
+-----------------------------------------------------------------------------
+function BinaryTree:postorder()
+	local nodes = {}
+	self:_postorder(self._root, nodes)
+	local index = 0
+	return function()
+		if index <= #nodes then
+			index = index + 1
+			return nodes[index]
+		end
+	end
+end
+
+-----------------------------------------------------------------------------
+---Returns an iterator that traverses the tree in preorder.
+---
+---@return Iterator<any>
+-----------------------------------------------------------------------------
 function BinaryTree:preorder()
 	local nodes = Stack.new()
 	nodes:push(self._root)
@@ -114,30 +191,11 @@ function BinaryTree:preorder()
 	end
 end
 
-function BinaryTree:inorder()
-	local nodes = {}
-	self:_inorder(self._root, nodes)
-	local index = 0
-	return function()
-		if index <= #nodes then
-			index = index + 1
-			return nodes[index]
-		end
-	end
-end
-
-function BinaryTree:postorder()
-	local nodes = {}
-	self:_postorder(self._root, nodes)
-	local index = 0
-	return function()
-		if index <= #nodes then
-			index = index + 1
-			return nodes[index]
-		end
-	end
-end
-
+-----------------------------------------------------------------------------
+---Returns an ordered table array.
+---
+---@return table<any>
+-----------------------------------------------------------------------------
 function BinaryTree:array()
 	local arr = {}
 	for val in self:preorder() do
@@ -146,40 +204,61 @@ function BinaryTree:array()
 	return arr
 end
 
-function BinaryTree:_insert(node, item)
+-----------------------------------------------------------------------------
+---Traverse the tree and insert the entry at the appropriate position using
+---the comparator function.
+---
+---@param node  TreeNode The node where to start the traversal.
+---@param entry any      Entry to insert.
+---
+---@return TreeNode      New node created or the one which was visited.
+---
+---@private
+-----------------------------------------------------------------------------
+function BinaryTree:_insert(node, entry)
 	if not node then
-		return Node(item)
+		return TreeNode.new(entry)
 	end
 
-	local comp = self._comparator(item, node.value)
+	local cmp = self._comparator(entry, node.value)
 
-	if comp == 1 then
-		node.right = self:_insert(node.right, item)
+	if cmp == _GREATER then
+		node.right = self:_insert(node.right, entry)
 	end
 
-	if comp == -1 then
-		node.left = self:_insert(node.left, item)
+	if cmp == _LESS then
+		node.left = self:_insert(node.left, entry)
 	end
 
 	return node
 end
 
-function BinaryTree:_remove(node, item)
+-----------------------------------------------------------------------------
+---Traverse the tree (using the comparator) and remove the entry.
+---
+---@param node  TreeNode The node where to start the traversal.
+---@param entry any      Entry to remove.
+---
+---@return TreeNode?     Node that was visited or `nil` if node is removed.
+---
+---@private
+-----------------------------------------------------------------------------
+function BinaryTree:_remove(node, entry)
 	if not node then
 		return nil
 	end
 
-	local comp = self._comparator(item, node.value)
+	local comp = self._comparator(entry, node.value)
 
-	if comp == -1 then
-		node.left = self:_remove(node.left, item)
+	if comp == _LESS then
+		node.left = self:_remove(node.left, entry)
 	end
 
-	if comp == 1 then
-		node.right = self:_remove(node.right, item)
+	if comp == _GREATER then
+		node.right = self:_remove(node.right, entry)
 	end
 
-	if comp == 0 then
+	if comp == _EQUAL then
 		if not node.left then
 			return node.right
 		end
@@ -196,6 +275,15 @@ function BinaryTree:_remove(node, item)
 	return node
 end
 
+-----------------------------------------------------------------------------
+---Finds and returns the minimum (leftmost) node.
+---
+---@param node  TreeNode The node where to start the traversal.
+---
+---@return TreeNode?     Node that was visited or `nil` if empty.
+---
+---@private
+-----------------------------------------------------------------------------
 function BinaryTree:_min(node)
 	local cur = node
 	while cur and cur.left do
@@ -204,24 +292,36 @@ function BinaryTree:_min(node)
 	return cur
 end
 
-function BinaryTree:_inorder(node, arr)
-	if not node then
-		return nil
+-----------------------------------------------------------------------------
+---Traverses the tree inorder, and accumulates nodes in a given array.
+---
+---@param node   TreeNode?   The node where to start the traversal.
+---@param array  table<any>  Array to insert the values from visited nodes.
+---
+---@private
+-----------------------------------------------------------------------------
+function BinaryTree:_inorder(node, array)
+	if node then
+		self:_inorder(node.left, array)
+		table.insert(array, node.value)
+		self:_inorder(node.right, array)
 	end
-
-	self:_inorder(node.left, arr)
-	table.insert(arr, node.value)
-	self:_inorder(node.right, arr)
 end
 
-function BinaryTree:_postorder(node, arr)
-	if not node then
-		return nil
+-----------------------------------------------------------------------------
+---Traverses the tree postorder, and accumulates nodes in a given array.
+---
+---@param node   TreeNode?   The node where to start the traversal.
+---@param array  table<any>  Array to insert the values from visited nodes.
+---
+---@private
+-----------------------------------------------------------------------------
+function BinaryTree:_postorder(node, array)
+	if node then
+		self:_postorder(node.left, array)
+		self:_postorder(node.right, array)
+		table.insert(array, node.value)
 	end
-
-	self:_postorder(node.left, arr)
-	self:_postorder(node.right, arr)
-	table.insert(arr, node.value)
 end
 
 return BinaryTree
