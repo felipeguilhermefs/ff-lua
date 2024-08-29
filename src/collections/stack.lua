@@ -1,42 +1,61 @@
--- Stack:
---	.new() - Creates a new instance of a stack
---	:push(item) - Adds an item to the top of the stack
---		item: any item
---	:pop() - Removes and returns the item in the top of the stack
---		Returns nil if empty.
---	:top() - Returns the item in the top of the stack
---		Returns nil if empty.
---	:empty() - Returns if the stack is empty or not
---
-
-local Stack = { __items = nil }
+---@class Stack
+---
+---@field private _entries   table<any> Table array that holds the entries.
+local Stack = {}
 Stack.__index = Stack
 
-function Stack:push(item)
-	table.insert(self.__items, item)
-end
-
-function Stack:pop()
-	if not self:empty() then
-		return table.remove(self.__items, #self.__items)
-	end
-end
-
-function Stack:top()
-	if not self:empty() then
-		return self.__items[#self.__items]
-	end
+-----------------------------------------------------------------------------
+---Creates a new instance of the stack.
+---
+---@return Stack
+-----------------------------------------------------------------------------
+function Stack.new()
+	return setmetatable({ _entries = {} }, Stack)
 end
 
 function Stack:empty()
-	return #self.__items == 0
+	return #self == 0
 end
 
-function Stack.new()
-	local new = {}
-	setmetatable(new, Stack)
-	new.__items = {}
-	return new
+-----------------------------------------------------------------------------
+---Removes and returns the entry in the top of the stack, `nil` if empty.
+---
+---@return any?
+-----------------------------------------------------------------------------
+function Stack:pop()
+	if not self:empty() then
+		return table.remove(self._entries, #self._entries)
+	end
+end
+
+-----------------------------------------------------------------------------
+---Adds an entry to the top of the stack.
+---
+---@param  entry any
+-----------------------------------------------------------------------------
+function Stack:push(entry)
+	table.insert(self._entries, entry)
+end
+
+-----------------------------------------------------------------------------
+---Returns the entry in the top of the stack, `nil` if empty.
+---
+---@return any?
+-----------------------------------------------------------------------------
+function Stack:top()
+	if not self:empty() then
+		return self._entries[#self._entries]
+	end
+end
+
+-----------------------------------------------------------------------------
+---Returns the number of entries in the stack.
+---
+---@return number
+---@private
+-----------------------------------------------------------------------------
+function Stack:__len()
+	return #self._entries
 end
 
 return Stack
