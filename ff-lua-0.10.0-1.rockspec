@@ -1,9 +1,9 @@
 rockspec_format = "3.0"
 package = "ff-lua"
-version = "0.10.0-1"
+version = "0.10.0-2"
 source = {
 	url = "git+https://github.com/felipeguilhermefs/ff-lua",
-	tag = "v0.10.0",
+	tag = "v0.10.0.2",
 }
 description = {
 	homepage = "https://github.com/felipeguilhermefs/ff-lua",
@@ -36,6 +36,7 @@ build = {
 		["ff.collections.linkedlist"] = "src/collections/linkedlist.lua",
 		["ff.collections.queue"] = "src/collections/queue.lua",
 		["ff.collections.stack"] = "src/collections/stack.lua",
+		["ff.collections.set"] = "src/collections/set.lua",
 		["ff.empty"] = "src/func/empty.lua",
 		["ff.func.comparator"] = "src/func/comparator.lua",
 		["ff.factorial"] = "src/math/factorial.lua",
