@@ -39,10 +39,7 @@ function TestContains()
 end
 
 function TestRemove()
-	local set = Set.new()
-
-	set:add("f")
-	set:add("g")
+	local set = Set.new({ "f", "g" })
 	lu.assertEquals(2, #set)
 
 	set:remove("f")
@@ -54,15 +51,8 @@ function TestRemove()
 end
 
 function TestDiff()
-	local set1 = Set.new()
-	set1:add("a")
-	set1:add("b")
-	set1:add("c")
-
-	local set2 = Set.new()
-	set2:add("b")
-	set2:add("c")
-	set2:add("d")
+	local set1 = Set.new({ "a", "b", "c" })
+	local set2 = Set.new({ "b", "c", "d" })
 
 	local setDiff1 = set1:diff(set2)
 	lu.assertTrue(setDiff1:contains("a"))
@@ -80,15 +70,8 @@ function TestDiff()
 end
 
 function TestIntersection()
-	local set1 = Set.new()
-	set1:add("a")
-	set1:add("b")
-	set1:add("c")
-
-	local set2 = Set.new()
-	set2:add("b")
-	set2:add("c")
-	set2:add("d")
+	local set1 = Set.new({ "a", "b", "c" })
+	local set2 = Set.new({ "b", "c", "d" })
 
 	local setInter1 = set1:intersection(set2)
 	lu.assertTrue(setInter1:contains("b"))
@@ -105,15 +88,8 @@ function TestIntersection()
 end
 
 function TestUnion()
-	local set1 = Set.new()
-	set1:add("a")
-	set1:add("b")
-	set1:add("c")
-
-	local set2 = Set.new()
-	set2:add("b")
-	set2:add("c")
-	set2:add("d")
+	local set1 = Set.new({ "a", "b", "c" })
+	local set2 = Set.new({ "b", "c", "d" })
 
 	local setUnion1 = set1:union(set2)
 	lu.assertTrue(setUnion1:contains("a"))
