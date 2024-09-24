@@ -11,9 +11,17 @@ Array.__index = Array
 ---
 ---@return boolean
 -----------------------------------------------------------------------------
-function Array.isTableArray(maybe)
+function Array.isArray(maybe)
+	if not maybe then
+		return false
+	end
+
 	if type(maybe) ~= "table" then
 		return false
+	end
+
+	if maybe.__index == Array then
+		return true
 	end
 
 	if next(maybe) == nil then
@@ -26,17 +34,14 @@ end
 -----------------------------------------------------------------------------
 ---Creates a new instance of the array.
 ---
----@param array table<any>? Collection of entries to initialize it.
+---@param array table<any>? Entries to be copied and initialize it.
 ---                         Defaults to an empty array if `nil`.
 ---
 ---@return Array
 -----------------------------------------------------------------------------
 function Array.new(array)
-	if array then
-		assert(Array.isTableArray(array), "Should be an array")
-	end
-
-	return setmetatable({ _entries = array or {} }, Array)
+	array = array or {}
+	return setmetatable({ _entries = {} }, Array) .. array
 end
 
 -----------------------------------------------------------------------------
@@ -117,6 +122,37 @@ function Array:swap(index, otherIndex)
 	local tmp = self._entries[index]
 	self._entries[index] = self._entries[otherIndex]
 	self._entries[otherIndex] = tmp
+end
+
+-----------------------------------------------------------------------------
+---Concatenate a given Array or table array to this.
+---
+---@param array? table<any>|Array  Entries to be concatenated.
+---                                Defaults to an empty array if `nil`.
+---
+---@return Array
+-----------------------------------------------------------------------------
+function Array:__concat(array)
+	if array ~= nil then
+		assert(Array.isArray(array), "Should be an array")
+
+		for _, item in pairs(array) do
+			self:insert(item)
+		end
+	end
+
+	return self
+end
+
+-----------------------------------------------------------------------------
+---Iterates through the array from 1 to #Array
+---
+---@return Iterator<any>, Array<any>, nil
+-----------------------------------------------------------------------------
+function Array:__pairs()
+	return function(_, index)
+		return next(self._entries, index)
+	end, self, nil
 end
 
 -----------------------------------------------------------------------------
