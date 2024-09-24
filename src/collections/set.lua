@@ -10,7 +10,8 @@ Set.__index = Set
 -----------------------------------------------------------------------------
 ---Creates a new instance of the set.
 ---
----@param array  table<any>? Array to initialize the set. Ignored if `nil`.
+---@param array?  table<any>|Array  Array to initialize the set.
+---                                 Ignored if `nil`.
 ---
 ---@return Set
 -----------------------------------------------------------------------------
@@ -18,9 +19,9 @@ function Set.new(array)
 	local new = setmetatable({ _entries = {}, _len = 0 }, Set)
 
 	if array then
-		assert(Array.isTableArray(array), "Should be an array")
+		assert(Array.isArray(array), "Should be an array")
 
-		for _, value in ipairs(array) do
+		for _, value in pairs(array) do
 			new:add(value)
 		end
 	end
