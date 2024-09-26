@@ -166,6 +166,48 @@ function LinkedList:reverse()
 end
 
 -----------------------------------------------------------------------------
+---Concatenate a given LinkedList to this.
+---
+---@param list LinkedList Entries to be concatenated.
+---                       Defaults to an empty list if `nil`.
+---
+---@return LinkedList
+-----------------------------------------------------------------------------
+function LinkedList:__concat(list)
+	if list ~= nil then
+		assert(type(list) == "table" and list.__index == LinkedList, "Should be an LinkedList")
+		self._back.next = list._front
+		list._front.prev = self._back
+		self._back = list._back
+		self._len = self._len + list._len
+	end
+
+	return self
+end
+
+-----------------------------------------------------------------------------
+---Iterates through the LinkedList from 1 to #LinkedList
+---
+---@return Iterator<any>, LinkedList<any>, nil
+-----------------------------------------------------------------------------
+function LinkedList:__pairs()
+	local next = self._front
+	local index = 0
+	return function()
+		local cur = next
+		if cur then
+			next = cur.next
+			index = index + 1
+			return index, cur.value
+		else
+			return nil
+		end
+	end,
+		self,
+		nil
+end
+
+-----------------------------------------------------------------------------
 ---Returns the number of entries in the list.
 ---
 ---@return number
