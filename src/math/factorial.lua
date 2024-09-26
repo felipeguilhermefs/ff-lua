@@ -1,12 +1,8 @@
 local trunc = require("trunc")
 
 local function factorial(n)
-	if type(n) ~= "number" then
-		return nil
-	end
-	if n < 0 then
-		return nil
-	end
+	assert(type(n) == "number", "Should be a number")
+	assert(n >= 0, "Should be positive")
 
 	n = trunc(n)
 	if n == 0 then

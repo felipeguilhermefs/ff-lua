@@ -1,11 +1,10 @@
-local function fibonacci(n)
-	if type(n) ~= "number" then
-		return nil
-	end
+local trunc = require("trunc")
 
-	if n < 0 then
-		return nil
-	end
+local function fibonacci(n)
+	assert(type(n) == "number", "Should be a number")
+	assert(n >= 0, "Should be positive")
+
+	n = trunc(n)
 
 	local prev = 0
 	local cur = 1
