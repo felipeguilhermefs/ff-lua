@@ -33,6 +33,14 @@ end
 local LinkedList = {}
 LinkedList.__index = LinkedList
 
+function LinkedList.isLinkedList(list)
+	if type(list) ~= "table" then
+		return false
+	end
+
+	return list.__index == LinkedList
+end
+
 -----------------------------------------------------------------------------
 ---Creates a new instance of the (doubly) linked list.
 ---
@@ -175,7 +183,7 @@ end
 -----------------------------------------------------------------------------
 function LinkedList:__concat(list)
 	if list ~= nil then
-		assert(type(list) == "table" and list.__index == LinkedList, "Should be an LinkedList")
+		assert(LinkedList.isLinkedList(list), "Should be an LinkedList")
 		self._back.next = list._front
 		list._front.prev = self._back
 		self._back = list._back
@@ -194,13 +202,11 @@ function LinkedList:__pairs()
 	local next = self._front
 	local index = 0
 	return function()
-		local cur = next
-		if cur then
+		if next then
+			local cur = next
 			next = cur.next
 			index = index + 1
 			return index, cur.value
-		else
-			return nil
 		end
 	end,
 		self,
