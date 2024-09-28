@@ -72,6 +72,25 @@ function Array:get(index)
 end
 
 -----------------------------------------------------------------------------
+---Returns the the index of the first entry with a given value.
+---It will return `nil` if nothing is found.
+---
+---@param  value? any
+---
+---@return number|nil
+-----------------------------------------------------------------------------
+function Array:indexOf(value)
+	if value == nil then
+		return nil
+	end
+	for index, item in pairs(self._entries) do
+		if item == value then
+			return index
+		end
+	end
+end
+
+-----------------------------------------------------------------------------
 ---Add a value to a given index, following values will be shifted forward.
 ---Adds to the end of the array if no index is given.
 ---

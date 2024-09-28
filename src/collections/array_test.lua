@@ -68,6 +68,17 @@ function TestIsArray()
 	lu.assertTrue(Array.isArray(Array.new({ 4, 5, 6 })))
 end
 
+function TestIndexOf()
+	local a = Array.new({ 10, 20, 30 })
+
+	lu.assertEquals(1, a:indexOf(10))
+	lu.assertEquals(3, a:indexOf(30))
+	lu.assertEquals(2, a:indexOf(20))
+
+	lu.assertNil(a:indexOf(40))
+	lu.assertNil(a:indexOf(nil))
+end
+
 function TestConcat()
 	local a = Array.new({ 10, 20, 30 })
 	lu.assertEquals(3, #a)
