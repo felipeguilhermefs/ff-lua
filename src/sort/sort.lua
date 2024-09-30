@@ -13,7 +13,7 @@ local function sort(array, comparator)
 	local cmp
 	if comparator then
 		cmp = function(a, b)
-			return comparator(a, b) == Comparator.greater
+			return comparator(a, b) == Comparator.less
 		end
 	end
 
