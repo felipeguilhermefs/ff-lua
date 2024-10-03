@@ -2,8 +2,7 @@ local Array = require("ff.collections.array")
 local Comparator = require("ff.func.comparator")
 
 local function partition(array, low, high, cmp)
-	local mid = (high + low) // 2
-	local pivot = array[mid]
+	local pivot = array[(high + low) // 2]
 
 	local i = low - 1
 	local j = high + 1
@@ -26,9 +25,7 @@ local function partition(array, low, high, cmp)
 			return j
 		end
 
-		local tmp = array[i]
-		array[i] = array[j]
-		array[j] = tmp
+		array[i], array[j] = array[j], array[i]
 	end
 end
 
