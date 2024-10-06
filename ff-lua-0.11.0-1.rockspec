@@ -1,9 +1,9 @@
 rockspec_format = "3.0"
 package = "ff-lua"
-version = "0.11.0-5"
+version = "0.11.0-6"
 source = {
 	url = "git+https://github.com/felipeguilhermefs/ff-lua",
-	tag = "v0.11.0.5",
+	tag = "v0.11.0.6",
 }
 description = {
 	homepage = "https://github.com/felipeguilhermefs/ff-lua",
@@ -46,6 +46,7 @@ build = {
 		["ff.memoize"] = "src/func/memoize.lua",
 		["ff.min"] = "src/math/min.lua",
 		["ff.search.binarysearch"] = "src/search/binarysearch.lua",
+		["ff.search.quickselect"] = "src/search/quickselect.lua",
 		["ff.sort"] = "src/sort/sort.lua",
 		["ff.sort.bucketsort"] = "src/sort/bucketsort.lua",
 		["ff.sort.quicksort"] = "src/sort/quicksort.lua",
