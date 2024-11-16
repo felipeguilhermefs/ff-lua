@@ -106,6 +106,17 @@ function HashMap:remove(key)
 end
 
 -----------------------------------------------------------------------------
+---Iterates through the map in a undefined order.
+---
+---@return Iterator<any, any>, HashMap<any, any>, nil
+-----------------------------------------------------------------------------
+function HashMap:__pairs()
+	return function(_, index)
+		return next(self._entries, index)
+	end, self, nil
+end
+
+-----------------------------------------------------------------------------
 ---Returns the number of entries in the map.
 ---
 ---@return number

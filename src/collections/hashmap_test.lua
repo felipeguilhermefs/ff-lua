@@ -107,4 +107,28 @@ function TestNil()
 	lu.assertEquals(0, #map)
 end
 
+function TestIterator()
+	local map = HashMap.new()
+
+	map:put("a", 1)
+	map:put("b", 2)
+	map:put("c", 3)
+	map:put("d", 4)
+
+	local res = {}
+	for k, v in pairs(map) do
+		res[#res + 1] = { key = k, value = v }
+	end
+	table.sort(res, function(a, b)
+		return a.key < b.key
+	end)
+
+	lu.assertEquals({
+		{ key = "a", value = 1 },
+		{ key = "b", value = 2 },
+		{ key = "c", value = 3 },
+		{ key = "d", value = 4 },
+	}, res)
+end
+
 os.exit(lu.LuaUnit.run())
