@@ -142,7 +142,7 @@ end
 ---@private
 -----------------------------------------------------------------------------
 function Heap:_before(i, j)
-	return self._comparator(self._entries:get(i), self._entries:get(j)) == Comparator.LESS
+	return self._comparator(self._entries:get(i), self._entries:get(j)) == Comparator.less
 end
 
 -----------------------------------------------------------------------------

@@ -1,5 +1,5 @@
 local lu = require("luaunit")
-local Comparator = require("comparator")
+local Comparator = require("ff.func.comparator")
 local Heap = require("heap")
 
 function TestEmpty()
@@ -100,14 +100,14 @@ end
 function TestStructure()
 	local function max(a, b)
 		if a.priority < b.priority then
-			return Comparator.GREATER
+			return Comparator.greater
 		end
 
 		if a.priority > b.priority then
-			return Comparator.LESS
+			return Comparator.less
 		end
 
-		return Comparator.EQUAL
+		return Comparator.equal
 	end
 
 	local function obj(priority, value)
