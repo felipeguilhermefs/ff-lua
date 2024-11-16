@@ -61,10 +61,8 @@ function TestHeapify()
 	lu.assertNil(h:pop())
 end
 
-function TestComparator()
-	local max = Comparator.reverse(Comparator.natural)
-
-	local h = Heap.new(max)
+function TestMaxHeap()
+	local h = Heap.newMax()
 	h:heapify({ 5, 7, 9 })
 
 	h:push(6)
@@ -97,7 +95,7 @@ function TestString()
 	lu.assertNil(h:pop())
 end
 
-function TestStructure()
+function TestComparator()
 	local function max(a, b)
 		if a.priority < b.priority then
 			return Comparator.greater

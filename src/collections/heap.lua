@@ -22,6 +22,24 @@ function Heap.new(comparator)
 end
 
 -----------------------------------------------------------------------------
+---Creates a new instance of a MIN Heap. (Minimum item is at the root)
+---
+---@return Heap
+-----------------------------------------------------------------------------
+function Heap.newMin()
+	return Heap.new(Comparator.natural)
+end
+
+-----------------------------------------------------------------------------
+---Creates a new instance of a MAX Heap. (Maximum item is at the root)
+---
+---@return Heap
+-----------------------------------------------------------------------------
+function Heap.newMax()
+	return Heap.new(Comparator.reverse(Comparator.natural))
+end
+
+-----------------------------------------------------------------------------
 ---Returns whether the heap is empty or not.
 ---
 ---@return boolean
