@@ -87,8 +87,10 @@ function HashMap:put(key, value)
 		return
 	end
 
+	if self._entries[key] == nil then
+		self._len = self._len + 1
+	end
 	self._entries[key] = value
-	self._len = self._len + 1
 end
 
 -----------------------------------------------------------------------------
