@@ -31,13 +31,16 @@ function TestPut()
 
 	map:put("c", 1)
 	lu.assertEquals(1, map:get("c"))
+	lu.assertEquals(1, #map)
 
 	map:put("c", 2)
 	lu.assertEquals(2, map:get("c"))
+	lu.assertEquals(1, #map)
 
 	map:put("d", 3)
 	lu.assertEquals(3, map:get("d"))
 	lu.assertEquals(2, map:get("c"))
+	lu.assertEquals(2, #map)
 end
 
 function TestContains()

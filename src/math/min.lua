@@ -1,4 +1,5 @@
 local function min(...)
+	--TODO: Check types to choose a better min function
 	local args = { ... }
 	local res
 

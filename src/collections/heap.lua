@@ -39,6 +39,8 @@ function Heap.newMax()
 	return Heap.new(Comparator.reverse(Comparator.natural))
 end
 
+--TODO: PriorityQueue max and min
+
 -----------------------------------------------------------------------------
 ---Returns whether the heap is empty or not.
 ---
