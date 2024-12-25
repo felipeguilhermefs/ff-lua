@@ -220,4 +220,24 @@ function TestPostOrderTraversal()
 	lu.assertEquals({ 1, 3, 2, 6, 5, 9, 8, 7, 4 }, test)
 end
 
+function TestIterator()
+	local bt = BinaryTree.new()
+
+	bt:insert(4)
+	bt:insert(2)
+	bt:insert(7)
+	bt:insert(8)
+	bt:insert(9)
+	bt:insert(1)
+	bt:insert(5)
+	bt:insert(3)
+	bt:insert(6)
+
+	local test = {}
+	for val in pairs(bt) do
+		table.insert(test, val)
+	end
+	lu.assertEquals({ 4, 2, 1, 3, 7, 5, 6, 8, 9 }, test)
+end
+
 os.exit(lu.LuaUnit.run())

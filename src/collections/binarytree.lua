@@ -332,6 +332,15 @@ function BinaryTree:_postorder(node, array)
 end
 
 -----------------------------------------------------------------------------
+---Iterates through the binary tree in preorder.
+---
+---@return Iterator<any>
+-----------------------------------------------------------------------------
+function BinaryTree:__pairs()
+	return self:preorder()
+end
+
+-----------------------------------------------------------------------------
 ---Returns the number of entries in the tree.
 ---
 ---@return number
