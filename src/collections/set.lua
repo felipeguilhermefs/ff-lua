@@ -150,6 +150,17 @@ function Set:union(other)
 end
 
 -----------------------------------------------------------------------------
+---Iterates through the set in a undefined order.
+---
+---@return Iterator<any, boolean>, Set<any>, nil
+-----------------------------------------------------------------------------
+function Set:__pairs()
+	return function(_, index)
+		return next(self._entries, index)
+	end, self, nil
+end
+
+-----------------------------------------------------------------------------
 ---Returns the number of entries in the set.
 ---
 ---@return number

@@ -112,6 +112,23 @@ function TestUnion()
 	lu.assertEquals(3, #setNil)
 end
 
+function TestIterator()
+	local set = Set.new()
+
+	set:add("a")
+	set:add("b")
+	set:add("c")
+	set:add("d")
+
+	local res = {}
+	for item in pairs(set) do
+		table.insert(res, item)
+	end
+	table.sort(res)
+
+	lu.assertEquals({ "a", "b", "c", "d" }, res)
+end
+
 function TestNil()
 	local set = Set.new()
 
