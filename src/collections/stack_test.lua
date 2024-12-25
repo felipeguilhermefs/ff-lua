@@ -32,4 +32,21 @@ function TestMultipleItems()
 	lu.assertTrue(s:empty())
 end
 
+function TestIterator()
+	local s = Stack.new()
+
+	s:push("a")
+	s:push("b")
+	s:push("c")
+	s:push("d")
+
+	local res = {}
+	for _, item in pairs(s) do
+		table.insert(res, item)
+	end
+
+	lu.assertEquals({ "d", "c", "b", "a" }, res)
+	lu.assertTrue(s:empty())
+end
+
 os.exit(lu.LuaUnit.run())

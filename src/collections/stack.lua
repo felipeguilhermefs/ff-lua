@@ -54,6 +54,24 @@ function Stack:top()
 end
 
 -----------------------------------------------------------------------------
+---Iterates through the queue in LIFO order. Same as:
+---
+---while not stack:empty() do
+---   local item = stack:pop()
+---end
+---
+---@return Iterator<1, any>, Stack<any>, nil
+-----------------------------------------------------------------------------
+function Stack:__pairs()
+	return function()
+		local item = self:pop()
+		if item ~= nil then
+			return 1, item
+		end
+	end, self, nil
+end
+
+-----------------------------------------------------------------------------
 ---Returns the number of entries in the stack.
 ---
 ---@return number
