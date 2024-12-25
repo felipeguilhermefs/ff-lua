@@ -126,4 +126,21 @@ function TestComparator()
 	lu.assertNil(h:pop())
 end
 
+function TestIterator()
+	local h = Heap.new()
+
+	h:push("b")
+	h:push("d")
+	h:push("c")
+	h:push("a")
+
+	local res = {}
+	for _, item in pairs(h) do
+		table.insert(res, item)
+	end
+
+	lu.assertEquals({ "a", "b", "c", "d" }, res)
+	lu.assertTrue(h:empty())
+end
+
 os.exit(lu.LuaUnit.run())

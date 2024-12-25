@@ -166,6 +166,24 @@ function Heap:_before(i, j)
 end
 
 -----------------------------------------------------------------------------
+---Iterates through the heap in order. Same as:
+---
+---while not heap:empty() do
+---   local item = heap:pop()
+---end
+---
+---@return Iterator<1, any>, Heap<any>, nil
+-----------------------------------------------------------------------------
+function Heap:__pairs()
+	return function()
+		local item = self:pop()
+		if item ~= nil then
+			return 1, item
+		end
+	end, self, nil
+end
+
+-----------------------------------------------------------------------------
 ---Returns the number of entries in the heap.
 ---
 ---@return number

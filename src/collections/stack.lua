@@ -54,7 +54,7 @@ function Stack:top()
 end
 
 -----------------------------------------------------------------------------
----Iterates through the queue in LIFO order. Same as:
+---Iterates through the stack in LIFO order. Same as:
 ---
 ---while not stack:empty() do
 ---   local item = stack:pop()
