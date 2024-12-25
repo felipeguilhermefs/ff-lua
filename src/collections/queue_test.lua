@@ -74,4 +74,21 @@ function TestInitialization()
 	lu.assertError(Queue.new, -1)
 end
 
+function TestIterator()
+	local q = Queue.new()
+
+	q:enqueue("a")
+	q:enqueue("b")
+	q:enqueue("c")
+	q:enqueue("d")
+
+	local res = {}
+	for _, item in pairs(q) do
+		table.insert(res, item)
+	end
+
+	lu.assertEquals({ "a", "b", "c", "d" }, res)
+	lu.assertTrue(q:empty())
+end
+
 os.exit(lu.LuaUnit.run())

@@ -129,6 +129,24 @@ function Queue:clear()
 end
 
 -----------------------------------------------------------------------------
+---Iterates through the queue in FIFO order. Same as:
+---
+---while not queue:empty() do
+---   local item = queue:dequeue()
+---end
+---
+---@return Iterator<1, any>, Queue<any>, nil
+-----------------------------------------------------------------------------
+function Queue:__pairs()
+	return function()
+		local item = self:dequeue()
+		if item ~= nil then
+			return 1, item
+		end
+	end, self, nil
+end
+
+-----------------------------------------------------------------------------
 ---Returns the number of entries in the queue.
 ---
 ---@return number
