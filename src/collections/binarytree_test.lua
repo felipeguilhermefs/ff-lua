@@ -240,4 +240,27 @@ function TestIterator()
 	lu.assertEquals({ 4, 2, 1, 3, 7, 5, 6, 8, 9 }, test)
 end
 
+function TestConcat()
+	local bt = BinaryTree.new() .. { 10, 20, 30 }
+	lu.assertEquals(3, #bt)
+
+	bt = bt .. nil
+	lu.assertEquals(3, #bt)
+
+	local map = require("hashmap").new()
+	map:put("4", 40)
+	map:put("5", 50)
+	map:put("6", 60)
+
+	bt = bt .. map
+
+	lu.assertEquals(6, #bt)
+	lu.assertTrue(bt:contains(10))
+	lu.assertTrue(bt:contains(20))
+	lu.assertTrue(bt:contains(30))
+	lu.assertTrue(bt:contains(40))
+	lu.assertTrue(bt:contains(50))
+	lu.assertTrue(bt:contains(60))
+end
+
 os.exit(lu.LuaUnit.run())

@@ -332,6 +332,25 @@ function BinaryTree:_postorder(node, array)
 end
 
 -----------------------------------------------------------------------------
+---Concatenate a given iterable to this.
+---
+---@param iterable BinaryTree Entries to be concatenated.
+---			      Defaults to an empty list if `nil`.
+---
+---@return BinaryTree
+-----------------------------------------------------------------------------
+function BinaryTree:__concat(iterable)
+	if iterable ~= nil then
+		assert(type(iterable) == "table", "Should be a table")
+		for _, item in pairs(iterable) do
+			self:insert(item)
+		end
+	end
+
+	return self
+end
+
+-----------------------------------------------------------------------------
 ---Iterates through the binary tree in preorder.
 ---
 ---@return Iterator<any>
