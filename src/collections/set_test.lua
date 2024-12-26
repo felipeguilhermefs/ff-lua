@@ -36,6 +36,14 @@ function TestContains()
 
 	set:remove("e")
 	lu.assertFalse(set:contains("e"))
+
+	set:add("f")
+	set:add("g")
+	set:add("h")
+
+	lu.assertTrue(set:contains("f", "g", "h"))
+	lu.assertTrue(set:contains("f", "h"))
+	lu.assertFalse(set:contains("f", "i"))
 end
 
 function TestRemove()

@@ -53,14 +53,24 @@ function Set:clear()
 end
 
 -----------------------------------------------------------------------------
----Returns true if entry is in the set.
+---Returns true if all entries are in the set.
 ---
----@param  entry any
+---@param  ... ...any
 ---
 ---@return boolean
 -----------------------------------------------------------------------------
-function Set:contains(entry)
-	return self._entries[entry] ~= nil
+function Set:contains(...)
+	local items = { ... }
+	if #items == 0 then
+		return false
+	end
+
+	for _, item in pairs(items) do
+		if not self._entries[item] then
+			return false
+		end
+	end
+	return true
 end
 
 -----------------------------------------------------------------------------
