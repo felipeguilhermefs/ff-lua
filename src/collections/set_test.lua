@@ -148,4 +148,35 @@ function TestNil()
 	lu.assertEquals(0, #set)
 end
 
+function TestConcat()
+	local set = Set.new({ 10, 20, 30 })
+	lu.assertEquals(3, #set)
+
+	set = set .. { 40, 50, 60 }
+
+	lu.assertTrue(set:contains(10))
+	lu.assertTrue(set:contains(20))
+	lu.assertTrue(set:contains(30))
+	lu.assertTrue(set:contains(40))
+	lu.assertTrue(set:contains(50))
+	lu.assertTrue(set:contains(60))
+	lu.assertEquals(6, #set)
+
+	set = set .. nil
+	lu.assertEquals(6, #set)
+
+	set = set .. Set.new({ 70, 80, 90 })
+	lu.assertTrue(set:contains(70))
+	lu.assertTrue(set:contains(80))
+	lu.assertTrue(set:contains(90))
+	lu.assertEquals(9, #set)
+
+	local q = require("queue").new()
+	q:enqueue(100)
+	q = set .. q
+
+	lu.assertTrue(set:contains(100))
+	lu.assertEquals(10, #q)
+end
+
 os.exit(lu.LuaUnit.run())

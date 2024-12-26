@@ -34,14 +34,13 @@ end
 -----------------------------------------------------------------------------
 ---Creates a new instance of the array.
 ---
----@param array table<any>? Entries to be copied and initialize it.
----                         Defaults to an empty array if `nil`.
+---@param iterable table<any>? Entries to be copied and initialize it.
+---                            Defaults to an empty array if `nil`.
 ---
 ---@return Array
 -----------------------------------------------------------------------------
-function Array.new(array)
-	array = array or {}
-	return setmetatable({ _entries = {} }, Array) .. array
+function Array.new(iterable)
+	return setmetatable({ _entries = {} }, Array) .. iterable
 end
 
 -----------------------------------------------------------------------------
@@ -144,10 +143,10 @@ function Array:swap(index, otherIndex)
 end
 
 -----------------------------------------------------------------------------
----Concatenate a given Array or table array to this.
+---Concatenate a given iterable to this.
 ---
 ---@param iterable? table<any, any> Any table that can be iterated over.
----                                 Defaults to an empty array if `nil`.
+---                                 Defaults to an empty table if `nil`.
 ---
 ---@return Array
 -----------------------------------------------------------------------------

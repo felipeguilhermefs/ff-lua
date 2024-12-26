@@ -10,23 +10,13 @@ Set.__index = Set
 -----------------------------------------------------------------------------
 ---Creates a new instance of the set.
 ---
----@param array?  table<any>|Array  Array to initialize the set.
----                                 Ignored if `nil`.
+---@param iterable?  table<any> Iterable to initialize the set.
+---                             Ignored if `nil`.
 ---
 ---@return Set
 -----------------------------------------------------------------------------
-function Set.new(array)
-	local new = setmetatable({ _entries = {}, _len = 0 }, Set)
-
-	if array then
-		assert(Array.isArray(array), "Should be an array")
-
-		for _, value in pairs(array) do
-			new:add(value)
-		end
-	end
-
-	return new
+function Set.new(iterable)
+	return setmetatable({ _entries = {}, _len = 0 }, Set) .. iterable
 end
 
 -----------------------------------------------------------------------------
@@ -82,7 +72,7 @@ end
 -----------------------------------------------------------------------------
 function Set:diff(other)
 	local res = Set.new()
-	for entry, _ in pairs(self._entries) do
+	for entry, _ in pairs(self) do
 		if other == nil or not other:contains(entry) then
 			res:add(entry)
 		end
@@ -112,7 +102,7 @@ function Set:intersection(other)
 		return res
 	end
 
-	for entry, _ in pairs(self._entries) do
+	for entry, _ in pairs(self) do
 		if other:contains(entry) then
 			res:add(entry)
 		end
@@ -145,18 +135,27 @@ end
 ---@return Set
 -----------------------------------------------------------------------------
 function Set:union(other)
-	local res = Set.new()
+	return Set.new(self) .. other
+end
 
-	for entry, _ in pairs(self._entries) do
-		res:add(entry)
-	end
+-----------------------------------------------------------------------------
+---Concatenate a given iterable to this.
+---
+---@param iterable? table<any, any> Any table that can be iterated over.
+---                                 Defaults to an empty table if `nil`.
+---
+---@return Set
+-----------------------------------------------------------------------------
+function Set:__concat(iterable)
+	if iterable ~= nil then
+		assert(type(iterable) == "table", "Should be a table")
 
-	if other then
-		for entry, _ in pairs(other._entries) do
-			res:add(entry)
+		for _, item in pairs(iterable) do
+			self:add(item)
 		end
 	end
-	return res
+
+	return self
 end
 
 -----------------------------------------------------------------------------
