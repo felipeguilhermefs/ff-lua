@@ -81,10 +81,7 @@ function TestReverse()
 end
 
 function TestConcat()
-	local ll = LinkedList.new()
-	ll:pushBack(10)
-	ll:pushBack(20)
-	ll:pushBack(30)
+	local ll = LinkedList.new() .. { 10, 20, 30 }
 	lu.assertEquals(3, #ll)
 
 	ll = ll .. nil
@@ -97,13 +94,19 @@ function TestConcat()
 
 	ll = ll .. other
 
-	lu.assertEquals(6, #ll)
+	local bt = require("binarytree").new()
+	bt:insert(70)
+
+	ll = ll .. bt
+
+	lu.assertEquals(7, #ll)
 	lu.assertEquals(10, ll:popFront())
 	lu.assertEquals(20, ll:popFront())
 	lu.assertEquals(30, ll:popFront())
 	lu.assertEquals(40, ll:popFront())
 	lu.assertEquals(50, ll:popFront())
 	lu.assertEquals(60, ll:popFront())
+	lu.assertEquals(70, ll:popFront())
 end
 
 function TestIterator()

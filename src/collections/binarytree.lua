@@ -191,7 +191,7 @@ function BinaryTree:preorder()
 			nodes:push(node.left)
 		end
 
-		return node.value
+		return node.value, node.value
 	end
 end
 

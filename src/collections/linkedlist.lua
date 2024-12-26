@@ -174,20 +174,26 @@ function LinkedList:reverse()
 end
 
 -----------------------------------------------------------------------------
----Concatenate a given LinkedList to this.
+---Concatenate a given iterable to this.
 ---
----@param list LinkedList Entries to be concatenated.
----                       Defaults to an empty list if `nil`.
+---@param iterable LinkedList Entries to be concatenated.
+---			      Defaults to an empty list if `nil`.
 ---
 ---@return LinkedList
 -----------------------------------------------------------------------------
-function LinkedList:__concat(list)
-	if list ~= nil then
-		assert(LinkedList.isLinkedList(list), "Should be an LinkedList")
-		self._back.next = list._front
-		list._front.prev = self._back
-		self._back = list._back
-		self._len = self._len + list._len
+function LinkedList:__concat(iterable)
+	if iterable ~= nil then
+		if LinkedList.isLinkedList(iterable) then
+			self._back.next = iterable._front
+			iterable._front.prev = self._back
+			self._back = iterable._back
+			self._len = self._len + iterable._len
+		else
+			assert(type(iterable) == "table", "Should be a table")
+			for _, item in pairs(iterable) do
+				self:pushBack(item)
+			end
+		end
 	end
 
 	return self
