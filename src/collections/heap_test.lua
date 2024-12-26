@@ -143,4 +143,26 @@ function TestIterator()
 	lu.assertTrue(h:empty())
 end
 
+function TestConcat()
+	local h = Heap.new() .. { 10, 20, 30 }
+	lu.assertEquals(3, #h)
+
+	h = h .. nil
+	lu.assertEquals(3, #h)
+
+	local ll = require("linkedlist").new()
+	ll:pushBack(40)
+	ll:pushBack(50)
+	ll:pushBack(60)
+
+	ll = h .. ll
+
+	lu.assertEquals(10, h:pop())
+	lu.assertEquals(20, h:pop())
+	lu.assertEquals(30, h:pop())
+	lu.assertEquals(40, h:pop())
+	lu.assertEquals(50, h:pop())
+	lu.assertEquals(60, h:pop())
+end
+
 os.exit(lu.LuaUnit.run())

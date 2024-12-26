@@ -166,6 +166,26 @@ function Heap:_before(i, j)
 end
 
 -----------------------------------------------------------------------------
+---Pushes all items in a given iterable.
+---
+---@param iterable? table<any, any> Any table that can be iterated over.
+---                                 Defaults to an empty table if `nil`.
+---
+---@return Heap
+-----------------------------------------------------------------------------
+function Heap:__concat(iterable)
+	if iterable ~= nil then
+		assert(type(iterable) == "table", "Should be a table")
+
+		for _, item in pairs(iterable) do
+			self:push(item)
+		end
+	end
+
+	return self
+end
+
+-----------------------------------------------------------------------------
 ---Iterates through the heap in order. Same as:
 ---
 ---while not heap:empty() do
