@@ -1,5 +1,3 @@
-local Array = require("ff.collections.array")
-
 ---@class Set
 ---
 ---@field private _entries table<any, boolean> Table that holds the entries.

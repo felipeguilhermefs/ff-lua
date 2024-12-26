@@ -129,6 +129,26 @@ function Queue:clear()
 end
 
 -----------------------------------------------------------------------------
+---Enqueues all items in a given iterable.
+---
+---@param iterable? table<any, any> Any table that can be iterated over.
+---                                 Defaults to an empty table if `nil`.
+---
+---@return Queue
+-----------------------------------------------------------------------------
+function Queue:__concat(iterable)
+	if iterable ~= nil then
+		assert(type(iterable) == "table", "Should be a table")
+
+		for _, item in pairs(iterable) do
+			self:enqueue(item)
+		end
+	end
+
+	return self
+end
+
+-----------------------------------------------------------------------------
 ---Iterates through the queue in FIFO order. Same as:
 ---
 ---while not queue:empty() do
