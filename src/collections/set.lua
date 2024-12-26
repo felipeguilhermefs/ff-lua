@@ -39,7 +39,7 @@ function Set:add(entry)
 		return false
 	end
 
-	self._entries[entry] = true
+	self._entries[entry] = entry
 	self._len = self._len + 1
 	return true
 end

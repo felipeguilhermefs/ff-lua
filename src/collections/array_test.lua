@@ -101,6 +101,13 @@ function TestConcat()
 	lu.assertEquals(80, a:get(8))
 	lu.assertEquals(90, a:get(9))
 	lu.assertEquals(9, #a)
+
+	local set = require("set").new()
+	set:add(100)
+	a = a .. set
+
+	lu.assertEquals(100, a:get(10))
+	lu.assertEquals(10, #a)
 end
 
 function TestIterator()

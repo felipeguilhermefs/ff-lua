@@ -146,16 +146,16 @@ end
 -----------------------------------------------------------------------------
 ---Concatenate a given Array or table array to this.
 ---
----@param array? table<any>|Array  Entries to be concatenated.
----                                Defaults to an empty array if `nil`.
+---@param iterable? table<any, any> Any table that can be iterated over.
+---                                 Defaults to an empty array if `nil`.
 ---
 ---@return Array
 -----------------------------------------------------------------------------
-function Array:__concat(array)
-	if array ~= nil then
-		assert(Array.isArray(array), "Should be an array")
+function Array:__concat(iterable)
+	if iterable ~= nil then
+		assert(type(iterable) == "table", "Should be a table")
 
-		for _, item in pairs(array) do
+		for _, item in pairs(iterable) do
 			self:insert(item)
 		end
 	end
