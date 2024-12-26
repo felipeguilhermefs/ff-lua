@@ -108,6 +108,25 @@ function HashMap:remove(key)
 end
 
 -----------------------------------------------------------------------------
+---Concatenate a given iterable to this.
+---
+---@param iterable HashMap Entries to be concatenated.
+---			   Defaults to an empty list if `nil`.
+---
+---@return HashMap
+-----------------------------------------------------------------------------
+function HashMap:__concat(iterable)
+	if iterable ~= nil then
+		assert(type(iterable) == "table", "Should be a table")
+		for key, value in pairs(iterable) do
+			self:put(key, value)
+		end
+	end
+
+	return self
+end
+
+-----------------------------------------------------------------------------
 ---Iterates through the map in a undefined order.
 ---
 ---@return Iterator<any, any>, HashMap<any, any>, nil

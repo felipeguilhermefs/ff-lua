@@ -134,4 +134,24 @@ function TestIterator()
 	}, res)
 end
 
+function TestConcat()
+	local map = HashMap.new() .. { a = 10, b = 20, c = 30 }
+	lu.assertEquals(3, #map)
+
+	map = map .. nil
+	lu.assertEquals(3, #map)
+
+	local arr = require("array").new({ "d", "e", "f" })
+
+	map = map .. arr
+
+	lu.assertEquals(6, #map)
+	lu.assertEquals(10, map:get("a"))
+	lu.assertEquals(20, map:get("b"))
+	lu.assertEquals(30, map:get("c"))
+	lu.assertEquals("d", map:get(1))
+	lu.assertEquals("e", map:get(2))
+	lu.assertEquals("f", map:get(3))
+end
+
 os.exit(lu.LuaUnit.run())
