@@ -54,6 +54,26 @@ function Stack:top()
 end
 
 -----------------------------------------------------------------------------
+---Pushes all items in a given iterable.
+---
+---@param iterable? table<any, any> Any table that can be iterated over.
+---                                 Defaults to an empty table if `nil`.
+---
+---@return Stack
+-----------------------------------------------------------------------------
+function Stack:__concat(iterable)
+	if iterable ~= nil then
+		assert(type(iterable) == "table", "Should be a table")
+
+		for _, item in pairs(iterable) do
+			self:push(item)
+		end
+	end
+
+	return self
+end
+
+-----------------------------------------------------------------------------
 ---Iterates through the stack in LIFO order. Same as:
 ---
 ---while not stack:empty() do

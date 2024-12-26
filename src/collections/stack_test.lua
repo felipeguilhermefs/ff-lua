@@ -49,4 +49,26 @@ function TestIterator()
 	lu.assertTrue(s:empty())
 end
 
+function TestConcat()
+	local s = Stack.new() .. { 10, 20, 30 }
+	lu.assertEquals(3, #s)
+
+	s = s .. nil
+	lu.assertEquals(3, #s)
+
+	local h = require("heap").new()
+	h:push(40)
+	h:push(50)
+	h:push(60)
+
+	h = s .. h
+
+	lu.assertEquals(60, s:pop())
+	lu.assertEquals(50, s:pop())
+	lu.assertEquals(40, s:pop())
+	lu.assertEquals(30, s:pop())
+	lu.assertEquals(20, s:pop())
+	lu.assertEquals(10, s:pop())
+end
+
 os.exit(lu.LuaUnit.run())
