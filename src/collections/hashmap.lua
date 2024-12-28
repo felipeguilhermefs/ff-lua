@@ -77,6 +77,44 @@ function HashMap:get(key, default)
 end
 
 -----------------------------------------------------------------------------
+---Merge an iterable into this HashMap, if keys conflict, then merge use
+---a merge function to compute a value.
+---
+---@param  other table<any, any>?  Other table to merge into this.
+---                                If nil this is ignored.
+---@param  fn    fun(any, any)?    Merge function to be called when in conflict.
+---                                Defaults to an override function.
+---
+---@return HashMap                 Returns this HashMap after the merge
+-----------------------------------------------------------------------------
+function HashMap:merge(other, fn)
+	if other == nil then
+		return self
+	end
+
+	-- We iterate over key and values of this "other"
+	assert(type(other) == "table", "Should be a table")
+
+	-- If no merge function is given, we default to "override"
+	fn = fn or function(_, b)
+		return b
+	end
+
+	for k, v in pairs(other) do
+		local value = self:get(k)
+		-- Just need to call the merge function if there is a conflict
+		if value then
+			value = fn(value, v)
+		else
+			value = v
+		end
+		self:put(k, value)
+	end
+
+	return self
+end
+
+-----------------------------------------------------------------------------
 ---Adds a value to the map associated by a lookup key.
 ---
 ---@param  key    any Key used for lookup the value, `nil` will be ignored.

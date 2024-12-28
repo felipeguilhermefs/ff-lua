@@ -154,4 +154,21 @@ function TestConcat()
 	lu.assertEquals("f", map:get(3))
 end
 
+function TestMerge()
+	local function add(a, b)
+		return a + b
+	end
+
+	local map = HashMap.new() .. { a = 10, b = 20, c = 30 }
+	local other = HashMap.new() .. { a = 1, b = 2, d = 4 }
+
+	map:merge(other, add)
+
+	lu.assertEquals(4, #map)
+	lu.assertEquals(11, map:get("a"))
+	lu.assertEquals(22, map:get("b"))
+	lu.assertEquals(30, map:get("c"))
+	lu.assertEquals(4, map:get("d"))
+end
+
 os.exit(lu.LuaUnit.run())
