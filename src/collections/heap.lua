@@ -87,11 +87,10 @@ function Heap:pop()
 		return self._entries:remove(1)
 	end
 
-	local root = self._entries:get(1)
-	local last = self._entries:remove(#self)
-	self._entries:put(1, last)
+	self._entries:swap(1, #self)
+	local res = self._entries:remove(#self)
 	self:_siftDown(1)
-	return root
+	return res
 end
 
 -----------------------------------------------------------------------------
