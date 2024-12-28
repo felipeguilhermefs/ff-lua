@@ -89,7 +89,7 @@ function Heap:pop()
 
 	local root = self._entries:get(1)
 	local last = self._entries:remove(#self)
-	self._entries:put(last, 1)
+	self._entries:put(1, last)
 	self:_siftDown(1)
 	return root
 end
