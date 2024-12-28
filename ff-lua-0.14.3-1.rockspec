@@ -47,7 +47,6 @@ build = {
 		["ff.min"] = "src/math/min.lua",
 		["ff.search.binarysearch"] = "src/search/binarysearch.lua",
 		["ff.search.quickselect"] = "src/search/quickselect.lua",
-		["ff.sort"] = "src/sort/sort.lua",
 		["ff.sort.bucketsort"] = "src/sort/bucketsort.lua",
 		["ff.sort.quicksort"] = "src/sort/quicksort.lua",
 		["ff.spy"] = "src/test/spy.lua",
