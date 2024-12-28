@@ -110,10 +110,10 @@ end
 -----------------------------------------------------------------------------
 ---Overrides a value in a given index.
 ---
----@param  value any      Value to be added, will ignore it if `nil`.
 ---@param  index number   Index to add the value.
+---@param  value any      Value to be added, will ignore it if `nil`.
 -----------------------------------------------------------------------------
-function Array:put(value, index)
+function Array:put(index, value)
 	if value and index then
 		self._entries[index] = value
 	end
