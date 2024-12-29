@@ -163,6 +163,16 @@ function Array:__concat(iterable)
 end
 
 -----------------------------------------------------------------------------
+---Returns the number of entries in the array.
+---
+---@return number
+---@private
+-----------------------------------------------------------------------------
+function Array:__len()
+	return #self._entries
+end
+
+-----------------------------------------------------------------------------
 ---Iterates through the array from 1 to #Array
 ---
 ---@return Iterator<any>, Array<any>, nil
@@ -174,13 +184,12 @@ function Array:__pairs()
 end
 
 -----------------------------------------------------------------------------
----Returns the number of entries in the array.
+---String representation of this array
 ---
----@return number
----@private
+---@return string
 -----------------------------------------------------------------------------
-function Array:__len()
-	return #self._entries
+function Array:__tostring()
+	return string.format("[ %s ]", table.concat(self._entries, ", "))
 end
 
 return Array
