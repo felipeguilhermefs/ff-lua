@@ -74,6 +74,16 @@ function Stack:__concat(iterable)
 end
 
 -----------------------------------------------------------------------------
+---Returns the number of entries in the stack.
+---
+---@return number
+---@private
+-----------------------------------------------------------------------------
+function Stack:__len()
+	return #self._entries
+end
+
+-----------------------------------------------------------------------------
 ---Iterates through the stack in LIFO order. Same as:
 ---
 ---while not stack:empty() do
@@ -92,13 +102,12 @@ function Stack:__pairs()
 end
 
 -----------------------------------------------------------------------------
----Returns the number of entries in the stack.
+---String representation of this stack
 ---
----@return number
----@private
+---@return string
 -----------------------------------------------------------------------------
-function Stack:__len()
-	return #self._entries
+function Stack:__tostring()
+	return string.format("[ %s <- Top ]", table.concat(self._entries, ", "))
 end
 
 return Stack

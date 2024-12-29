@@ -39,8 +39,6 @@ function Heap.newMax()
 	return Heap.new(Comparator.reverse(Comparator.natural))
 end
 
---TODO: PriorityQueue max and min
-
 -----------------------------------------------------------------------------
 ---Returns whether the heap is empty or not.
 ---
@@ -185,6 +183,16 @@ function Heap:__concat(iterable)
 end
 
 -----------------------------------------------------------------------------
+---Returns the number of entries in the heap.
+---
+---@return number
+---@private
+-----------------------------------------------------------------------------
+function Heap:__len()
+	return #self._entries
+end
+
+-----------------------------------------------------------------------------
 ---Iterates through the heap in order. Same as:
 ---
 ---while not heap:empty() do
@@ -203,13 +211,12 @@ function Heap:__pairs()
 end
 
 -----------------------------------------------------------------------------
----Returns the number of entries in the heap.
+---String representation of this heap
 ---
----@return number
----@private
+---@return string
 -----------------------------------------------------------------------------
-function Heap:__len()
-	return #self._entries
+function Heap:__tostring()
+	return tostring(self._entries)
 end
 
 return Heap
