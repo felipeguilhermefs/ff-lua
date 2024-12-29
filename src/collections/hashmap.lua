@@ -165,6 +165,16 @@ function HashMap:__concat(iterable)
 end
 
 -----------------------------------------------------------------------------
+---Returns the number of entries in the map.
+---
+---@return number
+---@private
+-----------------------------------------------------------------------------
+function HashMap:__len()
+	return self._len
+end
+
+-----------------------------------------------------------------------------
 ---Iterates through the map in a undefined order.
 ---
 ---@return Iterator<any, any>, HashMap<any, any>, nil
@@ -176,13 +186,16 @@ function HashMap:__pairs()
 end
 
 -----------------------------------------------------------------------------
----Returns the number of entries in the map.
+---String representation of this hashmap
 ---
----@return number
----@private
+---@return string
 -----------------------------------------------------------------------------
-function HashMap:__len()
-	return self._len
+function HashMap:__tostring()
+	local sb = {}
+	for k, v in pairs(self) do
+		table.insert(sb, string.format("%s = %s", k, v))
+	end
+	return string.format("{ %s }", table.concat(sb, ", "))
 end
 
 return HashMap

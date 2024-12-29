@@ -157,6 +157,16 @@ function Set:__concat(iterable)
 end
 
 -----------------------------------------------------------------------------
+---Returns the number of entries in the set.
+---
+---@return number
+---@private
+-----------------------------------------------------------------------------
+function Set:__len()
+	return self._len
+end
+
+-----------------------------------------------------------------------------
 ---Iterates through the set in a undefined order.
 ---
 ---@return Iterator<any, boolean>, Set<any>, nil
@@ -168,13 +178,16 @@ function Set:__pairs()
 end
 
 -----------------------------------------------------------------------------
----Returns the number of entries in the set.
+---String representation of this set
 ---
----@return number
----@private
+---@return string
 -----------------------------------------------------------------------------
-function Set:__len()
-	return self._len
+function Set:__tostring()
+	local entries = {}
+	for item in pairs(self) do
+		table.insert(entries, item)
+	end
+	return string.format("{ %s }", table.concat(entries, ", "))
 end
 
 return Set

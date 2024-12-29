@@ -173,10 +173,10 @@ function TestConcat()
 
 	local q = require("queue").new()
 	q:enqueue(100)
-	q = set .. q
+	set = set .. q
 
 	lu.assertTrue(set:contains(100))
-	lu.assertEquals(10, #q)
+	lu.assertEquals(10, #set)
 end
 
 os.exit(lu.LuaUnit.run())
