@@ -200,6 +200,16 @@ function LinkedList:__concat(iterable)
 end
 
 -----------------------------------------------------------------------------
+---Returns the number of entries in the list.
+---
+---@return number
+---@private
+-----------------------------------------------------------------------------
+function LinkedList:__len()
+	return self._len
+end
+
+-----------------------------------------------------------------------------
 ---Iterates through the LinkedList from 1 to #LinkedList
 ---
 ---@return Iterator<any>, LinkedList<any>, nil
@@ -220,13 +230,16 @@ function LinkedList:__pairs()
 end
 
 -----------------------------------------------------------------------------
----Returns the number of entries in the list.
+---String representation of this linkedlist
 ---
----@return number
----@private
+---@return string
 -----------------------------------------------------------------------------
-function LinkedList:__len()
-	return self._len
+function LinkedList:__tostring()
+	local sb = {}
+	for _, item in pairs(self) do
+		table.insert(sb, item)
+	end
+	return string.format("[ %s ]", table.concat(sb, " -> "))
 end
 
 return LinkedList

@@ -351,6 +351,16 @@ function BinaryTree:__concat(iterable)
 end
 
 -----------------------------------------------------------------------------
+---Returns the number of entries in the tree.
+---
+---@return number
+---@private
+-----------------------------------------------------------------------------
+function BinaryTree:__len()
+	return self._len
+end
+
+-----------------------------------------------------------------------------
 ---Iterates through the binary tree in preorder.
 ---
 ---@return Iterator<any>
@@ -360,13 +370,12 @@ function BinaryTree:__pairs()
 end
 
 -----------------------------------------------------------------------------
----Returns the number of entries in the tree.
+---String representation of this binary tree
 ---
----@return number
----@private
+---@return string
 -----------------------------------------------------------------------------
-function BinaryTree:__len()
-	return self._len
+function BinaryTree:__tostring()
+	return string.format("[ %s ]", table.concat(self:array(), ", "))
 end
 
 return BinaryTree

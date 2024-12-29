@@ -149,6 +149,16 @@ function Queue:__concat(iterable)
 end
 
 -----------------------------------------------------------------------------
+---Returns the number of entries in the queue.
+---
+---@return number
+---@private
+-----------------------------------------------------------------------------
+function Queue:__len()
+	return self._len
+end
+
+-----------------------------------------------------------------------------
 ---Iterates through the queue in FIFO order. Same as:
 ---
 ---while not queue:empty() do
@@ -167,13 +177,19 @@ function Queue:__pairs()
 end
 
 -----------------------------------------------------------------------------
----Returns the number of entries in the queue.
+---String representation of this queue
 ---
----@return number
----@private
+---@return string
 -----------------------------------------------------------------------------
-function Queue:__len()
-	return self._len
+function Queue:__tostring()
+	local sb = {}
+	local cur = self._front
+	while cur ~= nil do
+		table.insert(sb, cur.value)
+		cur = cur.next
+	end
+
+	return string.format("[ Front => %s ]", table.concat(sb, ", "))
 end
 
 return Queue
