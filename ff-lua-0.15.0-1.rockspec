@@ -1,9 +1,9 @@
 rockspec_format = "3.0"
 package = "ff-lua"
-version = "0.14.4-1"
+version = "0.15.0-1"
 source = {
 	url = "git+https://github.com/felipeguilhermefs/ff-lua",
-	tag = "v0.14.4",
+	tag = "v0.15.0",
 }
 description = {
 	homepage = "https://github.com/felipeguilhermefs/ff-lua",
@@ -20,7 +20,7 @@ description = {
 	maintainer = "Felipe Flores <felipeguilhermefs@gmail.com>",
 }
 dependencies = {
-	"lua ~> 5.4",
+	"lua ~> 5.1",
 }
 test_dependencies = {
 	"luaunit >= 3.4",
@@ -28,6 +28,7 @@ test_dependencies = {
 build = {
 	type = "builtin",
 	modules = {
+		["ff.aoc.matrix"] = "src/aoc/matrix.lua",
 		["ff.cache.lru"] = "src/cache/lru.lua",
 		["ff.collections.array"] = "src/collections/array.lua",
 		["ff.collections.binarytree"] = "src/collections/binarytree.lua",
