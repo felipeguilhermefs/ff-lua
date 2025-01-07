@@ -20,7 +20,7 @@ description = {
 	maintainer = "Felipe Flores <felipeguilhermefs@gmail.com>",
 }
 dependencies = {
-	"lua ~> 5.1",
+	"lua ~> 5.4",
 }
 test_dependencies = {
 	"luaunit >= 3.4",
