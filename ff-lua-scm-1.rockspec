@@ -1,9 +1,8 @@
 rockspec_format = "3.0"
 package = "ff-lua"
-version = "0.15.2-1"
+version = "scm-1"
 source = {
 	url = "git+https://github.com/felipeguilhermefs/ff-lua",
-	tag = "v0.15.2",
 }
 description = {
 	homepage = "https://github.com/felipeguilhermefs/ff-lua",
@@ -20,7 +19,7 @@ description = {
 	maintainer = "Felipe Flores <felipeguilhermefs@gmail.com>",
 }
 dependencies = {
-	"lua ~> 5.4",
+	"lua >= 5.1",
 }
 test_dependencies = {
 	"luaunit >= 3.4",
