@@ -1,4 +1,6 @@
 local HashMap = require("ff.collections.hashmap")
+local Heap = require("ff.collections.heap")
+local LinkedList = require("ff.collections.linkedlist")
 
 ---@class Vertex
 ---@field private _value any			Some value that identifies the vertex
@@ -68,7 +70,7 @@ end
 ---@param  weight	number?		Weight of the edge. Defaults to 1.
 -----------------------------------------------------------------------------
 function Graph:addEdge(from, to, weight)
-	assert(from ~= nil, "from is required")
+	assert(from, "from is required")
 	weight = weight or 1
 	assert(type(weight) == "number", "weight should be a number")
 
@@ -84,6 +86,80 @@ function Graph:addEdge(from, to, weight)
 	if not self._directed then
 		to_v:addEdge(from_v, weight)
 	end
+end
+
+local function minDistance(a, b)
+	if a[2] > b[2] then
+		return 1
+	end
+
+	if a[2] < b[2] then
+		return -1
+	end
+
+	return 0
+end
+
+-----------------------------------------------------------------------------
+---Find the shortest path between 2 vertices.
+---
+---@param  from		any		Value that identifies a vertex.
+---@param  to		any		Value that identifies a vertex.
+---
+---@return number, LinkedList	Total distance and sequenced list of vertices
+---				to visit.
+-----------------------------------------------------------------------------
+function Graph:shortestPath(from, to)
+	assert(from, "from is required")
+	assert(to, "to is required")
+
+	local from_v = assert(self._vertices:get(from), "source should be present in graph")
+	local to_v = assert(self._vertices:get(to), "source should be present in graph")
+
+	if from == to then
+		return 0, LinkedList.new() .. { from }
+	end
+
+	local distances = HashMap.new()
+	distances:put(from_v, 0)
+
+	local closest = Heap.new(minDistance)
+	closest:put({ from_v, 0 })
+
+	local previous = HashMap.new()
+	while not closest:empty() do
+		local cur = closest:pop()
+
+		if cur[1] == to_v then
+			break
+		end
+
+		local cur_distance = distances:get(cur[1])
+
+		for neighbor, distance_to in pairs(cur[1]._edges) do
+			local new_distance = cur_distance + distance_to
+			local old_distance = distances:get(neighbor)
+			if old_distance == nil or new_distance < old_distance then
+				distances:put(neighbor, new_distance)
+				closest:put({ neighbor, new_distance })
+				previous:put(neighbor, cur[1])
+			end
+		end
+	end
+
+	local total_distance = distances:get(to_v)
+	if total_distance == nil then
+		return 0, LinkedList.new()
+	end
+
+	local path = LinkedList.new()
+	local cur = to_v
+	while cur do
+		path:pushFront(cur.value)
+		cur = previous:get(cur)
+	end
+
+	return total_distance, path
 end
 
 return Graph
