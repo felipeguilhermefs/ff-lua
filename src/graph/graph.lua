@@ -88,18 +88,6 @@ function Graph:addEdge(from, to, weight)
 	end
 end
 
-local function minDistance(a, b)
-	if a[2] > b[2] then
-		return 1
-	end
-
-	if a[2] < b[2] then
-		return -1
-	end
-
-	return 0
-end
-
 -----------------------------------------------------------------------------
 ---Find the shortest path between 2 vertices.
 ---
@@ -122,6 +110,18 @@ function Graph:shortestPath(from, to)
 
 	local distances = HashMap.new()
 	distances:put(from_v, 0)
+
+	local minDistance = function(a, b)
+		if a[2] > b[2] then
+			return 1
+		end
+
+		if a[2] < b[2] then
+			return -1
+		end
+
+		return 0
+	end
 
 	local closest = Heap.new(minDistance)
 	closest:put({ from_v, 0 })
