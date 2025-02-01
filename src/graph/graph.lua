@@ -164,7 +164,7 @@ function Graph:shortestPath(from, to)
 	local path = LinkedList.new()
 	local cur = to_v
 	while cur do
-		path:pushFront(cur.value)
+		path:pushFront(cur._value)
 		cur = previous:get(cur)
 	end
 
