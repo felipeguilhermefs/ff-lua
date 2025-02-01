@@ -38,6 +38,15 @@ function Vertex:addEdge(to, weight)
 	self._edges:put(to, weight)
 end
 
+-----------------------------------------------------------------------------
+---Iterates through the edges in no particular order.
+---
+---@return Iterator<Vertex, number>, HashMap<Vertex, number>, nil
+-----------------------------------------------------------------------------
+function Vertex:edges()
+	return pairs(self._edges)
+end
+
 ---@class Graph
 ---@field private _vertices HashMap<any, Vertex>	Lookup for all vertices in this graph
 ---@field private _directed boolean			Is this a directed graph or not.
@@ -136,7 +145,7 @@ function Graph:shortestPath(from, to)
 
 		local cur_distance = distances:get(cur[1])
 
-		for neighbor, distance_to in pairs(cur[1]._edges) do
+		for neighbor, distance_to in cur[1]:edges() do
 			local new_distance = cur_distance + distance_to
 			local old_distance = distances:get(neighbor)
 			if old_distance == nil or new_distance < old_distance then
