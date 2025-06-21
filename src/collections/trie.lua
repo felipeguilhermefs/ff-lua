@@ -2,7 +2,7 @@ local HashMap = require("ff.collections.hashmap")
 
 ---@class TrieNode
 ---
----@field private _leaf     boolean Marks if the node is a leaf
+---@field private _word     boolean Marks if the node is a word
 ---@field private _children HashMap<string, TrieNode> Maps child nodes by prefix char
 local TrieNode = {}
 TrieNode.__index = TrieNode
@@ -13,7 +13,7 @@ TrieNode.__index = TrieNode
 ---@return TrieNode
 -----------------------------------------------------------------------------
 function TrieNode.new()
-	return setmetatable({ _leaf = false, _children = nil }, TrieNode)
+	return setmetatable({ _word = false, _children = nil }, TrieNode)
 end
 
 -----------------------------------------------------------------------------
@@ -75,7 +75,7 @@ function Trie:contains(word, prefix)
 		end
 	end
 
-	return prefix or cur._leaf
+	return prefix or cur._word
 end
 
 -----------------------------------------------------------------------------
@@ -93,13 +93,14 @@ end
 ---@param  word string
 -----------------------------------------------------------------------------
 function Trie:insert(word)
+	print("test", self, word)
 	assert(type(word) == "string", "Word should be a string")
 
 	local cur = self._root
 	for letter in word:gmatch(".") do
 		cur = cur:add(letter)
 	end
-	cur._leaf = true
+	cur._word = true
 	self._len = self._len + 1
 end
 
@@ -131,7 +132,7 @@ end
 ---@private
 -----------------------------------------------------------------------------
 function Trie:__len()
-	return #self._len
+	return self._len
 end
 
 -----------------------------------------------------------------------------
@@ -158,9 +159,9 @@ end
 ---
 ---@return string
 -----------------------------------------------------------------------------
-function Trie:__tostring()
-	assert(false, "Not implemented")
-	return string.format("[ %s <- Top ]", table.concat(self._entries, ", "))
-end
+-- function Trie:__tostring()
+-- 	assert(false, "Not implemented")
+-- 	return string.format("[ %s <- Top ]", table.concat(self._entries, ", "))
+-- end
 
 return Trie
