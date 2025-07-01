@@ -13,7 +13,7 @@ TrieNode.__index = TrieNode
 ---@return TrieNode
 -----------------------------------------------------------------------------
 function TrieNode.new()
-	return setmetatable({ _word = false, _children = nil }, TrieNode)
+	return setmetatable({ _word = false, _children = HashMap.new() }, TrieNode)
 end
 
 -----------------------------------------------------------------------------
@@ -24,7 +24,6 @@ end
 ---@return TrieNode
 -----------------------------------------------------------------------------
 function TrieNode:add(letter)
-	self._children = self._children or HashMap.new()
 	return self._children:compute(letter, TrieNode.new)
 end
 
@@ -88,12 +87,11 @@ function Trie:empty()
 end
 
 -----------------------------------------------------------------------------
----Adds an words to the trie.
+---Adds a word to the trie.
 ---
 ---@param  word string
 -----------------------------------------------------------------------------
 function Trie:insert(word)
-	print("test", self, word)
 	assert(type(word) == "string", "Word should be a string")
 
 	local cur = self._root
@@ -102,6 +100,46 @@ function Trie:insert(word)
 	end
 	cur._word = true
 	self._len = self._len + 1
+end
+
+-----------------------------------------------------------------------------
+---Removes a word or prefix
+---
+---@param  word string Word or prefix to be removed
+---@param  prefix boolean Match by prefix. Defaults false.
+-----------------------------------------------------------------------------
+function Trie:remove(word, prefix)
+	assert(type(word) == "string", "Word should be a string")
+	prefix = prefix or false
+
+	self:_delete(self._root, word, prefix, 1)
+end
+
+function Trie:_delete(node, word, prefix, index)
+	if index > #word then
+		if not prefix and not node._word then
+			return false
+		end
+
+		node._word = false
+
+		return prefix or node._children:empty()
+	end
+
+	local letter = word:sub(index, index)
+	local child = node._children:get(letter)
+
+	if child == nil then
+		return false
+	end
+
+	local delete = self:_delete(child, word, prefix, index + 1)
+	if delete then
+		node._children:remove(letter)
+
+		return not node._word and node._children:empty()
+	end
+	return false
 end
 
 -----------------------------------------------------------------------------
