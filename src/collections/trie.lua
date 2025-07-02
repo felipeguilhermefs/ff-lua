@@ -28,6 +28,15 @@ function TrieNode:add(letter)
 end
 
 -----------------------------------------------------------------------------
+---Returns whether the node is empty or not.
+---
+---@return boolean
+-----------------------------------------------------------------------------
+function TrieNode:empty()
+	return self._children:empty()
+end
+
+-----------------------------------------------------------------------------
 ---Look up letter in this node
 ---
 ---@param  letter string
@@ -36,6 +45,15 @@ end
 -----------------------------------------------------------------------------
 function TrieNode:get(letter)
 	return self._children:get(letter)
+end
+
+-----------------------------------------------------------------------------
+---Remove child mapped to the letter
+---
+---@param  letter string
+-----------------------------------------------------------------------------
+function TrieNode:remove(letter)
+	self._children:remove(letter)
 end
 
 ---@class Trie
@@ -57,24 +75,24 @@ end
 -----------------------------------------------------------------------------
 ---Checks if the word exists in this trie
 ---
----@param  word string Word to be looked up
----@param  prefix boolean Match just the prefix. Defaults false.
+---@param  prefix string Prefix to be looked up
+---@param  exact boolean Whether is an exact match (true) or prefix match (false). Defaults false.
 ---
 ---@return boolean
 -----------------------------------------------------------------------------
-function Trie:contains(word, prefix)
-	assert(type(word) == "string", "Word should be a string")
-	prefix = prefix or false
+function Trie:contains(prefix, exact)
+	assert(type(prefix) == "string", "Prefix should be a string")
+	exact = exact or false
 
 	local cur = self._root
-	for letter in word:gmatch(".") do
+	for letter in prefix:gmatch(".") do
 		cur = cur:get(letter)
 		if cur == nil then
 			return false
 		end
 	end
 
-	return prefix or cur._word
+	return not exact or cur._word
 end
 
 -----------------------------------------------------------------------------
@@ -83,7 +101,7 @@ end
 ---@return boolean
 -----------------------------------------------------------------------------
 function Trie:empty()
-	return #self == 0
+	return self._root:empty()
 end
 
 -----------------------------------------------------------------------------
@@ -99,45 +117,56 @@ function Trie:insert(word)
 		cur = cur:add(letter)
 	end
 	cur._word = true
-	self._len = self._len + 1
 end
 
 -----------------------------------------------------------------------------
 ---Removes a word or prefix
 ---
----@param  word string Word or prefix to be removed
----@param  prefix boolean Match by prefix. Defaults false.
+---@param  prefix string Prefix to be removed
+---@param  exact boolean Match exactly (true) or by prefix (false). Defaults false.
 -----------------------------------------------------------------------------
-function Trie:remove(word, prefix)
-	assert(type(word) == "string", "Word should be a string")
-	prefix = prefix or false
+function Trie:remove(prefix, exact)
+	assert(type(prefix) == "string", "Prefix should be a string")
+	exact = exact or false
 
-	self:_delete(self._root, word, prefix, 1)
+	self:_delete(self._root, prefix, exact, 1)
 end
 
-function Trie:_delete(node, word, prefix, index)
-	if index > #word then
-		if not prefix and not node._word then
+-----------------------------------------------------------------------------
+---Recursively delete all words and empty nodes related to the prefix.
+---
+---@param node TrieNode Current node, should be root at the start
+---@param prefix string Prefix to be removed
+---@param exact boolean Match exactly (true) or by prefix (false)
+---@param index number Index of the current letter in the prefix
+---
+---@return boolean If the current node should be deleted afterwards.
+---
+---@private
+-----------------------------------------------------------------------------
+function Trie:_delete(node, prefix, exact, index)
+	if index > #prefix then
+		if exact and not node._word then
 			return false
 		end
 
 		node._word = false
 
-		return prefix or node._children:empty()
+		return not exact or node:empty()
 	end
 
-	local letter = word:sub(index, index)
-	local child = node._children:get(letter)
+	local letter = prefix:sub(index, index)
+	local child = node:get(letter)
 
 	if child == nil then
 		return false
 	end
 
-	local delete = self:_delete(child, word, prefix, index + 1)
+	local delete = self:_delete(child, prefix, exact, index + 1)
 	if delete then
-		node._children:remove(letter)
+		node:remove(letter)
 
-		return not node._word and node._children:empty()
+		return not node._word and node:empty()
 	end
 	return false
 end
@@ -161,16 +190,6 @@ function Trie:__concat(iterable)
 	end
 
 	return self
-end
-
------------------------------------------------------------------------------
----Returns the number of words in the trie.
----
----@return number
----@private
------------------------------------------------------------------------------
-function Trie:__len()
-	return self._len
 end
 
 -----------------------------------------------------------------------------

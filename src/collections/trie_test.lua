@@ -8,6 +8,9 @@ function TestEmpty()
 
 	t:insert("apple")
 	lu.assertFalse(t:empty())
+
+	t:remove("apple")
+	lu.assertTrue(t:empty())
 end
 
 function TestBasic()
@@ -15,13 +18,31 @@ function TestBasic()
 
 	t:insert("dog")
 	lu.assertTrue(t:contains("dog"))
-	lu.assertFalse(t:contains("do"))
-	lu.assertTrue(t:contains("do", true))
+	lu.assertFalse(t:contains("do", true))
+	lu.assertTrue(t:contains("do"))
 
 	t:insert("do")
 	lu.assertTrue(t:contains("dog"))
-	lu.assertTrue(t:contains("do"))
 	lu.assertTrue(t:contains("do", true))
+	lu.assertTrue(t:contains("do"))
+
+	t:insert("doodle")
+	t:insert("doggy")
+	lu.assertTrue(t:contains("doggy"))
+	lu.assertTrue(t:contains("doodle"))
+
+	t:remove("dog")
+	lu.assertFalse(t:contains("doggy"))
+	lu.assertFalse(t:contains("dog"))
+	lu.assertTrue(t:contains("do", true))
+	lu.assertTrue(t:contains("doodle"))
+
+	t:remove("do", true)
+	lu.assertFalse(t:contains("do", true))
+	lu.assertTrue(t:contains("doodle"))
+
+	t:remove("doodle", true)
+	lu.assertTrue(t:empty())
 end
 
 function TestString()
