@@ -37,6 +37,7 @@ build = {
 		["ff.collections.queue"] = "src/collections/queue.lua",
 		["ff.collections.stack"] = "src/collections/stack.lua",
 		["ff.collections.set"] = "src/collections/set.lua",
+		["ff.collections.trie"] = "src/collections/trie.lua",
 		["ff.empty"] = "src/func/empty.lua",
 		["ff.func.comparator"] = "src/func/comparator.lua",
 		["ff.factorial"] = "src/math/factorial.lua",
