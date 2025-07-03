@@ -45,6 +45,28 @@ function TestBasic()
 	lu.assertTrue(t:empty())
 end
 
+function TestFind()
+	local t = Trie.new()
+
+	local words = t:find("cat")
+	lu.assertTrue(words:empty())
+
+	t:insert("cat")
+	t:insert("category")
+	t:insert("concat")
+	t:insert("cataclysm")
+
+	words = t:find("cat", true)
+	lu.assertEquals(1, #words)
+	lu.assertEquals("cat", words:get(1))
+
+	words = t:find("cat")
+	lu.assertEquals(3, #words)
+	lu.assertFalse(words:indexOf("cat") == nil)
+	lu.assertFalse(words:indexOf("category") == nil)
+	lu.assertFalse(words:indexOf("cataclysm") == nil)
+end
+
 function TestString()
 	local t = Trie.new()
 

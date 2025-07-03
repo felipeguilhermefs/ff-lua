@@ -1,8 +1,10 @@
+local Array = require("ff.collections.array")
 local HashMap = require("ff.collections.hashmap")
+local Stack = require("ff.collections.stack")
 
 ---@class TrieNode
 ---
----@field private _word     boolean Marks if the node is a word
+---@field private _word     string? Stores the full word when it is the final node
 ---@field private _children HashMap<string, TrieNode> Maps child nodes by prefix char
 local TrieNode = {}
 TrieNode.__index = TrieNode
@@ -13,7 +15,7 @@ TrieNode.__index = TrieNode
 ---@return TrieNode
 -----------------------------------------------------------------------------
 function TrieNode.new()
-	return setmetatable({ _word = false, _children = HashMap.new() }, TrieNode)
+	return setmetatable({ _word = nil, _children = HashMap.new() }, TrieNode)
 end
 
 -----------------------------------------------------------------------------
@@ -92,7 +94,7 @@ function Trie:contains(prefix, exact)
 		end
 	end
 
-	return not exact or cur._word
+	return not exact or cur._word ~= nil
 end
 
 -----------------------------------------------------------------------------
@@ -102,6 +104,35 @@ end
 -----------------------------------------------------------------------------
 function Trie:empty()
 	return self._root:empty()
+end
+
+-----------------------------------------------------------------------------
+---Finds all words given a prefix.
+---
+---@param  prefix string Prefix to be looked up
+---@param  exact boolean Whether is an exact match (true) or prefix match (false). Defaults false.
+---
+---@return Array<string>
+-----------------------------------------------------------------------------
+function Trie:find(prefix, exact)
+	assert(type(prefix) == "string", "Prefix should be a string")
+	exact = exact or false
+
+	local cur = self._root
+	for letter in prefix:gmatch(".") do
+		cur = cur:get(letter)
+		if cur == nil then
+			return Array.new()
+		end
+	end
+
+	if exact and cur._word ~= nil then
+		local words = Array.new()
+		words:insert(cur._word)
+		return words
+	else
+		return self:_traverse(cur)
+	end
 end
 
 -----------------------------------------------------------------------------
@@ -116,7 +147,7 @@ function Trie:insert(word)
 	for letter in word:gmatch(".") do
 		cur = cur:add(letter)
 	end
-	cur._word = true
+	cur._word = word
 end
 
 -----------------------------------------------------------------------------
@@ -146,11 +177,11 @@ end
 -----------------------------------------------------------------------------
 function Trie:_delete(node, prefix, exact, index)
 	if index > #prefix then
-		if exact and not node._word then
+		if exact and node._word == nil then
 			return false
 		end
 
-		node._word = false
+		node._word = nil
 
 		return not exact or node:empty()
 	end
@@ -166,9 +197,36 @@ function Trie:_delete(node, prefix, exact, index)
 	if delete then
 		node:remove(letter)
 
-		return not node._word and node:empty()
+		return node._word == nil and node:empty()
 	end
 	return false
+end
+
+-----------------------------------------------------------------------------
+---Finds all words from a given node
+---
+---@param  node TrieNode? Node to start from
+---
+---@return Array<string> All words found
+-----------------------------------------------------------------------------
+function Trie:_traverse(node)
+	local words = Array.new()
+	if node == nil then
+		return words
+	end
+
+	local visit = Stack.new()
+	visit:push(node)
+	while not visit:empty() do
+		local cur = visit:pop()
+		if cur._word ~= nil then
+			words:insert(cur._word)
+		end
+		for _, child in pairs(cur._children) do
+			visit:push(child)
+		end
+	end
+	return words
 end
 
 -----------------------------------------------------------------------------
