@@ -113,18 +113,23 @@ end
 function Trie:find(prefix, exact)
 	exact = exact or false
 
+	local words = Array.new()
 	local node = self:_lookup(prefix)
 	if node == nil then
-		return Array.new()
+		return words
 	end
 
 	if exact and node._word ~= nil then
-		local words = Array.new()
 		words:insert(node._word)
-		return words
 	else
-		return self:_traverse(node)
+		local next = self:_traverse(node)
+		local _, word = next()
+		while word ~= nil do
+			words:insert(word)
+			_, word = next()
+		end
 	end
+	return words
 end
 
 -----------------------------------------------------------------------------
@@ -220,26 +225,29 @@ end
 ---
 ---@param  node TrieNode? Node to start from
 ---
----@return Array<string> All words found
+---@return Iterator<number, string> All words found
 -----------------------------------------------------------------------------
 function Trie:_traverse(node)
-	local words = Array.new()
-	if node == nil then
-		return words
-	end
+	node = node or self._root
 
+	local index = 0
 	local visit = Stack.new()
 	visit:push(node)
-	while not visit:empty() do
-		local cur = visit:pop()
-		if cur._word ~= nil then
-			words:insert(cur._word)
-		end
-		for _, child in pairs(cur._children) do
-			visit:push(child)
+
+	return function()
+		while not visit:empty() do
+			local cur = visit:pop()
+
+			for _, child in pairs(cur._children) do
+				visit:push(child)
+			end
+
+			if cur._word ~= nil then
+				index = index + 1
+				return index, cur._word
+			end
 		end
 	end
-	return words
 end
 
 -----------------------------------------------------------------------------
@@ -266,15 +274,10 @@ end
 -----------------------------------------------------------------------------
 ---Iterates through every word in this Trie
 ---
----@return Iterator<1, string>, Trie, nil
+---@return Iterator<number, string>, Trie, nil
 -----------------------------------------------------------------------------
 function Trie:__pairs()
-	return function()
-		local item = self:pop()
-		if item ~= nil then
-			return 1, item
-		end
-	end, self, nil
+	return self:_traverse(self._root), self, nil
 end
 
 -----------------------------------------------------------------------------
