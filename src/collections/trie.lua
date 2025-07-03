@@ -83,18 +83,14 @@ end
 ---@return boolean
 -----------------------------------------------------------------------------
 function Trie:contains(prefix, exact)
-	assert(type(prefix) == "string", "Prefix should be a string")
 	exact = exact or false
 
-	local cur = self._root
-	for letter in prefix:gmatch(".") do
-		cur = cur:get(letter)
-		if cur == nil then
-			return false
-		end
+	local node = self:_lookup(prefix)
+	if node == nil then
+		return false
 	end
 
-	return not exact or cur._word ~= nil
+	return not exact or node._word ~= nil
 end
 
 -----------------------------------------------------------------------------
@@ -115,23 +111,19 @@ end
 ---@return Array<string>
 -----------------------------------------------------------------------------
 function Trie:find(prefix, exact)
-	assert(type(prefix) == "string", "Prefix should be a string")
 	exact = exact or false
 
-	local cur = self._root
-	for letter in prefix:gmatch(".") do
-		cur = cur:get(letter)
-		if cur == nil then
-			return Array.new()
-		end
+	local node = self:_lookup(prefix)
+	if node == nil then
+		return Array.new()
 	end
 
-	if exact and cur._word ~= nil then
+	if exact and node._word ~= nil then
 		local words = Array.new()
-		words:insert(cur._word)
+		words:insert(node._word)
 		return words
 	else
-		return self:_traverse(cur)
+		return self:_traverse(node)
 	end
 end
 
@@ -203,6 +195,27 @@ function Trie:_delete(node, prefix, exact, index)
 end
 
 -----------------------------------------------------------------------------
+---Finds node that matches the prefix
+---
+---@param  prefix string Prefix to lookup
+---
+---@return TrieNode? Node that fully matches the prefix
+-----------------------------------------------------------------------------
+function Trie:_lookup(prefix)
+	assert(type(prefix) == "string", "Prefix should be a string")
+
+	local cur = self._root
+	for letter in prefix:gmatch(".") do
+		cur = cur:get(letter)
+		if cur == nil then
+			return nil
+		end
+	end
+
+	return cur
+end
+
+-----------------------------------------------------------------------------
 ---Finds all words from a given node
 ---
 ---@param  node TrieNode? Node to start from
@@ -251,16 +264,11 @@ function Trie:__concat(iterable)
 end
 
 -----------------------------------------------------------------------------
----Iterates through the stack in LIFO order. Same as:
+---Iterates through every word in this Trie
 ---
----while not stack:empty() do
----   local item = stack:pop()
----end
----
----@return Iterator<1, any>, Stack<any>, nil
+---@return Iterator<1, string>, Trie, nil
 -----------------------------------------------------------------------------
 function Trie:__pairs()
-	assert(false, "Not implemented")
 	return function()
 		local item = self:pop()
 		if item ~= nil then
@@ -270,7 +278,7 @@ function Trie:__pairs()
 end
 
 -----------------------------------------------------------------------------
----String representation of this stack
+---String representation of this trie
 ---
 ---@return string
 -----------------------------------------------------------------------------
