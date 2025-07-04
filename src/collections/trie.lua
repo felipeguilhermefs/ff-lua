@@ -251,20 +251,21 @@ function Trie:_traverse(node)
 end
 
 -----------------------------------------------------------------------------
----Pushes all items in a given iterable.
+---Inserts all strings into this trie.
 ---
 ---@param iterable? table<any, any> Any table that can be iterated over.
 ---                                 Defaults to an empty table if `nil`.
 ---
----@return Stack
+---@return Trie
 -----------------------------------------------------------------------------
 function Trie:__concat(iterable)
-	assert(false, "Not implemented")
 	if iterable ~= nil then
 		assert(type(iterable) == "table", "Should be a table")
 
 		for _, item in pairs(iterable) do
-			self:push(item)
+			if type(item) == "string" then
+				self:insert(item)
+			end
 		end
 	end
 

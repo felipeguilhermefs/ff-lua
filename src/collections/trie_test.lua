@@ -67,6 +67,26 @@ function TestFind()
 	lu.assertFalse(words:indexOf("cataclysm") == nil)
 end
 
+function TestConcat()
+	local t = Trie.new()
+
+	t = t .. { 1, "mouse", true, "mousse" }
+
+	lu.assertTrue(t:contains("mouse"))
+	lu.assertTrue(t:contains("mousse"))
+
+	local t2 = Trie.new()
+	t2:insert("moose")
+
+	t = t .. t2
+	lu.assertTrue(t:contains("mouse"))
+	lu.assertTrue(t:contains("mousse"))
+	lu.assertTrue(t:contains("moose"))
+
+	t:remove("mo")
+	lu.assertTrue(t:empty())
+end
+
 function TestString()
 	local t = Trie.new()
 
