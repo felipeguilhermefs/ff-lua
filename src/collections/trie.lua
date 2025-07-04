@@ -145,6 +145,7 @@ function Trie:insert(word)
 		cur = cur:add(letter)
 	end
 	cur._word = word
+	self._len = self._len + 1
 end
 
 -----------------------------------------------------------------------------
@@ -178,9 +179,23 @@ function Trie:_delete(node, prefix, exact, index)
 			return false
 		end
 
-		node._word = nil
+		if exact then
+			node._word = nil
 
-		return not exact or node:empty()
+			self._len = self._len - 1
+
+			return node:empty()
+		else
+			local next = self:_traverse(node)
+
+			local _, word = next()
+			while word ~= nil do
+				_, word = next()
+				self._len = self._len - 1
+			end
+
+			return true
+		end
 	end
 
 	local letter = prefix:sub(index, index)
@@ -270,6 +285,16 @@ function Trie:__concat(iterable)
 	end
 
 	return self
+end
+
+-----------------------------------------------------------------------------
+---Returns the number of words in the trie.
+---
+---@return number
+---@private
+-----------------------------------------------------------------------------
+function Trie:__len()
+	return self._len
 end
 
 -----------------------------------------------------------------------------
