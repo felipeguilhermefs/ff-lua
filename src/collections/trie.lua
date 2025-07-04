@@ -58,6 +58,15 @@ function TrieNode:remove(letter)
 	self._children:remove(letter)
 end
 
+-----------------------------------------------------------------------------
+---String representation of trie node
+---
+---@return string
+-----------------------------------------------------------------------------
+function TrieNode:__tostring()
+	return string.format("{ word = '%s', children = %s }", self._word, self._children)
+end
+
 ---@class Trie
 ---
 ---@field private _root TrieNode Node to start all actions
@@ -311,9 +320,8 @@ end
 ---
 ---@return string
 -----------------------------------------------------------------------------
--- function Trie:__tostring()
--- 	assert(false, "Not implemented")
--- 	return string.format("[ %s <- Top ]", table.concat(self._entries, ", "))
--- end
+function Trie:__tostring()
+	return tostring(self._root)
+end
 
 return Trie
