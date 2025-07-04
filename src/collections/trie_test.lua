@@ -100,6 +100,27 @@ function TestConcat()
 	lu.assertEquals(0, #t)
 end
 
+function TestCase()
+	local ts = Trie.new()
+
+	ts:insert("wolf")
+	lu.assertTrue(ts:contains("wo"))
+	lu.assertFalse(ts:contains("Wo"))
+
+	ts:insert("Wolf")
+	lu.assertTrue(ts:contains("Wo"))
+	lu.assertEquals(2, #ts)
+
+	local ti = Trie.new(false)
+
+	ti:insert("wolf")
+	lu.assertTrue(ti:contains("wo"))
+	lu.assertTrue(ti:contains("Wo"))
+
+	ti:insert("Wolf")
+	lu.assertEquals(1, #ti)
+end
+
 function TestString()
 	local t = Trie.new()
 

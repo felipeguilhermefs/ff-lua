@@ -71,6 +71,7 @@ end
 ---
 ---@field private _root TrieNode Node to start all actions
 ---@field private _len number Number of words in the trie
+---@field private _caseSensitive boolean If should consider word case or not. Default: true
 local Trie = {}
 Trie.__index = Trie
 
@@ -79,8 +80,12 @@ Trie.__index = Trie
 ---
 ---@return Trie
 -----------------------------------------------------------------------------
-function Trie.new()
-	return setmetatable({ _root = TrieNode.new(), _len = 0 }, Trie)
+function Trie.new(caseSensitive)
+	return setmetatable({
+		_root = TrieNode.new(),
+		_len = 0,
+		_caseSensitive = caseSensitive == nil or caseSensitive,
+	}, Trie)
 end
 
 -----------------------------------------------------------------------------
@@ -149,12 +154,19 @@ end
 function Trie:insert(word)
 	assert(type(word) == "string", "Word should be a string")
 
+	if not self._caseSensitive then
+		word = word:lower()
+	end
+
 	local cur = self._root
 	for letter in word:gmatch(".") do
 		cur = cur:add(letter)
 	end
-	cur._word = word
-	self._len = self._len + 1
+
+	if cur._word == nil then
+		cur._word = word
+		self._len = self._len + 1
+	end
 end
 
 -----------------------------------------------------------------------------
@@ -166,6 +178,10 @@ end
 function Trie:remove(prefix, exact)
 	assert(type(prefix) == "string", "Prefix should be a string")
 	exact = exact or false
+
+	if not self._caseSensitive then
+		prefix = prefix:lower()
+	end
 
 	self:_delete(self._root, prefix, exact, 1)
 end
@@ -232,6 +248,10 @@ end
 -----------------------------------------------------------------------------
 function Trie:_lookup(prefix)
 	assert(type(prefix) == "string", "Prefix should be a string")
+
+	if not self._caseSensitive then
+		prefix = prefix:lower()
+	end
 
 	local cur = self._root
 	for letter in prefix:gmatch(".") do
