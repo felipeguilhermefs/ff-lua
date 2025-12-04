@@ -3,7 +3,7 @@ local function min(...)
 	local args = { ... }
 	local res
 
-	for _, val in ipairs(args) do
+	for _, val in pairs(args) do
 		if type(val) == "number" then
 			if not res or val < res then
 				res = val

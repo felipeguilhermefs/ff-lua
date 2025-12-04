@@ -1,6 +1,6 @@
 rockspec_format = "3.0"
 package = "ff-lua"
-version = "0.16.1-1"
+version = "0.16.2-1"
 source = {
 	url = "git+https://github.com/felipeguilhermefs/ff-lua",
 	tag = "v0.16.0",
