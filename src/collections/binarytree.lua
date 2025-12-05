@@ -49,6 +49,19 @@ function BinaryTree.new(comparator)
 end
 
 -----------------------------------------------------------------------------
+---Returns an ordered table array.
+---
+---@return table<any>
+-----------------------------------------------------------------------------
+function BinaryTree:array()
+	local arr = {}
+	for val in self:preorder() do
+		table.insert(arr, val)
+	end
+	return arr
+end
+
+-----------------------------------------------------------------------------
 ---Empties the tree.
 -----------------------------------------------------------------------------
 function BinaryTree:clear()
@@ -193,19 +206,6 @@ function BinaryTree:preorder()
 
 		return node.value, node.value
 	end
-end
-
------------------------------------------------------------------------------
----Returns an ordered table array.
----
----@return table<any>
------------------------------------------------------------------------------
-function BinaryTree:array()
-	local arr = {}
-	for val in self:preorder() do
-		table.insert(arr, val)
-	end
-	return arr
 end
 
 -----------------------------------------------------------------------------
