@@ -1,19 +1,19 @@
 .PHONY: lint
 lint:
-	./luarocks lint *.rockspec
+	luarocks lint *.rockspec
 
 .PHONY: install
 install:
-	./luarocks install --deps-only *.rockspec
+	luarocks install --deps-only *.rockspec
 
 .PHONY: build
 build:
-	./luarocks build --pack-binary-rock
+	luarocks build --pack-binary-rock
 
 .PHONY: pack
 pack:
-	./luarocks pack *.rockspec
+	luarocks pack *.rockspec
 
 .PHONY: publish
 publish:
-	./luarocks upload *.rockspec --api-key=$(LUA_ROCKS_API_KEY)
+	luarocks upload *.rockspec --api-key=$(LUA_ROCKS_API_KEY)
