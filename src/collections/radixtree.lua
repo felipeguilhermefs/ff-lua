@@ -4,33 +4,29 @@ local Stack = require("ff.collections.stack")
 
 ---@class RadixTreeNode
 ---
----@field private _word     string? Stores the full word when it is the final node
----@field private _children HashMap<string, RadixTreeNode> Maps child nodes by prefix char
+---@field private _prefix   string  The string segment this node represents
+---@field private _value    any?    The value stored at this node if it represents a full word
+---@field private _children HashMap<string, RadixTreeNode> Maps child nodes by the first char of their prefix
 local RadixTreeNode = {}
 RadixTreeNode.__index = RadixTreeNode
 
 -----------------------------------------------------------------------------
----Creates a new instance of the trie.
+---Creates a new instance of a radix tree node.
 ---
+---@param prefix string?
+---@param value any?
 ---@return RadixTreeNode
 -----------------------------------------------------------------------------
-function RadixTreeNode.new()
-	return setmetatable({ _word = nil, _children = HashMap.new() }, RadixTreeNode)
+function RadixTreeNode.new(prefix, value)
+	return setmetatable({
+		_prefix = prefix or "",
+		_value = value,
+		_children = HashMap.new(),
+	}, RadixTreeNode)
 end
 
 -----------------------------------------------------------------------------
----Adds a letter to the node
----
----@param  letter string
----
----@return RadixTreeNode
------------------------------------------------------------------------------
-function RadixTreeNode:add(letter)
-	return self._children:compute(letter, RadixTreeNode.new)
-end
-
------------------------------------------------------------------------------
----Returns whether the node is empty or not.
+---Returns whether the node has no children.
 ---
 ---@return boolean
 -----------------------------------------------------------------------------
@@ -39,38 +35,13 @@ function RadixTreeNode:empty()
 end
 
 -----------------------------------------------------------------------------
----Look up letter in this node
----
----@param  letter string
----
----@return RadixTreeNode?
------------------------------------------------------------------------------
-function RadixTreeNode:get(letter)
-	return self._children:get(letter)
-end
-
------------------------------------------------------------------------------
----Remove child mapped to the letter
----
----@param  letter string
------------------------------------------------------------------------------
-function RadixTreeNode:remove(letter)
-	self._children:remove(letter)
-end
-
------------------------------------------------------------------------------
----String representation of trie node
+---String representation of radix tree node
 ---
 ---@return string
 -----------------------------------------------------------------------------
 function RadixTreeNode:__tostring()
-	return string.format("{ word = '%s', children = %s }", self._word, self._children)
+	return string.format("{ prefix = '%s', value = %s, children = %s }", self._prefix, tostring(self._value), self._children)
 end
-
-function nodefactory() end
-
-local Match = {}
-Match.EXACT = 1
 
 ---@class RadixTree
 ---
@@ -81,16 +52,36 @@ local RadixTree = {}
 RadixTree.__index = RadixTree
 
 -----------------------------------------------------------------------------
----Creates a new instance of the trie.
+---Creates a new instance of the radix tree.
 ---
+---@param caseSensitive boolean?
 ---@return RadixTree
 -----------------------------------------------------------------------------
 function RadixTree.new(caseSensitive)
 	return setmetatable({
-		_root = nodefactory("", nil, {}, true),
+		_root = RadixTreeNode.new(""),
 		_len = 0,
 		_caseSensitive = caseSensitive == nil or caseSensitive,
 	}, RadixTree)
+end
+
+-----------------------------------------------------------------------------
+---Helper to get common prefix length
+---
+---@param s1 string
+---@param s2 string
+---@return number
+-----------------------------------------------------------------------------
+local function getCommonPrefixLen(s1, s2)
+	local len = 0
+	local minLen = math.min(#s1, #s2)
+	for i = 1, minLen do
+		if s1:sub(i, i) ~= s2:sub(i, i) then
+			break
+		end
+		len = i
+	end
+	return len
 end
 
 -----------------------------------------------------------------------------
@@ -102,14 +93,23 @@ end
 ---@return boolean
 -----------------------------------------------------------------------------
 function RadixTree:contains(prefix, exact)
+	assert(type(prefix) == "string", "Prefix should be a string")
 	exact = exact or false
 
-	local node = self:_lookup(prefix)
-	if node == nil then
+	if not self._caseSensitive then
+		prefix = prefix:lower()
+	end
+
+	local node, remP, remNode = self:_lookup(prefix)
+	if node == nil or #remP > 0 then
 		return false
 	end
 
-	return not exact or node._word ~= nil
+	if exact then
+		return #remNode == 0 and node._value ~= nil
+	else
+		return true
+	end
 end
 
 -----------------------------------------------------------------------------
@@ -118,37 +118,46 @@ end
 ---@return boolean
 -----------------------------------------------------------------------------
 function RadixTree:empty()
-	return self._root:empty()
+	return self._len == 0
 end
 
 -----------------------------------------------------------------------------
----Finds all words given a prefix.
+---Finds all values given a prefix.
 ---
 ---@param  prefix string Prefix to be looked up
 ---@param  exact boolean Whether is an exact match (true) or prefix match (false). Defaults false.
 ---
----@return Array<string>
+---@return Array<any>
 -----------------------------------------------------------------------------
 function RadixTree:find(prefix, exact)
+	assert(type(prefix) == "string", "Prefix should be a string")
 	exact = exact or false
 
-	local words = Array.new()
-	local node = self:_lookup(prefix)
-	if node == nil then
-		return words
+	if not self._caseSensitive then
+		prefix = prefix:lower()
 	end
 
-	if exact and node._word ~= nil then
-		words:insert(node._word)
+	local results = Array.new()
+	local node, remP, remNode = self:_lookup(prefix)
+
+	if node == nil or #remP > 0 then
+		return results
+	end
+
+	if exact then
+		if #remNode == 0 and node._value ~= nil then
+			results:insert(node._value)
+		end
 	else
 		local next = self:_traverse(node)
-		local _, word = next()
-		while word ~= nil do
-			words:insert(word)
-			_, word = next()
+		local _, val = next()
+		while val ~= nil do
+			results:insert(val)
+			_, val = next()
 		end
 	end
-	return words
+
+	return results
 end
 
 -----------------------------------------------------------------------------
@@ -156,6 +165,7 @@ end
 ---
 ---@param  key string
 ---@param  value any
+---@param  overwrite boolean?
 -----------------------------------------------------------------------------
 function RadixTree:insert(key, value, overwrite)
 	assert(type(key) == "string", "Key should be a string")
@@ -165,24 +175,61 @@ function RadixTree:insert(key, value, overwrite)
 	if overwrite == nil then
 		overwrite = true
 	end
-	assert(type(overwrite) == "boolean", "Overwrite should be boolean")
 
-	local matches = self:_search(key)
+	if not self._caseSensitive then
+		key = key:lower()
+	end
 
-	if matches.type == Match.EXACT then
-		local currentValue = matches.node.value
-		if not overwrite and currentValue ~= nil then
-			return matches.node.value
+	local function _insert(node, k, v)
+		local firstChar = k:sub(1, 1)
+		local child = node._children:get(firstChar)
+
+		if not child then
+			node._children:put(firstChar, RadixTreeNode.new(k, v))
+			self._len = self._len + 1
+			return
 		end
 
-		local newNode = nodefactory(matches.node.incoming, value, matches.node.outgoing, false)
-		matches.parent.updateOutgoing(newNode)
+		local commonLen = getCommonPrefixLen(k, child._prefix)
 
-		return currentValue
-	elseif matches.type == Match.PREFIX then
-		local keyCharsFromStartOfNodeFound =
-			key.subSequence(matches.charsMatched - matches.charsMatchedInNodeFound, #key)
+		if commonLen == #child._prefix then
+			if commonLen == #k then
+				-- Exact match
+				if child._value == nil then
+					self._len = self._len + 1
+				elseif not overwrite then
+					return child._value
+				end
+				local oldVal = child._value
+				child._value = v
+				return oldVal
+			else
+				-- Recurse
+				return _insert(child, k:sub(commonLen + 1), v)
+			end
+		else
+			-- Split node
+			local common = k:sub(1, commonLen)
+			local childSuffix = child._prefix:sub(commonLen + 1)
+			local kSuffix = k:sub(commonLen + 1)
+
+			local splitNode = RadixTreeNode.new(common)
+			node._children:put(firstChar, splitNode)
+
+			child._prefix = childSuffix
+			splitNode._children:put(childSuffix:sub(1, 1), child)
+
+			if kSuffix == "" then
+				splitNode._value = v
+				self._len = self._len + 1
+			else
+				splitNode._children:put(kSuffix:sub(1, 1), RadixTreeNode.new(kSuffix, v))
+				self._len = self._len + 1
+			end
+		end
 	end
+
+	return _insert(self._root, key, value)
 end
 
 -----------------------------------------------------------------------------
@@ -199,60 +246,82 @@ function RadixTree:remove(prefix, exact)
 		prefix = prefix:lower()
 	end
 
-	self:_delete(self._root, prefix, exact, 1)
-end
+	local function _delete(node, p, ex)
+		if #p == 0 then
+			if ex then
+				if node._value ~= nil then
+					node._value = nil
+					self._len = self._len - 1
+					return true -- Might need merging or deletion
+				end
+				return false
+			else
+				-- Prefix removal: count how many words are being removed
+				local count = 0
+				local next = self:_traverse(node)
+				local _, val = next()
+				while val ~= nil do
+					count = count + 1
+					_, val = next()
+				end
+				self._len = self._len - count
+				return true -- Node and all children should be gone
+			end
+		end
 
------------------------------------------------------------------------------
----Recursively delete all words and empty nodes related to the prefix.
----
----@param node RadixTreeNode Current node, should be root at the start
----@param prefix string Prefix to be removed
----@param exact boolean Match exactly (true) or by prefix (false)
----@param index number Index of the current letter in the prefix
----
----@return boolean If the current node should be deleted afterwards.
----
----@private
------------------------------------------------------------------------------
-function RadixTree:_delete(node, prefix, exact, index)
-	if index > #prefix then
-		if exact and node._word == nil then
+		local firstChar = p:sub(1, 1)
+		local child = node._children:get(firstChar)
+		if not child then
 			return false
 		end
 
-		if exact then
-			node._word = nil
-
-			self._len = self._len - 1
-
-			return node:empty()
-		else
-			local next = self:_traverse(node)
-
-			local _, word = next()
-			while word ~= nil do
-				_, word = next()
-				self._len = self._len - 1
+		local commonLen = getCommonPrefixLen(p, child._prefix)
+		if commonLen < #child._prefix then
+			if not ex and commonLen == #p then
+				-- p is a prefix of child._prefix, and we are not doing exact match
+				-- So we remove this entire child branch
+				local count = 0
+				local next = self:_traverse(child)
+				local _, val = next()
+				while val ~= nil do
+					count = count + 1
+					_, val = next()
+				end
+				self._len = self._len - count
+				node._children:remove(firstChar)
+				return true
 			end
+			return false -- Not a full match of the edge
+		end
 
+		-- commonLen == #child._prefix
+		local deleted = _delete(child, p:sub(commonLen + 1), ex)
+		if deleted then
+			if child._value == nil and child:empty() then
+				node._children:remove(firstChar)
+			elseif child._value == nil then
+				-- Try merging child with its only grandchild
+				local count = 0
+				local onlyGrandChild = nil
+				for _, gc in pairs(child._children) do
+					count = count + 1
+					onlyGrandChild = gc
+					if count > 1 then
+						break
+					end
+				end
+				if count == 1 then
+					child._prefix = child._prefix .. onlyGrandChild._prefix
+					child._value = onlyGrandChild._value
+					child._children = onlyGrandChild._children
+				end
+			end
 			return true
 		end
+		return deleted
 	end
 
-	local letter = prefix:sub(index, index)
-	local child = node:get(letter)
-
-	if child == nil then
-		return false
-	end
-
-	local delete = self:_delete(child, prefix, exact, index + 1)
-	if delete then
-		node:remove(letter)
-
-		return node._word == nil and node:empty()
-	end
-	return false
+	_delete(self._root, prefix, exact)
 end
 
 -----------------------------------------------------------------------------
@@ -260,32 +329,39 @@ end
 ---
 ---@param  prefix string Prefix to lookup
 ---
----@return RadixTreeNode? Node that fully matches the prefix
+---@return RadixTreeNode? Node that matches (might be partially)
+---@return string Remaining part of the prefix that didn't match an edge
+---@private
 -----------------------------------------------------------------------------
 function RadixTree:_lookup(prefix)
-	assert(type(prefix) == "string", "Prefix should be a string")
-
-	if not self._caseSensitive then
-		prefix = prefix:lower()
-	end
-
 	local cur = self._root
-	for letter in prefix:gmatch(".") do
-		cur = cur:get(letter)
-		if cur == nil then
-			return nil
+	local p = prefix
+
+	while #p > 0 do
+		local firstChar = p:sub(1, 1)
+		local child = cur._children:get(firstChar)
+		if not child then
+			return nil, p, ""
+		end
+
+		local commonLen = getCommonPrefixLen(p, child._prefix)
+		if commonLen == #child._prefix then
+			cur = child
+			p = p:sub(commonLen + 1)
+		else
+			return child, p:sub(commonLen + 1), child._prefix:sub(commonLen + 1)
 		end
 	end
 
-	return cur
+	return cur, "", ""
 end
 
 -----------------------------------------------------------------------------
----Finds all words from a given node
+---Finds all values from a given node
 ---
 ---@param  node RadixTreeNode? Node to start from
 ---
----@return Iterator<number, string> All words found
+---@return Iterator<number, any> All values found
 -----------------------------------------------------------------------------
 function RadixTree:_traverse(node)
 	node = node or self._root
@@ -302,9 +378,9 @@ function RadixTree:_traverse(node)
 				visit:push(child)
 			end
 
-			if cur._word ~= nil then
+			if cur._value ~= nil then
 				index = index + 1
-				return index, cur._word
+				return index, cur._value
 			end
 		end
 	end
@@ -324,7 +400,7 @@ function RadixTree:__concat(iterable)
 
 		for _, item in pairs(iterable) do
 			if type(item) == "string" then
-				self:insert(item)
+				self:insert(item, item)
 			end
 		end
 	end
@@ -345,7 +421,7 @@ end
 -----------------------------------------------------------------------------
 ---Iterates through every word in this RadixTree
 ---
----@return Iterator<number, string>, RadixTree, nil
+---@return Iterator<number, any>, RadixTree, nil
 -----------------------------------------------------------------------------
 function RadixTree:__pairs()
 	return self:_traverse(self._root), self, nil
