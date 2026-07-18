@@ -40,7 +40,12 @@ end
 ---@return string
 -----------------------------------------------------------------------------
 function RadixTreeNode:__tostring()
-	return string.format("{ prefix = '%s', value = %s, children = %s }", self._prefix, tostring(self._value), self._children)
+	return string.format(
+		"{ prefix = '%s', value = %s, children = %s }",
+		self._prefix,
+		tostring(self._value),
+		self._children
+	)
 end
 
 ---@class RadixTree
@@ -149,6 +154,7 @@ function RadixTree:find(prefix, exact)
 			results:insert(node._value)
 		end
 	else
+		-- TODO: this is weird
 		local next = self:_traverse(node)
 		local _, val = next()
 		while val ~= nil do
@@ -184,6 +190,7 @@ function RadixTree:insert(key, value, overwrite)
 		local firstChar = k:sub(1, 1)
 		local child = node._children:get(firstChar)
 
+		-- TODO: This does not seem right
 		if not child then
 			node._children:put(firstChar, RadixTreeNode.new(k, v))
 			self._len = self._len + 1
@@ -192,6 +199,7 @@ function RadixTree:insert(key, value, overwrite)
 
 		local commonLen = getCommonPrefixLen(k, child._prefix)
 
+		-- TODO: This code is very unreadable
 		if commonLen == #child._prefix then
 			if commonLen == #k then
 				-- Exact match
@@ -213,6 +221,7 @@ function RadixTree:insert(key, value, overwrite)
 			local childSuffix = child._prefix:sub(commonLen + 1)
 			local kSuffix = k:sub(commonLen + 1)
 
+			-- TODO: Why is it added witht the first char and not the word
 			local splitNode = RadixTreeNode.new(common)
 			node._children:put(firstChar, splitNode)
 
@@ -265,6 +274,8 @@ function RadixTree:remove(prefix, exact)
 					_, val = next()
 				end
 				self._len = self._len - count
+				node._value = nil
+				node._children:clear()
 				return true -- Node and all children should be gone
 			end
 		end
@@ -425,6 +436,44 @@ end
 -----------------------------------------------------------------------------
 function RadixTree:__pairs()
 	return self:_traverse(self._root), self, nil
+end
+
+-----------------------------------------------------------------------------
+---Pretty print the current state of the tree.
+---
+---@return string
+-----------------------------------------------------------------------------
+function RadixTree:prettyPrint()
+	local function _printNode(node, indent, isLast)
+		local sb = {}
+		local marker = isLast and "└── " or "├── "
+		if node == self._root then
+			local valStr = node._value ~= nil and string.format(" (value: %s)", tostring(node._value)) or ""
+			table.insert(sb, "[Root]" .. valStr .. "\n")
+			indent = ""
+		else
+			local valStr = node._value ~= nil and string.format(" (value: %s)", tostring(node._value)) or ""
+			table.insert(sb, string.format("%s%s%q%s\n", indent, marker, node._prefix, valStr))
+			indent = indent .. (isLast and "    " or "│   ")
+		end
+
+		local childList = {}
+		for _, child in pairs(node._children) do
+			table.insert(childList, child)
+		end
+		table.sort(childList, function(a, b)
+			return a._prefix < b._prefix
+		end)
+
+		for i, child in ipairs(childList) do
+			local last = (i == #childList)
+			table.insert(sb, _printNode(child, indent, last))
+		end
+
+		return table.concat(sb)
+	end
+
+	return _printNode(self._root, "", true)
 end
 
 -----------------------------------------------------------------------------
