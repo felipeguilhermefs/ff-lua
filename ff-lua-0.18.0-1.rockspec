@@ -12,6 +12,8 @@ description = {
 	detailed = [[
       Created this package for personal usage and learning of Lua.
 
+      This package strictly supports Lua 5.5 and over.
+
       This is intended for mostly avoid reimplementing Data Structures and
       Algorithms.
 
@@ -20,10 +22,14 @@ description = {
 	maintainer = "Felipe Flores <felipeguilhermefs@gmail.com>",
 }
 dependencies = {
-	"lua >= 5.1",
+	"lua >= 5.5",
 }
 test_dependencies = {
 	"luaunit >= 3.4",
+}
+test = {
+	type = "command",
+	script = "test.lua",
 }
 build = {
 	type = "builtin",
@@ -44,6 +50,7 @@ build = {
 		["ff.func.comparator"] = "src/func/comparator.lua",
 		["ff.factorial"] = "src/math/factorial.lua",
 		["ff.fibonacci"] = "src/math/fibonacci.lua",
+		["ff.graph"] = "src/graph/graph.lua",
 		["ff.head"] = "src/func/head.lua",
 		["ff.iter.permutations"] = "src/iter/permutations.lua",
 		["ff.max"] = "src/math/max.lua",

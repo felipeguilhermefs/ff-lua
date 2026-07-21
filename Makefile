@@ -1,3 +1,7 @@
+.PHONY: test
+test:
+	luarocks test
+
 .PHONY: lint
 lint:
 	luarocks lint *.rockspec
