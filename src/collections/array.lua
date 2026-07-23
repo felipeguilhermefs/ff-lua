@@ -2,10 +2,29 @@
 ---@field private _entries table<any> Table array that holds the values.
 ---                                   Delegates most of the implementation to it.
 local Array = {}
-Array.__index = Array
 
 -----------------------------------------------------------------------------
----Checks if it is (probably) an array, considers an empty table a array.
+---Metamethod __index controls bracket (a[key]) access to internals.
+---
+---For numeric keys it will treat and indexed access, all other will fallback to methods.
+---
+---Ex: a[1] will return the element at index 1 in the array.
+---
+---Ex2: a["clear"] is the same as using a.clear, which is a function reference.
+---
+---@param self Array
+---@param key any Index or field name.
+---@return any Value at index or fallback field.
+-----------------------------------------------------------------------------
+function Array.__index(self, key)
+	if type(key) == "number" then
+		return self._entries[key]
+	end
+	return rawget(Array, key)
+end
+
+-----------------------------------------------------------------------------
+---Checks if it is (probably) an array, considers an empty table an array.
 ---
 ---@param maybe any
 ---
