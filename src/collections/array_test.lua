@@ -1,6 +1,56 @@
 local lu = require("luaunit")
 local Array = require("array")
 
+function TestIndexedRead()
+	local a = Array.new({ 10, 20, 30 })
+	lu.assertEquals(10, a[1])
+	lu.assertEquals(20, a[2])
+	lu.assertEquals(30, a[3])
+	lu.assertNil(a[4])
+
+	a[1] = 99
+	lu.assertEquals(99, a[1])
+	lu.assertEquals(99, a[1])
+end
+
+function TestIndexedWrite()
+	local a = Array.new({ 10, 20, 30 })
+
+	-- numeric override
+	a[2] = 99
+	lu.assertEquals(99, a[2])
+
+	-- string override
+	a[1] = "hello"
+	lu.assertEquals("hello", a[1])
+
+	-- boolean override
+	a[3] = false
+	lu.assertFalse(a[3])
+
+	-- nil value will be ignored
+	a[1] = nil
+	lu.assertEquals("hello", a[1])
+
+	-- nil key will be ignored
+	a[nil] = 50
+	lu.assertEquals("hello", a[1])
+
+	-- new key is the higher bound +1, expands the array
+	a[4] = "world"
+	lu.assertEquals("world", a[4])
+
+	-- new key is too much over  over the higher bound, errors out
+	lu.assertErrorMsgContains("index out of bounds", function()
+		a[6] = "yolo"
+	end)
+
+	-- new key before lower bound, errors out
+	lu.assertErrorMsgContains("index out of bounds", function()
+		a[0] = "rofl"
+	end)
+end
+
 function TestInsert()
 	local a = Array.new()
 

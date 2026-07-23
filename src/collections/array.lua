@@ -4,7 +4,7 @@
 local Array = {}
 
 -----------------------------------------------------------------------------
----Metamethod __index controls bracket (a[key]) access to internals.
+---Metamethod __index controls bracket (a[key]) read access to internals.
 ---
 ---For numeric keys it will treat and indexed access, all other will fallback to methods.
 ---
@@ -21,6 +21,31 @@ function Array.__index(self, key)
 		return self._entries[key]
 	end
 	return rawget(Array, key)
+end
+
+-----------------------------------------------------------------------------
+---Metamethod __newindex controls bracket (a[key]) write access to internals.
+---
+---Numeric keys will be handled as indexed writes, other keys will be ignored.
+---Nil values will also be ignored.
+---
+---@param self Array
+---@param key any Index or field name.
+---@param value any Value to assign; nil clears numeric entry.
+-----------------------------------------------------------------------------
+function Array.__newindex(self, key, value)
+	if value == nil then
+		return
+	end
+
+	if type(key) ~= "number" then
+		return
+	end
+
+	-- check for boundaries, but allow strictly over higher bound
+	assert(key >= 1 and (key <= #self._entries + 1), "index out of bounds")
+
+	self._entries[key] = value
 end
 
 -----------------------------------------------------------------------------
