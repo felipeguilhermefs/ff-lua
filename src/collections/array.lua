@@ -1,52 +1,13 @@
+-- cache function references
+local sfmt = string.format
+local tremove = table.remove
+local tinsert = table.insert
+local tconcat = table.concat
+
 ---@class Array
 ---@field private _entries table<any> Table array that holds the values.
 ---                                   Delegates most of the implementation to it.
 local Array = {}
-
------------------------------------------------------------------------------
----Metamethod __index controls bracket (a[key]) read access to internals.
----
----For numeric keys it will treat and indexed access, all other will fallback to methods.
----
----Ex: a[1] will return the element at index 1 in the array.
----
----Ex2: a["clear"] is the same as using a.clear, which is a function reference.
----
----@param self Array
----@param key any Index or field name.
----@return any Value at index or fallback field.
------------------------------------------------------------------------------
-function Array.__index(self, key)
-	if type(key) == "number" then
-		return self._entries[key]
-	end
-	return rawget(Array, key)
-end
-
------------------------------------------------------------------------------
----Metamethod __newindex controls bracket (a[key]) write access to internals.
----
----Numeric keys will be handled as indexed writes, other keys will be ignored.
----Nil values will also be ignored.
----
----@param self Array
----@param key any Index or field name.
----@param value any Value to assign; nil clears numeric entry.
------------------------------------------------------------------------------
-function Array.__newindex(self, key, value)
-	if value == nil then
-		return
-	end
-
-	if type(key) ~= "number" then
-		return
-	end
-
-	-- check for boundaries, but allow strictly over higher bound
-	assert(key >= 1 and (key <= #self._entries + 1), "index out of bounds")
-
-	self._entries[key] = value
-end
 
 -----------------------------------------------------------------------------
 ---Checks if it is (probably) an array, considers an empty table an array.
@@ -56,7 +17,7 @@ end
 ---@return boolean
 -----------------------------------------------------------------------------
 function Array.isArray(maybe)
-	if not maybe then
+	if maybe == nil then
 		return false
 	end
 
@@ -64,7 +25,7 @@ function Array.isArray(maybe)
 		return false
 	end
 
-	if maybe.__index == Array then
+	if getmetatable(maybe) == Array then
 		return true
 	end
 
@@ -104,90 +65,100 @@ function Array:empty()
 end
 
 -----------------------------------------------------------------------------
----Returns the value that in the given index.
----
----@param  index number
----
----@return any?
------------------------------------------------------------------------------
-function Array:get(index)
-	return self._entries[index]
-end
-
------------------------------------------------------------------------------
----Returns the the index of the first entry with a given value.
+---Returns the index of the first entry with a given value.
+---Iterates sequentially (1..#Array) to guarantee returning the first match.
 ---It will return `nil` if nothing is found.
 ---
----@param  value? any
+---@param  value any
 ---
 ---@return number|nil
 -----------------------------------------------------------------------------
 function Array:indexOf(value)
-	if value == nil then
-		return nil
-	end
-	for index, item in pairs(self._entries) do
-		if item == value then
-			return index
+	assert(value ~= nil, "value should not be nil")
+
+	for i = 1, #self._entries do
+		if self._entries[i] == value then
+			return i
 		end
 	end
 end
 
 -----------------------------------------------------------------------------
----Add a value to a given index, following values will be shifted forward.
----Adds to the end of the array if no index is given.
+---Inserts a value in a given index, following values will be shifted forward.
 ---
----@param  value any      Value to be added, will ignore it if `nil`.
----@param  index number?  Index to add the value.
+---@param  index number   Index to insert the value in. Should in in range (1 .. #array +1)
+---@param  value any      Value to be inserted.
 -----------------------------------------------------------------------------
-function Array:insert(value, index)
-	if value == nil then
-		return
-	end
-	if index then
-		table.insert(self._entries, index, value)
-	else
-		table.insert(self._entries, value)
-	end
-end
+function Array:insert(index, value)
+	assert(type(index) == "number", "index should be a number")
+	-- check for boundaries, but allow strictly over higher boundary
+	assert(index > 0 and index <= #self + 1, "index out of bounds")
+	assert(value ~= nil, "value should not be nil")
 
------------------------------------------------------------------------------
----Overrides a value in a given index.
----
----@param  index number   Index to add the value.
----@param  value any      Value to be added, will ignore it if `nil`.
------------------------------------------------------------------------------
-function Array:put(index, value)
-	if value and index then
-		self._entries[index] = value
-	end
+	tinsert(self._entries, index, value)
 end
 
 -----------------------------------------------------------------------------
 ---Removes a value at a given index.
 ---
 ---@param  index number
+---
+---@return any
 -----------------------------------------------------------------------------
 function Array:remove(index)
-	if index then
-		return table.remove(self._entries, index)
-	end
+	assert(type(index) == "number", "index should be a number")
+	assert(index > 0 and index <= #self, "index out of bounds")
+
+	return tremove(self._entries, index)
 end
 
 -----------------------------------------------------------------------------
----Swap values at given indexes
+---Returns a new Array containing a slice of elements from start to finish.
 ---
----@param  index      number
----@param  otherIndex number
+---@param  start?  number Default is 1.
+---@param  finish? number Default is #Array.
+---
+---@return Array
 -----------------------------------------------------------------------------
-function Array:swap(index, otherIndex)
-	local tmp = self._entries[index]
-	self._entries[index] = self._entries[otherIndex]
-	self._entries[otherIndex] = tmp
+function Array:slice(start, finish)
+	start = start or 1
+	assert(type(start) == "number", "start index should be a number")
+	assert(start > 0 and start <= #self, "start index out of bounds")
+
+	finish = finish or #self._entries
+	assert(type(finish) == "number", "finish index should be a number")
+	assert(finish > 0 and finish <= #self, "finish index out of bounds")
+
+	assert(start <= finish, "start index must be lesser or equal to finish index")
+
+	local res = Array.new()
+	for i = start, finish do
+		if self._entries[i] ~= nil then
+			res[#res + 1] = self._entries[i]
+		end
+	end
+	return res
 end
 
 -----------------------------------------------------------------------------
----Concatenate a given iterable to this.
+---Swap values at given indexes. Validates that both indices are within bounds
+---(1..#Array) to prevent creating holes or corrupting array length.
+---
+---@param  index number
+---@param  other number
+-----------------------------------------------------------------------------
+function Array:swap(index, other)
+	assert(type(index) == "number", "index should be a number")
+	assert(index > 0 and index <= #self, "index out of bounds")
+
+	assert(type(other) == "number", "other index should be a number")
+	assert(other > 0 and other <= #self, "other index out of bounds")
+
+	self._entries[index], self._entries[other] = self._entries[other], self._entries[index]
+end
+
+-----------------------------------------------------------------------------
+---Concatenate a given iterable to this array (in-place modification).
 ---
 ---@param iterable? table<any, any> Any table that can be iterated over.
 ---                                 Defaults to an empty table if `nil`.
@@ -196,10 +167,10 @@ end
 -----------------------------------------------------------------------------
 function Array:__concat(iterable)
 	if iterable ~= nil then
-		assert(type(iterable) == "table", "Should be a table")
+		assert(type(iterable) == "table", "iterable should be a table")
 
 		for _, item in pairs(iterable) do
-			self:insert(item)
+			self[#self + 1] = item
 		end
 	end
 
@@ -207,33 +178,105 @@ function Array:__concat(iterable)
 end
 
 -----------------------------------------------------------------------------
+---Deep equality check comparing elements of two Arrays or array-like tables.
+---
+---@param other any
+---
+---@return boolean
+-----------------------------------------------------------------------------
+function Array:__eq(other)
+	if not Array.isArray(other) then
+		return false
+	end
+
+	if #self ~= #other then
+		return false
+	end
+
+	for i = 1, #self._entries do
+		if self._entries[i] ~= other[i] then
+			return false
+		end
+	end
+	return true
+end
+
+-----------------------------------------------------------------------------
+---Metamethod __index controls bracket (a[key]) read access to internals.
+---
+---For numeric keys it will treat and indexed access, all other will fallback to methods.
+---
+---Ex: a[1] will return the element at index 1 in the array.
+---
+---Ex2: a["clear"] is the same as using a.clear, which is a function reference.
+---
+---@param self Array
+---@param key any Index or field name.
+---@return any Value at index or fallback field.
+-----------------------------------------------------------------------------
+function Array:__index(key)
+	if type(key) == "number" then
+		return self._entries[key]
+	end
+	return rawget(Array, key)
+end
+
+-----------------------------------------------------------------------------
+---Iterates through the array sequentially from index 1 to #Array for ipairs.
+---
+---@return function Generator function yielding (index, value) pairs in order.
+-----------------------------------------------------------------------------
+function Array:__ipairs()
+	local i = 0
+	return function()
+		i = i + 1
+		if i <= #self._entries then
+			return i, self._entries[i]
+		end
+	end
+end
+
+-----------------------------------------------------------------------------
 ---Returns the number of entries in the array.
 ---
 ---@return number
----@private
 -----------------------------------------------------------------------------
 function Array:__len()
 	return #self._entries
 end
 
 -----------------------------------------------------------------------------
----Iterates through the array from 1 to #Array
+---Metamethod __newindex controls bracket (a[key]) write access to internals.
 ---
----@return Iterator<any>, Array<any>, nil
+---@param self Array
+---@param index number Index or field name.
+---@param value number Value to assign.
 -----------------------------------------------------------------------------
-function Array:__pairs()
-	return function(_, index)
-		return next(self._entries, index)
-	end, self, nil
+function Array:__newindex(index, value)
+	assert(value ~= nil, "value should not be nil")
+	assert(type(index) == "number", "index should be a number")
+	-- check for boundaries, but allow strictly over higher boundary
+	assert(index >= 1 and (index <= #self._entries + 1), "index out of bounds")
+
+	self._entries[index] = value
 end
 
 -----------------------------------------------------------------------------
----String representation of this array
+---Iterates through the array sequentially from index 1 to #Array.
+---
+---@return function Generator function yielding (index, value) pairs in order.
+-----------------------------------------------------------------------------
+function Array:__pairs()
+	return self:__ipairs()
+end
+
+-----------------------------------------------------------------------------
+---String representation of this array.
 ---
 ---@return string
 -----------------------------------------------------------------------------
 function Array:__tostring()
-	return string.format("[ %s ]", table.concat(self._entries, ", "))
+	return sfmt("[ %s ]", tconcat(self._entries, ", "))
 end
 
 return Array
