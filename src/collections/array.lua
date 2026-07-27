@@ -1,12 +1,28 @@
--- cache function references
-local sfmt = string.format
-local tremove = table.remove
-local tinsert = table.insert
-local tconcat = table.concat
+------------------------------
+-- Cache function references
+------------------------------
 
+-- String
+local sfmt = string.format
+
+-- Table
+local tconcat = table.concat
+local tinsert = table.insert
+local tremove = table.remove
+
+-- General
+local assert = assert
+local next = next
+local rawget = rawget
+local type = type
+local getmetatable = getmetatable
+local setmetatable = setmetatable
+
+----------------------------------------------------------------------------------
 ---@class Array
 ---@field private _entries table<any> Table array that holds the values.
 ---                                   Delegates most of the implementation to it.
+----------------------------------------------------------------------------------
 local Array = {}
 
 -----------------------------------------------------------------------------
