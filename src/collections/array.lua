@@ -12,11 +12,11 @@ local tremove = table.remove
 
 -- General
 local assert = assert
+local getmetatable = getmetatable
 local next = next
 local rawget = rawget
-local type = type
-local getmetatable = getmetatable
 local setmetatable = setmetatable
+local type = type
 
 ----------------------------------------------------------------------------------
 ---@class Array
@@ -231,9 +231,12 @@ end
 ---@return any Value at index or fallback field.
 -----------------------------------------------------------------------------
 function Array:__index(key)
+	assert(key ~= nil, "key should not be nil")
+
 	if type(key) == "number" then
 		return self._entries[key]
 	end
+
 	return rawget(Array, key)
 end
 
