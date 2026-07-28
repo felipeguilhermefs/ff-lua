@@ -14,6 +14,7 @@ local tremove = table.remove
 local assert = assert
 local getmetatable = getmetatable
 local next = next
+local pairs = pairs
 local rawget = rawget
 local setmetatable = setmetatable
 local type = type
