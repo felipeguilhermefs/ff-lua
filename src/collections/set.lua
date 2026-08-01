@@ -1,29 +1,78 @@
+------------------------------
+-- Cache function references
+------------------------------
+
+-- String
+local sfmt = string.format
+
+-- Table
+local tconcat = table.concat
+local tinsert = table.insert
+
+-- General
+local assert = assert
+local getmetatable = getmetatable
+local next = next
+local pairs = pairs
+local select = select
+local setmetatable = setmetatable
+local tostring = tostring
+local type = type
+
+--------------------------------------------------------------------------------------
 ---@class Set
----
 ---@field private _entries table<any, boolean> Table that holds the entries.
----@field private _len     number              Number of entries in the set.
+---                                        Delegates most of the implementation to it.
+---@field private _len     number          Number of entries in the set.
+--------------------------------------------------------------------------------------
 local Set = {}
 Set.__index = Set
 
 -----------------------------------------------------------------------------
+---Checks if it is a Set instance.
+---
+---@param  maybe any
+---
+---@return boolean
+-----------------------------------------------------------------------------
+function Set.isSet(maybe)
+	if maybe == nil then
+		return false
+	end
+
+	if type(maybe) ~= "table" then
+		return false
+	end
+
+	return getmetatable(maybe) == Set
+end
+
+-----------------------------------------------------------------------------
 ---Creates a new instance of the set.
 ---
----@param iterable?  table<any> Iterable to initialize the set.
----                             Ignored if `nil`.
+---@param  iterable? table<any, any>|Set Optional table or Set to initialize
+---                                      the set from.
 ---
 ---@return Set
 -----------------------------------------------------------------------------
 function Set.new(iterable)
-	return setmetatable({ _entries = {}, _len = 0 }, Set) .. iterable
+	return setmetatable({
+		_entries = {},
+		_len = 0,
+	}, Set) .. iterable
 end
 
 -----------------------------------------------------------------------------
 ---Adds an entry to the set.
 ---
----@param  entry any
+---@param  entry any Entry to be added.
+---
+---@return boolean   `true` if entry was added, `false` if already present.
 -----------------------------------------------------------------------------
 function Set:add(entry)
-	if entry == nil or self._entries[entry] then
+	assert(entry ~= nil, "entry should not be nil")
+
+	if self._entries[entry] ~= nil then
 		return false
 	end
 
@@ -41,20 +90,21 @@ function Set:clear()
 end
 
 -----------------------------------------------------------------------------
----Returns true if all entries are in the set.
+---Returns true if all specified entries are present in the set.
 ---
----@param  ... ...any
+---@param  ... any Entries to check for existence in the set.
 ---
 ---@return boolean
 -----------------------------------------------------------------------------
 function Set:contains(...)
-	local items = { ... }
-	if #items == 0 then
+	local count = select("#", ...)
+	if count == 0 then
 		return false
 	end
 
-	for _, item in pairs(items) do
-		if not self._entries[item] then
+	for i = 1, count do
+		local item = select(i, ...)
+		if item == nil or self._entries[item] == nil then
 			return false
 		end
 	end
@@ -62,19 +112,23 @@ function Set:contains(...)
 end
 
 -----------------------------------------------------------------------------
----Returns a set containing the difference between this set and the given.
+---Returns a set containing the difference between this set and the given (this \ other).
 ---
----@param  other Set?  Set to differ from this, `nil` is treated as empty.
+---@param  other Set Set to differ from this.
 ---
----@return Set
+---@return Set       A new Set with elements in this set but not in other.
 -----------------------------------------------------------------------------
 function Set:diff(other)
+	assert(Set.isSet(other), "other should also be a Set")
+
 	local res = Set.new()
-	for entry, _ in pairs(self) do
-		if other == nil or not other:contains(entry) then
+
+	for entry in pairs(self) do
+		if other._entries[entry] == nil then
 			res:add(entry)
 		end
 	end
+
 	return res
 end
 
@@ -84,24 +138,26 @@ end
 ---@return boolean
 -----------------------------------------------------------------------------
 function Set:empty()
-	return #self == 0
+	return self._len == 0
 end
 
 -----------------------------------------------------------------------------
 ---Returns a set containing the intersection between this set and the given.
 ---
----@param  other Set?  Set to intersect with this, `nil` is treated as empty.
+---@param  other Set Set to intersect with this.
 ---
----@return Set
+---@return Set  A new Set with elements present in both sets.
 -----------------------------------------------------------------------------
 function Set:intersection(other)
-	local res = Set.new()
-	if other == nil then
-		return res
-	end
+	assert(Set.isSet(other), "other should also be a Set")
 
-	for entry, _ in pairs(self) do
-		if other:contains(entry) then
+	local res = Set.new()
+
+	local source = self._len <= other._len and self or other
+	local target = source == self and other or self
+
+	for entry in pairs(source) do
+		if target._entries[entry] ~= nil then
 			res:add(entry)
 		end
 	end
@@ -110,43 +166,142 @@ function Set:intersection(other)
 end
 
 -----------------------------------------------------------------------------
----Removes a given value and returns if it was contained by the set before.
+---Checks if this set has no elements in common with another set.
 ---
----@param  entry any
+---@param  other Set Set to check against.
 ---
----@return boolean
+---@return boolean   `true` if intersection is empty.
+-----------------------------------------------------------------------------
+function Set:disjoint(other)
+	assert(Set.isSet(other), "other should also be a Set")
+
+	local source = self._len <= other._len and self or other
+	local target = source == self and other or self
+
+	for entry in pairs(source) do
+		if target._entries[entry] ~= nil then
+			return false
+		end
+	end
+
+	return true
+end
+
+-----------------------------------------------------------------------------
+---Checks if this set is a subset of another set.
+---
+---@param  other Set Set to check against.
+---
+---@return boolean  `true` if all elements of this set are in `other`.
+-----------------------------------------------------------------------------
+function Set:subset(other)
+	assert(Set.isSet(other), "other should also be a Set")
+
+	if self._len > other._len then
+		return false
+	end
+
+	for entry in pairs(self) do
+		if other._entries[entry] == nil then
+			return false
+		end
+	end
+
+	return true
+end
+
+-----------------------------------------------------------------------------
+---Checks if this set is a superset of another set.
+---
+---@param  other Set Set to check against.
+---
+---@return boolean   `true` if this set contains all elements of `other`.
+-----------------------------------------------------------------------------
+function Set:superset(other)
+	assert(Set.isSet(other), "other should also be a Set")
+
+	return other:subset(self)
+end
+
+-----------------------------------------------------------------------------
+---Removes a given value and returns true if it was contained by the set.
+---
+---@param  entry any Entry to remove from the set.
+---
+---@return boolean   `true` if entry was removed, `false` otherwise.
 -----------------------------------------------------------------------------
 function Set:remove(entry)
-	if self._entries[entry] then
-		self._entries[entry] = nil
-		self._len = self._len - 1
-		return true
+	assert(entry ~= nil, "entry should not be nil")
+	if self._entries[entry] == nil then
+		return false
 	end
-	return false
+
+	self._entries[entry] = nil
+	self._len = self._len - 1
+	return true
+end
+
+-----------------------------------------------------------------------------
+---Returns a new set containing elements present in either set, but not in both.
+---
+---@param  other Set Set to compute symmetric difference with.
+---
+---@return Set       A new Set with symmetric difference.
+-----------------------------------------------------------------------------
+function Set:symdiff(other)
+	assert(Set.isSet(other), "other should also be a Set")
+
+	local res = Set.new()
+
+	for entry in pairs(self._entries) do
+		if other._entries[entry] == nil then
+			res:add(entry)
+		end
+	end
+
+	for entry in pairs(other._entries) do
+		if self._entries[entry] == nil then
+			res:add(entry)
+		end
+	end
+
+	return res
 end
 
 -----------------------------------------------------------------------------
 ---Returns a set containing the union between this set and the given.
 ---
----@param  other Set?  Set to unite with this, `nil` is treated as empty.
+---@param  other Set Set or table to unite with this.
 ---
----@return Set
+---@return Set   A new Set with elements from both sets.
 -----------------------------------------------------------------------------
 function Set:union(other)
+	assert(Set.isSet(other), "other shoudl also be a Set")
 	return Set.new(self) .. other
 end
 
 -----------------------------------------------------------------------------
----Concatenate a given iterable to this.
+---Operator overload for `+` (set union). Returns a new Set.
 ---
----@param iterable? table<any, any> Any table that can be iterated over.
----                                 Defaults to an empty table if `nil`.
+---@param  other table<any, any>|Set
 ---
 ---@return Set
 -----------------------------------------------------------------------------
+function Set:__add(other)
+	return self:union(other)
+end
+
+-----------------------------------------------------------------------------
+---Concatenate a given iterable into this Set (in-place modification).
+---
+---@param  iterable? table<any, any>|Set Any table or Set that can be iterated over.
+---                                      Defaults to an empty table if `nil`.
+---
+---@return Set                           Returns this Set instance.
+-----------------------------------------------------------------------------
 function Set:__concat(iterable)
 	if iterable ~= nil then
-		assert(type(iterable) == "table", "Should be a table")
+		assert(type(iterable) == "table", "iterable should be a table")
 
 		for _, item in pairs(iterable) do
 			self:add(item)
@@ -157,19 +312,55 @@ function Set:__concat(iterable)
 end
 
 -----------------------------------------------------------------------------
+---Structural equality: Considers equal when both are Sets with the same size
+---and containing the same elements.
+---
+---@param  other any?
+---
+---@return boolean
+-----------------------------------------------------------------------------
+function Set:__eq(other)
+	if not Set.isSet(other) then
+		return false
+	end
+
+	if self._len ~= #other then
+		return false
+	end
+
+	for entry in pairs(self) do
+		if other._entries[entry] == nil then
+			return false
+		end
+	end
+
+	return true
+end
+
+-----------------------------------------------------------------------------
 ---Returns the number of entries in the set.
 ---
 ---@return number
----@private
 -----------------------------------------------------------------------------
 function Set:__len()
 	return self._len
 end
 
 -----------------------------------------------------------------------------
----Iterates through the set in a undefined order.
+---Operator overload for `*` (set intersection). Returns a new Set.
 ---
----@return Iterator<any, boolean>, Set<any>, nil
+---@param  other table<any, any>|Set
+---
+---@return Set
+-----------------------------------------------------------------------------
+function Set:__mul(other)
+	return self:intersection(other)
+end
+
+-----------------------------------------------------------------------------
+---Iterates through the set in an undefined order.
+---
+---@return fun(t: table, k: any): any, boolean, table, nil
 -----------------------------------------------------------------------------
 function Set:__pairs()
 	return function(_, index)
@@ -178,16 +369,27 @@ function Set:__pairs()
 end
 
 -----------------------------------------------------------------------------
----String representation of this set
+---Operator overload for `-` (set difference). Returns a new Set.
+---
+---@param  other table<any, any>|Set
+---
+---@return Set
+-----------------------------------------------------------------------------
+function Set:__sub(other)
+	return self:diff(other)
+end
+
+-----------------------------------------------------------------------------
+---String representation of this set.
 ---
 ---@return string
 -----------------------------------------------------------------------------
 function Set:__tostring()
 	local entries = {}
-	for item in pairs(self) do
-		table.insert(entries, item)
+	for item in pairs(self._entries) do
+		tinsert(entries, tostring(item))
 	end
-	return string.format("{ %s }", table.concat(entries, ", "))
+	return sfmt("{ %s }", tconcat(entries, ", "))
 end
 
 return Set

@@ -22,8 +22,7 @@ function TestAdd()
 	lu.assertTrue(set:contains("c"))
 
 	lu.assertTrue(set:add("d"))
-	lu.assertTrue(set:contains("d"))
-	lu.assertTrue(set:contains("c"))
+	lu.assertTrue(set:contains("d", "c"))
 end
 
 function TestContains()
@@ -44,6 +43,7 @@ function TestContains()
 	lu.assertTrue(set:contains("f", "g", "h"))
 	lu.assertTrue(set:contains("f", "h"))
 	lu.assertFalse(set:contains("f", "i"))
+	lu.assertFalse(set:contains())
 end
 
 function TestRemove()
@@ -66,15 +66,13 @@ function TestDiff()
 	lu.assertTrue(setDiff1:contains("a"))
 	lu.assertEquals(1, #setDiff1)
 
-	local setDiff2 = set2:diff(set1)
+	local setDiff2 = set2 - set1 -- (-) Operator overload for diff
 	lu.assertTrue(setDiff2:contains("d"))
 	lu.assertEquals(1, #setDiff2)
 
-	local setNil = set1:diff(nil)
-	lu.assertTrue(setNil:contains("a"))
-	lu.assertTrue(setNil:contains("b"))
-	lu.assertTrue(setNil:contains("c"))
-	lu.assertEquals(3, #setNil)
+	local setDiff3 = set1:diff(Set.new())
+	lu.assertTrue(setDiff3:contains("a", "b", "c"))
+	lu.assertEquals(3, #setDiff3)
 end
 
 function TestIntersection()
@@ -82,17 +80,15 @@ function TestIntersection()
 	local set2 = Set.new({ "b", "c", "d" })
 
 	local setInter1 = set1:intersection(set2)
-	lu.assertTrue(setInter1:contains("b"))
-	lu.assertTrue(setInter1:contains("c"))
+	lu.assertTrue(setInter1:contains("b", "c"))
 	lu.assertEquals(2, #setInter1)
 
-	local setInter2 = set2:intersection(set1)
-	lu.assertTrue(setInter2:contains("b"))
-	lu.assertTrue(setInter2:contains("c"))
+	local setInter2 = set2 * set1 -- Operator (*) overload for intersection
+	lu.assertTrue(setInter2:contains("b", "c"))
 	lu.assertEquals(2, #setInter2)
 
-	local setNil = set1:intersection(nil)
-	lu.assertEquals(0, #setNil)
+	local setInter3 = set1:intersection(Set.new())
+	lu.assertEquals(0, #setInter3)
 end
 
 function TestUnion()
@@ -100,33 +96,20 @@ function TestUnion()
 	local set2 = Set.new({ "b", "c", "d" })
 
 	local setUnion1 = set1:union(set2)
-	lu.assertTrue(setUnion1:contains("a"))
-	lu.assertTrue(setUnion1:contains("b"))
-	lu.assertTrue(setUnion1:contains("c"))
-	lu.assertTrue(setUnion1:contains("d"))
+	lu.assertTrue(setUnion1:contains("a", "b", "c", "d"))
 	lu.assertEquals(4, #setUnion1)
 
-	local setUnion2 = set2:union(set1)
-	lu.assertTrue(setUnion2:contains("a"))
-	lu.assertTrue(setUnion2:contains("b"))
-	lu.assertTrue(setUnion2:contains("c"))
-	lu.assertTrue(setUnion2:contains("d"))
+	local setUnion2 = set2 + set1 -- Operator (+) overload for union
+	lu.assertTrue(setUnion2:contains("a", "b", "c", "d"))
 	lu.assertEquals(4, #setUnion2)
 
-	local setNil = set1:union(nil)
-	lu.assertTrue(setNil:contains("a"))
-	lu.assertTrue(setNil:contains("b"))
-	lu.assertTrue(setNil:contains("c"))
-	lu.assertEquals(3, #setNil)
+	local setUnion3 = set1:union(Set.new())
+	lu.assertTrue(setUnion3:contains("a", "b", "c"))
+	lu.assertEquals(3, #setUnion3)
 end
 
 function TestIterator()
-	local set = Set.new()
-
-	set:add("a")
-	set:add("b")
-	set:add("c")
-	set:add("d")
+	local set = Set.new({ 1, 2, 3, 4, 5 })
 
 	local res = {}
 	for item in pairs(set) do
@@ -134,18 +117,7 @@ function TestIterator()
 	end
 	table.sort(res)
 
-	lu.assertEquals({ "a", "b", "c", "d" }, res)
-end
-
-function TestNil()
-	local set = Set.new()
-
-	set:add(nil)
-	lu.assertFalse(set:contains(nil))
-
-	lu.assertEquals(0, #set)
-	set:remove(nil)
-	lu.assertEquals(0, #set)
+	lu.assertEquals({ 1, 2, 3, 4, 5 }, res)
 end
 
 function TestConcat()
@@ -154,21 +126,14 @@ function TestConcat()
 
 	set = set .. { 40, 50, 60 }
 
-	lu.assertTrue(set:contains(10))
-	lu.assertTrue(set:contains(20))
-	lu.assertTrue(set:contains(30))
-	lu.assertTrue(set:contains(40))
-	lu.assertTrue(set:contains(50))
-	lu.assertTrue(set:contains(60))
+	lu.assertTrue(set:contains(10, 20, 30, 40, 50, 60))
 	lu.assertEquals(6, #set)
 
 	set = set .. nil
 	lu.assertEquals(6, #set)
 
 	set = set .. Set.new({ 70, 80, 90 })
-	lu.assertTrue(set:contains(70))
-	lu.assertTrue(set:contains(80))
-	lu.assertTrue(set:contains(90))
+	lu.assertTrue(set:contains(70, 80, 90))
 	lu.assertEquals(9, #set)
 
 	local q = require("queue").new()
@@ -177,6 +142,79 @@ function TestConcat()
 
 	lu.assertTrue(set:contains(100))
 	lu.assertEquals(10, #set)
+end
+
+function TestIsSet()
+	lu.assertTrue(Set.isSet(Set.new()))
+	lu.assertTrue(Set.isSet(Set.new({ 1, 2, 3 })))
+	lu.assertFalse(Set.isSet({ 1, 2, 3 }))
+	lu.assertFalse(Set.isSet(nil))
+	lu.assertFalse(Set.isSet("set"))
+	lu.assertFalse(Set.isSet(123))
+end
+
+function TestBooleanValues()
+	local set = Set.new()
+	lu.assertTrue(set:add(false))
+	lu.assertEquals(1, #set)
+	lu.assertTrue(set:contains(false))
+
+	lu.assertFalse(set:add(false))
+	lu.assertEquals(1, #set)
+
+	lu.assertTrue(set:remove(false))
+	lu.assertEquals(0, #set)
+	lu.assertFalse(set:contains(false))
+	lu.assertFalse(set:remove(false))
+end
+
+function TestSymmetricDiff()
+	local set1 = Set.new({ 1, 2, 3, 4 })
+	local set2 = Set.new({ 3, 4, 5, 6 })
+
+	local sym = set1:symdiff(set2)
+	lu.assertEquals(4, #sym)
+	lu.assertTrue(sym:contains(1, 2, 5, 6))
+	lu.assertFalse(sym:contains(3))
+	lu.assertFalse(sym:contains(4))
+end
+
+function TestSubsetSupersetDisjoint()
+	local sub = Set.new({ 1, 2 })
+	local super = Set.new({ 1, 2, 3, 4 })
+	local other = Set.new({ 5, 6 })
+
+	lu.assertTrue(sub:subset(super))
+	lu.assertFalse(super:subset(sub))
+	lu.assertTrue(super:superset(sub))
+	lu.assertFalse(sub:superset(super))
+
+	lu.assertTrue(sub:disjoint(other))
+	lu.assertFalse(sub:disjoint(super))
+end
+
+function TestEquals()
+	local s1 = Set.new({ 1, 2, 3 })
+	local s2 = Set.new({ 3, 2, 1 })
+	local s3 = Set.new({ 1, 2, 4 })
+	local s4 = Set.new({ 1, 2 })
+
+	lu.assertTrue(s1 == s2)
+	lu.assertFalse(s1 == s3)
+	lu.assertFalse(s1 == s4)
+
+	lu.assertFalse(s1 == { 1, 2, 3 })
+	lu.assertFalse(s1 == nil)
+	lu.assertFalse(s1 == 42)
+end
+
+function TestToString()
+	local set = Set.new({ "hello", 123, true })
+	local str = tostring(set)
+
+	lu.assertTrue(str:find("hello") ~= nil)
+	lu.assertTrue(str:find("123") ~= nil)
+	lu.assertTrue(str:find("true") ~= nil)
 end
 
 os.exit(lu.LuaUnit.run())
