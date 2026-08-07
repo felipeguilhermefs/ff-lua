@@ -66,7 +66,7 @@ function TestDiff()
 	lu.assertTrue(setDiff1:contains("a"))
 	lu.assertEquals(1, #setDiff1)
 
-	local setDiff2 = set2 - set1 -- (-) Operator overload for diff
+	local setDiff2 = set2:diff(set1)
 	lu.assertTrue(setDiff2:contains("d"))
 	lu.assertEquals(1, #setDiff2)
 
@@ -83,7 +83,7 @@ function TestIntersection()
 	lu.assertTrue(setInter1:contains("b", "c"))
 	lu.assertEquals(2, #setInter1)
 
-	local setInter2 = set2 * set1 -- Operator (*) overload for intersection
+	local setInter2 = set2:intersection(set1)
 	lu.assertTrue(setInter2:contains("b", "c"))
 	lu.assertEquals(2, #setInter2)
 
@@ -99,7 +99,7 @@ function TestUnion()
 	lu.assertTrue(setUnion1:contains("a", "b", "c", "d"))
 	lu.assertEquals(4, #setUnion1)
 
-	local setUnion2 = set2 + set1 -- Operator (+) overload for union
+	local setUnion2 = set2:union(set1)
 	lu.assertTrue(setUnion2:contains("a", "b", "c", "d"))
 	lu.assertEquals(4, #setUnion2)
 

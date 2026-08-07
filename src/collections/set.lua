@@ -281,17 +281,6 @@ function Set:union(other)
 end
 
 -----------------------------------------------------------------------------
----Operator overload for `+` (set union). Returns a new Set.
----
----@param  other table<any, any>|Set
----
----@return Set
------------------------------------------------------------------------------
-function Set:__add(other)
-	return self:union(other)
-end
-
------------------------------------------------------------------------------
 ---Concatenate a given iterable into this Set (in-place modification).
 ---
 ---@param  iterable? table<any, any>|Set Any table or Set that can be iterated over.
@@ -347,17 +336,6 @@ function Set:__len()
 end
 
 -----------------------------------------------------------------------------
----Operator overload for `*` (set intersection). Returns a new Set.
----
----@param  other table<any, any>|Set
----
----@return Set
------------------------------------------------------------------------------
-function Set:__mul(other)
-	return self:intersection(other)
-end
-
------------------------------------------------------------------------------
 ---Iterates through the set in an undefined order.
 ---
 ---@return fun(t: table, k: any): any, boolean, table, nil
@@ -366,17 +344,6 @@ function Set:__pairs()
 	return function(_, index)
 		return next(self._entries, index)
 	end, self, nil
-end
-
------------------------------------------------------------------------------
----Operator overload for `-` (set difference). Returns a new Set.
----
----@param  other table<any, any>|Set
----
----@return Set
------------------------------------------------------------------------------
-function Set:__sub(other)
-	return self:diff(other)
 end
 
 -----------------------------------------------------------------------------
