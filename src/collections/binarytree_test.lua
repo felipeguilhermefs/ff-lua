@@ -248,9 +248,9 @@ function TestConcat()
 	lu.assertEquals(3, #bt)
 
 	local map = require("hashmap").new()
-	map:put("4", 40)
-	map:put("5", 50)
-	map:put("6", 60)
+	map["4"] = 40
+	map["5"] = 50
+	map["6"] = 60
 
 	bt = bt .. map
 
