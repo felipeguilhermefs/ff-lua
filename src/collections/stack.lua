@@ -160,7 +160,7 @@ end
 ---Prevents the Stack class to be modified
 -----------------------------------------------------------------------------
 function Stack.__newindex()
-	error("this class should not be modified")
+	error("'Stack' class should not be modified")
 end
 
 -----------------------------------------------------------------------------

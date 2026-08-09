@@ -336,6 +336,13 @@ function Set:__len()
 end
 
 -----------------------------------------------------------------------------
+---Prevents the Set class to be modified
+-----------------------------------------------------------------------------
+function Set:__newindex()
+	error("'Set' class should not be modified")
+end
+
+-----------------------------------------------------------------------------
 ---Iterates through the set in an undefined order.
 ---
 ---@return fun(t: table, k: any): any, boolean, table, nil
