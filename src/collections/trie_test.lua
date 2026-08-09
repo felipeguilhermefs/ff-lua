@@ -68,7 +68,7 @@ function TestFind()
 
 	words = t:find("cat", true)
 	lu.assertEquals(1, #words)
-	lu.assertEquals("cat", words:get(1))
+	lu.assertEquals("cat", words[1])
 
 	words = t:find("cat")
 	lu.assertEquals(3, #words)

@@ -46,7 +46,7 @@ end
 ---@return TrieNode?
 -----------------------------------------------------------------------------
 function TrieNode:get(letter)
-	return self._children:get(letter)
+	return self._children[letter]
 end
 
 -----------------------------------------------------------------------------
@@ -134,12 +134,12 @@ function Trie:find(prefix, exact)
 	end
 
 	if exact and node._word ~= nil then
-		words:insert(node._word)
+		words[#words + 1] = node._word
 	else
 		local next = self:_traverse(node)
 		local _, word = next()
 		while word ~= nil do
-			words:insert(word)
+			words[#words + 1] = word
 			_, word = next()
 		end
 	end

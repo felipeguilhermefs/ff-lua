@@ -68,7 +68,7 @@ function LRUCache:evict(key)
 		return false
 	end
 
-	local node = self._lookup:get(key)
+	local node = self._lookup[key]
 	if node == nil then
 		return false
 	end
@@ -89,7 +89,7 @@ function LRUCache:get(key)
 		return nil
 	end
 
-	local node = self._lookup:get(key)
+	local node = self._lookup[key]
 	if node then
 		self:_remove(node)
 		self:_add(node)
@@ -110,7 +110,7 @@ function LRUCache:put(key, value)
 		return false
 	end
 
-	local node = self._lookup:get(key)
+	local node = self._lookup[key]
 	if node then
 		self:_remove(node)
 		node.value = value
@@ -142,7 +142,7 @@ function LRUCache:_add(node)
 	temp.prev = node
 	self._head.next = node
 	node.prev = self._head
-	self._lookup:put(node.key, node)
+	self._lookup[node.key] = node
 end
 
 -----------------------------------------------------------------------------
