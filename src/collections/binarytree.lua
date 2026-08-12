@@ -189,7 +189,9 @@ end
 -----------------------------------------------------------------------------
 function BinaryTree:preorder()
 	local nodes = Stack.new()
-	nodes:push(self._root)
+	if self._root ~= nil then
+		nodes:push(self._root)
+	end
 	return function()
 		if nodes:empty() then
 			return nil
