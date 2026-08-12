@@ -19,6 +19,29 @@ function TestConstructor()
 	lu.assertEquals(30, s2:top())
 end
 
+function TestContains()
+	-- empty
+	local s = Stack.new()
+	lu.assertFalse(s:contains(1))
+
+	s:push(10)
+	s:push(20)
+	s:push(30)
+
+	-- present
+	lu.assertTrue(s:contains(10))
+	lu.assertTrue(s:contains(20))
+	lu.assertTrue(s:contains(30))
+
+	-- absent
+	lu.assertFalse(s:contains(99))
+	lu.assertFalse(s:contains("10"))
+
+	-- not present anymore
+	s:pop()
+	lu.assertFalse(s:contains(30))
+end
+
 function TestEmptyAndClear()
 	local s = Stack.new()
 	lu.assertTrue(s:empty())

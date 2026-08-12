@@ -58,6 +58,20 @@ function Stack:clear()
 end
 
 -----------------------------------------------------------------------------
+---Check the stack sequentially O(n), and returns "true" the entry is found.
+---Does not consume or modify the stack.
+---
+---@param  entry  any  Value to search for (compared with `==`).
+---
+---@return boolean
+-----------------------------------------------------------------------------
+function Stack:contains(entry)
+	assert(entry ~= nil, "entry should not be nil")
+
+	return self._entries:indexOf(entry) ~= nil
+end
+
+-----------------------------------------------------------------------------
 ---Returns whether the stack is empty or not.
 ---
 ---@return boolean
@@ -154,13 +168,6 @@ end
 -----------------------------------------------------------------------------
 function Stack:__len()
 	return #self._entries
-end
-
------------------------------------------------------------------------------
----Prevents the Stack class to be modified
------------------------------------------------------------------------------
-function Stack.__newindex()
-	error("'Stack' class should not be modified")
 end
 
 -----------------------------------------------------------------------------
