@@ -1,19 +1,35 @@
----@class LinkNode
----
----@field value any
----@field prev  LinkNode?
----@field next  LinkNode?
----
----@private
+------------------------------
+-- Cache function references
+------------------------------
+
+-- String
+local sfmt = string.format
+
+-- Table
+local tconcat = table.concat
+local tinsert = table.insert
+
+-- General
+local assert = assert
+local getmetatable = getmetatable
+local pairs = pairs
+local setmetatable = setmetatable
+local tostring = tostring
+local type = type
+
+---@class (private) LinkNode
+---@field value any        Stores the value of this node.
+---@field prev  LinkNode?  Points to the previous node in the list.
+---@field next  LinkNode?  Points to the next node in the list.
 local LinkNode = {}
 LinkNode.__index = LinkNode
 
 -----------------------------------------------------------------------------
 ---Creates a new instance of the node.
 ---
----@param value  any
----@param prev   LinkNode?
----@param next   LinkNode?
+---@param  value  any
+---@param  prev   LinkNode?
+---@param  next   LinkNode?
 ---
 ---@return LinkNode
 -----------------------------------------------------------------------------
@@ -25,33 +41,48 @@ function LinkNode.new(value, prev, next)
 	}, LinkNode)
 end
 
+--------------------------------------------------------------------------------------
 ---@class LinkedList
----
 ---@field private _front LinkNode? Node at the start of the list.
 ---@field private _back  LinkNode? Node at the end of the list.
 ---@field private _len   number    Number of entries in the list.
+--------------------------------------------------------------------------------------
 local LinkedList = {}
 LinkedList.__index = LinkedList
 
-function LinkedList.isLinkedList(list)
-	if type(list) ~= "table" then
+-----------------------------------------------------------------------------
+---Checks if it is a LinkedList instance.
+---
+---@param  maybe any
+---
+---@return boolean
+-----------------------------------------------------------------------------
+function LinkedList.isLinkedList(maybe)
+	if maybe == nil then
 		return false
 	end
 
-	return list.__index == LinkedList
+	if type(maybe) ~= "table" then
+		return false
+	end
+
+	return getmetatable(maybe) == LinkedList
 end
 
 -----------------------------------------------------------------------------
 ---Creates a new instance of the (doubly) linked list.
 ---
+---@param  iterable? table<any, any>|LinkedList Optional table or LinkedList
+---                                             to initialize the list from.
+---
 ---@return LinkedList
 -----------------------------------------------------------------------------
-function LinkedList.new()
+function LinkedList.new(iterable)
 	return setmetatable({
-		_front = nil,
 		_back = nil,
+		_front = nil,
 		_len = 0,
-	}, LinkedList)
+	}, LinkedList) .. iterable
 end
 
 -----------------------------------------------------------------------------
@@ -64,12 +95,59 @@ function LinkedList:clear()
 end
 
 -----------------------------------------------------------------------------
----Returns whether the list empty or not.
+---Check the list sequentially O(n), and returns `true` if the entry is found.
+---Does not consume or modify the list.
+---
+---@param  value any Value to search for (compared with `==`).
+---
+---@return boolean
+-----------------------------------------------------------------------------
+function LinkedList:contains(value)
+	assert(value ~= nil, "value should not be nil")
+
+	local cur = self._front
+	while cur ~= nil do
+		if cur.value == value then
+			return true
+		end
+		cur = cur.next
+	end
+	return false
+end
+
+-----------------------------------------------------------------------------
+---Returns whether the list is empty or not.
 ---
 ---@return boolean
 -----------------------------------------------------------------------------
 function LinkedList:empty()
-	return not self._front
+	return self._len == 0
+end
+
+-----------------------------------------------------------------------------
+---Returns the value at the back of the list. Returns `nil` if empty.
+---
+---@return any?
+-----------------------------------------------------------------------------
+function LinkedList:peekBack()
+	if self:empty() then
+		return nil
+	end
+
+	return self._back.value
+end
+
+-----------------------------------------------------------------------------
+---Returns the value at the front of the list. Returns `nil` if empty.
+---
+---@return any?
+-----------------------------------------------------------------------------
+function LinkedList:peekFront()
+	if self:empty() then
+		return nil
+	end
+
+	return self._front.value
 end
 
 -----------------------------------------------------------------------------
@@ -121,78 +199,77 @@ end
 -----------------------------------------------------------------------------
 ---Adds an entry to the back of the list.
 ---
----@param  entry any
+---@param  entry any Entry to be added.
 -----------------------------------------------------------------------------
 function LinkedList:pushBack(entry)
-	self._back = LinkNode.new(entry, self._back, nil)
-	if self._back.prev then
-		self._back.prev.next = self._back
+	assert(entry ~= nil, "entry should not be nil")
+
+	local node = LinkNode.new(entry, self._back, nil)
+	if self._back ~= nil then
+		self._back.next = node
+	else
+		self._front = node
 	end
-	self._front = self._front or self._back
+	self._back = node
 	self._len = self._len + 1
 end
 
 -----------------------------------------------------------------------------
 ---Adds an entry to the front of the list.
 ---
----@param  entry any
+---@param  entry any Entry to be added.
 -----------------------------------------------------------------------------
 function LinkedList:pushFront(entry)
-	self._front = LinkNode.new(entry, nil, self._front)
-	if self._front.next then
-		self._front.next.prev = self._front
+	assert(entry ~= nil, "entry should not be nil")
+
+	local node = LinkNode.new(entry, nil, self._front)
+	if self._front ~= nil then
+		self._front.prev = node
+	else
+		self._back = node
 	end
-	self._back = self._back or self._front
+	self._front = node
 	self._len = self._len + 1
 end
 
 -----------------------------------------------------------------------------
----Reverses the linked list inplace.
+---Reverses the linked list in-place.
+---
+---@return LinkedList Returns this LinkedList instance.
 -----------------------------------------------------------------------------
 function LinkedList:reverse()
-	if self:empty() then
-		return
-	end
-
-	if self._front == self._back then
-		return
+	if self._len <= 1 then
+		return self
 	end
 
 	local cur = self._front
-	local prev = nil
-	local next = nil
-	while cur do
-		next = cur.next
-		cur.next = prev
-		cur.prev = next
-		cur = next
+	while cur ~= nil do
+		local nxt = cur.next
+		cur.next = cur.prev
+		cur.prev = nxt
+		cur = nxt
 	end
 
-	cur = self._front
-	self._front = self._back
-	self._back = cur
+	self._front, self._back = self._back, self._front
+
+	return self
 end
 
 -----------------------------------------------------------------------------
----Concatenate a given iterable to this.
+---Concatenate a given iterable into this LinkedList (in-place modification).
 ---
----@param iterable LinkedList Entries to be concatenated.
----			      Defaults to an empty list if `nil`.
+---@param  iterable? table<any, any>  Any table or LinkedList that
+---                                   can be iterated over. Defaults
+---                                   to an empty list if `nil`.
 ---
----@return LinkedList
+---@return LinkedList                 Returns this LinkedList instance.
 -----------------------------------------------------------------------------
 function LinkedList:__concat(iterable)
 	if iterable ~= nil then
-		if LinkedList.isLinkedList(iterable) then
-			self._back.next = iterable._front
-			iterable._front.prev = self._back
-			self._back = iterable._back
-			self._len = self._len + iterable._len
-		else
-			assert(type(iterable) == "table", "Should be a table")
-			for _, item in pairs(iterable) do
-				self:pushBack(item)
-			end
+		assert(type(iterable) == "table", "iterable should be a table")
+
+		for _, item in pairs(iterable) do
+			self:pushBack(item)
 		end
 	end
 
@@ -200,29 +277,58 @@ function LinkedList:__concat(iterable)
 end
 
 -----------------------------------------------------------------------------
+---Structural equality: Considers equal when both are LinkedLists with the
+---same size and containing the same elements in the same order.
+---
+---@param  other any?
+---
+---@return boolean
+-----------------------------------------------------------------------------
+function LinkedList:__eq(other)
+	if not LinkedList.isLinkedList(other) then
+		return false
+	end
+
+	if self._len ~= other._len then
+		return false
+	end
+
+	local a = self._front
+	local b = other._front
+	while a ~= nil do
+		if a.value ~= b.value then
+			return false
+		end
+		a = a.next
+		b = b.next
+	end
+
+	return true
+end
+
+-----------------------------------------------------------------------------
 ---Returns the number of entries in the list.
 ---
 ---@return number
----@private
 -----------------------------------------------------------------------------
 function LinkedList:__len()
 	return self._len
 end
 
 -----------------------------------------------------------------------------
----Iterates through the LinkedList from 1 to #LinkedList
+---Iterates through the LinkedList from 1 to #LinkedList.
 ---
----@return Iterator<any>, LinkedList<any>, nil
+---@return fun(): number?, any? Generator function yielding (index, value) pairs in order.
 -----------------------------------------------------------------------------
 function LinkedList:__pairs()
-	local next = self._front
+	local cur = self._front
 	local index = 0
 	return function()
-		if next then
-			local cur = next
-			next = cur.next
+		if cur ~= nil then
+			local node = cur
+			cur = node.next
 			index = index + 1
-			return index, cur.value
+			return index, node.value
 		end
 	end,
 		self,
@@ -230,16 +336,18 @@ function LinkedList:__pairs()
 end
 
 -----------------------------------------------------------------------------
----String representation of this linkedlist
+---String representation of this linked list.
 ---
 ---@return string
 -----------------------------------------------------------------------------
 function LinkedList:__tostring()
 	local sb = {}
-	for _, item in pairs(self) do
-		table.insert(sb, item)
+	local cur = self._front
+	while cur ~= nil do
+		tinsert(sb, tostring(cur.value))
+		cur = cur.next
 	end
-	return string.format("[ %s ]", table.concat(sb, " -> "))
+	return sfmt("[ %s ]", tconcat(sb, " -> "))
 end
 
 return LinkedList
