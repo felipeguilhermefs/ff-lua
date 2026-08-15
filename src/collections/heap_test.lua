@@ -55,6 +55,57 @@ function TestConstructorWithComparatorAndIterable()
 	lu.assertEquals(10, h:pop())
 end
 
+function TestConstructorWithCapacity()
+	local h = Heap.new(nil, nil, 5)
+	lu.assertTrue(h:empty())
+	lu.assertEquals(0, #h)
+	lu.assertFalse(h:full())
+
+	local minH = Heap.newMin(nil, 5)
+	lu.assertTrue(minH:empty())
+	lu.assertEquals(0, #minH)
+	lu.assertFalse(minH:full())
+
+	local maxH = Heap.newMax(nil, 5)
+	lu.assertTrue(maxH:empty())
+	lu.assertEquals(0, #maxH)
+	lu.assertFalse(maxH:full())
+end
+
+function TestConstructorWithCapacityAndIterable()
+	local h = Heap.new({ 10, 20, 30 }, nil, 5)
+	lu.assertEquals(3, #h)
+	lu.assertFalse(h:full())
+
+	local h3 = Heap.new({ 10, 20, 30, 40, 50 }, nil, 3)
+	lu.assertEquals(3, #h3)
+	lu.assertTrue(h3:full())
+
+	local minH = Heap.newMin({ 5, 3, 8 }, 5)
+	lu.assertEquals(3, #minH)
+	lu.assertFalse(minH:full())
+
+	local maxH = Heap.newMax({ 5, 3, 8 }, 3)
+	lu.assertEquals(3, #maxH)
+	lu.assertTrue(maxH:full())
+end
+
+function TestConstructorCapacityValidation()
+	lu.assertError(Heap.new, nil, "a")
+	lu.assertError(Heap.new, nil, true)
+	lu.assertError(Heap.new, nil, -1)
+	lu.assertError(Heap.new, nil, 0)
+	lu.assertError(Heap.new, nil, nil, "a")
+	lu.assertError(Heap.new, nil, nil, -1)
+	lu.assertError(Heap.new, nil, nil, 0)
+	lu.assertError(Heap.newMin, nil, "a")
+	lu.assertError(Heap.newMin, nil, 0)
+	lu.assertError(Heap.newMin, nil, -1)
+	lu.assertError(Heap.newMax, nil, "a")
+	lu.assertError(Heap.newMax, nil, 0)
+	lu.assertError(Heap.newMax, nil, -1)
+end
+
 function TestConstructorMinMaxWithIterable()
 	local minH = Heap.newMin({ 5, 3, 8, 1 })
 	lu.assertEquals(4, #minH)
@@ -382,6 +433,176 @@ function TestToStringEmpty()
 	local h = Heap.new()
 	local str = tostring(h)
 	lu.assertEquals("[  ]", str)
+end
+
+function TestIndexOf()
+	local h = Heap.new({ 10, 20, 30, 40, 50, 60, 70 })
+
+	-- Root element is at index 1
+	lu.assertEquals(1, h:indexOf(10))
+
+	-- All existing elements return an index containing that value
+	for _, val in ipairs({ 10, 20, 30, 40, 50, 60, 70 }) do
+		local idx = h:indexOf(val)
+		lu.assertNotNil(idx)
+		lu.assertEquals(val, h._entries[idx])
+	end
+
+	-- Smaller than root (pruned immediately)
+	lu.assertNil(h:indexOf(5))
+
+	-- Greater than root but not in heap
+	lu.assertNil(h:indexOf(25))
+	lu.assertNil(h:indexOf(99))
+
+	-- Empty heap
+	lu.assertNil(Heap.new():indexOf(10))
+end
+
+function TestIndexOfWithStartIndex()
+	local h = Heap.new({ 10, 20, 30, 40, 50, 60, 70 })
+
+	-- Searching starting from left child (index 2) finds elements in that subtree
+	local leftVal = h._entries[2]
+	local idx = h:indexOf(leftVal, 2)
+	lu.assertEquals(2, idx)
+
+	-- Child of index 2 (index 4 or 5)
+	if #h >= 4 then
+		local childVal = h._entries[4]
+		lu.assertEquals(4, h:indexOf(childVal, 2))
+	end
+
+	-- Right child element (index 3) is not in left subtree (index 2)
+	local rightVal = h._entries[3]
+	lu.assertNil(h:indexOf(rightVal, 2))
+
+	-- Searching beyond heap bounds returns nil
+	lu.assertNil(h:indexOf(10, 100))
+end
+
+function TestIndexOfMaxHeap()
+	local maxH = Heap.newMax({ 70, 60, 50, 40, 30, 20, 10 })
+
+	-- Root is max element (index 1)
+	lu.assertEquals(1, maxH:indexOf(70))
+
+	-- All existing elements return an index containing that value
+	for _, val in ipairs({ 70, 60, 50, 40, 30, 20, 10 }) do
+		local idx = maxH:indexOf(val)
+		lu.assertNotNil(idx)
+		lu.assertEquals(val, maxH._entries[idx])
+	end
+
+	-- Larger than root (pruned immediately)
+	lu.assertNil(maxH:indexOf(100))
+
+	-- Smaller than root but not in heap
+	lu.assertNil(maxH:indexOf(25))
+	lu.assertNil(maxH:indexOf(0))
+end
+
+function TestIndexOfValidation()
+	local h = Heap.new({ 10, 20, 30 })
+
+	lu.assertErrorMsgContains("value should not be nil", function()
+		h:indexOf(nil)
+	end)
+
+	lu.assertErrorMsgContains("index should be a number", function()
+		h:indexOf(10, "bad")
+	end)
+
+	lu.assertErrorMsgContains("index should be positive", function()
+		h:indexOf(10, 0)
+	end)
+
+	lu.assertErrorMsgContains("index should be positive", function()
+		h:indexOf(10, -1)
+	end)
+end
+
+function TestCapacityPush()
+	local h = Heap.new(nil, nil, 2)
+
+	lu.assertTrue(h:push(10))
+	lu.assertEquals(1, #h)
+	lu.assertFalse(h:full())
+
+	lu.assertTrue(h:push(20))
+	lu.assertEquals(2, #h)
+	lu.assertTrue(h:full())
+
+	-- Pushing to full heap returns false and does not modify heap
+	lu.assertFalse(h:push(30))
+	lu.assertEquals(2, #h)
+
+	-- Popping makes room
+	lu.assertEquals(10, h:pop())
+	lu.assertEquals(1, #h)
+	lu.assertFalse(h:full())
+
+	lu.assertTrue(h:push(30))
+	lu.assertEquals(2, #h)
+	lu.assertTrue(h:full())
+end
+
+function TestFullUnbounded()
+	local h = Heap.new()
+	lu.assertFalse(h:full())
+	h:push(1)
+	lu.assertFalse(h:full())
+	h:push(2)
+	lu.assertFalse(h:full())
+
+	local minH = Heap.newMin()
+	lu.assertFalse(minH:full())
+
+	local maxH = Heap.newMax()
+	lu.assertFalse(maxH:full())
+end
+
+function TestFullBoundedNotFull()
+	local h = Heap.new(nil, nil, 3)
+	lu.assertFalse(h:full())
+	h:push(1)
+	lu.assertFalse(h:full())
+	h:push(2)
+	lu.assertFalse(h:full())
+end
+
+function TestFullBoundedAtCapacity()
+	local h = Heap.new(nil, nil, 2)
+	h:push(1)
+	h:push(2)
+	lu.assertTrue(h:full())
+end
+
+function TestFullBoundedAfterPopAndClear()
+	local h = Heap.new(nil, nil, 2)
+	h:push(1)
+	h:push(2)
+	lu.assertTrue(h:full())
+
+	h:pop()
+	lu.assertFalse(h:full())
+
+	h:push(3)
+	lu.assertTrue(h:full())
+
+	h:clear()
+	lu.assertFalse(h:full())
+	lu.assertEquals(0, #h)
+end
+
+function TestFullConsistentWithPush()
+	local h = Heap.new(nil, nil, 3)
+	h:push("a")
+	h:push("b")
+	h:push("c")
+
+	lu.assertTrue(h:full())
+	lu.assertFalse(h:push("d"))
 end
 
 os.exit(lu.LuaUnit.run())

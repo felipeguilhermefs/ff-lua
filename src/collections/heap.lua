@@ -15,6 +15,7 @@ local type = type
 
 --------------------------------------------------------------------------------------
 ---@class Heap
+---@field private _capacity   number?                     Maximum number of items allowed in the heap.
 ---@field private _comparator fun(a: any, b: any): -1|0|1 Defaults to a "Natural Order".
 ---@field private _entries    Array                       Array holding the entries.
 --------------------------------------------------------------------------------------
@@ -43,13 +44,26 @@ end
 -----------------------------------------------------------------------------
 ---Creates a new instance of the heap.
 ---
----@param  iterable? table<any, any>             Optional table or Heap to initialize
----                                              the heap from.
----@param comparator fun(a: any, b: any): -1|0|1 Defaults to "Natural Order".
+---@param  iterable?   table<any, any>             Optional table or Heap to initialize
+---                                                the heap from.
+---@param  comparator? fun(a: any, b: any): -1|0|1 Defaults to "Natural Order".
+---@param  capacity?   number                      Maximum size desired for this heap. If
+---                                                not provided, there will be no maximum.
+---
 ---@return Heap
 -----------------------------------------------------------------------------
-function Heap.new(iterable, comparator)
+function Heap.new(iterable, comparator, capacity)
+	if comparator ~= nil then
+		assert(type(comparator) == "function", "comparator should be a function")
+	end
+
+	if capacity ~= nil then
+		assert(type(capacity) == "number", "capacity should be a number")
+		assert(capacity > 0, "capacity should be positive")
+	end
+
 	return setmetatable({
+		_capacity = capacity,
 		_comparator = comparator or Comparator.natural,
 		_entries = Array.new(),
 	}, Heap) .. iterable
@@ -60,11 +74,13 @@ end
 ---
 ---@param  iterable? table<any, any> Optional table or Heap to initialize
 ---                                  the heap from.
+---@param  capacity? number          Maximum size desired for this heap. If
+---                                  not provided, there will be no maximum.
 ---
 ---@return Heap
 -----------------------------------------------------------------------------
-function Heap.newMax(iterable)
-	return Heap.new(iterable, Comparator.reverse(Comparator.natural))
+function Heap.newMax(iterable, capacity)
+	return Heap.new(iterable, Comparator.reverse(Comparator.natural), capacity)
 end
 
 -----------------------------------------------------------------------------
@@ -72,11 +88,13 @@ end
 ---
 ---@param  iterable? table<any, any> Optional table or Heap to initialize
 ---                                  the heap from.
+---@param  capacity? number          Maximum size desired for this heap. If
+---                                  not provided, there will be no maximum.
 ---
 ---@return Heap
 -----------------------------------------------------------------------------
-function Heap.newMin(iterable)
-	return Heap.new(iterable, Comparator.natural)
+function Heap.newMin(iterable, capacity)
+	return Heap.new(iterable, Comparator.natural, capacity)
 end
 
 -----------------------------------------------------------------------------
@@ -108,19 +126,31 @@ function Heap:empty()
 end
 
 -----------------------------------------------------------------------------
+---Check if the heap is at capacity. If the heap does not have a limit
+---this will always return false.
+---
+---@return boolean
+-----------------------------------------------------------------------------
+function Heap:full()
+	return self._capacity ~= nil and #self._entries >= self._capacity
+end
+
+-----------------------------------------------------------------------------
 ---Returns the index of the first entry with a given value.
 ---It will return `nil` if nothing is found.
 ---
----@param  value any     Value to search.
----@param  index? number Index to start searching from.
----                      Defaults to 1 if not provided.
+---@param  value  any     Value to search.
+---@param  index? number  Index to start searching from.
+---                       Defaults to 1 if not provided.
 ---
 ---@return number|nil
+-----------------------------------------------------------------------------
 function Heap:indexOf(value, index)
 	assert(value ~= nil, "value should not be nil")
 
 	index = index or 1
 	assert(type(index) == "number", "index should be a number")
+	assert(index > 0, "index should be positive")
 
 	if index > #self then
 		return nil
@@ -188,6 +218,10 @@ end
 -----------------------------------------------------------------------------
 function Heap:push(value)
 	assert(value ~= nil, "value should not be nil")
+
+	if self:full() then
+		return false
+	end
 
 	self._entries[#self._entries + 1] = value
 	self:_siftUp(#self)
