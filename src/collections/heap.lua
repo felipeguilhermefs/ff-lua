@@ -1,42 +1,101 @@
 local Array = require("ff.collections.array")
 local Comparator = require("ff.func.comparator")
 
+------------------------------
+-- Cache function references
+------------------------------
+
+-- General
+local assert = assert
+local getmetatable = getmetatable
+local pairs = pairs
+local setmetatable = setmetatable
+local tostring = tostring
+local type = type
+
+--------------------------------------------------------------------------------------
 ---@class Heap
 ---@field private _comparator fun(a: any, b: any): -1|0|1 Defaults to a "Natural Order".
 ---@field private _entries    Array                       Array holding the entries.
+--------------------------------------------------------------------------------------
 local Heap = {}
 Heap.__index = Heap
 
 -----------------------------------------------------------------------------
----Creates a new instance of the heap.
+---Checks if it is a Heap instance.
 ---
----@param comparator fun(a: any, b: any): -1|0|1 Defaults to "Natural Order".
+---@param  maybe any
 ---
----@return Heap
+---@return boolean
 -----------------------------------------------------------------------------
-function Heap.new(comparator)
-	return setmetatable({
-		_comparator = comparator or Comparator.natural,
-		_entries = Array.new(),
-	}, Heap)
+function Heap.isHeap(maybe)
+	if maybe == nil then
+		return false
+	end
+
+	if type(maybe) ~= "table" then
+		return false
+	end
+
+	return getmetatable(maybe) == Heap
 end
 
 -----------------------------------------------------------------------------
----Creates a new instance of a MIN Heap. (Minimum item is at the root)
+---Creates a new instance of the heap.
 ---
+---@param  iterable? table<any, any>             Optional table or Heap to initialize
+---                                              the heap from.
+---@param comparator fun(a: any, b: any): -1|0|1 Defaults to "Natural Order".
 ---@return Heap
 -----------------------------------------------------------------------------
-function Heap.newMin()
-	return Heap.new(Comparator.natural)
+function Heap.new(iterable, comparator)
+	return setmetatable({
+		_comparator = comparator or Comparator.natural,
+		_entries = Array.new(),
+	}, Heap) .. iterable
 end
 
 -----------------------------------------------------------------------------
 ---Creates a new instance of a MAX Heap. (Maximum item is at the root)
 ---
+---@param  iterable? table<any, any> Optional table or Heap to initialize
+---                                  the heap from.
+---
 ---@return Heap
 -----------------------------------------------------------------------------
-function Heap.newMax()
-	return Heap.new(Comparator.reverse(Comparator.natural))
+function Heap.newMax(iterable)
+	return Heap.new(iterable, Comparator.reverse(Comparator.natural))
+end
+
+-----------------------------------------------------------------------------
+---Creates a new instance of a MIN Heap. (Minimum item is at the root)
+---
+---@param  iterable? table<any, any> Optional table or Heap to initialize
+---                                  the heap from.
+---
+---@return Heap
+-----------------------------------------------------------------------------
+function Heap.newMin(iterable)
+	return Heap.new(iterable, Comparator.natural)
+end
+
+-----------------------------------------------------------------------------
+---Empties the heap.
+-----------------------------------------------------------------------------
+function Heap:clear()
+	self._entries:clear()
+end
+
+-----------------------------------------------------------------------------
+---Check the heap returns `true` if the entry is found.
+---Does not consume or modify the heap.
+---
+---@param  value any Value to search for (compared with `==`).
+---
+---@return boolean
+-----------------------------------------------------------------------------
+function Heap:contains(value)
+	return self:indexOf(value) ~= nil
 end
 
 -----------------------------------------------------------------------------
@@ -45,21 +104,50 @@ end
 ---@return boolean
 -----------------------------------------------------------------------------
 function Heap:empty()
-	return #self == 0
+	return #self._entries == 0
 end
 
 -----------------------------------------------------------------------------
----Swap heap entries by the provided array and mutates it into a heap structure.
+---Returns the index of the first entry with a given value.
+---It will return `nil` if nothing is found.
 ---
----@param array table<any>|Array
------------------------------------------------------------------------------
-function Heap:heapify(array)
-	self._entries = Array.new(array)
-	for i = #self, 1, -1 do
-		self:_siftDown(i)
-	end
-end
+---@param  value any     Value to search.
+---@param  index? number Index to start searching from.
+---                      Defaults to 1 if not provided.
+---
+---@return number|nil
+function Heap:indexOf(value, index)
+	assert(value ~= nil, "value should not be nil")
 
+	index = index or 1
+	assert(type(index) == "number", "index should be a number")
+
+	if index > #self then
+		return nil
+	end
+
+	local comp = self._comparator(value, self._entries[index])
+
+	if comp == Comparator.equal then
+		return index
+	end
+
+	if comp == Comparator.less then
+		-- when it is before the current index then it is not in the heap
+		return nil
+	end
+
+	-- When it is greater then the current index, we can check the children
+
+	-- search in the left side first
+	local left = self:indexOf(value, index * 2)
+	if left ~= nil then
+		return left
+	end
+
+	-- then we can check the right side
+	return self:indexOf(value, index * 2 + 1)
+end
 -----------------------------------------------------------------------------
 ---Returns the first entry of the heap, or `nil` if empty.
 ---
@@ -92,16 +180,14 @@ function Heap:pop()
 end
 
 -----------------------------------------------------------------------------
----Adds a value to the heap, ignores if `nil`.
+---Adds a value to the heap.
 ---
----@param value any?
+---@param  value any Value to be added to the heap.
 ---
 ---@return boolean   `true` if value was added to the heap.
 -----------------------------------------------------------------------------
 function Heap:push(value)
-	if value == nil then
-		return false
-	end
+	assert(value ~= nil, "value should not be nil")
 
 	self._entries[#self._entries + 1] = value
 	self:_siftUp(#self)
@@ -109,9 +195,47 @@ function Heap:push(value)
 end
 
 -----------------------------------------------------------------------------
+---Check if index `i` should come before `j` in the heap structure.
+---
+---@param  i number
+---@param  j number
+---
+---@return boolean
+---
+---@private
+-----------------------------------------------------------------------------
+function Heap:_before(i, j)
+	return self._comparator(self._entries[i], self._entries[j]) == Comparator.less
+end
+
+-----------------------------------------------------------------------------
+---Fix the heap structure from index to leaf. (Top down)
+---
+---@param  index number
+---
+---@private
+-----------------------------------------------------------------------------
+function Heap:_siftDown(index)
+	local child = index * 2
+	while child <= #self do
+		if child + 1 <= #self and self:_before(child + 1, child) then
+			child = child + 1
+		end
+
+		if not self:_before(child, index) then
+			break
+		end
+
+		self._entries:swap(child, index)
+		index = child
+		child = index * 2
+	end
+end
+
+-----------------------------------------------------------------------------
 ---Fix the heap structure from index to root. (Bottom up)
 ---
----@param index number
+---@param  index number
 ---
 ---@private
 -----------------------------------------------------------------------------
@@ -125,54 +249,16 @@ function Heap:_siftUp(index)
 end
 
 -----------------------------------------------------------------------------
----Fix the heap structure from index to leaf. (Top down)
+---Pushes all items from a given iterable into this Heap (in-place modification).
 ---
----@param index number
----
----@private
------------------------------------------------------------------------------
-function Heap:_siftDown(index)
-	local child = index * 2
-	while child <= #self do
-		if child + 1 <= #self and self:_before(child + 1, child) then
-			child = child + 1
-		end
-
-		if self:_before(index, child) then
-			break
-		end
-
-		self._entries:swap(child, index)
-		index = child
-		child = index * 2
-	end
-end
-
------------------------------------------------------------------------------
----Check if index `i` should come before `j` in the heap structure.
----
----@param i number
----@param j number
----
----@return boolean
----
----@private
------------------------------------------------------------------------------
-function Heap:_before(i, j)
-	return self._comparator(self._entries[i], self._entries[j]) == Comparator.less
-end
-
------------------------------------------------------------------------------
----Pushes all items in a given iterable.
----
----@param iterable? table<any, any> Any table that can be iterated over.
+---@param  iterable? table<any, any> Any table that can be iterated over.
 ---                                 Defaults to an empty table if `nil`.
 ---
----@return Heap
+---@return Heap                     Returns this Heap instance.
 -----------------------------------------------------------------------------
 function Heap:__concat(iterable)
 	if iterable ~= nil then
-		assert(type(iterable) == "table", "Should be a table")
+		assert(type(iterable) == "table", "iterable should be a table")
 
 		for _, item in pairs(iterable) do
 			self:push(item)
@@ -183,23 +269,38 @@ function Heap:__concat(iterable)
 end
 
 -----------------------------------------------------------------------------
+---Structural equality: Considers equal when both are Heaps with the same size
+---and containing the same elements in the underlying array structure.
+---
+---@param  other any?
+---
+---@return boolean
+-----------------------------------------------------------------------------
+function Heap:__eq(other)
+	if not Heap.isHeap(other) then
+		return false
+	end
+
+	return self._entries == other._entries
+end
+
+-----------------------------------------------------------------------------
 ---Returns the number of entries in the heap.
 ---
 ---@return number
----@private
 -----------------------------------------------------------------------------
 function Heap:__len()
 	return #self._entries
 end
 
 -----------------------------------------------------------------------------
----Iterates through the heap in order. Same as:
+---Iterates through the heap in priority order by consuming items. Same as:
 ---
 ---while not heap:empty() do
 ---   local item = heap:pop()
 ---end
 ---
----@return Iterator<1, any>, Heap<any>, nil
+---@return fun(): number?, any? Generator function yielding (1, item) until empty.
 -----------------------------------------------------------------------------
 function Heap:__pairs()
 	return function()
@@ -211,7 +312,7 @@ function Heap:__pairs()
 end
 
 -----------------------------------------------------------------------------
----String representation of this heap
+---String representation of this heap.
 ---
 ---@return string
 -----------------------------------------------------------------------------
