@@ -255,10 +255,10 @@ function TestConcat()
 
 	ll = ll .. other
 
-	local bt = require("binarytree").new()
-	bt:insert(70)
+	local tm = require("treemap").new()
+	tm[70] = 70
 
-	ll = ll .. bt
+	ll = ll .. tm
 
 	local stack = require("stack").new()
 	stack:push(80)

@@ -100,7 +100,7 @@ end
 ---                                Receives (existing, incoming); its return
 ---                                value becomes the new stored value.
 ---                                Defaults to an override function
----                                (returns `b`).
+---                                (returns `incoming`).
 ---
 ---@return HashMap                 Returns this HashMap after the merge.
 -----------------------------------------------------------------------------
@@ -108,7 +108,6 @@ function HashMap:merge(other, fn)
 	assert(type(other) == "table", "other should be a table")
 	assert(fn == nil or type(fn) == "function", "fn should be a function")
 
-	-- If no merge function is given, we default to a simpel override.
 	fn = fn or function(_, b)
 		return b
 	end
@@ -129,25 +128,29 @@ end
 -----------------------------------------------------------------------------
 ---Removes the entry associated with the key.
 ---
----@param  key any Key used for lookup.
+---@param  key any Key to be removed.
+---
+---@return any?    Previous value associated with key, or `nil` if not found.
 -----------------------------------------------------------------------------
 function HashMap:remove(key)
 	assert(key ~= nil, "key should not be nil")
 
-	if self._entries[key] == nil then
-		return
+	local value = self[key]
+	if value ~= nil then
+		self._entries[key] = nil
+		self._len = self._len - 1
 	end
 
-	self._entries[key] = nil
-	self._len = self._len - 1
+	return value
 end
 
 -----------------------------------------------------------------------------
 ---Concatenate a given iterable into this HashMap (in-place modification).
 ---
----@param iterable HashMap|table<any, any>|nil Entries to concatenate.
+---@param iterable? table<any, any> Entries to concatenate.
+---                                 Defaults to an empty list if `nil`.
 ---
----@return HashMap
+---@return HashMap Returns this map instance.
 -----------------------------------------------------------------------------
 function HashMap:__concat(iterable)
 	if iterable ~= nil then
@@ -194,8 +197,8 @@ end
 -----------------------------------------------------------------------------
 ---Metamethod __index controls bracket (a[key]) read access to internals.
 ---
----@param self HashMap
 ---@param key any Index or field name, should not be nil.
+---
 ---@return any Value at index or fallback field.
 -----------------------------------------------------------------------------
 function HashMap:__index(key)
@@ -222,18 +225,18 @@ end
 -----------------------------------------------------------------------------
 ---Metamethod __newindex controls bracket (a[key]) write access to internals.
 ---
----@param self HashMap
----@param index any Key used for lookup, should not be nil.
+---@param self  HashMap
+---@param key   any Key used for lookup, should not be nil.
 ---@param value any Value to be stored, should not be nil.
 -----------------------------------------------------------------------------
-function HashMap:__newindex(index, value)
-	assert(index ~= nil, "index should not be nil")
+function HashMap:__newindex(key, value)
+	assert(key ~= nil, "index should not be nil")
 	assert(value ~= nil, "value should not be nil")
 
-	if self._entries[index] == nil then
+	if self._entries[key] == nil then
 		self._len = self._len + 1
 	end
-	self._entries[index] = value
+	self._entries[key] = value
 end
 
 -----------------------------------------------------------------------------

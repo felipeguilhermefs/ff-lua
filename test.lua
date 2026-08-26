@@ -25,7 +25,6 @@ package.path = "src/?.lua;src/aoc/?.lua;src/cache/?.lua;src/collections/?.lua;sr
 local test_files = {
 	"src/cache/lru_test.lua",
 	"src/collections/array_test.lua",
-	"src/collections/binarytree_test.lua",
 	"src/collections/hashmap_test.lua",
 	"src/collections/heap_test.lua",
 	"src/collections/linkedlist_test.lua",
@@ -33,6 +32,7 @@ local test_files = {
 	"src/collections/rangetree_test.lua",
 	"src/collections/set_test.lua",
 	"src/collections/stack_test.lua",
+	"src/collections/treemap_test.lua",
 	"src/collections/trie_test.lua",
 	"src/func/comparator_test.lua",
 	"src/func/empty_test.lua",
