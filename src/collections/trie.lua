@@ -2,35 +2,59 @@ local Array = require("ff.collections.array")
 local HashMap = require("ff.collections.hashmap")
 local Stack = require("ff.collections.stack")
 
----@class TrieNode
----
----@field private _word     string? Stores the full word when it is the final node
----@field private _children HashMap<string, TrieNode> Maps child nodes by prefix char
+------------------------------
+-- Cache function references
+------------------------------
+
+-- String
+local sfmt = string.format
+
+-- Table
+local tconcat = table.concat
+local tinsert = table.insert
+local tsort = table.sort
+
+-- General
+local assert = assert
+local getmetatable = getmetatable
+local pairs = pairs
+local setmetatable = setmetatable
+local tostring = tostring
+local type = type
+
+--------------------------------------------------------------------------------------
+---@class (private) TrieNode
+---@field _word     string?                   Stores the full word when it is the final node.
+---@field _children HashMap<string, TrieNode> Maps child nodes by prefix char.
+--------------------------------------------------------------------------------------
 local TrieNode = {}
 TrieNode.__index = TrieNode
 
 -----------------------------------------------------------------------------
----Creates a new instance of the trie.
+---Creates a new instance of TrieNode.
 ---
 ---@return TrieNode
 -----------------------------------------------------------------------------
 function TrieNode.new()
-	return setmetatable({ _word = nil, _children = HashMap.new() }, TrieNode)
+	return setmetatable({
+		_word = nil,
+		_children = HashMap.new(),
+	}, TrieNode)
 end
 
 -----------------------------------------------------------------------------
----Adds a letter to the node
+---Adds a child node for the given letter if not already present.
 ---
----@param  letter string
+---@param  letter string Letter to add.
 ---
----@return TrieNode
+---@return TrieNode      Existing or newly created child node.
 -----------------------------------------------------------------------------
 function TrieNode:add(letter)
-	return self._children:compute(letter, TrieNode.new)
+	return self._children:compute(letter, TrieNode.new) -- TODO: should be __newindex
 end
 
 -----------------------------------------------------------------------------
----Returns whether the node is empty or not.
+---Returns whether the node has no children.
 ---
 ---@return boolean
 -----------------------------------------------------------------------------
@@ -39,18 +63,18 @@ function TrieNode:empty()
 end
 
 -----------------------------------------------------------------------------
----Look up letter in this node
+---Look up child node mapped to the letter.
 ---
 ---@param  letter string
 ---
 ---@return TrieNode?
 -----------------------------------------------------------------------------
 function TrieNode:get(letter)
-	return self._children[letter]
+	return self._children[letter] --TODO: should be __index
 end
 
 -----------------------------------------------------------------------------
----Remove child mapped to the letter
+---Remove child node mapped to the letter.
 ---
 ---@param  letter string
 -----------------------------------------------------------------------------
@@ -59,45 +83,91 @@ function TrieNode:remove(letter)
 end
 
 -----------------------------------------------------------------------------
----String representation of trie node
+---String representation of trie node.
 ---
 ---@return string
 -----------------------------------------------------------------------------
 function TrieNode:__tostring()
-	return string.format("{ word = '%s', children = %s }", self._word, self._children)
+	return sfmt("{ word = %s, children = %s }", tostring(self._word), tostring(self._children))
 end
 
+--------------------------------------------------------------------------------------
 ---@class Trie
----
----@field private _root TrieNode Node to start all actions
----@field private _len number Number of words in the trie
----@field private _caseSensitive boolean If should consider word case or not. Default: true
+---@field private _root          TrieNode Node to start all actions.
+---@field private _len           number   Number of words in the trie.
+---@field private _caseSensitive boolean  If should consider word case or not. Default: true.
+--------------------------------------------------------------------------------------
 local Trie = {}
 Trie.__index = Trie
 
 -----------------------------------------------------------------------------
----Creates a new instance of the trie.
+---Checks if it is a Trie instance.
 ---
----@return Trie
+---@param  maybe any
+---
+---@return boolean
 -----------------------------------------------------------------------------
-function Trie.new(caseSensitive)
-	return setmetatable({
-		_root = TrieNode.new(),
-		_len = 0,
-		_caseSensitive = caseSensitive == nil or caseSensitive,
-	}, Trie)
+function Trie.isTrie(maybe)
+	if maybe == nil then
+		return false
+	end
+
+	if type(maybe) ~= "table" then
+		return false
+	end
+
+	return getmetatable(maybe) == Trie
 end
 
 -----------------------------------------------------------------------------
----Checks if the word exists in this trie
+---Creates a new instance of the trie.
 ---
----@param  prefix string Prefix to be looked up
----@param  exact boolean Whether is an exact match (true) or prefix match (false). Defaults false.
+---@param  iterable?      table<any, any> Optional table to initialize the
+---					  trie from.
+---@param  caseSensitive? boolean         If should consider word case or not.
+---                                       Defaults to `true`.
+---
+---@return Trie
+-----------------------------------------------------------------------------
+function Trie.new(iterable, caseSensitive)
+	if caseSensitive == nil then
+		caseSensitive = true
+	end
+
+	assert(type(caseSensitive) == "boolean", "caseSensitive should be a boolean")
+
+	return setmetatable({
+		_root = TrieNode.new(),
+		_len = 0,
+		_caseSensitive = caseSensitive,
+	}, Trie) .. iterable
+end
+
+-----------------------------------------------------------------------------
+---Empties the trie.
+-----------------------------------------------------------------------------
+function Trie:clear()
+	self._root = TrieNode.new()
+	self._len = 0
+end
+
+-----------------------------------------------------------------------------
+---Checks if the word or prefix exists in this trie.
+---
+---@param  prefix string   Prefix or word to be looked up.
+---@param  exact? boolean  Whether is an exact match (true) or prefix match (false).
+---                        Defaults to `false`.
 ---
 ---@return boolean
 -----------------------------------------------------------------------------
 function Trie:contains(prefix, exact)
+	assert(type(prefix) == "string", "prefix should be a string")
+
 	exact = exact or false
+
+	if self._len == 0 then
+		return false
+	end
 
 	local node = self:_lookup(prefix)
 	if node == nil then
@@ -113,109 +183,131 @@ end
 ---@return boolean
 -----------------------------------------------------------------------------
 function Trie:empty()
-	return self._root:empty()
+	return self._len == 0
 end
 
 -----------------------------------------------------------------------------
 ---Finds all words given a prefix.
 ---
----@param  prefix string Prefix to be looked up
----@param  exact boolean Whether is an exact match (true) or prefix match (false). Defaults false.
+---@param  prefix? string  Prefix to be looked up. Defaults to `""`.
+---@param  exact?  boolean Whether is an exact match (true) or prefix match (false).
+---                       Defaults to `false`.
 ---
 ---@return Array<string>
 -----------------------------------------------------------------------------
 function Trie:find(prefix, exact)
+	prefix = prefix or ""
+	assert(type(prefix) == "string", "prefix should be a string")
 	exact = exact or false
+	assert(type(exact) == "boolean", "exact should be a boolean")
 
 	local words = Array.new()
+	if self._len == 0 then
+		return words
+	end
+
 	local node = self:_lookup(prefix)
 	if node == nil then
 		return words
 	end
 
-	if exact and node._word ~= nil then
-		words[#words + 1] = node._word
-	else
-		local next = self:_traverse(node)
-		local _, word = next()
-		while word ~= nil do
-			words[#words + 1] = word
-			_, word = next()
+	if exact then
+		if node._word ~= nil then
+			words[#words + 1] = node._word
 		end
+		return words
 	end
+
+	for _, word in self:_traverse(node) do
+		words[#words + 1] = word
+	end
+
 	return words
 end
 
 -----------------------------------------------------------------------------
 ---Adds a word to the trie.
 ---
----@param  word string
+---@param  word string Word to add.
+---
+---@return boolean     `true` if word was newly inserted, `false` if already present.
 -----------------------------------------------------------------------------
 function Trie:insert(word)
-	assert(type(word) == "string", "Word should be a string")
+	assert(type(word) == "string", "word should be a string")
+	assert(#word > 0, "word should not be an empty string")
 
+	local lookupWord = word
 	if not self._caseSensitive then
-		word = word:lower()
+		lookupWord = word:lower()
+		word = lookupWord
 	end
 
 	local cur = self._root
-	for letter in word:gmatch(".") do
+	for letter in lookupWord:gmatch(".") do
 		cur = cur:add(letter)
 	end
 
 	if cur._word == nil then
 		cur._word = word
 		self._len = self._len + 1
+		return true
 	end
+
+	return false
 end
 
 -----------------------------------------------------------------------------
----Removes a word or prefix
+---Removes a word or prefix from the trie.
 ---
----@param  prefix string Prefix to be removed
----@param  exact boolean Match exactly (true) or by prefix (false). Defaults false.
+---@param  prefix string   Prefix or word to be removed.
+---@param  exact? boolean  Match exactly (true) or by prefix (false). Defaults to `false`.
+---
+---@return boolean        `true` if any word was removed, `false` otherwise.
 -----------------------------------------------------------------------------
 function Trie:remove(prefix, exact)
-	assert(type(prefix) == "string", "Prefix should be a string")
+	assert(type(prefix) == "string", "prefix should be a string")
+	assert(#prefix > 0, "prefix should not be an empty string")
+
 	exact = exact or false
+	assert(type(exact) == "boolean", "exact should be a boolean")
+
+	if self._len == 0 then
+		return false
+	end
 
 	if not self._caseSensitive then
 		prefix = prefix:lower()
 	end
 
+	local initialLen = self._len
 	self:_delete(self._root, prefix, exact, 1)
+	return self._len < initialLen
 end
 
 -----------------------------------------------------------------------------
 ---Recursively delete all words and empty nodes related to the prefix.
 ---
----@param node TrieNode Current node, should be root at the start
----@param prefix string Prefix to be removed
----@param exact boolean Match exactly (true) or by prefix (false)
----@param index number Index of the current letter in the prefix
+---@param  node   TrieNode Current node, should be root at the start.
+---@param  prefix string   Prefix to be removed.
+---@param  exact  boolean  Match exactly (true) or by prefix (false).
+---@param  index  number   Index of the current letter in the prefix.
 ---
----@return boolean If the current node should be deleted afterwards.
+---@return boolean         `true` if the current node should be deleted afterwards.
 ---
 ---@private
 -----------------------------------------------------------------------------
 function Trie:_delete(node, prefix, exact, index)
 	if index > #prefix then
-		if exact and node._word == nil then
-			return false
-		end
-
 		if exact then
+			if node._word == nil then
+				return false
+			end
+
 			node._word = nil
-
 			self._len = self._len - 1
-
 			return node:empty()
 		else
-			local next = self:_traverse(node)
-
-			local _, word = next()
-			while word ~= nil do
-				_, word = next()
+			for _ in self:_traverse(node) do
 				self._len = self._len - 1
 			end
 
@@ -233,22 +325,22 @@ function Trie:_delete(node, prefix, exact, index)
 	local delete = self:_delete(child, prefix, exact, index + 1)
 	if delete then
 		node:remove(letter)
-
 		return node._word == nil and node:empty()
 	end
+
 	return false
 end
 
 -----------------------------------------------------------------------------
----Finds node that matches the prefix
+---Finds node that matches the prefix.
 ---
----@param  prefix string Prefix to lookup
+---@param  prefix string Prefix to lookup.
 ---
----@return TrieNode? Node that fully matches the prefix
+---@return TrieNode?     Node that fully matches the prefix, or `nil`.
+---
+---@private
 -----------------------------------------------------------------------------
 function Trie:_lookup(prefix)
-	assert(type(prefix) == "string", "Prefix should be a string")
-
 	if not self._caseSensitive then
 		prefix = prefix:lower()
 	end
@@ -265,15 +357,15 @@ function Trie:_lookup(prefix)
 end
 
 -----------------------------------------------------------------------------
----Finds all words from a given node
+---Finds all words from a given node.
 ---
----@param  node TrieNode? Node to start from
+---@param  node TrieNode Node to start from.
 ---
----@return Iterator<number, string> All words found
+---@return fun(): number?, string? All words found.
+---
+---@private
 -----------------------------------------------------------------------------
 function Trie:_traverse(node)
-	node = node or self._root
-
 	local index = 0
 	local visit = Stack.new()
 	visit:push(node)
@@ -295,21 +387,19 @@ function Trie:_traverse(node)
 end
 
 -----------------------------------------------------------------------------
----Inserts all strings into this trie.
+---Concatenate a given iterable of strings into this Trie (in-place modification).
 ---
----@param iterable? table<any, any> Any table that can be iterated over.
----                                 Defaults to an empty table if `nil`.
+---@param  iterable? table<any, any> Any table that can be iterated over.
+---                                  Defaults to an empty table if `nil`.
 ---
----@return Trie
+---@return Trie                      Returns this Trie instance.
 -----------------------------------------------------------------------------
 function Trie:__concat(iterable)
 	if iterable ~= nil then
-		assert(type(iterable) == "table", "Should be a table")
+		assert(type(iterable) == "table", "iterable should be a table")
 
 		for _, item in pairs(iterable) do
-			if type(item) == "string" then
-				self:insert(item)
-			end
+			self:insert(item)
 		end
 	end
 
@@ -317,31 +407,65 @@ function Trie:__concat(iterable)
 end
 
 -----------------------------------------------------------------------------
+---Structural equality: Considers equal when both are Tries with the same size,
+---case sensitivity, and containing the same words.
+---
+---@param  other any?
+---
+---@return boolean
+-----------------------------------------------------------------------------
+function Trie:__eq(other)
+	if not Trie.isTrie(other) then
+		return false
+	end
+
+	if self._len ~= other._len then
+		return false
+	end
+
+	if self._caseSensitive ~= other._caseSensitive then
+		return false
+	end
+
+	for _, word in pairs(self) do
+		if not other:contains(word, true) then
+			return false
+		end
+	end
+
+	return true
+end
+
+-----------------------------------------------------------------------------
 ---Returns the number of words in the trie.
 ---
 ---@return number
----@private
 -----------------------------------------------------------------------------
 function Trie:__len()
 	return self._len
 end
 
 -----------------------------------------------------------------------------
----Iterates through every word in this Trie
+---Iterates through every word in this Trie.
 ---
----@return Iterator<number, string>, Trie, nil
+---@return fun(): number?, string?, Trie, nil
 -----------------------------------------------------------------------------
 function Trie:__pairs()
 	return self:_traverse(self._root), self, nil
 end
 
 -----------------------------------------------------------------------------
----String representation of this trie
+---String representation of this trie.
 ---
 ---@return string
 -----------------------------------------------------------------------------
 function Trie:__tostring()
-	return tostring(self._root)
+	local words = {}
+	for _, word in pairs(self) do
+		tinsert(words, word)
+	end
+	tsort(words)
+	return sfmt("{ %s }", tconcat(words, ", "))
 end
 
 return Trie
