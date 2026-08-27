@@ -50,7 +50,7 @@ end
 ---@return TrieNode      Existing or newly created child node.
 -----------------------------------------------------------------------------
 function TrieNode:add(letter)
-	return self._children:compute(letter, TrieNode.new) -- TODO: should be __newindex
+	return self._children:compute(letter, TrieNode.new)
 end
 
 -----------------------------------------------------------------------------
@@ -70,7 +70,7 @@ end
 ---@return TrieNode?
 -----------------------------------------------------------------------------
 function TrieNode:get(letter)
-	return self._children[letter] --TODO: should be __index
+	return self._children[letter]
 end
 
 -----------------------------------------------------------------------------
@@ -164,6 +164,7 @@ function Trie:contains(prefix, exact)
 	assert(type(prefix) == "string", "prefix should be a string")
 
 	exact = exact or false
+	assert(type(exact) == "boolean", "exact should be a boolean")
 
 	if self._len == 0 then
 		return false
@@ -189,15 +190,15 @@ end
 -----------------------------------------------------------------------------
 ---Finds all words given a prefix.
 ---
----@param  prefix? string  Prefix to be looked up. Defaults to `""`.
+---@param  prefix  string  Prefix to be looked up.
 ---@param  exact?  boolean Whether is an exact match (true) or prefix match (false).
----                       Defaults to `false`.
+---                        Defaults to `false`.
 ---
 ---@return Array<string>
 -----------------------------------------------------------------------------
 function Trie:find(prefix, exact)
-	prefix = prefix or ""
 	assert(type(prefix) == "string", "prefix should be a string")
+
 	exact = exact or false
 	assert(type(exact) == "boolean", "exact should be a boolean")
 
@@ -266,12 +267,15 @@ end
 -----------------------------------------------------------------------------
 function Trie:remove(prefix, exact)
 	assert(type(prefix) == "string", "prefix should be a string")
-	assert(#prefix > 0, "prefix should not be an empty string")
 
 	exact = exact or false
 	assert(type(exact) == "boolean", "exact should be a boolean")
 
 	if self._len == 0 then
+		return false
+	end
+
+	if #prefix < 1 then
 		return false
 	end
 
@@ -341,6 +345,10 @@ end
 ---@private
 -----------------------------------------------------------------------------
 function Trie:_lookup(prefix)
+	if #prefix < 1 then
+		return nil
+	end
+
 	if not self._caseSensitive then
 		prefix = prefix:lower()
 	end

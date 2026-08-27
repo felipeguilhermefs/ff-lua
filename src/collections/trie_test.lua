@@ -116,7 +116,7 @@ function TestContains()
 	lu.assertTrue(t:contains("c"))
 	lu.assertFalse(t:contains("c", true))
 	lu.assertFalse(t:contains("dog"))
-	lu.assertTrue(t:contains(""))
+	lu.assertFalse(t:contains(""))
 	lu.assertFalse(t:contains("", true))
 
 	t:insert("category")
@@ -160,18 +160,16 @@ function TestFind()
 	lu.assertFalse(words:indexOf("category") == nil)
 	lu.assertFalse(words:indexOf("cataclysm") == nil)
 
-	-- Find all words when prefix is empty or nil
+	-- Find nothing when prefix is empty
 	words = t:find("")
-	lu.assertEquals(4, #words)
-
-	words = t:find()
-	lu.assertEquals(4, #words)
+	lu.assertEquals(0, #words)
 
 	-- Non-existent prefix returns empty Array
 	words = t:find("nonexistent")
 	lu.assertEquals(0, #words)
 
 	-- Type validations
+	lu.assertError(t.find, t, nil)
 	lu.assertError(t.find, t, 123)
 	lu.assertError(t.find, t, true)
 end
@@ -232,8 +230,11 @@ function TestRemove()
 	lu.assertFalse(t:contains("hell", true))
 	lu.assertTrue(t:contains("hello", true))
 
+	-- Do not remove when given an empty string
+	lu.assertTrue(t:remove("", false))
+	lu.assertEquals(1, #t)
+
 	-- Validations
-	lu.assertError(t.remove, t, "")
 	lu.assertError(t.remove, t, 123)
 	lu.assertError(t.remove, t, nil)
 end
