@@ -1,26 +1,26 @@
 local lu = require("luaunit")
-local Trie = require("trie")
+local RadixTree = require("radixtree")
 local Array = require("ff.collections.array")
 local Set = require("ff.collections.set")
 
-function TestIsTrie()
-	lu.assertTrue(Trie.isTrie(Trie.new()))
-	lu.assertTrue(Trie.isTrie(Trie.new({ "a", "b" })))
-	lu.assertFalse(Trie.isTrie({}))
-	lu.assertFalse(Trie.isTrie(nil))
-	lu.assertFalse(Trie.isTrie("trie"))
-	lu.assertFalse(Trie.isTrie(123))
-	lu.assertFalse(Trie.isTrie(true))
+function TestIsRadixTree()
+	lu.assertTrue(RadixTree.isRadixTree(RadixTree.new()))
+	lu.assertTrue(RadixTree.isRadixTree(RadixTree.new({ "a", "b" })))
+	lu.assertFalse(RadixTree.isRadixTree({}))
+	lu.assertFalse(RadixTree.isRadixTree(nil))
+	lu.assertFalse(RadixTree.isRadixTree("radixtree"))
+	lu.assertFalse(RadixTree.isRadixTree(123))
+	lu.assertFalse(RadixTree.isRadixTree(true))
 end
 
 function TestConstructor()
 	-- Default constructor
-	local t = Trie.new()
+	local t = RadixTree.new()
 	lu.assertTrue(t:empty())
 	lu.assertEquals(0, #t)
 
 	-- Constructor with table iterable
-	local t2 = Trie.new({ "apple", "banana", "apricot" })
+	local t2 = RadixTree.new({ "apple", "banana", "apricot" })
 	lu.assertFalse(t2:empty())
 	lu.assertEquals(3, #t2)
 	lu.assertTrue(t2:contains("apple", true))
@@ -29,36 +29,36 @@ function TestConstructor()
 
 	-- Constructor with Array
 	local arr = Array.new({ "cat", "dog" })
-	local t3 = Trie.new(arr)
+	local t3 = RadixTree.new(arr)
 	lu.assertEquals(2, #t3)
 	lu.assertTrue(t3:contains("cat", true))
 	lu.assertTrue(t3:contains("dog", true))
 
-	-- Constructor with boolean caseSensitive
-	local tCase = Trie.new(nil, false)
+	-- Constructor not caseSensitive
+	local tCase = RadixTree.new(nil, false)
 	lu.assertEquals(0, #tCase)
 	tCase:insert("Wolf")
 	tCase:insert("wolf")
 	lu.assertEquals(1, #tCase)
 	lu.assertTrue(tCase:contains("WOLF", true))
 
-	-- Constructor with iterable and caseSensitive false
-	local tCaseIterable = Trie.new({ "Wolf", "wolf", "WOLF" }, false)
+	-- Constructor with iterable and not caseSensitive
+	local tCaseIterable = RadixTree.new({ "Wolf", "wolf", "WOLF" }, false)
 	lu.assertEquals(1, #tCaseIterable)
 	lu.assertTrue(tCaseIterable:contains("wolf", true))
 
-	-- Constructor with another Trie
-	local tCopy = Trie.new(t2)
+	-- Constructor with another RadixTree
+	local tCopy = RadixTree.new(t2)
 	lu.assertEquals(3, #tCopy)
 	lu.assertTrue(tCopy == t2)
 
 	-- Validation
-	lu.assertError(Trie.new, nil, 123)
-	lu.assertError(Trie.new, nil, "invalid")
+	lu.assertError(RadixTree.new, nil, 123)
+	lu.assertError(RadixTree.new, nil, "invalid")
 end
 
 function TestEmptyAndClear()
-	local t = Trie.new()
+	local t = RadixTree.new()
 
 	lu.assertTrue(t:empty())
 	lu.assertEquals(0, #t)
@@ -79,7 +79,7 @@ function TestEmptyAndClear()
 end
 
 function TestInsert()
-	local t = Trie.new()
+	local t = RadixTree.new()
 
 	-- First insert returns true
 	lu.assertTrue(t:insert("cat"))
@@ -100,7 +100,7 @@ function TestInsert()
 end
 
 function TestContains()
-	local t = Trie.new()
+	local t = RadixTree.new()
 
 	-- Empty trie contains behavior
 	lu.assertFalse(t:contains("cat"))
@@ -131,7 +131,7 @@ function TestContains()
 end
 
 function TestFind()
-	local t = Trie.new()
+	local t = RadixTree.new()
 
 	-- Find on empty trie
 	local words = t:find("cat")
@@ -149,7 +149,7 @@ function TestFind()
 	lu.assertEquals("cat", words[1])
 
 	-- Bugfix test: exact match when prefix exists but is NOT a stored word
-	local tBug = Trie.new({ "category", "cataclysm" })
+	local tBug = RadixTree.new({ "category", "cataclysm" })
 	words = tBug:find("cat", true)
 	lu.assertEquals(0, #words)
 
@@ -175,11 +175,11 @@ function TestFind()
 end
 
 function TestRemove()
-	local t = Trie.new()
+	local t = RadixTree.new()
 
 	-- Removing from empty trie returns false
-	lu.assertFalse(t:remove("dog"))
-	lu.assertFalse(t:remove("dog", true))
+	lu.assertEquals(0, t:remove("dog"))
+	lu.assertEquals(0, t:remove("dog", true))
 
 	t:insert("dog")
 	t:insert("do")
@@ -188,12 +188,12 @@ function TestRemove()
 	lu.assertEquals(4, #t)
 
 	-- Remove non-matching word returns false
-	lu.assertFalse(t:remove("zebra", true))
-	lu.assertFalse(t:remove("zebra", false))
+	lu.assertEquals(0, t:remove("zebra", true))
+	lu.assertEquals(0, t:remove("zebra", false))
 	lu.assertEquals(4, #t)
 
 	-- Remove exact word that is prefix of another
-	lu.assertTrue(t:remove("dog", true))
+	lu.assertEquals(1, t:remove("dog", true))
 	lu.assertEquals(3, #t)
 	lu.assertFalse(t:contains("dog", true))
 	lu.assertTrue(t:contains("doggy", true))
@@ -203,7 +203,7 @@ function TestRemove()
 	-- Prefix removal deletes all words under "dog"
 	t:insert("dog")
 	lu.assertEquals(4, #t)
-	lu.assertTrue(t:remove("dog", false))
+	lu.assertEquals(2, t:remove("dog", false))
 	lu.assertEquals(2, #t)
 	lu.assertFalse(t:contains("dog", true))
 	lu.assertFalse(t:contains("doggy", true))
@@ -211,13 +211,13 @@ function TestRemove()
 	lu.assertTrue(t:contains("doodle", true))
 
 	-- Remove exact word "do"
-	lu.assertTrue(t:remove("do", true))
+	lu.assertEquals(1, t:remove("do", true))
 	lu.assertFalse(t:contains("do", true))
 	lu.assertTrue(t:contains("doodle", true))
 	lu.assertEquals(1, #t)
 
 	-- Remove final word
-	lu.assertTrue(t:remove("doodle", true))
+	lu.assertEquals(1, t:remove("doodle", true))
 	lu.assertTrue(t:empty())
 	lu.assertEquals(0, #t)
 
@@ -225,13 +225,13 @@ function TestRemove()
 	t:insert("hell")
 	t:insert("hello")
 	lu.assertEquals(2, #t)
-	lu.assertTrue(t:remove("hell", true))
+	lu.assertEquals(1, t:remove("hell", true))
 	lu.assertEquals(1, #t)
 	lu.assertFalse(t:contains("hell", true))
 	lu.assertTrue(t:contains("hello", true))
 
 	-- Do not remove when given an empty string
-	lu.assertTrue(t:remove("", false))
+	lu.assertEquals(0, t:remove("", false))
 	lu.assertEquals(1, #t)
 
 	-- Validations
@@ -240,7 +240,7 @@ function TestRemove()
 end
 
 function TestConcat()
-	local t = Trie.new()
+	local t = RadixTree.new()
 
 	t = t .. { "mouse", "mousse" }
 
@@ -248,7 +248,7 @@ function TestConcat()
 	lu.assertTrue(t:contains("mousse"))
 	lu.assertEquals(2, #t)
 
-	local t2 = Trie.new()
+	local t2 = RadixTree.new()
 	t2:insert("moose")
 
 	t = t .. t2
@@ -278,11 +278,11 @@ function TestConcat()
 end
 
 function TestEquality()
-	local t1 = Trie.new({ "apple", "banana", "cherry" })
-	local t2 = Trie.new({ "cherry", "apple", "banana" })
-	local t3 = Trie.new({ "apple", "banana" })
-	local t4 = Trie.new({ "apple", "banana", "citrus" })
-	local t5 = Trie.new({ "apple", "banana", "cherry" }, false)
+	local t1 = RadixTree.new({ "apple", "banana", "cherry" })
+	local t2 = RadixTree.new({ "cherry", "apple", "banana" })
+	local t3 = RadixTree.new({ "apple", "banana" })
+	local t4 = RadixTree.new({ "apple", "banana", "citrus" })
+	local t5 = RadixTree.new({ "apple", "banana", "cherry" }, false)
 
 	lu.assertTrue(t1 == t2)
 	lu.assertFalse(t1 == t3)
@@ -294,13 +294,13 @@ function TestEquality()
 	lu.assertFalse(t1 == "apple")
 	lu.assertFalse(t1 == 123)
 
-	local empty1 = Trie.new()
-	local empty2 = Trie.new()
+	local empty1 = RadixTree.new()
+	local empty2 = RadixTree.new()
 	lu.assertTrue(empty1 == empty2)
 end
 
 function TestLen()
-	local t = Trie.new()
+	local t = RadixTree.new()
 	lu.assertEquals(0, #t)
 
 	t:insert("a")
@@ -320,7 +320,7 @@ function TestLen()
 end
 
 function TestPairs()
-	local t = Trie.new({ "alpha", "beta", "gamma" })
+	local t = RadixTree.new({ "alpha", "beta", "gamma" })
 
 	local words = {}
 	local count = 0
@@ -336,15 +336,15 @@ function TestPairs()
 end
 
 function TestToString()
-	local empty = Trie.new()
+	local empty = RadixTree.new()
 	lu.assertEquals("{  }", tostring(empty))
 
-	local t = Trie.new({ "dog", "cat", "bird" })
+	local t = RadixTree.new({ "dog", "cat", "bird" })
 	lu.assertEquals("{ bird, cat, dog }", tostring(t))
 end
 
 function TestCaseSensitivity()
-	local ts = Trie.new()
+	local ts = RadixTree.new()
 
 	ts:insert("wolf")
 	lu.assertTrue(ts:contains("wo"))
@@ -354,7 +354,7 @@ function TestCaseSensitivity()
 	lu.assertTrue(ts:contains("Wo"))
 	lu.assertEquals(2, #ts)
 
-	local ti = Trie.new(nil, false)
+	local ti = RadixTree.new(nil, false)
 
 	ti:insert("wolf")
 	lu.assertTrue(ti:contains("wo"))
@@ -364,6 +364,143 @@ function TestCaseSensitivity()
 	lu.assertEquals(1, #ti)
 	lu.assertTrue(ti:contains("WOLF", true))
 	lu.assertTrue(ti:contains("wolf", true))
+end
+
+function TestRadixSplittingAndMerging()
+	local t = RadixTree.new()
+
+	-- Complex branch splitting
+	lu.assertTrue(t:insert("romane"))
+	lu.assertTrue(t:insert("romanus"))
+	lu.assertTrue(t:insert("romis"))
+	lu.assertTrue(t:insert("rubicon"))
+	lu.assertTrue(t:insert("rubicundus"))
+	lu.assertTrue(t:insert("rubens"))
+	lu.assertEquals(6, #t)
+
+	-- Prefix contains checks
+	lu.assertTrue(t:contains("ro"))
+	lu.assertTrue(t:contains("rom"))
+	lu.assertTrue(t:contains("roman"))
+	lu.assertTrue(t:contains("romane"))
+	lu.assertTrue(t:contains("romanus"))
+	lu.assertTrue(t:contains("rub"))
+	lu.assertTrue(t:contains("rubi"))
+	lu.assertTrue(t:contains("rubic"))
+
+	-- Non-existent prefix checks
+	lu.assertFalse(t:contains("rox"))
+	lu.assertFalse(t:contains("roma_"))
+	lu.assertFalse(t:contains("rubez"))
+
+	-- Exact checks
+	lu.assertFalse(t:contains("roman", true))
+	lu.assertFalse(t:contains("rub", true))
+	lu.assertTrue(t:contains("romane", true))
+	lu.assertTrue(t:contains("romanus", true))
+
+	-- Insert intermediate prefix as a word
+	lu.assertTrue(t:insert("roman"))
+	lu.assertEquals(7, #t)
+	lu.assertTrue(t:contains("roman", true))
+
+	-- Delete exact word that was a split point
+	lu.assertEquals(1, t:remove("roman", true))
+	lu.assertEquals(6, #t)
+	lu.assertFalse(t:contains("roman", true))
+	lu.assertTrue(t:contains("romane", true))
+	lu.assertTrue(t:contains("romanus", true))
+
+	-- Delete one branch causing edge collapse/merge
+	lu.assertEquals(1, t:remove("romis", true))
+	lu.assertEquals(5, #t)
+	lu.assertTrue(t:contains("romane", true))
+	lu.assertTrue(t:contains("romanus", true))
+
+	-- Delete all "ro" words by prefix
+	lu.assertEquals(2, t:remove("ro", false))
+	lu.assertEquals(3, #t)
+	lu.assertFalse(t:contains("ro"))
+	lu.assertFalse(t:contains("romane", true))
+	lu.assertFalse(t:contains("romanus", true))
+	lu.assertTrue(t:contains("rubicon", true))
+	lu.assertTrue(t:contains("rubicundus", true))
+	lu.assertTrue(t:contains("rubens", true))
+end
+
+function TestRadixPrefixRemoval()
+	local t = RadixTree.new({ "test", "testing", "tester", "team", "toast" })
+	lu.assertEquals(5, #t)
+
+	-- Prefix remove "test" removes "test", "testing", "tester"
+	lu.assertEquals(3, t:remove("test", false))
+	lu.assertEquals(2, #t)
+	lu.assertFalse(t:contains("test", true))
+	lu.assertFalse(t:contains("testing", true))
+	lu.assertFalse(t:contains("tester", true))
+	lu.assertTrue(t:contains("team", true))
+	lu.assertTrue(t:contains("toast", true))
+
+	-- Find on remaining
+	local words = t:find("t")
+	lu.assertEquals(2, #words)
+
+	-- Remove non-existent prefix
+	lu.assertEquals(0, t:remove("xyz", false))
+	lu.assertEquals(2, #t)
+end
+
+function TestRadixLongSharedPrefixes()
+	local t = RadixTree.new({
+		"internationalization",
+		"international",
+		"internet",
+		"internal",
+	})
+	lu.assertEquals(4, #t)
+
+	-- Partial prefix queries
+	local words = t:find("intern")
+	lu.assertEquals(4, #words)
+
+	words = t:find("interna")
+	lu.assertEquals(3, #words)
+
+	words = t:find("internat")
+	lu.assertEquals(2, #words)
+
+	words = t:find("international")
+	lu.assertEquals(2, #words)
+
+	words = t:find("internationali")
+	lu.assertEquals(1, #words)
+	lu.assertEquals("internationalization", words[1])
+
+	-- Remove intermediate exact word
+	lu.assertEquals(1, t:remove("international", true))
+	lu.assertEquals(3, #t)
+	lu.assertFalse(t:contains("international", true))
+	lu.assertTrue(t:contains("internationalization", true))
+	lu.assertTrue(t:contains("internet", true))
+	lu.assertTrue(t:contains("internal", true))
+end
+
+function TestRadixSingleCharacterWords()
+	local t = RadixTree.new({ "a", "ab", "abc", "abcd", "b", "ba", "bc" })
+	lu.assertEquals(7, #t)
+
+	lu.assertEquals(1, t:remove("a", true))
+	lu.assertEquals(6, #t)
+	lu.assertFalse(t:contains("a", true))
+	lu.assertTrue(t:contains("ab", true))
+	lu.assertTrue(t:contains("abc", true))
+	lu.assertTrue(t:contains("abcd", true))
+
+	lu.assertEquals(1, t:remove("ab", true))
+	lu.assertEquals(5, #t)
+	lu.assertFalse(t:contains("ab", true))
+	lu.assertTrue(t:contains("abc", true))
+	lu.assertTrue(t:contains("abcd", true))
 end
 
 os.exit(lu.LuaUnit.run())
