@@ -8,21 +8,21 @@ function TestArray()
 
 	quicksort(a)
 
-	lu.assertEquals(1, a[1])
-	lu.assertEquals(2, a[2])
-	lu.assertEquals(3, a[3])
-	lu.assertEquals(4, a[4])
-	lu.assertEquals(5, a[5])
-	lu.assertEquals(6, a[6])
+	lu.assertEquals(1, a:get(1))
+	lu.assertEquals(2, a:get(2))
+	lu.assertEquals(3, a:get(3))
+	lu.assertEquals(4, a:get(4))
+	lu.assertEquals(5, a:get(5))
+	lu.assertEquals(6, a:get(6))
 
 	quicksort(a, Comparator.reverse(Comparator.natural))
 
-	lu.assertEquals(1, a[6])
-	lu.assertEquals(2, a[5])
-	lu.assertEquals(3, a[4])
-	lu.assertEquals(4, a[3])
-	lu.assertEquals(5, a[2])
-	lu.assertEquals(6, a[1])
+	lu.assertEquals(1, a:get(6))
+	lu.assertEquals(2, a:get(5))
+	lu.assertEquals(3, a:get(4))
+	lu.assertEquals(4, a:get(3))
+	lu.assertEquals(5, a:get(2))
+	lu.assertEquals(6, a:get(1))
 end
 
 function TestTableArray()

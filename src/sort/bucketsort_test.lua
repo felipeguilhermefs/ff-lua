@@ -7,23 +7,23 @@ function TestArray()
 
 	bucketsort(a)
 
-	lu.assertEquals(1, a[1])
-	lu.assertEquals(2, a[2])
-	lu.assertEquals(3, a[3])
-	lu.assertEquals(4, a[4])
-	lu.assertEquals(5, a[5])
-	lu.assertEquals(6, a[6])
+	lu.assertEquals(1, a:get(1))
+	lu.assertEquals(2, a:get(2))
+	lu.assertEquals(3, a:get(3))
+	lu.assertEquals(4, a:get(4))
+	lu.assertEquals(5, a:get(5))
+	lu.assertEquals(6, a:get(6))
 
 	a = Array.new({ -2, -6, 3, -4, 5, 1 })
 
 	bucketsort(a)
 
-	lu.assertEquals(-6, a[1])
-	lu.assertEquals(-4, a[2])
-	lu.assertEquals(-2, a[3])
-	lu.assertEquals(1, a[4])
-	lu.assertEquals(3, a[5])
-	lu.assertEquals(5, a[6])
+	lu.assertEquals(-6, a:get(1))
+	lu.assertEquals(-4, a:get(2))
+	lu.assertEquals(-2, a:get(3))
+	lu.assertEquals(1, a:get(4))
+	lu.assertEquals(3, a:get(5))
+	lu.assertEquals(5, a:get(6))
 end
 
 function TestTableArray()

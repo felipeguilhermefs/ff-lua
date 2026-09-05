@@ -13,38 +13,84 @@ function TestNewAndClear()
 	b:clear()
 	lu.assertEquals(0, #b)
 	lu.assertTrue(b:empty())
-	lu.assertNil(b[1])
+	lu.assertError(function()
+		b:get(1)
+	end)
 end
 
 function TestEmpty()
 	local a = Array.new()
 	lu.assertTrue(a:empty())
 
-	a[1] = "first"
+	a:insert("first")
 	lu.assertFalse(a:empty())
 end
 
-function TestBracketIndexing()
+function TestGet()
 	local a = Array.new({ 10, 20, 30 })
-	lu.assertEquals(10, a[1])
-	lu.assertEquals(20, a[2])
-	lu.assertEquals(30, a[3])
-	lu.assertNil(a[4])
-
-	a[1] = 99
-	lu.assertEquals(99, a[1])
-	lu.assertEquals(99, a[1])
+	lu.assertEquals(10, a:get(1))
+	lu.assertEquals(20, a:get(2))
+	lu.assertEquals(30, a:get(3))
 end
 
-function TestIpairs()
+function TestGetValidation()
 	local a = Array.new({ 10, 20, 30 })
-	local result = {}
-	for i, v in ipairs(a) do
-		table.insert(result, i)
-		table.insert(result, v)
-	end
-	lu.assertEquals({ 1, 10, 2, 20, 3, 30 }, result)
+
+	-- bounds validation
+	lu.assertError(function()
+		a:get(0)
+	end)
+	lu.assertError(function()
+		a:get(4)
+	end)
+	lu.assertError(function()
+		a:get(-1)
+	end)
+
+	-- numeric validation
+	lu.assertError(function()
+		a:get("1")
+	end)
+	lu.assertError(function()
+		a:get(nil)
+	end)
+	lu.assertError(function()
+		a:get(true)
+	end)
 end
+
+function TestNoBracketAccess()
+	local a = Array.new({ 10, 20, 30 })
+	lu.assertNil(a[1])
+	lu.assertNil(a[2])
+	lu.assertNil(a[3])
+end
+
+function TestNewIndexPreventsModifications()
+	local a = Array.new({ 10, 20, 30 })
+
+	-- disallow adding properties
+	lu.assertErrorMsgContains("cannot add new properties, methods or functions", function()
+		a.foo = "bar"
+	end)
+
+	-- disallow adding numeric indices
+	lu.assertErrorMsgContains("cannot add new properties, methods or functions", function()
+		a[1] = 99
+	end)
+	lu.assertErrorMsgContains("cannot add new properties, methods or functions", function()
+		a[4] = 40
+	end)
+
+	-- disallow adding methods or functions
+	lu.assertErrorMsgContains("cannot add new properties, methods or functions", function()
+		a.myFunc = function() end
+	end)
+	lu.assertErrorMsgContains("cannot add new properties, methods or functions", function()
+		a.get = function() end
+	end)
+end
+
 
 function TestEquals()
 	local a1 = Array.new({ 10, 20, 30 })
@@ -61,29 +107,9 @@ function TestSlice()
 	local a = Array.new({ 10, 20, 30, 40, 50 })
 	local s = a:slice(2, 4)
 	lu.assertEquals(3, #s)
-	lu.assertEquals(20, s[1])
-	lu.assertEquals(30, s[2])
-	lu.assertEquals(40, s[3])
-end
-
-function TestIndexedWrite()
-	local a = Array.new({ 10, 20, 30 })
-
-	-- numeric override
-	a[2] = 99
-	lu.assertEquals(99, a[2])
-
-	-- string override
-	a[1] = "hello"
-	lu.assertEquals("hello", a[1])
-
-	-- boolean override
-	a[3] = false
-	lu.assertFalse(a[3])
-
-	-- new index is the higher bound +1, expands the array
-	a[4] = "world"
-	lu.assertEquals("world", a[4])
+	lu.assertEquals(20, s:get(1))
+	lu.assertEquals(30, s:get(2))
+	lu.assertEquals(40, s:get(3))
 end
 
 function TestToString()
@@ -96,23 +122,64 @@ end
 
 function TestInsert()
 	local a = Array.new()
-
-	lu.assertNil(a[1])
 	lu.assertEquals(0, #a)
 
-	a:insert(1, 10)
-	lu.assertEquals(10, a[1])
+	-- insert at end without index
+	a:insert(10)
 	lu.assertEquals(1, #a)
+	lu.assertEquals(10, a:get(1))
 
-	a:insert(2, 20)
-	lu.assertEquals(20, a[2])
+	a:insert(20)
 	lu.assertEquals(2, #a)
+	lu.assertEquals(20, a:get(2))
 
-	a:insert(1, 30)
-	lu.assertEquals(30, a[1])
-	lu.assertEquals(10, a[2])
-	lu.assertEquals(20, a[3])
+	-- insert with index
+	a:insert(30, 1)
 	lu.assertEquals(3, #a)
+	lu.assertEquals(30, a:get(1))
+	lu.assertEquals(10, a:get(2))
+	lu.assertEquals(20, a:get(3))
+
+	-- insert at index in middle
+	a:insert(15, 3)
+	lu.assertEquals(4, #a)
+	lu.assertEquals(30, a:get(1))
+	lu.assertEquals(10, a:get(2))
+	lu.assertEquals(15, a:get(3))
+	lu.assertEquals(20, a:get(4))
+
+	-- insert at index at end (#a + 1)
+	a:insert(50, 5)
+	lu.assertEquals(5, #a)
+	lu.assertEquals(50, a:get(5))
+end
+
+function TestInsertValidation()
+	local a = Array.new({ 10, 20, 30 })
+
+	-- value validation
+	lu.assertError(function()
+		a:insert(nil)
+	end)
+
+	-- bounds validation
+	lu.assertError(function()
+		a:insert(40, 0)
+	end)
+	lu.assertError(function()
+		a:insert(40, -1)
+	end)
+	lu.assertError(function()
+		a:insert(40, 5)
+	end)
+
+	-- numeric validation
+	lu.assertError(function()
+		a:insert(40, "1")
+	end)
+	lu.assertError(function()
+		a:insert(40, true)
+	end)
 end
 
 function TestRemove()
@@ -122,27 +189,24 @@ function TestRemove()
 	lu.assertEquals(10, a:remove(1))
 	lu.assertEquals(2, #a)
 
-	lu.assertEquals(2, #a)
-	lu.assertEquals(20, a[1])
-	lu.assertEquals(30, a[2])
-
-	lu.assertEquals(2, #a)
+	lu.assertEquals(20, a:get(1))
+	lu.assertEquals(30, a:get(2))
 end
 
 function TestSwap()
 	local a = Array.new({ 10, 20, 30 })
 
 	a:swap(1, 2)
-	lu.assertEquals(20, a[1])
-	lu.assertEquals(10, a[2])
+	lu.assertEquals(20, a:get(1))
+	lu.assertEquals(10, a:get(2))
 
 	a:swap(2, 3)
-	lu.assertEquals(30, a[2])
-	lu.assertEquals(10, a[3])
+	lu.assertEquals(30, a:get(2))
+	lu.assertEquals(10, a:get(3))
 
-	lu.assertEquals(20, a[1])
-	lu.assertEquals(30, a[2])
-	lu.assertEquals(10, a[3])
+	lu.assertEquals(20, a:get(1))
+	lu.assertEquals(30, a:get(2))
+	lu.assertEquals(10, a:get(3))
 	lu.assertEquals(3, #a)
 end
 
@@ -177,28 +241,28 @@ function TestConcat()
 
 	a = a .. { 40, 50, 60 }
 
-	lu.assertEquals(10, a[1])
-	lu.assertEquals(20, a[2])
-	lu.assertEquals(30, a[3])
-	lu.assertEquals(40, a[4])
-	lu.assertEquals(50, a[5])
-	lu.assertEquals(60, a[6])
+	lu.assertEquals(10, a:get(1))
+	lu.assertEquals(20, a:get(2))
+	lu.assertEquals(30, a:get(3))
+	lu.assertEquals(40, a:get(4))
+	lu.assertEquals(50, a:get(5))
+	lu.assertEquals(60, a:get(6))
 	lu.assertEquals(6, #a)
 
 	a = a .. nil
 	lu.assertEquals(6, #a)
 
 	a = a .. Array.new({ 70, 80, 90 })
-	lu.assertEquals(70, a[7])
-	lu.assertEquals(80, a[8])
-	lu.assertEquals(90, a[9])
+	lu.assertEquals(70, a:get(7))
+	lu.assertEquals(80, a:get(8))
+	lu.assertEquals(90, a:get(9))
 	lu.assertEquals(9, #a)
 
 	local set = require("set").new()
 	set:add(100)
 	a = a .. set
 
-	lu.assertEquals(100, a[10])
+	lu.assertEquals(100, a:get(10))
 	lu.assertEquals(10, #a)
 end
 

@@ -12,10 +12,10 @@ local tremove = table.remove
 
 -- General
 local assert = assert
+local error = error
 local getmetatable = getmetatable
 local next = next
 local pairs = pairs
-local rawget = rawget
 local setmetatable = setmetatable
 local type = type
 
@@ -25,6 +25,7 @@ local type = type
 ---                                   Delegates most of the implementation to it.
 ----------------------------------------------------------------------------------
 local Array = {}
+Array.__index = Array
 
 -----------------------------------------------------------------------------
 ---Checks if it is (probably) an array, considers an empty table an array.
@@ -82,6 +83,20 @@ function Array:empty()
 end
 
 -----------------------------------------------------------------------------
+---Returns the value at a given index.
+---
+---@param  index number Index to get the value from. Should be in range (1 .. #array)
+---
+---@return any
+-----------------------------------------------------------------------------
+function Array:get(index)
+	assert(type(index) == "number", "index should be a number")
+	assert(index > 0 and index <= #self, "index out of bounds")
+
+	return self._entries[index]
+end
+
+-----------------------------------------------------------------------------
 ---Returns the index of the first entry with a given value.
 ---Iterates sequentially (1..#Array) to guarantee returning the first match.
 ---It will return `nil` if nothing is found.
@@ -102,15 +117,22 @@ end
 
 -----------------------------------------------------------------------------
 ---Inserts a value in a given index, following values will be shifted forward.
+---If no index is given, it inserts at the end of the array.
 ---
----@param  index number   Index to insert the value in. Should in in range (1 .. #array +1)
----@param  value any      Value to be inserted.
+---@param  value  any     Value to be inserted.
+---@param  index? number  Index to insert the value in. Should be in range (1 .. #array + 1)
 -----------------------------------------------------------------------------
-function Array:insert(index, value)
+function Array:insert(value, index)
+	assert(value ~= nil, "value should not be nil")
+
+	if index == nil then
+		tinsert(self._entries, value)
+		return
+	end
+
 	assert(type(index) == "number", "index should be a number")
 	-- check for boundaries, but allow strictly over higher boundary
 	assert(index > 0 and index <= #self + 1, "index out of bounds")
-	assert(value ~= nil, "value should not be nil")
 
 	tinsert(self._entries, index, value)
 end
@@ -151,7 +173,7 @@ function Array:slice(start, finish)
 	local res = Array.new()
 	for i = start, finish do
 		if self._entries[i] ~= nil then
-			res[#res + 1] = self._entries[i]
+			res:insert(self._entries[i])
 		end
 	end
 	return res
@@ -187,7 +209,7 @@ function Array:__concat(iterable)
 		assert(type(iterable) == "table", "iterable should be a table")
 
 		for _, item in pairs(iterable) do
-			self[#self + 1] = item
+			self:insert(item)
 		end
 	end
 
@@ -211,49 +233,12 @@ function Array:__eq(other)
 	end
 
 	for i = 1, #self._entries do
-		if self._entries[i] ~= other[i] then
+		local otherVal = other._entries and other._entries[i] or other[i]
+		if self._entries[i] ~= otherVal then
 			return false
 		end
 	end
 	return true
-end
-
------------------------------------------------------------------------------
----Metamethod __index controls bracket (a[key]) read access to internals.
----
----For numeric keys it will treat and indexed access, all other will fallback to methods.
----
----Ex: a[1] will return the element at index 1 in the array.
----
----Ex2: a["clear"] is the same as using a.clear, which is a function reference.
----
----@param self Array
----@param key any Index or field name.
----@return any Value at index or fallback field.
------------------------------------------------------------------------------
-function Array:__index(key)
-	assert(key ~= nil, "key should not be nil")
-
-	if type(key) == "number" then
-		return self._entries[key]
-	end
-
-	return rawget(Array, key)
-end
-
------------------------------------------------------------------------------
----Iterates through the array sequentially from index 1 to #Array for ipairs.
----
----@return function Generator function yielding (index, value) pairs in order.
------------------------------------------------------------------------------
-function Array:__ipairs()
-	local i = 0
-	return function()
-		i = i + 1
-		if i <= #self._entries then
-			return i, self._entries[i]
-		end
-	end
 end
 
 -----------------------------------------------------------------------------
@@ -266,19 +251,13 @@ function Array:__len()
 end
 
 -----------------------------------------------------------------------------
----Metamethod __newindex controls bracket (a[key]) write access to internals.
+---Metamethod __newindex prevents adding new properties, methods, or functions.
 ---
----@param self Array
----@param index number Index or field name.
----@param value number Value to assign.
+---@param key   any Property name or index.
+---@param value any Value to assign.
 -----------------------------------------------------------------------------
-function Array:__newindex(index, value)
-	assert(value ~= nil, "value should not be nil")
-	assert(type(index) == "number", "index should be a number")
-	-- check for boundaries, but allow strictly over higher boundary
-	assert(index >= 1 and (index <= #self._entries + 1), "index out of bounds")
-
-	self._entries[index] = value
+function Array:__newindex(key, value)
+	error("cannot add new properties, methods or functions")
 end
 
 -----------------------------------------------------------------------------
@@ -287,7 +266,13 @@ end
 ---@return function Generator function yielding (index, value) pairs in order.
 -----------------------------------------------------------------------------
 function Array:__pairs()
-	return self:__ipairs()
+	local i = 0
+	return function()
+		i = i + 1
+		if i <= #self._entries then
+			return i, self._entries[i]
+		end
+	end
 end
 
 -----------------------------------------------------------------------------

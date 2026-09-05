@@ -146,7 +146,7 @@ function TestFind()
 	-- Exact match returns single word
 	words = t:find("cat", true)
 	lu.assertEquals(1, #words)
-	lu.assertEquals("cat", words[1])
+	lu.assertEquals("cat", words:get(1))
 
 	-- Bugfix test: exact match when prefix exists but is NOT a stored word
 	local tBug = RadixTree.new({ "category", "cataclysm" })
@@ -474,7 +474,7 @@ function TestRadixLongSharedPrefixes()
 
 	words = t:find("internationali")
 	lu.assertEquals(1, #words)
-	lu.assertEquals("internationalization", words[1])
+	lu.assertEquals("internationalization", words:get(1))
 
 	-- Remove intermediate exact word
 	lu.assertEquals(1, t:remove("international", true))

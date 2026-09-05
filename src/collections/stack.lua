@@ -98,7 +98,7 @@ end
 -----------------------------------------------------------------------------
 function Stack:push(entry)
 	assert(entry ~= nil, "entry should not be nil")
-	self._entries[#self._entries + 1] = entry
+	self._entries:insert(entry)
 end
 
 -----------------------------------------------------------------------------
@@ -121,7 +121,7 @@ end
 -----------------------------------------------------------------------------
 function Stack:top()
 	if not self:empty() then
-		return self._entries[#self._entries]
+		return self._entries:get(#self._entries)
 	end
 end
 

@@ -156,7 +156,7 @@ function Heap:indexOf(value, index)
 		return nil
 	end
 
-	local comp = self._comparator(value, self._entries[index])
+	local comp = self._comparator(value, self._entries:get(index))
 
 	if comp == Comparator.equal then
 		return index
@@ -185,7 +185,7 @@ end
 -----------------------------------------------------------------------------
 function Heap:peek()
 	if not self:empty() then
-		return self._entries[1]
+		return self._entries:get(1)
 	end
 end
 
@@ -223,7 +223,7 @@ function Heap:push(value)
 		return false
 	end
 
-	self._entries[#self._entries + 1] = value
+	self._entries:insert(value)
 	self:_siftUp(#self)
 	return true
 end
@@ -239,7 +239,7 @@ end
 ---@private
 -----------------------------------------------------------------------------
 function Heap:_before(i, j)
-	return self._comparator(self._entries[i], self._entries[j]) == Comparator.less
+	return self._comparator(self._entries:get(i), self._entries:get(j)) == Comparator.less
 end
 
 -----------------------------------------------------------------------------

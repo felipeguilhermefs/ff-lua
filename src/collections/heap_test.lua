@@ -445,7 +445,7 @@ function TestIndexOf()
 	for _, val in ipairs({ 10, 20, 30, 40, 50, 60, 70 }) do
 		local idx = h:indexOf(val)
 		lu.assertNotNil(idx)
-		lu.assertEquals(val, h._entries[idx])
+		lu.assertEquals(val, h._entries:get(idx))
 	end
 
 	-- Smaller than root (pruned immediately)
@@ -463,18 +463,18 @@ function TestIndexOfWithStartIndex()
 	local h = Heap.new({ 10, 20, 30, 40, 50, 60, 70 })
 
 	-- Searching starting from left child (index 2) finds elements in that subtree
-	local leftVal = h._entries[2]
+	local leftVal = h._entries:get(2)
 	local idx = h:indexOf(leftVal, 2)
 	lu.assertEquals(2, idx)
 
 	-- Child of index 2 (index 4 or 5)
 	if #h >= 4 then
-		local childVal = h._entries[4]
+		local childVal = h._entries:get(4)
 		lu.assertEquals(4, h:indexOf(childVal, 2))
 	end
 
 	-- Right child element (index 3) is not in left subtree (index 2)
-	local rightVal = h._entries[3]
+	local rightVal = h._entries:get(3)
 	lu.assertNil(h:indexOf(rightVal, 2))
 
 	-- Searching beyond heap bounds returns nil
@@ -491,7 +491,7 @@ function TestIndexOfMaxHeap()
 	for _, val in ipairs({ 70, 60, 50, 40, 30, 20, 10 }) do
 		local idx = maxH:indexOf(val)
 		lu.assertNotNil(idx)
-		lu.assertEquals(val, maxH._entries[idx])
+		lu.assertEquals(val, maxH._entries:get(idx))
 	end
 
 	-- Larger than root (pruned immediately)

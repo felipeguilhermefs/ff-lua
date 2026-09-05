@@ -268,13 +268,13 @@ function RadixTree:find(prefix, exact)
 
 	if exact then
 		if isExactNode and node._word ~= nil then
-			words[#words + 1] = node._word
+			words:insert(node._word)
 		end
 		return words
 	end
 
 	for _, word in self:_traverse(node) do
-		words[#words + 1] = word
+		words:insert(word)
 	end
 
 	return words
