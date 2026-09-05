@@ -87,7 +87,7 @@ end
 ---@return RadixNode?
 -----------------------------------------------------------------------------
 function RadixNode:get(prefix)
-	return self._children[prefix:byte(1)]
+	return self._children:get(prefix:byte(1))
 end
 
 -----------------------------------------------------------------------------
@@ -97,7 +97,7 @@ end
 ---
 -----------------------------------------------------------------------------
 function RadixNode:put(node)
-	self._children[node._prefix:byte(1)] = node
+	self._children:put(node._prefix:byte(1), node)
 end
 
 -----------------------------------------------------------------------------

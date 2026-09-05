@@ -11,11 +11,13 @@ local tinsert = table.insert
 
 -- General
 local assert = assert
-local next = next
-local pairs = pairs
+local error  = error
+local next   = next
+local pairs  = pairs
 local rawget = rawget
 local setmetatable = setmetatable
-local type = type
+local tostring     = tostring
+local type   = type
 
 --------------------------------------------------------------------------------------
 ---@class HashMap
@@ -64,7 +66,7 @@ function HashMap:compute(key, fn)
 	local value = self._entries[key]
 	if value == nil then
 		value = fn(key)
-		self[key] = value
+		self:put(key, value)
 	end
 	return value
 end
@@ -91,6 +93,18 @@ function HashMap:empty()
 end
 
 -----------------------------------------------------------------------------
+---Returns the value associated with the key.
+---
+---@param  key any Key used to look up the value, should not be nil.
+---
+---@return any?   Value stored under key, or nil when absent.
+-----------------------------------------------------------------------------
+function HashMap:get(key)
+	assert(key ~= nil, "key should not be nil")
+	return self._entries[key]
+end
+
+-----------------------------------------------------------------------------
 ---Merge an iterable into this HashMap. When keys conflict a merge function
 ---is called to resolve the new value.
 ---
@@ -113,16 +127,33 @@ function HashMap:merge(other, fn)
 	end
 
 	for k, v in pairs(other) do
-		local thisValue = self[k]
+		local thisValue = self:get(k)
 		if thisValue == nil then
-			self[k] = v
+			self:put(k, v)
 		else
 			local resolved = fn(thisValue, v)
-			self[k] = resolved
+			self:put(k, resolved)
 		end
 	end
 
 	return self
+end
+
+-----------------------------------------------------------------------------
+---Stores a value under the given key. Increments the entry count when key
+---is new.
+---
+---@param key   any Key to store under, should not be nil.
+---@param value any Value to store, should not be nil.
+-----------------------------------------------------------------------------
+function HashMap:put(key, value)
+	assert(key   ~= nil, "key should not be nil")
+	assert(value ~= nil, "value should not be nil")
+
+	if self._entries[key] == nil then
+		self._len = self._len + 1
+	end
+	self._entries[key] = value
 end
 
 -----------------------------------------------------------------------------
@@ -135,7 +166,7 @@ end
 function HashMap:remove(key)
 	assert(key ~= nil, "key should not be nil")
 
-	local value = self[key]
+	local value = self:get(key)
 	if value ~= nil then
 		self._entries[key] = nil
 		self._len = self._len - 1
@@ -157,7 +188,7 @@ function HashMap:__concat(iterable)
 		assert(type(iterable) == "table", "iterable should be a table")
 
 		for key, value in pairs(iterable) do
-			self[key] = value
+			self:put(key, value)
 		end
 	end
 
@@ -185,8 +216,9 @@ function HashMap:__eq(other)
 		return false
 	end
 
+	local otherEntries = rawget(other, "_entries") or other
 	for k, v in pairs(self._entries) do
-		if other[k] ~= v then
+		if otherEntries[k] ~= v then
 			return false
 		end
 	end
@@ -195,24 +227,10 @@ function HashMap:__eq(other)
 end
 
 -----------------------------------------------------------------------------
----Metamethod __index controls bracket (a[key]) read access to internals.
----
----@param key any Index or field name, should not be nil.
----
----@return any Value at index or fallback field.
+---Metamethod __index: resolves methods via the HashMap class table.
 -----------------------------------------------------------------------------
-function HashMap:__index(key)
-	assert(key ~= nil, "key should not be nil")
+HashMap.__index = HashMap
 
-	local val = self._entries[key]
-	if val ~= nil then
-		return val
-	end
-
-	return rawget(HashMap, key)
-end
-
------------------------------------------------------------------------------
 -----------------------------------------------------------------------------
 ---Returns the number of entries in the map.
 ---
@@ -223,20 +241,21 @@ function HashMap:__len()
 end
 
 -----------------------------------------------------------------------------
----Metamethod __newindex controls bracket (a[key]) write access to internals.
+---Metamethod __newindex prevents new fields or methods from being added to
+---a HashMap instance at runtime.
 ---
----@param self  HashMap
----@param key   any Key used for lookup, should not be nil.
----@param value any Value to be stored, should not be nil.
+---@param key   any Attempted field name.
+---@param value any Attempted value.
 -----------------------------------------------------------------------------
 function HashMap:__newindex(key, value)
-	assert(key ~= nil, "index should not be nil")
-	assert(value ~= nil, "value should not be nil")
-
-	if self._entries[key] == nil then
-		self._len = self._len + 1
-	end
-	self._entries[key] = value
+	error(
+		sfmt(
+			"attempt to add new field '%s' (value: %s) to HashMap instance",
+			tostring(key),
+			tostring(value)
+		),
+		2
+	)
 end
 
 -----------------------------------------------------------------------------

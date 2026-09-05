@@ -9,7 +9,7 @@ function TestEmpty()
 	local map = HashMap.new()
 	lu.assertTrue(map:empty())
 
-	map["a"] = 1
+	map:put("a", 1)
 	lu.assertFalse(map:empty())
 
 	map:clear()
@@ -19,29 +19,29 @@ end
 function TestGet()
 	local map = HashMap.new()
 
-	lu.assertNil(map["a"])
+	lu.assertNil(map:get("a"))
 
-	map["a"] = 1
-	lu.assertEquals(1, map["a"])
+	map:put("a", 1)
+	lu.assertEquals(1, map:get("a"))
 
-	map[1] = "a"
-	lu.assertEquals("a", map[1])
+	map:put(1, "a")
+	lu.assertEquals("a", map:get(1))
 end
 
 function TestPut()
 	local map = HashMap.new()
 
-	map["c"] = 1
-	lu.assertEquals(1, map["c"])
+	map:put("c", 1)
+	lu.assertEquals(1, map:get("c"))
 	lu.assertEquals(1, #map)
 
-	map["c"] = 2
-	lu.assertEquals(2, map["c"])
+	map:put("c", 2)
+	lu.assertEquals(2, map:get("c"))
 	lu.assertEquals(1, #map)
 
-	map["d"] = 3
-	lu.assertEquals(3, map["d"])
-	lu.assertEquals(2, map["c"])
+	map:put("d", 3)
+	lu.assertEquals(3, map:get("d"))
+	lu.assertEquals(2, map:get("c"))
 	lu.assertEquals(2, #map)
 end
 
@@ -50,7 +50,7 @@ function TestContains()
 
 	lu.assertFalse(map:contains("e"))
 
-	map["e"] = false
+	map:put("e", false)
 	lu.assertTrue(map:contains("e"))
 
 	map:remove("e")
@@ -60,8 +60,8 @@ end
 function TestRemove()
 	local map = HashMap.new()
 
-	map["f"] = false
-	map["g"] = true
+	map:put("f", false)
+	map:put("g", true)
 	lu.assertEquals(2, #map)
 
 	map:remove("f")
@@ -98,10 +98,10 @@ end
 function TestIterator()
 	local map = HashMap.new()
 
-	map["a"] = 1
-	map["b"] = 2
-	map["c"] = 3
-	map["d"] = 4
+	map:put("a", 1)
+	map:put("b", 2)
+	map:put("c", 3)
+	map:put("d", 4)
 
 	local res = {}
 	for k, v in pairs(map) do
@@ -131,12 +131,12 @@ function TestConcat()
 	map = map .. arr
 
 	lu.assertEquals(6, #map)
-	lu.assertEquals(10, map["a"])
-	lu.assertEquals(20, map["b"])
-	lu.assertEquals(30, map["c"])
-	lu.assertEquals("d", map[1])
-	lu.assertEquals("e", map[2])
-	lu.assertEquals("f", map[3])
+	lu.assertEquals(10, map:get("a"))
+	lu.assertEquals(20, map:get("b"))
+	lu.assertEquals(30, map:get("c"))
+	lu.assertEquals("d", map:get(1))
+	lu.assertEquals("e", map:get(2))
+	lu.assertEquals("f", map:get(3))
 end
 
 function TestMerge()
@@ -150,19 +150,19 @@ function TestMerge()
 	map:merge(other, add)
 
 	lu.assertEquals(4, #map)
-	lu.assertEquals(11, map["a"])
-	lu.assertEquals(22, map["b"])
-	lu.assertEquals(30, map["c"])
-	lu.assertEquals(4, map["d"])
+	lu.assertEquals(11, map:get("a"))
+	lu.assertEquals(22, map:get("b"))
+	lu.assertEquals(30, map:get("c"))
+	lu.assertEquals(4, map:get("d"))
 end
 
 function TestNewWithInitialiser()
 	local map = HashMap.new({ x = 1, y = 2, z = 3 })
 
 	lu.assertEquals(3, #map)
-	lu.assertEquals(1, map["x"])
-	lu.assertEquals(2, map["y"])
-	lu.assertEquals(3, map["z"])
+	lu.assertEquals(1, map:get("x"))
+	lu.assertEquals(2, map:get("y"))
+	lu.assertEquals(3, map:get("z"))
 end
 
 function TestNewWithHashMapInitialiser()
@@ -170,17 +170,17 @@ function TestNewWithHashMapInitialiser()
 	local copy = HashMap.new(source)
 
 	lu.assertEquals(2, #copy)
-	lu.assertEquals(10, copy["a"])
-	lu.assertEquals(20, copy["b"])
+	lu.assertEquals(10, copy:get("a"))
+	lu.assertEquals(20, copy:get("b"))
 
 	-- Confirm shallow independence
-	copy["a"] = 99
-	lu.assertEquals(10, source["a"])
+	copy:put("a", 99)
+	lu.assertEquals(10, source:get("a"))
 end
 
 function TestToString()
 	local map = HashMap.new()
-	map["key"] = "value"
+	map:put("key", "value")
 
 	lu.assertEquals(tostring(map), "{ key = value }")
 end
@@ -214,11 +214,11 @@ end
 function TestEqualsFalsyValues()
 	local m1 = HashMap.new()
 	local m2 = HashMap.new()
-	m1["flag"] = false
-	m2["flag"] = false
+	m1:put("flag", false)
+	m2:put("flag", false)
 	lu.assertTrue(m1 == m2)
 
-	m2["flag"] = true
+	m2:put("flag", true)
 	lu.assertFalse(m1 == m2)
 end
 
