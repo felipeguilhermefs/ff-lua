@@ -20,17 +20,17 @@ function TestConstructorWithIterable()
 	local tm = TreeMap.new({ d = 40, b = 20, a = 10, c = 30 })
 	lu.assertFalse(tm:empty())
 	lu.assertEquals(4, #tm)
-	lu.assertEquals(10, tm["a"])
-	lu.assertEquals(20, tm["b"])
-	lu.assertEquals(30, tm["c"])
-	lu.assertEquals(40, tm["d"])
+	lu.assertEquals(10, tm:get("a"))
+	lu.assertEquals(20, tm:get("b"))
+	lu.assertEquals(30, tm:get("c"))
+	lu.assertEquals(40, tm:get("d"))
 end
 
 function TestConstructorWithComparator()
 	local tm = TreeMap.new(nil, Comparator.reverse(Comparator.natural))
-	tm[1] = "one"
-	tm[2] = "two"
-	tm[3] = "three"
+	tm:put(1, "one")
+	tm:put(2, "two")
+	tm:put(3, "three")
 
 	lu.assertEquals(3, #tm)
 
@@ -56,7 +56,7 @@ function TestEmptyAndClear()
 	lu.assertTrue(tm:empty())
 	lu.assertEquals(0, #tm)
 
-	tm["a"] = 1
+	tm:put("a", 1)
 	lu.assertFalse(tm:empty())
 	lu.assertEquals(1, #tm)
 
@@ -65,58 +65,36 @@ function TestEmptyAndClear()
 	lu.assertEquals(0, #tm)
 
 	-- Re-use after clear
-	tm["z"] = 26
+	tm:put("z", 26)
 	lu.assertEquals(1, #tm)
-	lu.assertEquals(26, tm["z"])
+	lu.assertEquals(26, tm:get("z"))
 end
 
 function TestGetAndPut()
 	local tm = TreeMap.new()
 
-	lu.assertNil(tm["a"])
+	lu.assertNil(tm:get("a"))
 
-	tm["a"] = 100
-	lu.assertEquals(100, tm["a"])
+	tm:put("a", 100)
+	lu.assertEquals(100, tm:get("a"))
 	lu.assertEquals(1, #tm)
 
 	-- Update existing key
-	tm["a"] = 200
-	lu.assertEquals(200, tm["a"])
+	tm:put("a", 200)
+	lu.assertEquals(200, tm:get("a"))
 	lu.assertEquals(1, #tm)
 
-	tm["b"] = 300
-	lu.assertEquals(300, tm["b"])
+	tm:put("b", 300)
+	lu.assertEquals(300, tm:get("b"))
 	lu.assertEquals(2, #tm)
 
 	-- Assertion on nil keys / values
 	lu.assertError(function()
-		tm[nil] = 1
+		tm:put(nil, 1)
 	end)
 	lu.assertError(function()
-		tm["c"] = nil
+		tm:put("c", nil)
 	end)
-end
-
-function TestBracketAccess()
-	local tm = TreeMap.new()
-
-	lu.assertNil(tm["x"])
-
-	tm["x"] = 10
-	lu.assertEquals(10, tm["x"])
-	lu.assertEquals(1, #tm)
-
-	tm["x"] = 20
-	lu.assertEquals(20, tm["x"])
-	lu.assertEquals(1, #tm)
-
-	tm["y"] = 30
-	lu.assertEquals(30, tm["y"])
-	lu.assertEquals(2, #tm)
-
-	-- Fallback to methods on missing key
-	lu.assertEquals("function", type(tm["clear"]))
-	lu.assertEquals("function", type(tm["range"]))
 end
 
 function TestContains()
@@ -124,7 +102,7 @@ function TestContains()
 
 	lu.assertFalse(tm:contains("key"))
 
-	tm["key"] = "value"
+	tm:put("key", "value")
 	lu.assertTrue(tm:contains("key"))
 	lu.assertFalse(tm:contains("missing"))
 
@@ -135,13 +113,13 @@ end
 function TestRemove()
 	local tm = TreeMap.new()
 
-	tm[4] = "four"
-	tm[2] = "two"
-	tm[6] = "six"
-	tm[1] = "one"
-	tm[3] = "three"
-	tm[5] = "five"
-	tm[7] = "seven"
+	tm:put(4, "four")
+	tm:put(2, "two")
+	tm:put(6, "six")
+	tm:put(1, "one")
+	tm:put(3, "three")
+	tm:put(5, "five")
+	tm:put(7, "seven")
 
 	lu.assertEquals(7, #tm)
 
@@ -155,7 +133,7 @@ function TestRemove()
 	local val6 = tm:remove(6)
 	lu.assertEquals("six", val6)
 	lu.assertEquals(5, #tm)
-	lu.assertNil(tm[6])
+	lu.assertNil(tm:get(6))
 	lu.assertTrue(tm:contains(5))
 	lu.assertTrue(tm:contains(7))
 
@@ -163,7 +141,7 @@ function TestRemove()
 	local val4 = tm:remove(4)
 	lu.assertEquals("four", val4)
 	lu.assertEquals(4, #tm)
-	lu.assertNil(tm[4])
+	lu.assertNil(tm:get(4))
 end
 
 function TestRemoveEdgeCases()
@@ -174,7 +152,7 @@ function TestRemoveEdgeCases()
 	lu.assertEquals(0, #tm)
 
 	-- Non-existent key
-	tm[10] = "ten"
+	tm:put(10, "ten")
 	lu.assertNil(tm:remove(99))
 	lu.assertEquals(1, #tm)
 
@@ -185,9 +163,9 @@ function TestRemoveEdgeCases()
 
 	-- Node with left child only
 	local tmLeft = TreeMap.new()
-	tmLeft[30] = "thirty"
-	tmLeft[20] = "twenty"
-	tmLeft[10] = "ten"
+	tmLeft:put(30, "thirty")
+	tmLeft:put(20, "twenty")
+	tmLeft:put(10, "ten")
 	lu.assertEquals("twenty", tmLeft:remove(20))
 	lu.assertEquals(2, #tmLeft)
 	lu.assertTrue(tmLeft:contains(10))
@@ -218,7 +196,7 @@ function TestCompute()
 			return key * key
 		end)
 	)
-	lu.assertEquals(9, tm[3])
+	lu.assertEquals(9, tm:get(3))
 
 	lu.assertError(function()
 		tm:compute(nil, function() end)
@@ -239,18 +217,18 @@ function TestMerge()
 	tm:merge(other, add)
 
 	lu.assertEquals(4, #tm)
-	lu.assertEquals(11, tm["a"])
-	lu.assertEquals(22, tm["b"])
-	lu.assertEquals(30, tm["c"])
-	lu.assertEquals(4, tm["d"])
+	lu.assertEquals(11, tm:get("a"))
+	lu.assertEquals(22, tm:get("b"))
+	lu.assertEquals(30, tm:get("c"))
+	lu.assertEquals(4, tm:get("d"))
 
 	-- Default merge override
 	local tm2 = TreeMap.new({ x = 1, y = 2 })
 	tm2:merge({ y = 20, z = 30 })
 	lu.assertEquals(3, #tm2)
-	lu.assertEquals(1, tm2["x"])
-	lu.assertEquals(20, tm2["y"])
-	lu.assertEquals(30, tm2["z"])
+	lu.assertEquals(1, tm2:get("x"))
+	lu.assertEquals(20, tm2:get("y"))
+	lu.assertEquals(30, tm2:get("z"))
 end
 
 function TestMinMax()
@@ -258,11 +236,11 @@ function TestMinMax()
 	lu.assertNil(tm:min())
 	lu.assertNil(tm:max())
 
-	tm[7] = "seven"
-	tm[3] = "three"
-	tm[9] = "nine"
-	tm[1] = "one"
-	tm[5] = "five"
+	tm:put(7, "seven")
+	tm:put(3, "three")
+	tm:put(9, "nine")
+	tm:put(1, "one")
+	tm:put(5, "five")
 
 	local minK, minV = tm:min()
 	lu.assertEquals(1, minK)
@@ -275,11 +253,11 @@ end
 
 function TestFloorCeiling()
 	local tm = TreeMap.new()
-	tm[10] = "ten"
-	tm[20] = "twenty"
-	tm[30] = "thirty"
-	tm[40] = "forty"
-	tm[50] = "fifty"
+	tm:put(10, "ten")
+	tm:put(20, "twenty")
+	tm:put(30, "thirty")
+	tm:put(40, "forty")
+	tm:put(50, "fifty")
 
 	-- floor (<=)
 	lu.assertNil(tm:floor(5))
@@ -300,7 +278,7 @@ end
 function TestRange()
 	local tm = TreeMap.new()
 	for i = 1, 10 do
-		tm[i] = i * 10
+		tm:put(i, i * 10)
 	end
 
 	-- Range [3, 7]
@@ -368,11 +346,11 @@ function TestConcat()
 	tm = tm .. other
 
 	lu.assertEquals(5, #tm)
-	lu.assertEquals(10, tm["a"])
-	lu.assertEquals(20, tm["b"])
-	lu.assertEquals(30, tm["c"])
-	lu.assertEquals(40, tm["d"])
-	lu.assertEquals(50, tm["e"])
+	lu.assertEquals(10, tm:get("a"))
+	lu.assertEquals(20, tm:get("b"))
+	lu.assertEquals(30, tm:get("c"))
+	lu.assertEquals(40, tm:get("d"))
+	lu.assertEquals(50, tm:get("e"))
 end
 
 function TestEquality()
@@ -418,14 +396,14 @@ function TestCustomComparator()
 	local o2 = { score = 20, name = "second" }
 	local o3 = { score = 5, name = "zero" }
 
-	tm[o1] = "alpha"
-	tm[o2] = "beta"
-	tm[o3] = "gamma"
+	tm:put(o1, "alpha")
+	tm:put(o2, "beta")
+	tm:put(o3, "gamma")
 
 	lu.assertEquals(3, #tm)
-	lu.assertEquals("gamma", tm[{ score = 5 }])
-	lu.assertEquals("alpha", tm[{ score = 10 }])
-	lu.assertEquals("beta", tm[{ score = 20 }])
+	lu.assertEquals("gamma", tm:get({ score = 5 }))
+	lu.assertEquals("alpha", tm:get({ score = 10 }))
+	lu.assertEquals("beta", tm:get({ score = 20 }))
 
 	local minKey, _ = tm:min()
 	lu.assertEquals(5, minKey.score)

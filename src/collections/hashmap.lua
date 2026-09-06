@@ -11,13 +11,13 @@ local tinsert = table.insert
 
 -- General
 local assert = assert
-local error  = error
-local next   = next
-local pairs  = pairs
+local error = error
+local next = next
+local pairs = pairs
 local rawget = rawget
 local setmetatable = setmetatable
-local tostring     = tostring
-local type   = type
+local tostring = tostring
+local type = type
 
 --------------------------------------------------------------------------------------
 ---@class HashMap
@@ -147,7 +147,7 @@ end
 ---@param value any Value to store, should not be nil.
 -----------------------------------------------------------------------------
 function HashMap:put(key, value)
-	assert(key   ~= nil, "key should not be nil")
+	assert(key ~= nil, "key should not be nil")
 	assert(value ~= nil, "value should not be nil")
 
 	if self._entries[key] == nil then
@@ -216,7 +216,7 @@ function HashMap:__eq(other)
 		return false
 	end
 
-	local otherEntries = rawget(other, "_entries") or other
+	local otherEntries = other._entries or other
 	for k, v in pairs(self._entries) do
 		if otherEntries[k] ~= v then
 			return false
@@ -241,21 +241,11 @@ function HashMap:__len()
 end
 
 -----------------------------------------------------------------------------
----Metamethod __newindex prevents new fields or methods from being added to
----a HashMap instance at runtime.
+---Metamethod __newindex prevents adding new properties, methods, or functions.
 ---
----@param key   any Attempted field name.
----@param value any Attempted value.
 -----------------------------------------------------------------------------
-function HashMap:__newindex(key, value)
-	error(
-		sfmt(
-			"attempt to add new field '%s' (value: %s) to HashMap instance",
-			tostring(key),
-			tostring(value)
-		),
-		2
-	)
+function HashMap:__newindex()
+	error("cannot add new properties, methods or functions")
 end
 
 -----------------------------------------------------------------------------

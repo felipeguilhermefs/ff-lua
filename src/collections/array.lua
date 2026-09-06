@@ -253,10 +253,8 @@ end
 -----------------------------------------------------------------------------
 ---Metamethod __newindex prevents adding new properties, methods, or functions.
 ---
----@param key   any Property name or index.
----@param value any Value to assign.
 -----------------------------------------------------------------------------
-function Array:__newindex(key, value)
+function Array:__newindex()
 	error("cannot add new properties, methods or functions")
 end
 

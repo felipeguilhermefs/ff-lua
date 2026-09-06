@@ -16,7 +16,6 @@ local tinsert = table.insert
 local assert = assert
 local getmetatable = getmetatable
 local pairs = pairs
-local rawget = rawget
 local rawset = rawset
 local setmetatable = setmetatable
 local type = type
@@ -155,7 +154,7 @@ function TreeMap:compute(key, fn)
 	end
 
 	local value = fn(key)
-	self[key] = value
+	self:put(key, value)
 
 	return value
 end
@@ -212,6 +211,22 @@ function TreeMap:floor(key)
 end
 
 -----------------------------------------------------------------------------
+---Returns the value associated with the key.
+---
+---@param  key any Key used to look up the value, should not be nil.
+---
+---@return any?   Value stored under key, or nil when absent.
+-----------------------------------------------------------------------------
+function TreeMap:get(key)
+	assert(key ~= nil, "key should not be nil")
+	local node = self:_lookup(key)
+	if node ~= nil then
+		return node.value
+	end
+	return nil
+end
+
+-----------------------------------------------------------------------------
 ---Returns the maximum key and value (rightmost) from the tree, `nil` if empty.
 ---
 ---@return any? key, any? value
@@ -251,10 +266,10 @@ function TreeMap:merge(other, fn)
 	for k, v in pairs(other) do
 		local node = self:_lookup(k)
 		if node == nil then
-			self[k] = v
+			self:put(k, v)
 		else
 			local resolved = fn(node.value, v)
-			self[k] = resolved
+			self:put(k, resolved)
 		end
 	end
 
@@ -271,6 +286,20 @@ function TreeMap:min()
 	if minNode ~= nil then
 		return minNode.key, minNode.value
 	end
+end
+
+-----------------------------------------------------------------------------
+---Stores a value under the given key. Increments the entry count when key
+---is new.
+---
+---@param key   any Key to store under, should not be nil.
+---@param value any Value to store, should not be nil.
+-----------------------------------------------------------------------------
+function TreeMap:put(key, value)
+	assert(key ~= nil, "key should not be nil")
+	assert(value ~= nil, "value should not be nil")
+
+	rawset(self, "_root", self:_insert(self._root, key, value))
 end
 
 -----------------------------------------------------------------------------
@@ -342,7 +371,7 @@ end
 ---@private
 -----------------------------------------------------------------------------
 function TreeMap:_lookup(key)
-	local cur = rawget(self, "_root")
+	local cur = self._root
 	while cur do
 		local cmp = self._comparator(key, cur.key)
 		if cmp == Comparator.equal then
@@ -436,7 +465,7 @@ function TreeMap:_remove(node, key)
 			return node.left
 		end
 
-		local minNode = assert(self:_min(node.right), "min should always exist")
+		local minNode = assert(self:_min(node.right))
 		node.key = minNode.key
 		node.value = minNode.value
 		node.right = self:_remove(node.right, minNode.key)
@@ -458,7 +487,7 @@ function TreeMap:__concat(iterable)
 		assert(type(iterable) == "table", "iterable should be a table")
 
 		for key, value in pairs(iterable) do
-			self[key] = value
+			self:put(key, value)
 		end
 	end
 
@@ -466,19 +495,15 @@ function TreeMap:__concat(iterable)
 end
 
 -----------------------------------------------------------------------------
----Structural equality: Considers equal when both are tables with the same
+---Structural equality: Considers equal when both are TreeMaps with the same
 ---size and containing the same key-value pairs.
 ---
----@param  other any?
+---@param  other TreeMap?
 ---
 ---@return boolean
 -----------------------------------------------------------------------------
 function TreeMap:__eq(other)
-	if other == nil then
-		return false
-	end
-
-	if type(other) ~= "table" then
+	if not TreeMap.isTreeMap(other) then
 		return false
 	end
 
@@ -486,40 +511,27 @@ function TreeMap:__eq(other)
 		return false
 	end
 
-	for k, v in pairs(self) do
-		if other[k] ~= v then
+	local its = pairs(self)
+	local ito = pairs(other)
+
+	while true do
+		local ks, vs = its()
+		local ko, vo = ito()
+
+		if ks == nil or ko == nil then
+			return true
+		end
+
+		if ks ~= ko or vs ~= vo then
 			return false
 		end
 	end
-
-	return true
 end
 
 -----------------------------------------------------------------------------
----Metamethod __index controls bracket (a[key]) read access to internals.
----
----@param  key any Key used for lookup, should not be nil.
----
----@return any     Value at key or fallback method.
+---Metamethod __index: resolves methods via the TreeMap class table.
 -----------------------------------------------------------------------------
-function TreeMap:__index(key)
-	assert(key ~= nil, "key should not be nil")
-
-	-- Check class methods / private fields first; avoids running the BST
-	-- comparator on method-name strings against user data keys of other types.
-	local classField = rawget(TreeMap, key)
-	if classField ~= nil then
-		return classField
-	end
-
-	-- Data key lookup in the BST.
-	local node = rawget(TreeMap, "_lookup")(self, key)
-	if node ~= nil then
-		return node.value
-	end
-
-	return nil
-end
+TreeMap.__index = TreeMap
 
 -----------------------------------------------------------------------------
 ---Returns the number of entries in the tree map.
@@ -531,16 +543,11 @@ function TreeMap:__len()
 end
 
 -----------------------------------------------------------------------------
----Metamethod __newindex controls bracket (a[key] = value) write access.
+---Metamethod __newindex prevents adding new properties, methods, or functions.
 ---
----@param  key   any Key used for lookup, should not be nil.
----@param  value any Value to be stored, should not be nil.
 -----------------------------------------------------------------------------
-function TreeMap:__newindex(key, value)
-	assert(key ~= nil, "key should not be nil")
-	assert(value ~= nil, "value should not be nil")
-
-	rawset(self, "_root", self:_insert(rawget(self, "_root"), key, value))
+function TreeMap:__newindex()
+	error("cannot add new properties, methods or functions")
 end
 
 -----------------------------------------------------------------------------
