@@ -488,30 +488,26 @@ function TreeMap:_insert(node, key, value)
 		return node
 	end
 
+	--------------------
 	-- AVL Rebalancing
+	--------------------
 	node:recalculateHeight()
 
 	local balance = node:balance()
 
-	-- left left
-	if balance > 1 and self._comparator(key, node.left.key) == Comparator.less then
+	if balance > 1 then
+		if self._comparator(key, node.left.key) == Comparator.greater then
+			node.left = node.left:rotateLeft()
+		end
+
 		return node:rotateRight()
 	end
 
-	-- right right
-	if balance < -1 and self._comparator(key, node.right.key) == Comparator.greater then
-		return node:rotateLeft()
-	end
+	if balance < -1 then
+		if self._comparator(key, node.right.key) == Comparator.less then
+			node.right = node.right:rotateRight()
+		end
 
-	-- left right
-	if balance > 1 and self._comparator(key, node.left.key) == Comparator.greater then
-		node.left = node.left:rotateLeft()
-		return node:rotateRight()
-	end
-
-	-- right left
-	if balance < -1 and self._comparator(key, node.right.key) == Comparator.less then
-		node.right = node.right:rotateRight()
 		return node:rotateLeft()
 	end
 
@@ -571,6 +567,27 @@ function TreeMap:_remove(node, key)
 		node.key = minNode.key
 		node.value = minNode.value
 		node.right = self:_remove(node.right, minNode.key)
+	end
+
+	--------------------
+	-- AVL Rebalancing
+	--------------------
+	node:recalculateHeight()
+
+	local balance = node:balance()
+
+	if balance > 1 then
+		if node.left:balance() < 0 then
+			node.left = node.left:rotateLeft()
+		end
+		return node:rotateRight()
+	end
+
+	if balance < -1 then
+		if node.right:balance() > 0 then
+			node.right = node.right:rotateRight()
+		end
+		return node:rotateLeft()
 	end
 
 	return node
