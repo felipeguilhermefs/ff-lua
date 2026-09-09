@@ -53,51 +53,11 @@ function TreeNode.new(key, value, left, right)
 end
 
 -----------------------------------------------------------------------------
----Balance the TreeNode using AVL algorithm, and return new base node.
----
----@param newKey     any the key being inserted in the Tree, not the node.
----@param compare fun(a: any, b: any): -1|0|1 Function used to keep tree order.---
----
----@return TreeNode
------------------------------------------------------------------------------
-function TreeNode:rebalance(newKey, compare)
-	self:_recalculateHeight()
-
-	local balance = self:_balance()
-
-	-- left left
-	if balance > 1 and compare(newKey, self.left.key) == Comparator.less then
-		return self:_rotateRight()
-	end
-
-	-- right right
-	if balance < -1 and compare(newKey, self.right.key) == Comparator.greater then
-		return self:_rotateLeft()
-	end
-
-	-- left right
-	if balance > 1 and compare(newKey, self.left.key) == Comparator.greater then
-		self.left = self.left:_rotateLeft()
-		return self:_rotateRight()
-	end
-
-	-- right left
-	if balance < -1 and compare(newKey, self.right.key) == Comparator.less then
-		self.right = self.right:_rotateRight()
-		return self:_rotateLeft()
-	end
-
-	return self
-end
-
------------------------------------------------------------------------------
 ---Calculates the balance of this node.
 ---
 ---@return number
----
----@private
 -----------------------------------------------------------------------------
-function TreeNode:_balance()
+function TreeNode:balance()
 	local lh = self.left and self.left.height or 0
 	local rh = self.right and self.right.height or 0
 
@@ -106,10 +66,8 @@ end
 
 -----------------------------------------------------------------------------
 ---Recalculates the height of this node and update.
----
----@private
 -----------------------------------------------------------------------------
-function TreeNode:_recalculateHeight()
+function TreeNode:recalculateHeight()
 	local lh = self.left and self.left.height or 0
 	local rh = self.right and self.right.height or 0
 
@@ -120,16 +78,14 @@ end
 ---Rotates nodes to left and returns the new base node.
 ---
 ---@return TreeNode
----
----@private
 -----------------------------------------------------------------------------
-function TreeNode:_rotateLeft()
+function TreeNode:rotateLeft()
 	local newbase = assert(self.right)
 	self.right = newbase.left
 	newbase.left = self
 
-	newbase:_recalculateHeight()
-	self:_recalculateHeight()
+	newbase:recalculateHeight()
+	self:recalculateHeight()
 
 	return newbase
 end
@@ -138,16 +94,14 @@ end
 ---Rotates nodes to right and returns the new base node.
 ---
 ---@return TreeNode
----
----@private
 -----------------------------------------------------------------------------
-function TreeNode:_rotateRight()
+function TreeNode:rotateRight()
 	local newbase = assert(self.left)
 	self.left = newbase.right
 	newbase.right = self
 
-	newbase:_recalculateHeight()
-	self:_recalculateHeight()
+	newbase:recalculateHeight()
+	self:recalculateHeight()
 
 	return newbase
 end
@@ -534,7 +488,34 @@ function TreeMap:_insert(node, key, value)
 		return node
 	end
 
-	return node:rebalance(key, self._comparator)
+	-- AVL Rebalancing
+	node:recalculateHeight()
+
+	local balance = node:balance()
+
+	-- left left
+	if balance > 1 and self._comparator(key, node.left.key) == Comparator.less then
+		return node:rotateRight()
+	end
+
+	-- right right
+	if balance < -1 and self._comparator(key, node.right.key) == Comparator.greater then
+		return node:rotateLeft()
+	end
+
+	-- left right
+	if balance > 1 and self._comparator(key, node.left.key) == Comparator.greater then
+		node.left = node.left:rotateLeft()
+		return node:rotateRight()
+	end
+
+	-- right left
+	if balance < -1 and self._comparator(key, node.right.key) == Comparator.less then
+		node.right = node.right:rotateRight()
+		return node:rotateLeft()
+	end
+
+	return node
 end
 
 -----------------------------------------------------------------------------
