@@ -5,6 +5,9 @@ local Stack = require("ff.collections.stack")
 -- Cache function references
 ------------------------------
 
+-- Math
+local mmax = math.max
+
 -- String
 local sfmt = string.format
 
@@ -21,10 +24,11 @@ local setmetatable = setmetatable
 local type = type
 
 ---@class (private) TreeNode
----@field key   any       Stores the key of this node.
----@field value any       Stores the value of this node.
----@field left  TreeNode? Points to the left child node in the tree.
----@field right TreeNode? Points to the right child node in the tree.
+---@field key     any       Stores the key of this node.
+---@field value   any       Stores the value of this node.
+---@field left    TreeNode? Points to the left child node in the tree.
+---@field right   TreeNode? Points to the right child node in the tree.
+---@field _height number   Current position in the tree height.
 local TreeNode = {}
 TreeNode.__index = TreeNode
 
@@ -42,9 +46,103 @@ function TreeNode.new(key, value, left, right)
 	return setmetatable({
 		key = key,
 		value = value,
+		height = 1,
 		left = left,
 		right = right,
 	}, TreeNode)
+end
+
+-----------------------------------------------------------------------------
+---Balance the TreeNode using AVL algorithm, and return new base node.
+---
+---@param  newKey any the key being inserted in the Tree, not the node.
+---
+---@return TreeNode
+-----------------------------------------------------------------------------
+function TreeNode:rebalance(newKey)
+	self._height = self:_calculateHeight()
+
+	local balance = self:_balance()
+
+	-- left left
+	if balance > 1 and newKey < self.left.key then
+		return self:_rotateRight()
+	end
+
+	-- right right
+	if balance < -1 and newKey > self.right.key then
+		return self:_rotateLeft()
+	end
+
+	-- left right
+	if balance > 1 and newKey > self.left.key then
+		self.left = self.left:_rotateLeft()
+		return self:_rotateRight()
+	end
+
+	-- right left
+	if balance < -1 and newKey < self.right.key then
+		self.right = self.right:_rotateRight()
+		return self:_rotateLeft()
+	end
+
+	return self
+end
+
+-----------------------------------------------------------------------------
+---Calculates the balance of this node.
+---
+---@return number
+-----------------------------------------------------------------------------
+function TreeNode:_balance()
+	local lh = self.left and self.left._height or 0
+	local rh = self.right and self.right._height or 0
+
+	return lh - rh
+end
+
+-----------------------------------------------------------------------------
+---Calculates the height of this node.
+---
+---@return number
+-----------------------------------------------------------------------------
+function TreeNode:_calculateHeight()
+	local lh = self.left and self.left._height or 0
+	local rh = self.right and self.right._height or 0
+
+	return mmax(lh, rh) + 1
+end
+
+-----------------------------------------------------------------------------
+---Rotates nodes to left and returns the new base node.
+---
+---@return TreeNode
+-----------------------------------------------------------------------------
+function TreeNode:_rotateLeft()
+	local newbase = assert(self.right)
+	self.right = newbase.left
+	newbase.left = self
+
+	newbase.height = self:_calculateHeight()
+	self.height = self:_calculateHeight()
+
+	return newbase
+end
+
+-----------------------------------------------------------------------------
+---Rotates nodes to right and returns the new base node.
+---
+---@return TreeNode
+-----------------------------------------------------------------------------
+function TreeNode:_rotateRight()
+	local newbase = assert(self.left)
+	self.left = newbase.right
+	newbase.right = self
+
+	newbase.height = self:_calculateHeight()
+	self.height = self:_calculateHeight()
+
+	return newbase
 end
 
 --------------------------------------------------------------------------------------
@@ -411,9 +509,10 @@ function TreeMap:_insert(node, key, value)
 		node.left = self:_insert(node.left, key, value)
 	else
 		node.value = value
+		return node
 	end
 
-	return node
+	return node:rebalance(key)
 end
 
 -----------------------------------------------------------------------------
