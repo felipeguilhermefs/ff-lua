@@ -70,23 +70,23 @@ function TestNewIndexPreventsModifications()
 	local a = Array.new({ 10, 20, 30 })
 
 	-- disallow adding properties
-	lu.assertErrorMsgContains("cannot add new properties, methods or functions", function()
+	lu.assertErrorMsgContains("cannot add new properties, methods or functions to Array", function()
 		a.foo = "bar"
 	end)
 
 	-- disallow adding numeric indices
-	lu.assertErrorMsgContains("cannot add new properties, methods or functions", function()
+	lu.assertErrorMsgContains("cannot add new properties, methods or functions to Array", function()
 		a[1] = 99
 	end)
-	lu.assertErrorMsgContains("cannot add new properties, methods or functions", function()
+	lu.assertErrorMsgContains("cannot add new properties, methods or functions to Array", function()
 		a[4] = 40
 	end)
 
 	-- disallow adding methods or functions
-	lu.assertErrorMsgContains("cannot add new properties, methods or functions", function()
+	lu.assertErrorMsgContains("cannot add new properties, methods or functions to Array", function()
 		a.myFunc = function() end
 	end)
-	lu.assertErrorMsgContains("cannot add new properties, methods or functions", function()
+	lu.assertErrorMsgContains("cannot add new properties, methods or functions to Array", function()
 		a.get = function() end
 	end)
 end

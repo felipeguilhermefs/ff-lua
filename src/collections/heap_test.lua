@@ -605,4 +605,26 @@ function TestFullConsistentWithPush()
 	lu.assertFalse(h:push("d"))
 end
 
+function TestNewIndexPreventsModifications()
+	local h = Heap.new()
+
+	-- disallow adding properties
+	lu.assertErrorMsgContains("cannot add new properties, methods or functions to Heap", function()
+		h.foo = "bar"
+	end)
+
+	-- disallow adding numeric indices
+	lu.assertErrorMsgContains("cannot add new properties, methods or functions to Heap", function()
+		h[1] = 99
+	end)
+
+	-- disallow adding methods or functions
+	lu.assertErrorMsgContains("cannot add new properties, methods or functions to Heap", function()
+		h.myFunc = function() end
+	end)
+	lu.assertErrorMsgContains("cannot add new properties, methods or functions to Heap", function()
+		h.peek = function() end
+	end)
+end
+
 os.exit(lu.LuaUnit.run())

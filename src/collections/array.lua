@@ -255,7 +255,7 @@ end
 ---
 -----------------------------------------------------------------------------
 function Array:__newindex()
-	error("cannot add new properties, methods or functions")
+	error("cannot add new properties, methods or functions to Array")
 end
 
 -----------------------------------------------------------------------------

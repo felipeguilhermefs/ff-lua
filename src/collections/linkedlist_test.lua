@@ -256,7 +256,7 @@ function TestConcat()
 	ll = ll .. other
 
 	local tm = require("treemap").new()
-	tm[70] = 70
+	tm:put(70, 70)
 
 	ll = ll .. tm
 
@@ -353,6 +353,28 @@ function TestPushValidation()
 	end)
 	lu.assertError(function()
 		ll:pushBack(nil)
+	end)
+end
+
+function TestNewIndexPreventsModifications()
+	local ll = LinkedList.new({ 1, 2, 3 })
+
+	-- disallow adding properties
+	lu.assertErrorMsgContains("cannot add new properties, methods or functions to LinkedList", function()
+		ll.foo = "bar"
+	end)
+
+	-- disallow adding numeric indices
+	lu.assertErrorMsgContains("cannot add new properties, methods or functions to LinkedList", function()
+		ll[1] = 99
+	end)
+
+	-- disallow adding methods or functions
+	lu.assertErrorMsgContains("cannot add new properties, methods or functions to LinkedList", function()
+		ll.myFunc = function() end
+	end)
+	lu.assertErrorMsgContains("cannot add new properties, methods or functions to LinkedList", function()
+		ll.pushBack = function() end
 	end)
 end
 

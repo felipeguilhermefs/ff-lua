@@ -350,4 +350,26 @@ function TestFullConsistentWithEnqueue()
 	lu.assertFalse(q:enqueue("d"))
 end
 
+function TestNewIndexPreventsModifications()
+	local q = Queue.new()
+
+	-- disallow adding properties
+	lu.assertErrorMsgContains("cannot add new properties, methods or functions to Queue", function()
+		q.foo = "bar"
+	end)
+
+	-- disallow adding numeric indices
+	lu.assertErrorMsgContains("cannot add new properties, methods or functions to Queue", function()
+		q[1] = 99
+	end)
+
+	-- disallow adding methods or functions
+	lu.assertErrorMsgContains("cannot add new properties, methods or functions to Queue", function()
+		q.myFunc = function() end
+	end)
+	lu.assertErrorMsgContains("cannot add new properties, methods or functions to Queue", function()
+		q.peek = function() end
+	end)
+end
+
 os.exit(lu.LuaUnit.run())

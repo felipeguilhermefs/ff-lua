@@ -115,7 +115,7 @@ All collections implement a uniform set of metamethods:
 | `__eq(other)` | Deep/structural equality. Verifies class identity via `is<Class>`, compares sizes, then verifies all elements match. | `boolean` |
 | `__pairs()` | Enables `for k, v in pairs(instance) do`. | `iterator, [state, var]` |
 | `__tostring()` | Pretty prints content: `[ 1, 2, 3 ]` for sequence-like, `{ k = v }` for key-value, `{ a, b }` for sets. | `string` |
-| `__newindex()` | Throws `error("cannot add new properties, methods or functions")` to enforce encapsulation. | Error |
+| `__newindex()` | Throws `error("cannot add new properties, methods or functions to <Class>")` to enforce encapsulation. | Error |
 
 ---
 
@@ -131,18 +131,18 @@ Methods rigorously validate input arguments using `assert(condition, message)`:
 
 ## 3. Comparison Matrix
 
-| Class | Type Guard | `__newindex` Immutability | `__pairs` Style | Method Order Followed | Peek / Read Method |
+| Class | Type Guard | `__pairs` Style | Method Order Followed | Peek / Read Method |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| [`Array`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/array.lua) | `isArray` | Yes | Non-destructive (yields index, value) | Yes | `get(idx)` |
-| [`HashMap`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/hashmap.lua) | **Missing** | Yes | Non-destructive (yields key, value) | Yes | `get(key)` |
-| [`Heap`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/heap.lua) | `isHeap` | **No** | **Destructive** (pops all items!) | Yes | `peek()` |
-| [`IntervalTree`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/intervaltree.lua) | `isIntervalTree` | **No** | Non-destructive (yields low, high) | Yes | `contains(val)` |
-| [`LinkedList`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/linkedlist.lua) | `isLinkedList` | **No** | Non-destructive (yields index, value) | Yes | `peekFront()`, `peekBack()` |
-| [`Queue`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/queue.lua) | `isQueue` | **No** | **Destructive** (dequeues all items!) | **No** (`dequeue` before `contains`) | `peek()` |
-| [`RadixTree`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/radixtree.lua) | `isRadixTree` | **No** | Non-destructive (yields index, word) | Yes | `find(prefix)`, `contains(word)`|
-| [`Set`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/set.lua) | `isSet` | **No** | Non-destructive (yields entry, entry) | **No** (`disjoint`, `subset` unsorted) | `contains(...)` |
-| [`Stack`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/stack.lua) | `isStack` | **No** | **Destructive** (pops all items!) | Yes | `top()` (not `peek`) |
-| [`TreeMap`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/treemap.lua) | `isTreeMap` | Yes | Non-destructive (yields key, value) | Partial (`_lookup` before `_insert`) | `get(key)`, `min()`, `max()` |
+| [`Array`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/array.lua) | `isArray` | Non-destructive (yields index, value) | Yes | `get(idx)` |
+| [`HashMap`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/hashmap.lua) | **Missing** | Non-destructive (yields key, value) | Yes | `get(key)` |
+| [`Heap`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/heap.lua) | `isHeap` | **Destructive** (pops all items!) | Yes | `peek()` |
+| [`IntervalTree`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/intervaltree.lua) | `isIntervalTree` | Non-destructive (yields low, high) | Yes | `contains(val)` |
+| [`LinkedList`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/linkedlist.lua) | `isLinkedList` | Non-destructive (yields index, value) | Yes | `peekFront()`, `peekBack()` |
+| [`Queue`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/queue.lua) | `isQueue` | **Destructive** (dequeues all items!) | **No** (`dequeue` before `contains`) | `peek()` |
+| [`RadixTree`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/radixtree.lua) | `isRadixTree` | Non-destructive (yields index, word) | Yes | `find(prefix)`, `contains(word)`|
+| [`Set`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/set.lua) | `isSet` | Non-destructive (yields entry, entry) | **No** (`disjoint`, `subset` unsorted) | `contains(...)` |
+| [`Stack`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/stack.lua) | `isStack` | **Destructive** (pops all items!) | Yes | `top()` (not `peek`) |
+| [`TreeMap`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/treemap.lua) | `isTreeMap` | Non-destructive (yields key, value) | Partial (`_lookup` before `_insert`) | `get(key)`, `min()`, `max()` |
 
 ---
 
@@ -152,21 +152,19 @@ Methods rigorously validate input arguments using `assert(condition, message)`:
    Every collection provides `<Class>.is<Class>(maybe)`. [`HashMap`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/hashmap.lua) lacks `HashMap.isHashMap(maybe)`. As a result, [`HashMap:__eq`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/hashmap.lua#L206) falls back to `type(other) ~= "table"`, which permits false equality with arbitrary raw tables or other collection types.
 2. **Destructive `__pairs` in [`Heap`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/heap.lua#L339), [`Queue`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/queue.lua#L269), and [`Stack`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/stack.lua#L182)**:
    Calling `pairs(q)` or `pairs(s)` actually empties the collection by repeatedly calling `pop()` or `dequeue()`. In contrast, all other collections provide non-destructive iteration. Mutating data structures as a side-effect of iteration violates Lua iterator semantics and can cause bugs when collections are passed to `__concat` or printing routines.
-3. **Inconsistent `__newindex` Immutability Guard**:
-   Only [`Array`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/array.lua#L257), [`HashMap`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/hashmap.lua#L247), and [`TreeMap`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/treemap.lua#L668) implement `__newindex` to prevent property pollution (`instance.foo = 123`). The other 7 collections allow callers to inadvertently attach arbitrary keys or overwrite internal fields.
-4. **`__index` Declaration Placement**:
+3. **`__index` Declaration Placement**:
    - In [`Array`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/array.lua#L28), [`Heap`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/heap.lua#L23), [`IntervalTree`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/intervaltree.lua#L58), [`LinkedList`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/linkedlist.lua#L51), [`Queue`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/queue.lua#L43), [`RadixTree`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/radixtree.lua#L150), [`Set`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/set.lua#L29), and [`Stack`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/stack.lua#L20), `<Class>.__index = <Class>` is placed at the top directly under table declaration.
    - In [`HashMap`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/hashmap.lua#L232) and [`TreeMap`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/treemap.lua#L653), `__index` is deferred to the metamethod section between `__eq` and `__len`.
-5. **Alphabetical Ordering Violations**:
+4. **Alphabetical Ordering Violations**:
    - [`Queue`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/queue.lua): `dequeue` (line 104) is placed before `contains` (line 129); `enqueue` (line 168) is placed after `full` (line 157).
    - [`Set`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/set.lua): `disjoint` (line 175) is placed after `intersection` (line 151); `remove` (line 233) is placed after `superset` (line 220).
    - [`TreeMap`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/treemap.lua): `_lookup` (line 446) is placed before `_insert` (line 474).
-6. **Naming Discrepancies**:
+5. **Naming Discrepancies**:
    - Peek operations: [`Stack`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/stack.lua#L122) uses `:top()` whereas [`Heap`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/heap.lua#L186) and [`Queue`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/queue.lua#L192) use `:peek()`.
    - Element existence: [`Array`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/array.lua) has `:indexOf(value)` but no `:contains(value)`.
-7. **Missing Upvalue Caching in [`Stack`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/stack.lua#L197)**:
+6. **Missing Upvalue Caching in [`Stack`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/stack.lua#L197)**:
    In [`Stack:__tostring`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/stack.lua#L197), `string.format` and `table.concat` are called as globals instead of using cached local references.
-8. **Typos in Error Assertions**:
+7. **Typos in Error Assertions**:
    [`Set:union`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/set.lua#L279) contains the error message `"other shoudl also be a Set"`.
 
 ---
@@ -198,15 +196,7 @@ function Queue:drain()
 end
 ```
 
-### 5.3 Enforce Universal Immutability Guard (`__newindex`)
-Add `__newindex` to all 7 collections missing it ([`Heap`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/heap.lua), [`IntervalTree`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/intervaltree.lua), [`LinkedList`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/linkedlist.lua), [`Queue`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/queue.lua), [`RadixTree`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/radixtree.lua), [`Set`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/set.lua), [`Stack`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/stack.lua)):
-```lua
-function Collection:__newindex()
-    error("cannot add new properties, methods or functions")
-end
-```
-
-### 5.4 Standardize Inspection Methods
+### 5.3 Standardize Inspection Methods
 Provide `:peek()` across all queue/stack/heap collections:
 - In [`Stack`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/stack.lua), provide `:peek()` as an alias or replacement for `:top()`.
 - In [`Array`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/array.lua), add `:contains(value)`:
@@ -216,11 +206,11 @@ function Array:contains(value)
 end
 ```
 
-### 5.5 Standardize Iterator Return Signature
+### 5.4 Standardize Iterator Return Signature
 Standard Lua 5.2+ `__pairs` convention expects `iterator_func, state_table, initial_key`.
 Ensure all `__pairs` methods consistently return `iterator, self, nil` (or `next, self._entries, nil`).
 
-### 5.6 Standardize Placement of `Class.__index = Class`
+### 5.5 Standardize Placement of `Class.__index = Class`
 Standardize placing `<Class>.__index = <Class>` immediately following `local <Class> = {}` at the top of the file for clarity and visibility.
 
 ---
@@ -427,7 +417,7 @@ end
 ---Metamethod __newindex prevents adding new properties, methods, or functions.
 -----------------------------------------------------------------------------
 function ExampleCollection:__newindex()
-	error("cannot add new properties, methods or functions")
+	error("cannot add new properties, methods or functions to ExampleCollection")
 end
 
 -----------------------------------------------------------------------------

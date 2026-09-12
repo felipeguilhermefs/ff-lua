@@ -503,4 +503,26 @@ function TestRadixSingleCharacterWords()
 	lu.assertTrue(t:contains("abcd", true))
 end
 
+function TestNewIndexPreventsModifications()
+	local rt = RadixTree.new()
+
+	-- disallow adding properties
+	lu.assertErrorMsgContains("cannot add new properties, methods or functions to RadixTree", function()
+		rt.foo = "bar"
+	end)
+
+	-- disallow adding numeric indices
+	lu.assertErrorMsgContains("cannot add new properties, methods or functions to RadixTree", function()
+		rt[1] = 99
+	end)
+
+	-- disallow adding methods or functions
+	lu.assertErrorMsgContains("cannot add new properties, methods or functions to RadixTree", function()
+		rt.myFunc = function() end
+	end)
+	lu.assertErrorMsgContains("cannot add new properties, methods or functions to RadixTree", function()
+		rt.insert = function() end
+	end)
+end
+
 os.exit(lu.LuaUnit.run())

@@ -392,4 +392,26 @@ function TestToString()
 	lu.assertEquals("{ [1, 3], [7, 10] }", tostring(it))
 end
 
+function TestNewIndexPreventsModifications()
+	local it = IntervalTree.new()
+
+	-- disallow adding properties
+	lu.assertErrorMsgContains("cannot add new properties, methods or functions to IntervalTree", function()
+		it.foo = "bar"
+	end)
+
+	-- disallow adding numeric indices
+	lu.assertErrorMsgContains("cannot add new properties, methods or functions to IntervalTree", function()
+		it[1] = 99
+	end)
+
+	-- disallow adding methods or functions
+	lu.assertErrorMsgContains("cannot add new properties, methods or functions to IntervalTree", function()
+		it.myFunc = function() end
+	end)
+	lu.assertErrorMsgContains("cannot add new properties, methods or functions to IntervalTree", function()
+		it.insert = function() end
+	end)
+end
+
 os.exit(lu.LuaUnit.run())

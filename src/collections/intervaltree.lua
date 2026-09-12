@@ -19,6 +19,7 @@ local mmin = math.min
 local assert = assert
 local getmetatable = getmetatable
 local pairs = pairs
+local rawset = rawset
 local setmetatable = setmetatable
 local type = type
 
@@ -98,7 +99,7 @@ end
 ---Empties the tree.
 -----------------------------------------------------------------------------
 function IntervalTree:clear()
-	self._root = nil
+	rawset(self, "_root", nil)
 	self._len = 0
 end
 
@@ -164,11 +165,11 @@ function IntervalTree:insert(low, high)
 		high = mmax(high, overlap.high)
 
 		-- Remove overlapping node
-		self._root = self:_delete(self._root, overlap.low)
+		rawset(self, "_root", self:_delete(self._root, overlap.low))
 	end
 
 	-- Finally add the merged interval
-	self._root = self:_insert(self._root, low, high)
+	rawset(self, "_root", self:_insert(self._root, low, high))
 end
 
 -----------------------------------------------------------------------------
@@ -194,7 +195,7 @@ function IntervalTree:remove(low, high)
 		if overlap == nil then
 			break
 		end
-		self._root = self:_delete(self._root, overlap.low)
+		rawset(self, "_root", self:_delete(self._root, overlap.low))
 		removed = removed + 1
 	end
 
@@ -381,6 +382,15 @@ end
 function IntervalTree:__len()
 	return self._len
 end
+
+-----------------------------------------------------------------------------
+---Metamethod __newindex prevents adding new properties, methods, or functions.
+---
+-----------------------------------------------------------------------------
+function IntervalTree:__newindex()
+	error("cannot add new properties, methods or functions to IntervalTree")
+end
+
 
 -----------------------------------------------------------------------------
 ---Iterates through the interval tree in ascending order of `low` boundary.

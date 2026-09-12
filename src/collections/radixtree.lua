@@ -575,6 +575,15 @@ function RadixTree:__len()
 end
 
 -----------------------------------------------------------------------------
+---Metamethod __newindex prevents adding new properties, methods, or functions.
+---
+-----------------------------------------------------------------------------
+function RadixTree:__newindex()
+	error("cannot add new properties, methods or functions to RadixTree")
+end
+
+
+-----------------------------------------------------------------------------
 ---Iterates through every word in this RadixTree.
 ---
 ---@return fun(): number?, string?, RadixTree, nil

@@ -171,6 +171,15 @@ function Stack:__len()
 end
 
 -----------------------------------------------------------------------------
+---Metamethod __newindex prevents adding new properties, methods, or functions.
+---
+-----------------------------------------------------------------------------
+function Stack:__newindex()
+	error("cannot add new properties, methods or functions to Stack")
+end
+
+
+-----------------------------------------------------------------------------
 ---Iterates through the stack in LIFO order by consuming items. Same as:
 ---
 ---while not stack:empty() do

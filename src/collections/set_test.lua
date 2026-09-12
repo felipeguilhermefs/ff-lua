@@ -217,4 +217,26 @@ function TestToString()
 	lu.assertTrue(str:find("true") ~= nil)
 end
 
+function TestNewIndexPreventsModifications()
+	local s = Set.new({ 1, 2, 3 })
+
+	-- disallow adding properties
+	lu.assertErrorMsgContains("cannot add new properties, methods or functions to Set", function()
+		s.foo = "bar"
+	end)
+
+	-- disallow adding numeric indices
+	lu.assertErrorMsgContains("cannot add new properties, methods or functions to Set", function()
+		s[1] = 99
+	end)
+
+	-- disallow adding methods or functions
+	lu.assertErrorMsgContains("cannot add new properties, methods or functions to Set", function()
+		s.myFunc = function() end
+	end)
+	lu.assertErrorMsgContains("cannot add new properties, methods or functions to Set", function()
+		s.add = function() end
+	end)
+end
+
 os.exit(lu.LuaUnit.run())

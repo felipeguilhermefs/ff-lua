@@ -328,6 +328,15 @@ function Heap:__len()
 end
 
 -----------------------------------------------------------------------------
+---Metamethod __newindex prevents adding new properties, methods, or functions.
+---
+-----------------------------------------------------------------------------
+function Heap:__newindex()
+	error("cannot add new properties, methods or functions to Heap")
+end
+
+
+-----------------------------------------------------------------------------
 ---Iterates through the heap in priority order by consuming items. Same as:
 ---
 ---while not heap:empty() do

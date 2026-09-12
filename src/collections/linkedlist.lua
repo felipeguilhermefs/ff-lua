@@ -13,6 +13,7 @@ local tinsert = table.insert
 local assert = assert
 local getmetatable = getmetatable
 local pairs = pairs
+local rawset = rawset
 local setmetatable = setmetatable
 local tostring = tostring
 local type = type
@@ -89,8 +90,8 @@ end
 ---Empties the list.
 -----------------------------------------------------------------------------
 function LinkedList:clear()
-	self._front = nil
-	self._back = nil
+	rawset(self, "_front", nil)
+	rawset(self, "_back", nil)
 	self._len = 0
 end
 
@@ -165,7 +166,7 @@ function LinkedList:popBack()
 	if self._back == self._front then
 		self:clear()
 	else
-		self._back = self._back.prev
+		rawset(self, "_back", self._back.prev)
 		self._back.next = nil
 		self._len = self._len - 1
 	end
@@ -188,7 +189,7 @@ function LinkedList:popFront()
 	if self._front == self._back then
 		self:clear()
 	else
-		self._front = self._front.next
+		rawset(self, "_front", self._front.next)
 		self._front.prev = nil
 		self._len = self._len - 1
 	end
@@ -208,9 +209,9 @@ function LinkedList:pushBack(entry)
 	if self._back ~= nil then
 		self._back.next = node
 	else
-		self._front = node
+		rawset(self, "_front", node)
 	end
-	self._back = node
+	rawset(self, "_back", node)
 	self._len = self._len + 1
 end
 
@@ -226,9 +227,9 @@ function LinkedList:pushFront(entry)
 	if self._front ~= nil then
 		self._front.prev = node
 	else
-		self._back = node
+		rawset(self, "_back", node)
 	end
-	self._front = node
+	rawset(self, "_front", node)
 	self._len = self._len + 1
 end
 
@@ -314,6 +315,15 @@ end
 function LinkedList:__len()
 	return self._len
 end
+
+-----------------------------------------------------------------------------
+---Metamethod __newindex prevents adding new properties, methods, or functions.
+---
+-----------------------------------------------------------------------------
+function LinkedList:__newindex()
+	error("cannot add new properties, methods or functions to LinkedList")
+end
+
 
 -----------------------------------------------------------------------------
 ---Iterates through the LinkedList from 1 to #LinkedList.

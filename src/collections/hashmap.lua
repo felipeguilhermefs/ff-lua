@@ -245,7 +245,7 @@ end
 ---
 -----------------------------------------------------------------------------
 function HashMap:__newindex()
-	error("cannot add new properties, methods or functions")
+	error("cannot add new properties, methods or functions to HashMap")
 end
 
 -----------------------------------------------------------------------------

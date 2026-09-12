@@ -411,4 +411,26 @@ function TestCustomComparator()
 	lu.assertEquals(20, maxKey.score)
 end
 
+function TestNewIndexPreventsModifications()
+	local tm = TreeMap.new()
+
+	-- disallow adding properties
+	lu.assertErrorMsgContains("cannot add new properties, methods or functions to TreeMap", function()
+		tm.foo = "bar"
+	end)
+
+	-- disallow adding numeric indices via bracket assignment
+	lu.assertErrorMsgContains("cannot add new properties, methods or functions to TreeMap", function()
+		tm[70] = 70
+	end)
+
+	-- disallow adding methods or functions
+	lu.assertErrorMsgContains("cannot add new properties, methods or functions to TreeMap", function()
+		tm.myFunc = function() end
+	end)
+	lu.assertErrorMsgContains("cannot add new properties, methods or functions to TreeMap", function()
+		tm.get = function() end
+	end)
+end
+
 os.exit(lu.LuaUnit.run())

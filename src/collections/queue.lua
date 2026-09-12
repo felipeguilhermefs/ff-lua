@@ -13,6 +13,7 @@ local tinsert = table.insert
 local assert = assert
 local getmetatable = getmetatable
 local pairs = pairs
+local rawset = rawset
 local setmetatable = setmetatable
 local type = type
 
@@ -90,8 +91,8 @@ end
 ---Empties the queue.
 -----------------------------------------------------------------------------
 function Queue:clear()
-	self._front = nil
-	self._back = nil
+	rawset(self, "_front", nil)
+	rawset(self, "_back", nil)
 	self._len = 0
 end
 
@@ -111,7 +112,7 @@ function Queue:dequeue()
 	if self._front == self._back then
 		self:clear()
 	else
-		self._front = self._front.next
+		rawset(self, "_front", self._front.next)
 		self._len = self._len - 1
 	end
 
@@ -177,9 +178,9 @@ function Queue:enqueue(value)
 	if self._back ~= nil then
 		self._back.next = node
 	else
-		self._front = node
+		rawset(self, "_front", node)
 	end
-	self._back = node
+	rawset(self, "_back", node)
 	self._len = self._len + 1
 	return true
 end
@@ -256,6 +257,15 @@ end
 function Queue:__len()
 	return self._len
 end
+
+-----------------------------------------------------------------------------
+---Metamethod __newindex prevents adding new properties, methods, or functions.
+---
+-----------------------------------------------------------------------------
+function Queue:__newindex()
+	error("cannot add new properties, methods or functions to Queue")
+end
+
 
 -----------------------------------------------------------------------------
 ---Iterates through the queue in FIFO order by consuming items. Same as:

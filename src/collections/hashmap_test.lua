@@ -222,4 +222,26 @@ function TestEqualsFalsyValues()
 	lu.assertFalse(m1 == m2)
 end
 
+function TestNewIndexPreventsModifications()
+	local m = HashMap.new({ a = 1 })
+
+	-- disallow adding properties
+	lu.assertErrorMsgContains("cannot add new properties, methods or functions to HashMap", function()
+		m.foo = "bar"
+	end)
+
+	-- disallow adding numeric indices via bracket assignment
+	lu.assertErrorMsgContains("cannot add new properties, methods or functions to HashMap", function()
+		m[1] = 99
+	end)
+
+	-- disallow adding methods or functions
+	lu.assertErrorMsgContains("cannot add new properties, methods or functions to HashMap", function()
+		m.myFunc = function() end
+	end)
+	lu.assertErrorMsgContains("cannot add new properties, methods or functions to HashMap", function()
+		m.get = function() end
+	end)
+end
+
 os.exit(lu.LuaUnit.run())

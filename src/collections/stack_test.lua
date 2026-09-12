@@ -148,4 +148,26 @@ function TestConcat()
 	lu.assertEquals(10, s:pop())
 end
 
+function TestNewIndexPreventsModifications()
+	local s = Stack.new({ 1, 2, 3 })
+
+	-- disallow adding properties
+	lu.assertErrorMsgContains("cannot add new properties, methods or functions to Stack", function()
+		s.foo = "bar"
+	end)
+
+	-- disallow adding numeric indices
+	lu.assertErrorMsgContains("cannot add new properties, methods or functions to Stack", function()
+		s[1] = 99
+	end)
+
+	-- disallow adding methods or functions
+	lu.assertErrorMsgContains("cannot add new properties, methods or functions to Stack", function()
+		s.myFunc = function() end
+	end)
+	lu.assertErrorMsgContains("cannot add new properties, methods or functions to Stack", function()
+		s.push = function() end
+	end)
+end
+
 os.exit(lu.LuaUnit.run())

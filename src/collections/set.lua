@@ -336,6 +336,15 @@ function Set:__len()
 end
 
 -----------------------------------------------------------------------------
+---Metamethod __newindex prevents adding new properties, methods, or functions.
+---
+-----------------------------------------------------------------------------
+function Set:__newindex()
+	error("cannot add new properties, methods or functions to Set")
+end
+
+
+-----------------------------------------------------------------------------
 ---Iterates through the set in an undefined order.
 ---
 ---@return fun(t: table, k: any): any, boolean, table, nil
