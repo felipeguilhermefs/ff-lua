@@ -17,7 +17,6 @@ local type = type
 ---
 ----------------------------------------------------------------------------------
 local Stack = {}
-Stack.__index = Stack
 
 -----------------------------------------------------------------------------
 ---Checks if it is a Stack instance.
@@ -160,6 +159,11 @@ function Stack:__eq(other)
 
 	return self._entries == other._entries
 end
+
+-----------------------------------------------------------------------------
+---Metamethod __index: resolves methods via the Stack class table.
+-----------------------------------------------------------------------------
+Stack.__index = Stack
 
 -----------------------------------------------------------------------------
 ---Returns the number of entries in the stack.

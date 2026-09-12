@@ -152,15 +152,13 @@ Methods rigorously validate input arguments using `assert(condition, message)`:
    Every collection provides `<Class>.is<Class>(maybe)`. [`HashMap`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/hashmap.lua) lacks `HashMap.isHashMap(maybe)`. As a result, [`HashMap:__eq`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/hashmap.lua#L206) falls back to `type(other) ~= "table"`, which permits false equality with arbitrary raw tables or other collection types.
 2. **Destructive `__pairs` in [`Heap`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/heap.lua#L339), [`Queue`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/queue.lua#L269), and [`Stack`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/stack.lua#L182)**:
    Calling `pairs(q)` or `pairs(s)` actually empties the collection by repeatedly calling `pop()` or `dequeue()`. In contrast, all other collections provide non-destructive iteration. Mutating data structures as a side-effect of iteration violates Lua iterator semantics and can cause bugs when collections are passed to `__concat` or printing routines.
-3. **`__index` Declaration Placement**:
-   - In [`Array`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/array.lua#L28), [`Heap`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/heap.lua#L23), [`IntervalTree`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/intervaltree.lua#L58), [`LinkedList`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/linkedlist.lua#L51), [`Queue`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/queue.lua#L43), [`RadixTree`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/radixtree.lua#L150), [`Set`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/set.lua#L29), and [`Stack`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/stack.lua#L20), `<Class>.__index = <Class>` is placed at the top directly under table declaration.
    - In [`HashMap`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/hashmap.lua#L232) and [`TreeMap`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/treemap.lua#L653), `__index` is deferred to the metamethod section between `__eq` and `__len`.
-4. **Naming Discrepancies**:
+3. **Naming Discrepancies**:
    - Peek operations: [`Stack`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/stack.lua#L122) uses `:top()` whereas [`Heap`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/heap.lua#L186) and [`Queue`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/queue.lua#L192) use `:peek()`.
    - Element existence: [`Array`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/array.lua) has `:indexOf(value)` but no `:contains(value)`.
-5. **Missing Upvalue Caching in [`Stack`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/stack.lua#L197)**:
+4. **Missing Upvalue Caching in [`Stack`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/stack.lua#L197)**:
    In [`Stack:__tostring`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/stack.lua#L197), `string.format` and `table.concat` are called as globals instead of using cached local references.
-6. **Typos in Error Assertions**:
+5. **Typos in Error Assertions**:
    [`Set:union`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/set.lua#L279) contains the error message `"other shoudl also be a Set"`.
 
 ---

@@ -147,7 +147,6 @@ end
 ---@field private _caseSensitive boolean   Whether word matching is case sensitive. Default: true.
 --------------------------------------------------------------------------------------
 local RadixTree = {}
-RadixTree.__index = RadixTree
 
 -----------------------------------------------------------------------------
 ---Checks if a given value is a RadixTree instance.
@@ -564,6 +563,11 @@ function RadixTree:__eq(other)
 
 	return true
 end
+
+-----------------------------------------------------------------------------
+---Metamethod __index: resolves methods via the RadixTree class table.
+-----------------------------------------------------------------------------
+RadixTree.__index = RadixTree
 
 -----------------------------------------------------------------------------
 ---Returns the number of words in the radix tree.

@@ -49,7 +49,6 @@ end
 ---@field private _len   number    Number of entries in the list.
 --------------------------------------------------------------------------------------
 local LinkedList = {}
-LinkedList.__index = LinkedList
 
 -----------------------------------------------------------------------------
 ---Checks if it is a LinkedList instance.
@@ -306,6 +305,11 @@ function LinkedList:__eq(other)
 
 	return true
 end
+
+-----------------------------------------------------------------------------
+---Metamethod __index: resolves methods via the LinkedList class table.
+-----------------------------------------------------------------------------
+LinkedList.__index = LinkedList
 
 -----------------------------------------------------------------------------
 ---Returns the number of entries in the list.

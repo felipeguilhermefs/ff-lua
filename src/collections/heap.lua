@@ -20,7 +20,6 @@ local type = type
 ---@field private _entries    Array                       Array holding the entries.
 --------------------------------------------------------------------------------------
 local Heap = {}
-Heap.__index = Heap
 
 -----------------------------------------------------------------------------
 ---Checks if it is a Heap instance.
@@ -317,6 +316,11 @@ function Heap:__eq(other)
 
 	return self._entries == other._entries
 end
+
+-----------------------------------------------------------------------------
+---Metamethod __index: resolves methods via the Heap class table.
+-----------------------------------------------------------------------------
+Heap.__index = Heap
 
 -----------------------------------------------------------------------------
 ---Returns the number of entries in the heap.

@@ -26,7 +26,6 @@ local type = type
 ---@field private _len     number          Number of entries in the set.
 --------------------------------------------------------------------------------------
 local Set = {}
-Set.__index = Set
 
 -----------------------------------------------------------------------------
 ---Checks if it is a Set instance.
@@ -325,6 +324,11 @@ function Set:__eq(other)
 
 	return true
 end
+
+-----------------------------------------------------------------------------
+---Metamethod __index: resolves methods via the Set class table.
+-----------------------------------------------------------------------------
+Set.__index = Set
 
 -----------------------------------------------------------------------------
 ---Returns the number of entries in the set.
