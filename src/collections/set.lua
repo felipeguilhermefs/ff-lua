@@ -133,6 +133,28 @@ function Set:diff(other)
 end
 
 -----------------------------------------------------------------------------
+---Checks if this set has no elements in common with another set.
+---
+---@param  other Set Set to check against.
+---
+---@return boolean   `true` if intersection is empty.
+-----------------------------------------------------------------------------
+function Set:disjoint(other)
+	assert(Set.isSet(other), "other should also be a Set")
+
+	local source = self._len <= other._len and self or other
+	local target = source == self and other or self
+
+	for entry in pairs(source) do
+		if target._entries[entry] ~= nil then
+			return false
+		end
+	end
+
+	return true
+end
+
+-----------------------------------------------------------------------------
 ---Returns whether the set is empty or not.
 ---
 ---@return boolean
@@ -166,24 +188,20 @@ function Set:intersection(other)
 end
 
 -----------------------------------------------------------------------------
----Checks if this set has no elements in common with another set.
+---Removes a given value and returns true if it was contained by the set.
 ---
----@param  other Set Set to check against.
+---@param  entry any Entry to remove from the set.
 ---
----@return boolean   `true` if intersection is empty.
+---@return boolean   `true` if entry was removed, `false` otherwise.
 -----------------------------------------------------------------------------
-function Set:disjoint(other)
-	assert(Set.isSet(other), "other should also be a Set")
-
-	local source = self._len <= other._len and self or other
-	local target = source == self and other or self
-
-	for entry in pairs(source) do
-		if target._entries[entry] ~= nil then
-			return false
-		end
+function Set:remove(entry)
+	assert(entry ~= nil, "entry should not be nil")
+	if self._entries[entry] == nil then
+		return false
 	end
 
+	self._entries[entry] = nil
+	self._len = self._len - 1
 	return true
 end
 
@@ -221,24 +239,6 @@ function Set:superset(other)
 	assert(Set.isSet(other), "other should also be a Set")
 
 	return other:subset(self)
-end
-
------------------------------------------------------------------------------
----Removes a given value and returns true if it was contained by the set.
----
----@param  entry any Entry to remove from the set.
----
----@return boolean   `true` if entry was removed, `false` otherwise.
------------------------------------------------------------------------------
-function Set:remove(entry)
-	assert(entry ~= nil, "entry should not be nil")
-	if self._entries[entry] == nil then
-		return false
-	end
-
-	self._entries[entry] = nil
-	self._len = self._len - 1
-	return true
 end
 
 -----------------------------------------------------------------------------

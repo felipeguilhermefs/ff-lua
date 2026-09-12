@@ -155,16 +155,12 @@ Methods rigorously validate input arguments using `assert(condition, message)`:
 3. **`__index` Declaration Placement**:
    - In [`Array`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/array.lua#L28), [`Heap`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/heap.lua#L23), [`IntervalTree`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/intervaltree.lua#L58), [`LinkedList`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/linkedlist.lua#L51), [`Queue`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/queue.lua#L43), [`RadixTree`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/radixtree.lua#L150), [`Set`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/set.lua#L29), and [`Stack`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/stack.lua#L20), `<Class>.__index = <Class>` is placed at the top directly under table declaration.
    - In [`HashMap`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/hashmap.lua#L232) and [`TreeMap`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/treemap.lua#L653), `__index` is deferred to the metamethod section between `__eq` and `__len`.
-4. **Alphabetical Ordering Violations**:
-   - [`Queue`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/queue.lua): `dequeue` (line 104) is placed before `contains` (line 129); `enqueue` (line 168) is placed after `full` (line 157).
-   - [`Set`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/set.lua): `disjoint` (line 175) is placed after `intersection` (line 151); `remove` (line 233) is placed after `superset` (line 220).
-   - [`TreeMap`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/treemap.lua): `_lookup` (line 446) is placed before `_insert` (line 474).
-5. **Naming Discrepancies**:
+4. **Naming Discrepancies**:
    - Peek operations: [`Stack`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/stack.lua#L122) uses `:top()` whereas [`Heap`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/heap.lua#L186) and [`Queue`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/queue.lua#L192) use `:peek()`.
    - Element existence: [`Array`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/array.lua) has `:indexOf(value)` but no `:contains(value)`.
-6. **Missing Upvalue Caching in [`Stack`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/stack.lua#L197)**:
+5. **Missing Upvalue Caching in [`Stack`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/stack.lua#L197)**:
    In [`Stack:__tostring`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/stack.lua#L197), `string.format` and `table.concat` are called as globals instead of using cached local references.
-7. **Typos in Error Assertions**:
+6. **Typos in Error Assertions**:
    [`Set:union`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/set.lua#L279) contains the error message `"other shoudl also be a Set"`.
 
 ---

@@ -436,30 +436,6 @@ function TreeMap:remove(key)
 end
 
 -----------------------------------------------------------------------------
----Looks up a node by key using the comparator.
----
----@param  key any
----
----@return TreeNode?
----
----@private
------------------------------------------------------------------------------
-function TreeMap:_lookup(key)
-	local cur = self._root
-	while cur do
-		local cmp = self._comparator(key, cur.key)
-		if cmp == Comparator.equal then
-			return cur
-		elseif cmp == Comparator.greater then
-			cur = cur.right
-		else
-			cur = cur.left
-		end
-	end
-	return nil
-end
-
------------------------------------------------------------------------------
 ---Traverse the tree and insert the key-value pair at the appropriate position
 ---using the comparator function.
 ---
@@ -512,6 +488,30 @@ function TreeMap:_insert(node, key, value)
 	end
 
 	return node
+end
+
+-----------------------------------------------------------------------------
+---Looks up a node by key using the comparator.
+---
+---@param  key any
+---
+---@return TreeNode?
+---
+---@private
+-----------------------------------------------------------------------------
+function TreeMap:_lookup(key)
+	local cur = self._root
+	while cur do
+		local cmp = self._comparator(key, cur.key)
+		if cmp == Comparator.equal then
+			return cur
+		elseif cmp == Comparator.greater then
+			cur = cur.right
+		else
+			cur = cur.left
+		end
+	end
+	return nil
 end
 
 -----------------------------------------------------------------------------

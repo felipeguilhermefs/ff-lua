@@ -97,6 +97,27 @@ function Queue:clear()
 end
 
 -----------------------------------------------------------------------------
+---Check the queue sequentially O(n), and returns "true" the entry is found.
+---Does not consume or modify the stack.
+---
+---@param  value  any  Value to search for (compared with `==`).
+---
+---@return boolean
+-----------------------------------------------------------------------------
+function Queue:contains(value)
+	assert(value ~= nil, "value should not be nil")
+
+	local cur = self._front
+	while cur ~= nil do
+		if cur.value == value then
+			return true
+		end
+		cur = cur.next
+	end
+	return false
+end
+
+-----------------------------------------------------------------------------
 ---Removes and returns the value at the front of the queue. Returns `nil` if
 ---empty.
 ---
@@ -120,43 +141,12 @@ function Queue:dequeue()
 end
 
 -----------------------------------------------------------------------------
----Check the queue sequentially O(n), and returns "true" the entry is found.
----Does not consume or modify the stack.
----
----@param  value  any  Value to search for (compared with `==`).
----
----@return boolean
------------------------------------------------------------------------------
-function Queue:contains(value)
-	assert(value ~= nil, "value should not be nil")
-
-	local cur = self._front
-	while cur ~= nil do
-		if cur.value == value then
-			return true
-		end
-		cur = cur.next
-	end
-	return false
-end
-
------------------------------------------------------------------------------
 ---Returns whether the queue is empty or not.
 ---
 ---@return boolean
 -----------------------------------------------------------------------------
 function Queue:empty()
 	return self._len == 0
-end
-
------------------------------------------------------------------------------
----Check if the queue is at capacity. If the queue does not have a limit
----this will always return false.
----
----@return boolean
------------------------------------------------------------------------------
-function Queue:full()
-	return self._capacity ~= nil and self._len >= self._capacity
 end
 
 -----------------------------------------------------------------------------
@@ -183,6 +173,16 @@ function Queue:enqueue(value)
 	rawset(self, "_back", node)
 	self._len = self._len + 1
 	return true
+end
+
+-----------------------------------------------------------------------------
+---Check if the queue is at capacity. If the queue does not have a limit
+---this will always return false.
+---
+---@return boolean
+-----------------------------------------------------------------------------
+function Queue:full()
+	return self._capacity ~= nil and self._len >= self._capacity
 end
 
 -----------------------------------------------------------------------------
