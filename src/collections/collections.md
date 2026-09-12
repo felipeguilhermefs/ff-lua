@@ -131,18 +131,18 @@ Methods rigorously validate input arguments using `assert(condition, message)`:
 
 ## 3. Comparison Matrix
 
-| Class | Type Guard | `__pairs` Style | Method Order Followed | Peek / Read Method |
+| Class | `__pairs` Style | Method Order Followed | Peek / Read Method |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| [`Array`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/array.lua) | `isArray` | Non-destructive (yields index, value) | Yes | `get(idx)` |
-| [`HashMap`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/hashmap.lua) | **Missing** | Non-destructive (yields key, value) | Yes | `get(key)` |
-| [`Heap`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/heap.lua) | `isHeap` | **Destructive** (pops all items!) | Yes | `peek()` |
-| [`IntervalTree`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/intervaltree.lua) | `isIntervalTree` | Non-destructive (yields low, high) | Yes | `contains(val)` |
-| [`LinkedList`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/linkedlist.lua) | `isLinkedList` | Non-destructive (yields index, value) | Yes | `peekFront()`, `peekBack()` |
-| [`Queue`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/queue.lua) | `isQueue` | **Destructive** (dequeues all items!) | **No** (`dequeue` before `contains`) | `peek()` |
-| [`RadixTree`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/radixtree.lua) | `isRadixTree` | Non-destructive (yields index, word) | Yes | `find(prefix)`, `contains(word)`|
-| [`Set`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/set.lua) | `isSet` | Non-destructive (yields entry, entry) | **No** (`disjoint`, `subset` unsorted) | `contains(...)` |
-| [`Stack`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/stack.lua) | `isStack` | **Destructive** (pops all items!) | Yes | `top()` (not `peek`) |
-| [`TreeMap`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/treemap.lua) | `isTreeMap` | Non-destructive (yields key, value) | Partial (`_lookup` before `_insert`) | `get(key)`, `min()`, `max()` |
+| [`Array`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/array.lua) | Non-destructive (yields index, value) | Yes | `get(idx)` |
+| [`HashMap`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/hashmap.lua) | Non-destructive (yields key, value) | Yes | `get(key)` |
+| [`Heap`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/heap.lua) | **Destructive** (pops all items!) | Yes | `peek()` |
+| [`IntervalTree`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/intervaltree.lua) | Non-destructive (yields low, high) | Yes | `contains(val)` |
+| [`LinkedList`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/linkedlist.lua) | Non-destructive (yields index, value) | Yes | `peekFront()`, `peekBack()` |
+| [`Queue`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/queue.lua) | **Destructive** (dequeues all items!) | **No** (`dequeue` before `contains`) | `peek()` |
+| [`RadixTree`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/radixtree.lua) | Non-destructive (yields index, word) | Yes | `find(prefix)`, `contains(word)`|
+| [`Set`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/set.lua) | Non-destructive (yields entry, entry) | **No** (`disjoint`, `subset` unsorted) | `contains(...)` |
+| [`Stack`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/stack.lua) | **Destructive** (pops all items!) | Yes | `top()` (not `peek`) |
+| [`TreeMap`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/treemap.lua) | Non-destructive (yields key, value) | Partial (`_lookup` before `_insert`) | `get(key)`, `min()`, `max()` |
 
 ---
 
@@ -153,10 +153,6 @@ Methods rigorously validate input arguments using `assert(condition, message)`:
 2. **Naming Discrepancies**:
    - Peek operations: [`Stack`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/stack.lua#L122) uses `:top()` whereas [`Heap`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/heap.lua#L186) and [`Queue`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/queue.lua#L192) use `:peek()`.
    - Element existence: [`Array`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/array.lua) has `:indexOf(value)` but no `:contains(value)`.
-3. **Missing Upvalue Caching in [`Stack`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/stack.lua#L197)**:
-   In [`Stack:__tostring`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/stack.lua#L197), `string.format` and `table.concat` are called as globals instead of using cached local references.
-4. **Typos in Error Assertions**:
-   [`Set:union`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/set.lua#L279) contains the error message `"other shoudl also be a Set"`.
 
 ---
 

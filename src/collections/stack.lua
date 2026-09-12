@@ -4,6 +4,12 @@ local Array = require("ff.collections.array")
 -- Cache function references
 ------------------------------
 
+-- String
+local sfmt = string.format
+
+-- Table
+local tconcat = table.concat
+
 -- General
 local assert = assert
 local getmetatable = getmetatable
@@ -202,7 +208,7 @@ end
 ---@return string
 -----------------------------------------------------------------------------
 function Stack:__tostring()
-	return string.format("[ %s <- Top ]", table.concat(self._entries, ", "))
+	return sfmt("[ %s <- Top ]", tconcat(self._entries, ", "))
 end
 
 return Stack

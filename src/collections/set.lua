@@ -276,7 +276,7 @@ end
 ---@return Set   A new Set with elements from both sets.
 -----------------------------------------------------------------------------
 function Set:union(other)
-	assert(Set.isSet(other), "other shoudl also be a Set")
+	assert(Set.isSet(other), "other should also be a Set")
 	return Set.new(self) .. other
 end
 
