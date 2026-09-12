@@ -244,4 +244,15 @@ function TestNewIndexPreventsModifications()
 	end)
 end
 
+function TestIsHashMap()
+	lu.assertTrue(HashMap.isHashMap(HashMap.new()))
+	lu.assertTrue(HashMap.isHashMap(HashMap.new({ a = 1 })))
+
+	lu.assertFalse(HashMap.isHashMap(nil))
+	lu.assertFalse(HashMap.isHashMap(42))
+	lu.assertFalse(HashMap.isHashMap("string"))
+	lu.assertFalse(HashMap.isHashMap({ a = 1 }))
+	lu.assertFalse(HashMap.isHashMap(require("set").new()))
+end
+
 os.exit(lu.LuaUnit.run())

@@ -12,6 +12,7 @@ local tinsert = table.insert
 -- General
 local assert = assert
 local error = error
+local getmetatable = getmetatable
 local next = next
 local pairs = pairs
 local setmetatable = setmetatable
@@ -25,6 +26,25 @@ local type = type
 --------------------------------------------------------------------------------------
 local HashMap = {}
 HashMap.__index = HashMap
+
+-----------------------------------------------------------------------------
+---Checks if it is a HashMap instance.
+---
+---@param  maybe any
+---
+---@return boolean
+-----------------------------------------------------------------------------
+function HashMap.isHashMap(maybe)
+	if maybe == nil then
+		return false
+	end
+
+	if type(maybe) ~= "table" then
+		return false
+	end
+
+	return getmetatable(maybe) == HashMap
+end
 
 -----------------------------------------------------------------------------
 ---Creates a new instance of the hash map.
@@ -203,21 +223,16 @@ end
 ---@return boolean
 -----------------------------------------------------------------------------
 function HashMap:__eq(other)
-	if other == nil then
+	if not HashMap.isHashMap(other) then
 		return false
 	end
 
-	if type(other) ~= "table" then
+	if self._len ~= other._len then
 		return false
 	end
 
-	if self._len ~= #other then
-		return false
-	end
-
-	local otherEntries = other._entries or other
 	for k, v in pairs(self._entries) do
-		if otherEntries[k] ~= v then
+		if other._entries[k] ~= v then
 			return false
 		end
 	end

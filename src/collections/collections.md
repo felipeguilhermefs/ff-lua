@@ -148,35 +148,21 @@ Methods rigorously validate input arguments using `assert(condition, message)`:
 
 ## 4. Inconsistencies & Deviations Identified
 
-1. **Missing Type Guard on [`HashMap`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/hashmap.lua)**:
-   Every collection provides `<Class>.is<Class>(maybe)`. [`HashMap`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/hashmap.lua) lacks `HashMap.isHashMap(maybe)`. As a result, [`HashMap:__eq`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/hashmap.lua#L206) falls back to `type(other) ~= "table"`, which permits false equality with arbitrary raw tables or other collection types.
-2. **Destructive `__pairs` in [`Heap`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/heap.lua#L339), [`Queue`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/queue.lua#L269), and [`Stack`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/stack.lua#L182)**:
+1. **Destructive `__pairs` in [`Heap`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/heap.lua#L339), [`Queue`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/queue.lua#L269), and [`Stack`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/stack.lua#L182)**:
    Calling `pairs(q)` or `pairs(s)` actually empties the collection by repeatedly calling `pop()` or `dequeue()`. In contrast, all other collections provide non-destructive iteration. Mutating data structures as a side-effect of iteration violates Lua iterator semantics and can cause bugs when collections are passed to `__concat` or printing routines.
-3. **Naming Discrepancies**:
+2. **Naming Discrepancies**:
    - Peek operations: [`Stack`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/stack.lua#L122) uses `:top()` whereas [`Heap`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/heap.lua#L186) and [`Queue`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/queue.lua#L192) use `:peek()`.
    - Element existence: [`Array`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/array.lua) has `:indexOf(value)` but no `:contains(value)`.
-4. **Missing Upvalue Caching in [`Stack`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/stack.lua#L197)**:
+3. **Missing Upvalue Caching in [`Stack`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/stack.lua#L197)**:
    In [`Stack:__tostring`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/stack.lua#L197), `string.format` and `table.concat` are called as globals instead of using cached local references.
-5. **Typos in Error Assertions**:
+4. **Typos in Error Assertions**:
    [`Set:union`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/set.lua#L279) contains the error message `"other shoudl also be a Set"`.
 
 ---
 
 ## 5. Suggested Improvements & Standardizations
 
-### 5.1 Implement `HashMap.isHashMap` and Harden Equality
-Add `isHashMap` to [`HashMap`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/hashmap.lua):
-```lua
-function HashMap.isHashMap(maybe)
-    if maybe == nil or type(maybe) ~= "table" then
-        return false
-    end
-    return getmetatable(maybe) == HashMap
-end
-```
-Update [`HashMap:__eq`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/hashmap.lua#L206) to assert `if not HashMap.isHashMap(other) then return false end`.
-
-### 5.2 Separate Non-Destructive Iteration from Draining
+### 5.1 Separate Non-Destructive Iteration from Draining
 Make `__pairs()` strictly non-destructive across all classes:
 - For [`Queue`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/queue.lua), [`Stack`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/stack.lua), and [`Heap`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/heap.lua), `__pairs` should traverse items from front to back / top to bottom / root to leaf **without consuming them**.
 - Introduce an explicit `:drain()` or `:consume()` method for users who specifically desire a destructive consumer generator:
@@ -189,7 +175,7 @@ function Queue:drain()
 end
 ```
 
-### 5.3 Standardize Inspection Methods
+### 5.2 Standardize Inspection Methods
 Provide `:peek()` across all queue/stack/heap collections:
 - In [`Stack`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/stack.lua), provide `:peek()` as an alias or replacement for `:top()`.
 - In [`Array`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/array.lua), add `:contains(value)`:
@@ -199,7 +185,7 @@ function Array:contains(value)
 end
 ```
 
-### 5.4 Standardize Iterator Return Signature
+### 5.3 Standardize Iterator Return Signature
 Standard Lua 5.2+ `__pairs` convention expects `iterator_func, state_table, initial_key`.
 Ensure all `__pairs` methods consistently return `iterator, self, nil` (or `next, self._entries, nil`).
 
