@@ -150,9 +150,6 @@ Methods rigorously validate input arguments using `assert(condition, message)`:
 
 1. **Destructive `__pairs` in [`Heap`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/heap.lua#L339), [`Queue`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/queue.lua#L269), and [`Stack`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/stack.lua#L182)**:
    Calling `pairs(q)` or `pairs(s)` actually empties the collection by repeatedly calling `pop()` or `dequeue()`. In contrast, all other collections provide non-destructive iteration. Mutating data structures as a side-effect of iteration violates Lua iterator semantics and can cause bugs when collections are passed to `__concat` or printing routines.
-2. **Naming Discrepancies**:
-   - Peek operations: [`Stack`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/stack.lua#L122) uses `:top()` whereas [`Heap`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/heap.lua#L186) and [`Queue`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/queue.lua#L192) use `:peek()`.
-   - Element existence: [`Array`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/array.lua) has `:indexOf(value)` but no `:contains(value)`.
 
 ---
 
@@ -174,11 +171,6 @@ end
 ### 5.2 Standardize Inspection Methods
 Provide `:peek()` across all queue/stack/heap collections:
 - In [`Stack`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/stack.lua), provide `:peek()` as an alias or replacement for `:top()`.
-- In [`Array`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/array.lua), add `:contains(value)`:
-```lua
-function Array:contains(value)
-    return self:indexOf(value) ~= nil
-end
 ```
 
 ### 5.3 Standardize Iterator Return Signature

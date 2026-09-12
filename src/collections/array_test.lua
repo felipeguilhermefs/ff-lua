@@ -235,6 +235,32 @@ function TestIndexOf()
 	lu.assertNil(a:indexOf(40))
 end
 
+function TestContains()
+	local a = Array.new({ 10, 20, 30 })
+
+	lu.assertTrue(a:contains(10))
+	lu.assertTrue(a:contains(20))
+	lu.assertTrue(a:contains(30))
+	lu.assertFalse(a:contains(40))
+
+	-- empty array contains nothing
+	local empty = Array.new()
+	lu.assertFalse(empty:contains(10))
+
+	-- duplicate values
+	local b = Array.new({ 5, 5, 5 })
+	lu.assertTrue(b:contains(5))
+	lu.assertFalse(b:contains(1))
+end
+
+function TestContainsValidation()
+	local a = Array.new({ 10, 20, 30 })
+
+	lu.assertError(function()
+		a:contains(nil)
+	end)
+end
+
 function TestConcat()
 	local a = Array.new({ 10, 20, 30 })
 	lu.assertEquals(3, #a)

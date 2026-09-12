@@ -116,6 +116,18 @@ function Array:indexOf(value)
 end
 
 -----------------------------------------------------------------------------
+---Check the list sequentially O(n), and returns `true` if the entry is found.
+---Does not consume or modify the array.
+---
+---@param  value any Value to search for (compared with `==`).
+---
+---@return boolean
+-----------------------------------------------------------------------------
+function Array:contains(value)
+	return self:indexOf(value) ~= nil
+end
+
+-----------------------------------------------------------------------------
 ---Inserts a value in a given index, following values will be shifted forward.
 ---If no index is given, it inserts at the end of the array.
 ---
