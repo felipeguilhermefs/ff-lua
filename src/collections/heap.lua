@@ -20,6 +20,7 @@ local type = type
 ---@field private _entries    Array                       Array holding the entries.
 --------------------------------------------------------------------------------------
 local Heap = {}
+Heap.__index = Heap
 
 -----------------------------------------------------------------------------
 ---Checks if it is a Heap instance.
@@ -318,11 +319,6 @@ function Heap:__eq(other)
 end
 
 -----------------------------------------------------------------------------
----Metamethod __index: resolves methods via the Heap class table.
------------------------------------------------------------------------------
-Heap.__index = Heap
-
------------------------------------------------------------------------------
 ---Returns the number of entries in the heap.
 ---
 ---@return number
@@ -338,7 +334,6 @@ end
 function Heap:__newindex()
 	error("cannot add new properties, methods or functions to Heap")
 end
-
 
 -----------------------------------------------------------------------------
 ---Iterates through the heap in priority order by consuming items. Same as:

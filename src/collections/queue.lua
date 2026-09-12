@@ -41,6 +41,7 @@ end
 ---@field private _len       number   Number of items in the queue.
 ---@field private _capacity  number?  Maximum number of items allowed in the queue.
 local Queue = {}
+Queue.__index = Queue
 
 -----------------------------------------------------------------------------
 ---Checks if it is a Queue instance.
@@ -249,11 +250,6 @@ function Queue:__eq(other)
 end
 
 -----------------------------------------------------------------------------
----Metamethod __index: resolves methods via the Queue class table.
------------------------------------------------------------------------------
-Queue.__index = Queue
-
------------------------------------------------------------------------------
 ---Returns the number of entries in the queue.
 ---
 ---@return number
@@ -269,7 +265,6 @@ end
 function Queue:__newindex()
 	error("cannot add new properties, methods or functions to Queue")
 end
-
 
 -----------------------------------------------------------------------------
 ---Iterates through the queue in FIFO order by consuming items. Same as:

@@ -26,6 +26,7 @@ local type = type
 ---@field private _len     number          Number of entries in the set.
 --------------------------------------------------------------------------------------
 local Set = {}
+Set.__index = Set
 
 -----------------------------------------------------------------------------
 ---Checks if it is a Set instance.
@@ -326,11 +327,6 @@ function Set:__eq(other)
 end
 
 -----------------------------------------------------------------------------
----Metamethod __index: resolves methods via the Set class table.
------------------------------------------------------------------------------
-Set.__index = Set
-
------------------------------------------------------------------------------
 ---Returns the number of entries in the set.
 ---
 ---@return number
@@ -346,7 +342,6 @@ end
 function Set:__newindex()
 	error("cannot add new properties, methods or functions to Set")
 end
-
 
 -----------------------------------------------------------------------------
 ---Iterates through the set in an undefined order.

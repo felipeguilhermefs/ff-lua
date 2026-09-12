@@ -14,9 +14,7 @@ local assert = assert
 local error = error
 local next = next
 local pairs = pairs
-local rawget = rawget
 local setmetatable = setmetatable
-local tostring = tostring
 local type = type
 
 --------------------------------------------------------------------------------------
@@ -26,6 +24,7 @@ local type = type
 ---@field private _len     number          Number of entries in the map.
 --------------------------------------------------------------------------------------
 local HashMap = {}
+HashMap.__index = HashMap
 
 -----------------------------------------------------------------------------
 ---Creates a new instance of the hash map.
@@ -225,11 +224,6 @@ function HashMap:__eq(other)
 
 	return true
 end
-
------------------------------------------------------------------------------
----Metamethod __index: resolves methods via the HashMap class table.
------------------------------------------------------------------------------
-HashMap.__index = HashMap
 
 -----------------------------------------------------------------------------
 ---Returns the number of entries in the map.

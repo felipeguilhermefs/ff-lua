@@ -152,7 +152,6 @@ Methods rigorously validate input arguments using `assert(condition, message)`:
    Every collection provides `<Class>.is<Class>(maybe)`. [`HashMap`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/hashmap.lua) lacks `HashMap.isHashMap(maybe)`. As a result, [`HashMap:__eq`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/hashmap.lua#L206) falls back to `type(other) ~= "table"`, which permits false equality with arbitrary raw tables or other collection types.
 2. **Destructive `__pairs` in [`Heap`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/heap.lua#L339), [`Queue`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/queue.lua#L269), and [`Stack`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/stack.lua#L182)**:
    Calling `pairs(q)` or `pairs(s)` actually empties the collection by repeatedly calling `pop()` or `dequeue()`. In contrast, all other collections provide non-destructive iteration. Mutating data structures as a side-effect of iteration violates Lua iterator semantics and can cause bugs when collections are passed to `__concat` or printing routines.
-   - In [`HashMap`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/hashmap.lua#L232) and [`TreeMap`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/treemap.lua#L653), `__index` is deferred to the metamethod section between `__eq` and `__len`.
 3. **Naming Discrepancies**:
    - Peek operations: [`Stack`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/stack.lua#L122) uses `:top()` whereas [`Heap`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/heap.lua#L186) and [`Queue`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/queue.lua#L192) use `:peek()`.
    - Element existence: [`Array`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/array.lua) has `:indexOf(value)` but no `:contains(value)`.
@@ -203,9 +202,6 @@ end
 ### 5.4 Standardize Iterator Return Signature
 Standard Lua 5.2+ `__pairs` convention expects `iterator_func, state_table, initial_key`.
 Ensure all `__pairs` methods consistently return `iterator, self, nil` (or `next, self._entries, nil`).
-
-### 5.5 Standardize Placement of `Class.__index = Class`
-Standardize placing `<Class>.__index = <Class>` immediately following `local <Class> = {}` at the top of the file for clarity and visibility.
 
 ---
 

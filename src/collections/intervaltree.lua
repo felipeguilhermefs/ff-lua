@@ -56,6 +56,7 @@ end
 ---@field private _len  number        Number of disjoint intervals stored in the tree.
 --------------------------------------------------------------------------------------
 local IntervalTree = {}
+IntervalTree.__index = IntervalTree
 
 -----------------------------------------------------------------------------
 ---Checks if it is an IntervalTree instance.
@@ -374,11 +375,6 @@ function IntervalTree:__eq(other)
 end
 
 -----------------------------------------------------------------------------
----Metamethod __index: resolves methods via the IntervalTree class table.
------------------------------------------------------------------------------
-IntervalTree.__index = IntervalTree
-
------------------------------------------------------------------------------
 ---Returns the number of disjoint intervals stored in the tree.
 ---
 ---@return number
@@ -394,7 +390,6 @@ end
 function IntervalTree:__newindex()
 	error("cannot add new properties, methods or functions to IntervalTree")
 end
-
 
 -----------------------------------------------------------------------------
 ---Iterates through the interval tree in ascending order of `low` boundary.

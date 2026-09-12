@@ -128,6 +128,7 @@ end
 ---@field private _root       TreeNode?                   Root of the tree, if `nil` it is empty.
 --------------------------------------------------------------------------------------
 local TreeMap = {}
+TreeMap.__index = TreeMap
 
 -----------------------------------------------------------------------------
 ---Checks if it is a TreeMap instance.
@@ -646,11 +647,6 @@ function TreeMap:__eq(other)
 		end
 	end
 end
-
------------------------------------------------------------------------------
----Metamethod __index: resolves methods via the TreeMap class table.
------------------------------------------------------------------------------
-TreeMap.__index = TreeMap
 
 -----------------------------------------------------------------------------
 ---Returns the number of entries in the tree map.

@@ -17,6 +17,7 @@ local type = type
 ---
 ----------------------------------------------------------------------------------
 local Stack = {}
+Stack.__index = Stack
 
 -----------------------------------------------------------------------------
 ---Checks if it is a Stack instance.
@@ -161,11 +162,6 @@ function Stack:__eq(other)
 end
 
 -----------------------------------------------------------------------------
----Metamethod __index: resolves methods via the Stack class table.
------------------------------------------------------------------------------
-Stack.__index = Stack
-
------------------------------------------------------------------------------
 ---Returns the number of entries in the stack.
 ---
 ---@return number
@@ -181,7 +177,6 @@ end
 function Stack:__newindex()
 	error("cannot add new properties, methods or functions to Stack")
 end
-
 
 -----------------------------------------------------------------------------
 ---Iterates through the stack in LIFO order by consuming items. Same as:
