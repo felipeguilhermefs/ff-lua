@@ -346,7 +346,9 @@ end
 -----------------------------------------------------------------------------
 ---Iterates through the set in an undefined order.
 ---
----@return fun(t: table, k: any): any, boolean, table, nil
+---@return fun(state: table, key: any): any?, boolean?
+---@return table
+---@return nil
 -----------------------------------------------------------------------------
 function Set:__pairs()
 	return function(_, index)

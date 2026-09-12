@@ -121,7 +121,9 @@ end
 -----------------------------------------------------------------------------
 ---Iterates through the children in an undefined order.
 ---
----@return fun(): string?, RadixNode? Generator
+---@return fun(state: table, key: string): string?, RadixNode?
+---@return table
+---@return nil
 -----------------------------------------------------------------------------
 function RadixNode:__pairs()
 	return pairs(self._children)
@@ -585,7 +587,9 @@ end
 -----------------------------------------------------------------------------
 ---Iterates through every word in this RadixTree.
 ---
----@return fun(): number?, string?, RadixTree, nil
+---@return fun(state: RadixTree, key: number): number?, string?
+---@return RadixTree
+---@return nil
 -----------------------------------------------------------------------------
 function RadixTree:__pairs()
 	return self:_traverse(self._root), self, nil

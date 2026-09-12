@@ -191,7 +191,9 @@ end
 ---   local item = stack:pop()
 ---end
 ---
----@return fun(): number?, any? Generator function yielding (1, item) until empty.
+---@return fun(state: Stack, key: number): number?, any?
+---@return Stack
+---@return nil
 -----------------------------------------------------------------------------
 function Stack:__pairs()
 	return function()

@@ -342,7 +342,9 @@ end
 ---   local item = heap:pop()
 ---end
 ---
----@return fun(): number?, any? Generator function yielding (1, item) until empty.
+---@return fun(state: Heap, key: number): number?, any?
+---@return Heap
+---@return nil
 -----------------------------------------------------------------------------
 function Heap:__pairs()
 	return function()

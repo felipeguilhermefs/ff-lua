@@ -118,6 +118,13 @@ function Matrix:rows()
 	return pairs(self._m)
 end
 
+-----------------------------------------------------------------------------
+---Iterates through all matrix cells in row-major order.
+---
+---@return fun(state: Matrix, key: number): number?, any?
+---@return Matrix
+---@return nil
+-----------------------------------------------------------------------------
 function Matrix:__pairs()
 	local row, col = 1, 1
 	local index = 0

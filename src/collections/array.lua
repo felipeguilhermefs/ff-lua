@@ -273,7 +273,9 @@ end
 -----------------------------------------------------------------------------
 ---Iterates through the array sequentially from index 1 to #Array.
 ---
----@return function Generator function yielding (index, value) pairs in order.
+---@return fun(state: Array, key: number): number?, any?
+---@return Array
+---@return nil
 -----------------------------------------------------------------------------
 function Array:__pairs()
 	local i = 0
@@ -282,7 +284,7 @@ function Array:__pairs()
 		if i <= #self._entries then
 			return i, self._entries[i]
 		end
-	end
+	end, self, nil
 end
 
 -----------------------------------------------------------------------------

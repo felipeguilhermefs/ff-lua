@@ -394,7 +394,9 @@ end
 -----------------------------------------------------------------------------
 ---Iterates through the interval tree in ascending order of `low` boundary.
 ---
----@return fun(): number?, number? Iterator yielding `low, high` per call.
+---@return fun(state: IntervalTree, key: number): number?, number?
+---@return IntervalTree
+---@return nil
 -----------------------------------------------------------------------------
 function IntervalTree:__pairs()
 	local stack = Stack.new()
@@ -412,7 +414,7 @@ function IntervalTree:__pairs()
 		local node = stack:pop()
 		cur = node.right
 		return node.low, node.high
-	end
+	end, self, nil
 end
 
 -----------------------------------------------------------------------------

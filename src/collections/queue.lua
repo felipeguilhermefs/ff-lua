@@ -273,7 +273,9 @@ end
 ---   local item = queue:dequeue()
 ---end
 ---
----@return fun(): number?, any? Generator function yielding (1, item) until empty.
+---@return fun(state: Queue, key: number): number?, any?
+---@return Queue
+---@return nil
 -----------------------------------------------------------------------------
 function Queue:__pairs()
 	return function()

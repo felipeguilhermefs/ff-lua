@@ -668,7 +668,9 @@ end
 -----------------------------------------------------------------------------
 ---Iterates through the map in ascending (in-order) key order.
 ---
----@return fun(t: table, k: any): any, any, table, nil
+---@return fun(state: TreeMap, key: any): any?, any?
+---@return TreeMap
+---@return nil
 -----------------------------------------------------------------------------
 function TreeMap:__pairs()
 	local stack = Stack.new()
@@ -685,7 +687,7 @@ function TreeMap:__pairs()
 		local node = stack:pop()
 		cur = node.right
 		return node.key, node.value
-	end
+	end, self, nil
 end
 
 -----------------------------------------------------------------------------

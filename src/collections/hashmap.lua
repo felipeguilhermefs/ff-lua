@@ -260,7 +260,9 @@ end
 -----------------------------------------------------------------------------
 ---Iterates through the map in an undefined order.
 ---
----@return fun(t: table, k: any): any, any, table, nil
+---@return fun(state: table, key: any): any?, any?
+---@return table
+---@return nil
 -----------------------------------------------------------------------------
 function HashMap:__pairs()
 	return function(_, index)

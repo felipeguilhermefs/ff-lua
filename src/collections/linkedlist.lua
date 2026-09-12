@@ -327,7 +327,9 @@ end
 -----------------------------------------------------------------------------
 ---Iterates through the LinkedList from 1 to #LinkedList.
 ---
----@return fun(): number?, any? Generator function yielding (index, value) pairs in order.
+---@return fun(state: LinkedList, key: number): number?, any?
+---@return LinkedList
+---@return nil
 -----------------------------------------------------------------------------
 function LinkedList:__pairs()
 	local cur = self._front

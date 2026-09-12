@@ -131,18 +131,18 @@ Methods rigorously validate input arguments using `assert(condition, message)`:
 
 ## 3. Comparison Matrix
 
-| Class | `__pairs` Style | Method Order Followed | Peek / Read Method |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| [`Array`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/array.lua) | Non-destructive (yields index, value) | Yes | `get(idx)` |
-| [`HashMap`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/hashmap.lua) | Non-destructive (yields key, value) | Yes | `get(key)` |
-| [`Heap`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/heap.lua) | **Destructive** (pops all items!) | Yes | `peek()` |
-| [`IntervalTree`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/intervaltree.lua) | Non-destructive (yields low, high) | Yes | `contains(val)` |
-| [`LinkedList`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/linkedlist.lua) | Non-destructive (yields index, value) | Yes | `peekFront()`, `peekBack()` |
-| [`Queue`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/queue.lua) | **Destructive** (dequeues all items!) | **No** (`dequeue` before `contains`) | `peek()` |
-| [`RadixTree`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/radixtree.lua) | Non-destructive (yields index, word) | Yes | `find(prefix)`, `contains(word)`|
-| [`Set`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/set.lua) | Non-destructive (yields entry, entry) | **No** (`disjoint`, `subset` unsorted) | `contains(...)` |
-| [`Stack`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/stack.lua) | **Destructive** (pops all items!) | Yes | `top()` (not `peek`) |
-| [`TreeMap`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/treemap.lua) | Non-destructive (yields key, value) | Partial (`_lookup` before `_insert`) | `get(key)`, `min()`, `max()` |
+| Class | `__pairs` Style | 
+| :--- | :--- |
+| [`Array`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/array.lua) | Non-destructive (yields index, value) |
+| [`HashMap`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/hashmap.lua) | Non-destructive (yields key, value) |
+| [`Heap`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/heap.lua) | **Destructive** (pops all items!) |
+| [`IntervalTree`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/intervaltree.lua) | Non-destructive (yields low, high) |
+| [`LinkedList`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/linkedlist.lua) | Non-destructive (yields index, value) |
+| [`Queue`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/queue.lua) | **Destructive** (dequeues all items!) |
+| [`RadixTree`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/radixtree.lua) | Non-destructive (yields index, word) |
+| [`Set`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/set.lua) | Non-destructive (yields entry, entry) |
+| [`Stack`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/stack.lua) | **Destructive** (pops all items!) |
+| [`TreeMap`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/treemap.lua) | Non-destructive (yields key, value) |
 
 ---
 
@@ -167,15 +167,6 @@ function Queue:drain()
     end
 end
 ```
-
-### 5.2 Standardize Inspection Methods
-Provide `:peek()` across all queue/stack/heap collections:
-- In [`Stack`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/stack.lua), provide `:peek()` as an alias or replacement for `:top()`.
-```
-
-### 5.3 Standardize Iterator Return Signature
-Standard Lua 5.2+ `__pairs` convention expects `iterator_func, state_table, initial_key`.
-Ensure all `__pairs` methods consistently return `iterator, self, nil` (or `next, self._entries, nil`).
 
 ---
 
