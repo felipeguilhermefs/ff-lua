@@ -142,8 +142,8 @@ Every class module adheres to this structure:
 - **Reset**: Use `:clear()` to reset internal counters and tables.
 - **Search**: `:contains(value)` for sets/trees/lists; `:indexOf(value)` for sequential arrays.
 - **Iteration**:
-  - Most collections provide non-destructive `__pairs` iterators.
-  - `Heap`, `Queue`, and `Stack` currently have **destructive** `__pairs` (iterating drains elements).
+  - All collections provide non-destructive `__pairs` iterators (`pairs(coll)`).
+  - Consumer collections (`Heap`, `Queue`, and `Stack`) provide an explicit `:drain()` generator method for destructive consumption until empty.
 - **Validation**: Strict defensive assertions at method entry points (`assert(value ~= nil, "value should not be nil")`, bounds checks, type checks).
 
 ---

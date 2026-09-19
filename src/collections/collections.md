@@ -129,36 +129,24 @@ Methods rigorously validate input arguments using `assert(condition, message)`:
 
 ---
 
-## 3. Comparison Matrix
+## 3. Inconsistencies & Deviations Identified
 
-| Class | `__pairs` Style | 
-| :--- | :--- |
-| [`Array`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/array.lua) | Non-destructive (yields index, value) |
-| [`HashMap`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/hashmap.lua) | Non-destructive (yields key, value) |
-| [`Heap`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/heap.lua) | **Destructive** (pops all items!) |
-| [`IntervalTree`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/intervaltree.lua) | Non-destructive (yields low, high) |
-| [`LinkedList`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/linkedlist.lua) | Non-destructive (yields index, value) |
-| [`Queue`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/queue.lua) | **Destructive** (dequeues all items!) |
-| [`RadixTree`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/radixtree.lua) | Non-destructive (yields index, word) |
-| [`Set`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/set.lua) | Non-destructive (yields entry, entry) |
-| [`Stack`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/stack.lua) | **Destructive** (pops all items!) |
-| [`TreeMap`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/treemap.lua) | Non-destructive (yields key, value) |
+1. **Separation of Non-Destructive Iteration from Draining (Resolved)**:
+   Previously, `Heap`, `Queue`, and `Stack` had destructive `__pairs` iterators that emptied collections upon traversal. This was resolved by making `__pairs` strictly non-destructive across all classes (Queue: front-to-back, Stack: top-to-bottom, Heap: root-to-leaf), and introducing explicit `:drain()` consumer generators for collections where destructive popping is desired.
 
 ---
 
-## 4. Inconsistencies & Deviations Identified
+## 4. Architectural Standards: Iteration vs Draining
 
-1. **Destructive `__pairs` in [`Heap`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/heap.lua#L339), [`Queue`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/queue.lua#L269), and [`Stack`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/stack.lua#L182)**:
-   Calling `pairs(q)` or `pairs(s)` actually empties the collection by repeatedly calling `pop()` or `dequeue()`. In contrast, all other collections provide non-destructive iteration. Mutating data structures as a side-effect of iteration violates Lua iterator semantics and can cause bugs when collections are passed to `__concat` or printing routines.
+### 4.1 Non-Destructive Iteration (`__pairs`)
+All collections provide non-destructive `__pairs()`:
+- `for k, v in pairs(collection) do` can be run multiple times without mutating or draining the collection.
+- For `Queue`, iteration traverses from front to back yielding `(index, value)`.
+- For `Stack`, iteration traverses from top to bottom yielding `(index, value)`.
+- For `Heap`, iteration traverses in level-order (root to leaf) yielding `(index, value)`.
 
----
-
-## 5. Suggested Improvements & Standardizations
-
-### 5.1 Separate Non-Destructive Iteration from Draining
-Make `__pairs()` strictly non-destructive across all classes:
-- For [`Queue`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/queue.lua), [`Stack`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/stack.lua), and [`Heap`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/heap.lua), `__pairs` should traverse items from front to back / top to bottom / root to leaf **without consuming them**.
-- Introduce an explicit `:drain()` or `:consume()` method for users who specifically desire a destructive consumer generator:
+### 4.2 Explicit Draining (`:drain()`)
+Collections that represent consumer queues/buffers (`Queue`, `Stack`, `Heap`) provide an explicit `:drain()` method returning a generator that consumes elements until empty:
 ```lua
 ---Consumes items in FIFO order until empty.
 function Queue:drain()
@@ -167,10 +155,11 @@ function Queue:drain()
     end
 end
 ```
+Collections that are not consumption-oriented (e.g. `Array`, `HashMap`, `Set`, `TreeMap`) do not implement `:drain()`.
 
 ---
 
-## 6. Canonical Template for New Collections
+## 5. Canonical Template for New Collections
 
 When creating a new collection, use the blueprint below to ensure compliance with the repository's architecture, documentation, and ordering standards:
 
