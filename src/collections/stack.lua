@@ -78,6 +78,17 @@ function Stack:contains(entry)
 end
 
 -----------------------------------------------------------------------------
+---Consumes items in LIFO order until empty.
+---
+---@return fun(): any?
+-----------------------------------------------------------------------------
+function Stack:drain()
+	return function()
+		return self:pop()
+	end
+end
+
+-----------------------------------------------------------------------------
 ---Returns whether the stack is empty or not.
 ---
 ---@return boolean
@@ -185,21 +196,20 @@ function Stack:__newindex()
 end
 
 -----------------------------------------------------------------------------
----Iterates through the stack in LIFO order by consuming items. Same as:
----
----while not stack:empty() do
----   local item = stack:pop()
----end
+---Iterates through the stack in LIFO order from top to bottom without consuming items.
 ---
 ---@return fun(state: Stack, key: number): number?, any?
 ---@return Stack
 ---@return nil
 -----------------------------------------------------------------------------
 function Stack:__pairs()
+	local i = #self._entries + 1
+	local index = 0
 	return function()
-		local item = self:pop()
-		if item ~= nil then
-			return 1, item
+		i = i - 1
+		if i >= 1 then
+			index = index + 1
+			return index, self._entries:get(i)
 		end
 	end, self, nil
 end

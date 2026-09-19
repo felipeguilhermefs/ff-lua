@@ -120,12 +120,77 @@ function TestIterator()
 	s:push("c")
 	s:push("d")
 
+	local keys = {}
 	local res = {}
+	for i, item in pairs(s) do
+		table.insert(keys, i)
+		table.insert(res, item)
+	end
+
+	lu.assertEquals({ 1, 2, 3, 4 }, keys)
+	lu.assertEquals({ "d", "c", "b", "a" }, res)
+	lu.assertFalse(s:empty())
+	lu.assertEquals(4, #s)
+	lu.assertEquals("d", s:top())
+end
+
+function TestIteratorEmpty()
+	local s = Stack.new()
+
+	local count = 0
+	for _ in pairs(s) do
+		count = count + 1
+	end
+
+	lu.assertEquals(0, count)
+end
+
+function TestIteratorMultipleRuns()
+	local s = Stack.new({ "x", "y", "z" })
+
+	local firstRun = {}
 	for _, item in pairs(s) do
+		table.insert(firstRun, item)
+	end
+
+	local secondRun = {}
+	for _, item in pairs(s) do
+		table.insert(secondRun, item)
+	end
+
+	lu.assertEquals({ "z", "y", "x" }, firstRun)
+	lu.assertEquals({ "z", "y", "x" }, secondRun)
+	lu.assertEquals(3, #s)
+end
+
+function TestDrain()
+	local s = Stack.new()
+	s:push("a")
+	s:push("b")
+	s:push("c")
+	s:push("d")
+
+	local res = {}
+	for item in s:drain() do
 		table.insert(res, item)
 	end
 
 	lu.assertEquals({ "d", "c", "b", "a" }, res)
+	lu.assertTrue(s:empty())
+	lu.assertEquals(0, #s)
+	lu.assertNil(s:top())
+	lu.assertNil(s:pop())
+end
+
+function TestDrainEmpty()
+	local s = Stack.new()
+
+	local count = 0
+	for _ in s:drain() do
+		count = count + 1
+	end
+
+	lu.assertEquals(0, count)
 	lu.assertTrue(s:empty())
 end
 

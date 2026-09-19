@@ -141,6 +141,17 @@ function Queue:dequeue()
 end
 
 -----------------------------------------------------------------------------
+---Consumes items in FIFO order until empty.
+---
+---@return fun(): any?
+-----------------------------------------------------------------------------
+function Queue:drain()
+	return function()
+		return self:dequeue()
+	end
+end
+
+-----------------------------------------------------------------------------
 ---Returns whether the queue is empty or not.
 ---
 ---@return boolean
@@ -267,21 +278,21 @@ function Queue:__newindex()
 end
 
 -----------------------------------------------------------------------------
----Iterates through the queue in FIFO order by consuming items. Same as:
----
----while not queue:empty() do
----   local item = queue:dequeue()
----end
+---Iterates through the queue in FIFO order from front to back without consuming items.
 ---
 ---@return fun(state: Queue, key: number): number?, any?
 ---@return Queue
 ---@return nil
 -----------------------------------------------------------------------------
 function Queue:__pairs()
+	local cur = self._front
+	local index = 0
 	return function()
-		local item = self:dequeue()
-		if item ~= nil then
-			return 1, item
+		if cur ~= nil then
+			local node = cur
+			cur = node.next
+			index = index + 1
+			return index, node.value
 		end
 	end, self, nil
 end

@@ -120,13 +120,18 @@ function TestIterator()
 	q:enqueue("c")
 	q:enqueue("d")
 
+	local keys = {}
 	local res = {}
-	for _, item in pairs(q) do
+	for i, item in pairs(q) do
+		table.insert(keys, i)
 		table.insert(res, item)
 	end
 
+	lu.assertEquals({ 1, 2, 3, 4 }, keys)
 	lu.assertEquals({ "a", "b", "c", "d" }, res)
-	lu.assertTrue(q:empty())
+	lu.assertFalse(q:empty())
+	lu.assertEquals(4, #q)
+	lu.assertEquals("a", q:peek())
 end
 
 function TestIteratorEmpty()
@@ -138,6 +143,55 @@ function TestIteratorEmpty()
 	end
 
 	lu.assertEquals(0, count)
+end
+
+function TestIteratorMultipleRuns()
+	local q = Queue.new({ 1, 2, 3 })
+
+	local firstRun = {}
+	for _, item in pairs(q) do
+		table.insert(firstRun, item)
+	end
+
+	local secondRun = {}
+	for _, item in pairs(q) do
+		table.insert(secondRun, item)
+	end
+
+	lu.assertEquals({ 1, 2, 3 }, firstRun)
+	lu.assertEquals({ 1, 2, 3 }, secondRun)
+	lu.assertEquals(3, #q)
+end
+
+function TestDrain()
+	local q = Queue.new()
+	q:enqueue("a")
+	q:enqueue("b")
+	q:enqueue("c")
+	q:enqueue("d")
+
+	local res = {}
+	for item in q:drain() do
+		table.insert(res, item)
+	end
+
+	lu.assertEquals({ "a", "b", "c", "d" }, res)
+	lu.assertTrue(q:empty())
+	lu.assertEquals(0, #q)
+	lu.assertNil(q:peek())
+	lu.assertNil(q:dequeue())
+end
+
+function TestDrainEmpty()
+	local q = Queue.new()
+
+	local count = 0
+	for _ in q:drain() do
+		count = count + 1
+	end
+
+	lu.assertEquals(0, count)
+	lu.assertTrue(q:empty())
 end
 
 function TestConcat()
