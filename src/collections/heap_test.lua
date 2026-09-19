@@ -330,13 +330,18 @@ function TestIterator()
 	h:push("c")
 	h:push("a")
 
+	local keys = {}
 	local res = {}
-	for _, item in pairs(h) do
+	for i, item in pairs(h) do
+		table.insert(keys, i)
 		table.insert(res, item)
 	end
 
+	lu.assertEquals({ 1, 2, 3, 4 }, keys)
 	lu.assertEquals({ "a", "b", "c", "d" }, res)
-	lu.assertTrue(h:empty())
+	lu.assertFalse(h:empty())
+	lu.assertEquals(4, #h)
+	lu.assertEquals("a", h:peek())
 end
 
 function TestIteratorEmpty()
@@ -348,6 +353,87 @@ function TestIteratorEmpty()
 	end
 
 	lu.assertEquals(0, count)
+end
+
+function TestIteratorMultipleRuns()
+	local h = Heap.new({ 10, 20, 30 })
+
+	local firstRun = {}
+	for _, item in pairs(h) do
+		table.insert(firstRun, item)
+	end
+
+	local secondRun = {}
+	for _, item in pairs(h) do
+		table.insert(secondRun, item)
+	end
+
+	lu.assertEquals({ 10, 20, 30 }, firstRun)
+	lu.assertEquals({ 10, 20, 30 }, secondRun)
+	lu.assertEquals(3, #h)
+end
+
+function TestIteratorLevelOrder()
+	local h = Heap.new()
+	h:push(10)
+	h:push(30)
+	h:push(20)
+	h:push(50)
+	h:push(40)
+
+	-- Root to leaf level-order: root(10), left(30), right(20), left.left(50), left.right(40)
+	local levelOrder = {}
+	for _, item in pairs(h) do
+		table.insert(levelOrder, item)
+	end
+	lu.assertEquals({ 10, 30, 20, 50, 40 }, levelOrder)
+	lu.assertEquals(5, #h)
+end
+
+function TestDrain()
+	local h = Heap.new()
+	h:push("b")
+	h:push("d")
+	h:push("c")
+	h:push("a")
+
+	local res = {}
+	for item in h:drain() do
+		table.insert(res, item)
+	end
+
+	-- Drain yields in priority order (min-to-max)
+	lu.assertEquals({ "a", "b", "c", "d" }, res)
+	lu.assertTrue(h:empty())
+	lu.assertEquals(0, #h)
+	lu.assertNil(h:peek())
+	lu.assertNil(h:pop())
+end
+
+function TestDrainMaxHeap()
+	local h = Heap.newMax({ 10, 50, 30, 20, 40 })
+
+	local res = {}
+	for item in h:drain() do
+		table.insert(res, item)
+	end
+
+	-- Max-heap drain yields descending order
+	lu.assertEquals({ 50, 40, 30, 20, 10 }, res)
+	lu.assertTrue(h:empty())
+	lu.assertEquals(0, #h)
+end
+
+function TestDrainEmpty()
+	local h = Heap.new()
+
+	local count = 0
+	for _ in h:drain() do
+		count = count + 1
+	end
+
+	lu.assertEquals(0, count)
+	lu.assertTrue(h:empty())
 end
 
 function TestConcat()
@@ -500,6 +586,78 @@ function TestIndexOfMaxHeap()
 	-- Smaller than root but not in heap
 	lu.assertNil(maxH:indexOf(25))
 	lu.assertNil(maxH:indexOf(0))
+end
+
+function TestIndexOfMaxHeapSubtree()
+	local maxH = Heap.newMax({ 100, 80, 90, 40, 50, 60, 70 })
+
+	local leftVal = maxH._entries:get(2)
+	local rightVal = maxH._entries:get(3)
+
+	-- Search starting at root finds both
+	lu.assertEquals(2, maxH:indexOf(leftVal, 1))
+	lu.assertEquals(3, maxH:indexOf(rightVal, 1))
+
+	-- Search starting at left subtree finds leftVal and its descendants
+	lu.assertEquals(2, maxH:indexOf(leftVal, 2))
+	if #maxH >= 4 then
+		local childVal = maxH._entries:get(4)
+		lu.assertEquals(4, maxH:indexOf(childVal, 2))
+	end
+
+	-- Search starting at left subtree does NOT find rightVal (disjoint subtree)
+	lu.assertNil(maxH:indexOf(rightVal, 2))
+end
+
+function TestIndexOfMaxHeapDuplicates()
+	local maxH = Heap.newMax({ 50, 40, 40, 30, 20, 20, 10 })
+
+	for _, val in ipairs({ 50, 40, 30, 20, 10 }) do
+		local idx = maxH:indexOf(val)
+		lu.assertNotNil(idx)
+		lu.assertEquals(val, maxH._entries:get(idx))
+	end
+end
+
+function TestIndexOfObjectHeapTies()
+	local function cmp(a, b)
+		return Comparator.natural(a.priority, b.priority)
+	end
+
+	local h = Heap.new(nil, cmp)
+	local a = { priority = 10, name = "A" }
+	local b = { priority = 10, name = "B" }
+	local c = { priority = 10, name = "C" }
+
+	h:push(a)
+	h:push(b)
+
+	lu.assertEquals(1, h:indexOf(a))
+	lu.assertEquals(2, h:indexOf(b))
+	lu.assertNil(h:indexOf(c))
+	lu.assertFalse(h:contains(c))
+end
+
+function TestIndexOfMaxHeapObjectTies()
+	local function maxObjCmp(a, b)
+		return Comparator.reverse(Comparator.natural)(a.priority, b.priority)
+	end
+
+	local h = Heap.new(nil, maxObjCmp)
+	local a = { priority = 50, name = "A" }
+	local b = { priority = 50, name = "B" }
+	local c = { priority = 20, name = "C" }
+	local d = { priority = 50, name = "D" }
+
+	h:push(a)
+	h:push(b)
+	h:push(c)
+
+	lu.assertEquals(1, h:indexOf(a))
+	lu.assertEquals(2, h:indexOf(b))
+	lu.assertEquals(3, h:indexOf(c))
+	lu.assertNil(h:indexOf(d))
+	lu.assertFalse(h:contains(d))
 end
 
 function TestIndexOfValidation()

@@ -117,6 +117,17 @@ function Heap:contains(value)
 end
 
 -----------------------------------------------------------------------------
+---Consumes items in priority order until empty.
+---
+---@return fun(): any?
+-----------------------------------------------------------------------------
+function Heap:drain()
+	return function()
+		return self:pop()
+	end
+end
+
+-----------------------------------------------------------------------------
 ---Returns whether the heap is empty or not.
 ---
 ---@return boolean
@@ -156,12 +167,12 @@ function Heap:indexOf(value, index)
 		return nil
 	end
 
-	local comp = self._comparator(value, self._entries:get(index))
-
-	if comp == Comparator.equal then
+	local entry = self._entries:get(index)
+	if value == entry then
 		return index
 	end
 
+	local comp = self._comparator(value, entry)
 	if comp == Comparator.less then
 		-- when it is before the current index then it is not in the heap
 		return nil
@@ -336,21 +347,18 @@ function Heap:__newindex()
 end
 
 -----------------------------------------------------------------------------
----Iterates through the heap in priority order by consuming items. Same as:
----
----while not heap:empty() do
----   local item = heap:pop()
----end
+---Iterates through the heap in level-order from root to leaf without consuming items.
 ---
 ---@return fun(state: Heap, key: number): number?, any?
 ---@return Heap
 ---@return nil
 -----------------------------------------------------------------------------
 function Heap:__pairs()
+	local i = 0
 	return function()
-		local item = self:pop()
-		if item ~= nil then
-			return 1, item
+		i = i + 1
+		if i <= #self._entries then
+			return i, self._entries:get(i)
 		end
 	end, self, nil
 end
