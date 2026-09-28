@@ -1,3 +1,5 @@
+-- The test suite is driven by **LuaUnit** via `test.lua`. It runs in a clean single pass, preloading all `ff.*` modules directly from the local `src/` tree to prevent installed-rock drift during development.
+
 -- test.lua: Test runner for ff-lua (requires Lua 5.5+)
 pcall(require, "luarocks.loader")
 
@@ -21,6 +23,54 @@ local lu = require("luaunit")
 -- Configure package.path to resolve src modules
 package.path = "src/?.lua;src/aoc/?.lua;src/cache/?.lua;src/collections/?.lua;src/func/?.lua;src/graph/?.lua;src/iter/?.lua;src/math/?.lua;src/search/?.lua;src/sort/?.lua;src/test/?.lua;"
 	.. package.path
+
+-- Preload local modules under ff.* namespace to avoid installed-rock drift
+local local_modules = {
+	["ff.aoc.matrix"] = "matrix",
+	["ff.cache.lru"] = "lru",
+	["ff.collections.array"] = "array",
+	["ff.collections.hashmap"] = "hashmap",
+	["ff.collections.heap"] = "heap",
+	["ff.collections.intervaltree"] = "intervaltree",
+	["ff.collections.linkedlist"] = "linkedlist",
+	["ff.collections.queue"] = "queue",
+	["ff.collections.radixtree"] = "radixtree",
+	["ff.collections.set"] = "set",
+	["ff.collections.stack"] = "stack",
+	["ff.collections.treemap"] = "treemap",
+	["ff.empty"] = "empty",
+	["ff.func.empty"] = "empty",
+	["ff.func.comparator"] = "comparator",
+	["ff.factorial"] = "factorial",
+	["ff.math.factorial"] = "factorial",
+	["ff.fibonacci"] = "fibonacci",
+	["ff.math.fibonacci"] = "fibonacci",
+	["ff.graph"] = "graph",
+	["ff.head"] = "head",
+	["ff.func.head"] = "head",
+	["ff.iter.permutations"] = "permutations",
+	["ff.max"] = "max",
+	["ff.math.max"] = "max",
+	["ff.memoize"] = "memoize",
+	["ff.func.memoize"] = "memoize",
+	["ff.min"] = "min",
+	["ff.math.min"] = "min",
+	["ff.search.binarysearch"] = "binarysearch",
+	["ff.search.quickselect"] = "quickselect",
+	["ff.sort.bucketsort"] = "bucketsort",
+	["ff.sort.quicksort"] = "quicksort",
+	["ff.spy"] = "spy",
+	["ff.tail"] = "tail",
+	["ff.func.tail"] = "tail",
+	["ff.trunc"] = "trunc",
+	["ff.math.trunc"] = "trunc",
+}
+
+for modname, shortname in pairs(local_modules) do
+	package.preload[modname] = function()
+		return require(shortname)
+	end
+end
 
 local test_files = {
 	"src/cache/lru_test.lua",
@@ -51,6 +101,12 @@ local test_files = {
 	"src/sort/quicksort_test.lua",
 }
 
+-- Suppress cascading runs and premature exits from test files during load
+local real_run = lu.LuaUnit.run
+lu.LuaUnit.run = function()
+	return 0
+end
+
 local real_exit = os.exit
 os.exit = function() end
 
@@ -59,4 +115,6 @@ for _, file in ipairs(test_files) do
 end
 
 os.exit = real_exit
-os.exit(lu.LuaUnit.run())
+lu.LuaUnit.run = real_run
+
+os.exit(lu.LuaUnit.run(table.unpack(arg or {})))

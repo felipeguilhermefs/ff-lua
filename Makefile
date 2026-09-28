@@ -1,6 +1,9 @@
 .PHONY: test
 test:
-	luarocks test
+	# -f => fails fast, stops at first test failure
+	# -s => shuffles the execution order
+	# -v => verbose 
+	luarocks test -- -f -s -v $(ARGS)
 
 .PHONY: lint
 lint:
