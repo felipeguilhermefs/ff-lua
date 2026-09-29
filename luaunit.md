@@ -552,10 +552,6 @@ make test ARGS="-p Equality"
 
 To transition the repository to these standards without breaking existing workflows:
 
-1. **Phase 1: Update Runner (`test.lua`)**:
-   - Add local module preloader (`package.preload`) mapping `ff.*` to `src/`.
-   - Forward CLI arguments (`table.unpack(arg)`).
-   - Prevent individual files from calling `lu.LuaUnit.run()` when required by `test.lua`.
 2. **Phase 2: Migrate `src/collections/*_test.lua` to Test Classes**:
    - Wrap test functions in `Test<Name> = {}` tables.
    - Fix assertion ordering to `lu.assertEquals(actual, expected)`.
