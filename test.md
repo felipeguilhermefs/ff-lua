@@ -55,25 +55,6 @@ The two-phase load-then-run design lets every test file work both standalone (`l
 
 ## 3. Possible Improvements
 
-### 3.3 Protect `dofile` with `pcall` for better error reporting
-
-If a single test file has a syntax error, the runner crashes without loading the rest. Wrapping in `pcall` gives clearer diagnostics and loads remaining files.
-
-```lua
-local failures = {}
-for _, file in ipairs(test_files) do
-    local ok, err = pcall(dofile, file)
-    if not ok then
-        io.stderr:write("ERROR loading " .. file .. ": " .. tostring(err) .. "\n")
-        failures[#failures + 1] = file
-    end
-end
-
-if #failures > 0 then
-    io.stderr:write(#failures .. " test file(s) failed to load\n")
-end
-```
-
 ### 3.4 Use `table.pack`/unpack guard for `arg`
 
 Line 120 does `table.unpack(arg or {})`. In Lua 5.5, `arg` is guaranteed for the main chunk, but adding a nil-safe guard is good hygiene and already done via `or {}`. No change needed, but `table.pack` could be used if args need count preservation:
@@ -95,4 +76,3 @@ Line 24 lists every subdirectory of `src/` explicitly. The `src/graph/` director
 |----------|------|----------|
 | 🐛 Bug | Preload/rockspec desync (9 phantom aliases) | Medium |
 | 📝 Observation | `graph.lua` has no test coverage | Low |
-| 🔧 Improvement | `pcall` wrapper around `dofile` | Low effort, low-medium value |

@@ -115,9 +115,19 @@ os.exit = function() end
 -- Phase 8: Load all test files
 -- dofile executes each file in the current Lua state, populating the global
 -- namespace with Test* tables. The stubbed run/exit prevent side effects.
+-- Wrapped in pcall so a broken file doesn't prevent the rest from loading.
 -------------------------------------------------------------------------------
+local failures = {}
 for _, file in ipairs(test_files) do
-	dofile(file)
+	local ok, err = pcall(dofile, file)
+	if not ok then
+		io.stderr:write("ERROR loading " .. file .. ": " .. tostring(err) .. "\n")
+		failures[#failures + 1] = file
+	end
+end
+
+if #failures > 0 then
+	io.stderr:write(#failures .. " test file(s) failed to load\n")
 end
 
 -------------------------------------------------------------------------------
