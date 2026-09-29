@@ -55,35 +55,6 @@ The two-phase load-then-run design lets every test file work both standalone (`l
 
 ## 3. Possible Improvements
 
-### 3.2 Auto-generate preload map from rockspec or directory scan
-
-The preload map (lines 28–67) is a second manually-maintained list that can drift from the rockspec (and already has — see Bug 2.1).
-
-**Improvement**: Derive preloads from the directory structure.
-
-```lua
--- Build preload map from src/ directory structure
-local function build_preloads(dir)
-    local handle = io.popen('find "' .. dir .. '" -name "*.lua" ! -name "*_test.lua" | sort')
-    if handle then
-        for path in handle:lines() do
-            -- "src/collections/array.lua" -> module "ff.collections.array", short "array"
-            local rel = path:match("^src/(.+)%.lua$")
-            if rel then
-                local modname = "ff." .. rel:gsub("/", ".")
-                local shortname = rel:match("([^/]+)$")
-                package.preload[modname] = function()
-                    return require(shortname)
-                end
-            end
-        end
-        handle:close()
-    end
-end
-
-build_preloads("src")
-```
-
 ### 3.3 Protect `dofile` with `pcall` for better error reporting
 
 If a single test file has a syntax error, the runner crashes without loading the rest. Wrapping in `pcall` gives clearer diagnostics and loads remaining files.
@@ -124,5 +95,4 @@ Line 24 lists every subdirectory of `src/` explicitly. The `src/graph/` director
 |----------|------|----------|
 | 🐛 Bug | Preload/rockspec desync (9 phantom aliases) | Medium |
 | 📝 Observation | `graph.lua` has no test coverage | Low |
-| 🔧 Improvement | Auto-generate preload map | Medium effort, high value |
 | 🔧 Improvement | `pcall` wrapper around `dofile` | Low effort, low-medium value |

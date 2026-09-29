@@ -2,8 +2,7 @@
 test:
 	# -f => fails fast, stops at first test failure
 	# -s => shuffles the execution order
-	# -v => verbose 
-	luarocks test -- -f -s -v $(ARGS)
+	luarocks test -- -f -s $(ARGS)
 
 .PHONY: lint
 lint:

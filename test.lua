@@ -52,56 +52,29 @@ package.path = "src/?.lua;src/aoc/?.lua;src/cache/?.lua;src/collections/?.lua;sr
 -- `require("ff.func.comparator")`, this forces the local source to load
 -- instead of a potentially stale installed rock.
 --
--- NOTE: Some entries here are aliases that do not appear in the rockspec
--- (e.g. ff.func.empty, ff.math.max). They exist so the test runner accepts
--- both the legacy short path and the newer fully-qualified path.
+-- Derives ff.* preloads from the directory structure so the map stays in
+-- sync with the actual source tree automatically.
+-- Uses io.popen (platform-dependent) — acceptable for a dev-only runner.
 -------------------------------------------------------------------------------
-local local_modules = {
-	["ff.aoc.matrix"] = "matrix",
-	["ff.cache.lru"] = "lru",
-	["ff.collections.array"] = "array",
-	["ff.collections.hashmap"] = "hashmap",
-	["ff.collections.heap"] = "heap",
-	["ff.collections.intervaltree"] = "intervaltree",
-	["ff.collections.linkedlist"] = "linkedlist",
-	["ff.collections.queue"] = "queue",
-	["ff.collections.radixtree"] = "radixtree",
-	["ff.collections.set"] = "set",
-	["ff.collections.stack"] = "stack",
-	["ff.collections.treemap"] = "treemap",
-	["ff.empty"] = "empty",
-	["ff.func.empty"] = "empty",
-	["ff.func.comparator"] = "comparator",
-	["ff.factorial"] = "factorial",
-	["ff.math.factorial"] = "factorial",
-	["ff.fibonacci"] = "fibonacci",
-	["ff.math.fibonacci"] = "fibonacci",
-	["ff.graph"] = "graph",
-	["ff.head"] = "head",
-	["ff.func.head"] = "head",
-	["ff.iter.permutations"] = "permutations",
-	["ff.max"] = "max",
-	["ff.math.max"] = "max",
-	["ff.memoize"] = "memoize",
-	["ff.func.memoize"] = "memoize",
-	["ff.min"] = "min",
-	["ff.math.min"] = "min",
-	["ff.search.binarysearch"] = "binarysearch",
-	["ff.search.quickselect"] = "quickselect",
-	["ff.sort.bucketsort"] = "bucketsort",
-	["ff.sort.quicksort"] = "quicksort",
-	["ff.spy"] = "spy",
-	["ff.tail"] = "tail",
-	["ff.func.tail"] = "tail",
-	["ff.trunc"] = "trunc",
-	["ff.math.trunc"] = "trunc",
-}
-
-for modname, shortname in pairs(local_modules) do
-	package.preload[modname] = function()
-		return require(shortname)
+local function build_preloads(dir)
+	local handle = io.popen('find "' .. dir .. '" -name "*.lua" ! -name "*_test.lua" | sort')
+	if handle then
+		for path in handle:lines() do
+			-- "src/collections/array.lua" -> module "ff.collections.array", short "array"
+			local rel = path:match("^src/(.+)%.lua$")
+			if rel then
+				local modname = "ff." .. rel:gsub("/", ".")
+				local shortname = rel:match("([^/]+)$")
+				package.preload[modname] = function()
+					return require(shortname)
+				end
+			end
+		end
+		handle:close()
 	end
 end
+
+build_preloads("src")
 
 -------------------------------------------------------------------------------
 -- Phase 6: Auto-discover test files
