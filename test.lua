@@ -45,36 +45,41 @@ local lu = require("luaunit")
 package.path = "src/?.lua;src/aoc/?.lua;src/cache/?.lua;src/collections/?.lua;src/func/?.lua;src/graph/?.lua;src/iter/?.lua;src/math/?.lua;src/search/?.lua;src/sort/?.lua;src/test/?.lua;"
 	.. package.path
 
+-- Parses the .rockspec file (valid Lua) to extract the build.modules table,
+-- then registers package.preload for each module. This keeps test.lua in
+-- exact sync with the rockspec — the single source of truth for module names.
 -------------------------------------------------------------------------------
--- Phase 5: Preload map (ff.* namespace)
--- Register package.preload loaders for every ff.* namespaced module name,
--- mapping each to its short (bare) name. When test files do
--- `require("ff.func.comparator")`, this forces the local source to load
--- instead of a potentially stale installed rock.
---
--- Derives ff.* preloads from the directory structure so the map stays in
--- sync with the actual source tree automatically.
--- Uses io.popen (platform-dependent) — acceptable for a dev-only runner.
--------------------------------------------------------------------------------
-local function build_preloads(dir)
-	local handle = io.popen('find "' .. dir .. '" -name "*.lua" ! -name "*_test.lua" | sort')
-	if handle then
-		for path in handle:lines() do
-			-- "src/collections/array.lua" -> module "ff.collections.array", short "array"
-			local rel = path:match("^src/(.+)%.lua$")
-			if rel then
-				local modname = "ff." .. rel:gsub("/", ".")
-				local shortname = rel:match("([^/]+)$")
-				package.preload[modname] = function()
-					return require(shortname)
-				end
+local function build_preloads()
+	local handle = io.popen('ls *.rockspec 2>/dev/null')
+	if not handle then return end
+	local rockspec_file = handle:read("*l")
+	handle:close()
+	if not rockspec_file then return end
+
+	-- Load rockspec in a sandbox — it assigns globals like build, package, etc.
+	local env = {}
+	local fn, err = loadfile(rockspec_file, "t", env)
+	if not fn then
+		io.stderr:write("ERROR loading rockspec: " .. tostring(err) .. "\n")
+		return
+	end
+	fn()
+
+	local modules = env.build and env.build.modules
+	if not modules then return end
+
+	for modname, srcpath in pairs(modules) do
+		-- "src/collections/array.lua" -> short name "array"
+		local shortname = srcpath:match("([^/]+)%.lua$")
+		if shortname then
+			package.preload[modname] = function()
+				return require(shortname)
 			end
 		end
-		handle:close()
 	end
 end
 
-build_preloads("src")
+build_preloads()
 
 -------------------------------------------------------------------------------
 -- Phase 6: Auto-discover test files
