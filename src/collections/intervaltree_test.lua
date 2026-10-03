@@ -414,4 +414,3 @@ function TestNewIndexPreventsModifications()
 	end)
 end
 
-os.exit(lu.LuaUnit.run())

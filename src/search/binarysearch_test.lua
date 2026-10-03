@@ -29,4 +29,3 @@ function TestTableArray()
 	lu.assertNil(binarysearch(a, 7, cmp))
 end
 
-os.exit(lu.LuaUnit.run())

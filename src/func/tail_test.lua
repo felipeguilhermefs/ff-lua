@@ -42,5 +42,4 @@ end
 -- Non Supported Test Suite [end] --
 ------------------------------------
 
-os.exit(lu.LuaUnit.run())
 

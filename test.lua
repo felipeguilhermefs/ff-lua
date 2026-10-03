@@ -86,7 +86,6 @@ end
 -- Phase 5: Discover test files from rockspec
 -- Derives colocated test file paths from the rockspec build.modules table.
 -- Each module "src/<path>/<name>.lua" maps to "src/<path>/<name>_test.lua".
--- Uses the rockspec as single source of truth — no filesystem scanning needed.
 -------------------------------------------------------------------------------
 local function discover_tests(modules)
 	local files = {}
@@ -110,24 +109,9 @@ end
 local test_files = discover_tests(rockspec_modules)
 
 -------------------------------------------------------------------------------
--- Phase 6: Stub lu.LuaUnit.run and os.exit
--- Each test file calls `lu.LuaUnit.run()` + `os.exit()` at its tail so it
--- can run standalone. During centralized loading via dofile, those calls
--- would trigger premature runs or terminate the process. Replace them with
--- harmless no-ops, then restore after all files are loaded.
--------------------------------------------------------------------------------
-local real_run = lu.LuaUnit.run
-lu.LuaUnit.run = function()
-	return 0
-end
-
-local real_exit = os.exit
-os.exit = function() end
-
--------------------------------------------------------------------------------
--- Phase 7: Load all test files
+-- Phase 6: Load all test files
 -- dofile executes each file in the current Lua state, populating the global
--- namespace with Test* tables. The stubbed run/exit prevent side effects.
+-- namespace with Test* tables.
 -- Wrapped in pcall so a broken file doesn't prevent the rest from loading.
 -------------------------------------------------------------------------------
 local failures = {}
@@ -144,12 +128,8 @@ if #failures > 0 then
 end
 
 -------------------------------------------------------------------------------
--- Phase 8: Restore originals and execute
--- Restore the real lu.LuaUnit.run and os.exit, then invoke a single
--- consolidated test run across all loaded Test* tables. CLI args (e.g.
--- -v, --pattern) are forwarded via table.unpack(arg).
+-- Phase 7: Execute
+-- Invoke a single consolidated test run across all loaded Test* tables.
+-- CLI args (e.g. -v, --pattern) are forwarded via table.unpack(arg).
 -------------------------------------------------------------------------------
-os.exit = real_exit
-lu.LuaUnit.run = real_run
-
 os.exit(lu.LuaUnit.run(table.unpack(arg or {})))

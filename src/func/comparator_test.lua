@@ -51,4 +51,3 @@ function TestReverseNaturalOrder()
 	lu.assertEquals(Comparator.less, cmp("r", "R"))
 end
 
-os.exit(lu.LuaUnit.run())

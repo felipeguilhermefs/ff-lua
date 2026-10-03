@@ -69,4 +69,3 @@ function TestNil()
 	lu.assertError(permutations, nil)
 end
 
-os.exit(lu.LuaUnit.run())

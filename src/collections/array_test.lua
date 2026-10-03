@@ -304,4 +304,4 @@ function TestIterator()
 	lu.assertEquals({ 1, 10, 2, 20, 3, 30 }, tpairs)
 end
 
-os.exit(lu.LuaUnit.run())
+return TestArray

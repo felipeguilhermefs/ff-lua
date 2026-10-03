@@ -32,4 +32,3 @@ function test_NonNumber()
 	end))
 end
 
-os.exit(lu.LuaUnit.run())

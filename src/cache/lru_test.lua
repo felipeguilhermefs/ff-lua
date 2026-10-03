@@ -87,4 +87,3 @@ function TestCapacity()
 	lu.assertError(LRUCache.new, 0)
 end
 
-os.exit(lu.LuaUnit.run())

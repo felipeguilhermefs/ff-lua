@@ -67,4 +67,3 @@ function Test_CacheNonTable_ReturnNil()
 	lu.assertNil(memoize(fn, 9))
 end
 
-os.exit(lu.LuaUnit.run())

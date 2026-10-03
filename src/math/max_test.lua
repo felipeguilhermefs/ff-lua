@@ -32,4 +32,3 @@ function test_ArrayWithNumbersAndNonNumbers()
 	lu.assertEquals(max(table.unpack({ 8, true, "1", 5, {} })), 8)
 end
 
-os.exit(lu.LuaUnit.run())

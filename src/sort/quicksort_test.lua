@@ -37,4 +37,3 @@ function TestTableArray()
 	lu.assertEquals({ 6, 5, 4, 3, 2, 1 }, a)
 end
 
-os.exit(lu.LuaUnit.run())

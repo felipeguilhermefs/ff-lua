@@ -32,4 +32,3 @@ function test_ArrayWithNumbersAndNonNumbers()
 	lu.assertEquals(min(table.unpack({ 8, true, "1", 5, {} })), 5)
 end
 
-os.exit(lu.LuaUnit.run())

@@ -33,4 +33,3 @@ function TestWhen100Return1298777728820984005()
 	lu.assertEquals(fibonacci(100), 1298777728820984005)
 end
 
-os.exit(lu.LuaUnit.run())

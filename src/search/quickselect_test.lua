@@ -29,4 +29,3 @@ function TestTableArray()
 	lu.assertNil(quickselect(a, 7, cmp))
 end
 
-os.exit(lu.LuaUnit.run())

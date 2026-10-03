@@ -255,4 +255,7 @@ function TestIsHashMap()
 	lu.assertFalse(HashMap.isHashMap(require("set").new()))
 end
 
-os.exit(lu.LuaUnit.run())
+if arg and arg[0] and arg[0]:find("hashmap_test%.lua$") then
+end
+
+return TestHashMap
