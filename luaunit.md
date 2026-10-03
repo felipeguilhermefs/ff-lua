@@ -292,35 +292,6 @@ return TestArray
 
 ---
 
-## 4. Test Infrastructure & Setup Modernization (`test.lua`)
-
-
-
----
-
-### 5.3 Modernized `Makefile` Test Targets
-
-Update [`Makefile`](file:///Users/felipeflores/Projects/ffdev/ff-lua/Makefile) to support development flags:
-
-```makefile
-.PHONY: test
-test:
-	lua test.lua $(ARGS)
-
-.PHONY: test-luarocks
-test-luarocks:
-	luarocks test -- $(ARGS)
-```
-
-Usage:
-```bash
-make test ARGS="-v"
-make test ARGS="TestArray"
-make test ARGS="-p Equality"
-```
-
----
-
 ## 6. Migration Roadmap
 
 To transition the repository to these standards without breaking existing workflows:
@@ -333,6 +304,3 @@ To transition the repository to these standards without breaking existing workfl
 3. **Phase 3: Add Missing Suites**:
    - Implement `src/aoc/matrix_test.lua` for `Matrix`.
    - Implement `src/graph/graph_test.lua` for `Graph`.
-4. **Phase 4: Harmonize Rockspec & Makefile**:
-   - Update Makefile with `ARGS` passthrough.
-   - Clean up rockspec module names and remove `ff.spy` export.

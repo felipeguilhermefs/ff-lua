@@ -45,11 +45,11 @@ local lu = require("luaunit")
 package.path = "src/?.lua;src/aoc/?.lua;src/cache/?.lua;src/collections/?.lua;src/func/?.lua;src/graph/?.lua;src/iter/?.lua;src/math/?.lua;src/search/?.lua;src/sort/?.lua;src/test/?.lua;"
 	.. package.path
 
--- Parses the .rockspec file (valid Lua) to extract the build.modules table,
--- then registers package.preload for each module. This keeps test.lua in
+-- Parses the .rockspec file (valid Lua) to extract the build.modules table.
+-- Used by both preload registration and test discovery to keep test.lua in
 -- exact sync with the rockspec — the single source of truth for module names.
 -------------------------------------------------------------------------------
-local function build_preloads()
+local function load_rockspec_modules()
 	local handle = io.popen('ls *.rockspec 2>/dev/null')
 	if not handle then return end
 	local rockspec_file = handle:read("*l")
@@ -65,10 +65,20 @@ local function build_preloads()
 	end
 	fn()
 
-	local modules = env.build and env.build.modules
-	if not modules then return end
+	return env.build and env.build.modules
+end
 
-	for modname, srcpath in pairs(modules) do
+local rockspec_modules = load_rockspec_modules()
+
+-------------------------------------------------------------------------------
+-- Phase 5: Register package.preload from rockspec
+-- Maps each rockspec module name (e.g. "ff.collections.array") to a preload
+-- that requires the short source name (e.g. "array"). Keeps
+-- require("ff.collections.array") working against local sources without
+-- installation.
+-------------------------------------------------------------------------------
+if rockspec_modules then
+	for modname, srcpath in pairs(rockspec_modules) do
 		-- "src/collections/array.lua" -> short name "array"
 		local shortname = srcpath:match("([^/]+)%.lua$")
 		if shortname then
@@ -79,27 +89,30 @@ local function build_preloads()
 	end
 end
 
-build_preloads()
-
 -------------------------------------------------------------------------------
--- Phase 6: Auto-discover test files
--- Scan src/ tree for *_test.lua files at runtime instead of maintaining a
--- hardcoded list. New test files are picked up automatically.
--- Uses io.popen (platform-dependent) — acceptable for a dev-only runner.
+-- Phase 6: Discover test files from rockspec
+-- Derives colocated test file paths from the rockspec build.modules table.
+-- Each module "src/<path>/<name>.lua" maps to "src/<path>/<name>_test.lua".
+-- Uses the rockspec as single source of truth — no filesystem scanning needed.
 -------------------------------------------------------------------------------
-local function discover_tests(dir)
+local function discover_tests(modules)
 	local files = {}
-	local handle = io.popen('find "' .. dir .. '" -name "*_test.lua" | sort')
-	if handle then
-		for line in handle:lines() do
-			files[#files + 1] = line
+	if not modules then return files end
+
+	for _, srcpath in pairs(modules) do
+		local testpath = srcpath:gsub("%.lua$", "_test.lua")
+		local fh = io.open(testpath)
+		if fh then
+			fh:close()
+			files[#files + 1] = testpath
 		end
-		handle:close()
 	end
+
+	table.sort(files)
 	return files
 end
 
-local test_files = discover_tests("src")
+local test_files = discover_tests(rockspec_modules)
 
 -------------------------------------------------------------------------------
 -- Phase 7: Stub lu.LuaUnit.run and os.exit
