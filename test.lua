@@ -102,7 +102,6 @@ local function discover_tests(modules)
 		end
 	end
 
-	table.sort(files)
 	return files
 end
 
