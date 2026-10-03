@@ -1,5 +1,5 @@
 local lu = require("luaunit")
-local max = require("max")
+local max = require("ff.math.max")
 
 function test_SingleNumber()
 	lu.assertEquals(max(1), 1)

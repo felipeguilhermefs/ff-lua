@@ -1,5 +1,5 @@
 local lu = require("luaunit")
-local fibonacci = require("fibonacci")
+local fibonacci = require("ff.math.fibonacci")
 
 function TestWhen0Return1()
 	lu.assertEquals(fibonacci(0), 1)

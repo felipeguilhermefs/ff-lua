@@ -1,4 +1,4 @@
-local trunc = require("trunc")
+local trunc = require("ff.math.trunc")
 
 local function factorial(n)
 	assert(type(n) == "number", "Should be a number")

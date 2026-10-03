@@ -1,5 +1,5 @@
 lu = require "luaunit"
-tail = require "tail"
+tail = require("ff.func.tail")
 
 -------------------------------
 -- String Test Suite [begin] --

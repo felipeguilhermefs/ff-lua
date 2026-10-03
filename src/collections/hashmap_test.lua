@@ -1,5 +1,5 @@
 local lu = require("luaunit")
-local HashMap = require("hashmap")
+local HashMap = require("ff.collections.hashmap")
 
 -- ---------------------------------------------------------------------------
 -- Existing tests (preserved and fixed where behaviour was undefined)

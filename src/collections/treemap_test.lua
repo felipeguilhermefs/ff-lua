@@ -1,5 +1,5 @@
 local lu = require("luaunit")
-local TreeMap = require("treemap")
+local TreeMap = require("ff.collections.treemap")
 local Comparator = require("ff.func.comparator")
 
 function TestIsTreeMap()

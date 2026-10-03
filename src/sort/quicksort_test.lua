@@ -1,7 +1,7 @@
 local lu = require("luaunit")
 local Array = require("ff.collections.array")
 local Comparator = require("ff.func.comparator")
-local quicksort = require("quicksort")
+local quicksort = require("ff.sort.quicksort")
 
 function TestArray()
 	local a = Array.new({ 2, 6, 3, 4, 5, 1 })

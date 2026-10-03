@@ -1,5 +1,5 @@
 local lu = require("luaunit")
-local min = require("min")
+local min = require("ff.math.min")
 
 function test_SingleNumber()
 	lu.assertEquals(min(1), 1)

@@ -1,5 +1,5 @@
 local lu = require("luaunit")
-local empty = require("empty")
+local empty = require("ff.func.empty")
 
 -------------------------------
 -- String Test Suite [begin] --

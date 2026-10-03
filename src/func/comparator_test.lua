@@ -1,5 +1,5 @@
 local lu = require("luaunit")
-local Comparator = require("comparator")
+local Comparator = require("ff.func.comparator")
 
 function TestNaturalOrder()
 	local cmp = Comparator.natural

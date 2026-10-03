@@ -1,6 +1,6 @@
 local lu = require("luaunit")
 local Comparator = require("ff.func.comparator")
-local Heap = require("heap")
+local Heap = require("ff.collections.heap")
 
 function TestIsHeap()
 	local h = Heap.new()
@@ -443,7 +443,7 @@ function TestConcat()
 	h = h .. nil
 	lu.assertEquals(3, #h)
 
-	local ll = require("linkedlist").new()
+	local ll = require("ff.collections.linkedlist").new()
 	ll:pushBack(40)
 	ll:pushBack(50)
 	ll:pushBack(60)

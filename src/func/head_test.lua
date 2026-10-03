@@ -1,5 +1,5 @@
 lu = require "luaunit"
-head = require "head"
+head = require("ff.func.head")
 
 -------------------------------
 -- String Test Suite [begin] --

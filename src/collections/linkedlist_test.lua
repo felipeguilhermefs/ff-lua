@@ -1,5 +1,5 @@
 local lu = require("luaunit")
-local LinkedList = require("linkedlist")
+local LinkedList = require("ff.collections.linkedlist")
 
 function TestIsLinkedList()
 	lu.assertTrue(LinkedList.isLinkedList(LinkedList.new()))
@@ -255,12 +255,12 @@ function TestConcat()
 
 	ll = ll .. other
 
-	local tm = require("treemap").new()
+	local tm = require("ff.collections.treemap").new()
 	tm:put(70, 70)
 
 	ll = ll .. tm
 
-	local stack = require("stack").new()
+	local stack = require("ff.collections.stack").new()
 	stack:push(80)
 
 	ll = ll .. stack

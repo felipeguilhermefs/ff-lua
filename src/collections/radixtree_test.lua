@@ -1,5 +1,5 @@
 local lu = require("luaunit")
-local RadixTree = require("radixtree")
+local RadixTree = require("ff.collections.radixtree")
 local Array = require("ff.collections.array")
 local Set = require("ff.collections.set")
 

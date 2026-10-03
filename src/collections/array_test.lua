@@ -1,5 +1,5 @@
 local lu = require("luaunit")
-local Array = require("array")
+local Array = require("ff.collections.array")
 
 function TestNewAndClear()
 	local a = Array.new()

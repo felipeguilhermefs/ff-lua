@@ -1,5 +1,5 @@
 local lu = require("luaunit")
-local IntervalTree = require("intervaltree")
+local IntervalTree = require("ff.collections.intervaltree")
 
 -- ---------------------------------------------------------------------------
 -- isIntervalTree

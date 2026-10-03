@@ -1,5 +1,5 @@
 local lu = require("luaunit")
-local Set = require("set")
+local Set = require("ff.collections.set")
 
 function TestEmpty()
 	local set = Set.new()
@@ -136,7 +136,7 @@ function TestConcat()
 	lu.assertTrue(set:contains(70, 80, 90))
 	lu.assertEquals(9, #set)
 
-	local q = require("queue").new()
+	local q = require("ff.collections.queue").new()
 	q:enqueue(100)
 	set = set .. q
 

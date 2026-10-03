@@ -1,9 +1,3 @@
-# LuaUnit Testing Standards & Architecture in `ff-lua`
-
-This document provides a comprehensive technical audit of test practices, test suite architecture, and test execution infrastructure in [`ff-lua`](file:///Users/felipeflores/Projects/ffdev/ff-lua), with primary emphasis on [`src/collections`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections). It identifies structural anti-patterns in existing tests, diagnoses execution anomalies, details solutions for test isolation and module resolution, and establishes canonical testing standards for the repository.
-
----
-
 ## 1. Executive Summary & Audit Findings
 
 The `ff-lua` repository currently defines **26 test files** covering data structures, functional utilities, iterators, math functions, and sorting/searching algorithms.
@@ -14,27 +8,8 @@ A deep investigation into the test runner ([`test.lua`](file:///Users/felipeflor
 | :--- | :--- | :--- | :--- |
 | **Namespace Isolation** | 324 test functions defined in source, but only 184 tests reported by runner | Global function declarations (`function TestX()`) overwrite each other in `_G` | **140 tests (>43%) are silently lost** and never executed in the suite |
 | **Test Execution** | Output contains 27 repeated `Ran X tests... OK` summaries | Each test file calls `os.exit(lu.LuaUnit.run())`; `dofile()` triggers LuaUnit on every file | **Cascading execution** (~3,000 redundant function calls) |
-| **Dependency Drift** | Modifying [`array.lua`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/array.lua) does not affect dependent collection tests | `require("ff.collections.array")` resolves to `/opt/homebrew/...` or `~/.luarocks/...` | Tests validate **globally installed rocks** instead of local working tree |
 | **Assertion Style** | Failure messages report `expected: <actual>, actual: <expected>` | Tests use `assertEquals(expected, actual)` while LuaUnit default is `(actual, expected)` | Inverted error diagnostics hinder debugging |
-| **Standalone Runs** | `lua src/collections/array_test.lua` crashes with `module 'array' not found` | Test files lack self-contained path initialization | Individual test files cannot be run in isolation |
 | **Coverage Gaps** | [`src/aoc/matrix.lua`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/aoc/matrix.lua) and [`src/graph/graph.lua`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/graph/graph.lua) have no tests | Omitted from test authoring and runner list | Zero test coverage for complex structures |
-
-```mermaid
-graph TD
-    subgraph Current Flawed Pipeline
-        T1["test.lua"] --> D1["dofile(test_file_i)"]
-        D1 --> E1["Global clobbering in _G<br/>(324 tests defined -> 184 tests executed)"]
-        D1 --> R1["lu.LuaUnit.run() runs 27 times<br/>(Cascading quadratic runs)"]
-        D1 --> M1["require('ff.collections.*') resolves to<br/>/opt/homebrew/... (Installed Rock!)"]
-    end
-
-    subgraph Proposed Standard Pipeline
-        T2["test.lua"] --> S2["Prepend local searcher / map ff.* to src/"]
-        T2 --> D2["Dynamic scan of src/**/*_test.lua"]
-        D2 --> C2["Class-Based Test Suites<br/>TestArray = {}, TestHeap = {}"]
-        C2 --> R2["Single lu.LuaUnit.run(arg) pass<br/>324/324 tests executed in < 0.05s"]
-    end
-```
 
 ---
 

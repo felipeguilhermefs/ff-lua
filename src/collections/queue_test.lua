@@ -1,5 +1,5 @@
 local lu = require("luaunit")
-local Queue = require("queue")
+local Queue = require("ff.collections.queue")
 
 function TestIsQueue()
 	lu.assertTrue(Queue.isQueue(Queue.new()))
@@ -201,7 +201,7 @@ function TestConcat()
 	q = q .. nil
 	lu.assertEquals(3, #q)
 
-	local s = require("stack").new()
+	local s = require("ff.collections.stack").new()
 	s:push(60)
 	s:push(50)
 	s:push(40)

@@ -1,6 +1,6 @@
 local lu = require("luaunit")
 local spy = require("ff.spy")
-local memoize = require("memoize")
+local memoize = require("ff.func.memoize")
 
 function Test_RepeatedCallsSingleArg_ShouldCallOnce()
 	local fn = spy(function()
