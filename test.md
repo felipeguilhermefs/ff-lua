@@ -18,16 +18,6 @@
 
 ## Findings
 
-### Resolved: test-file load failures do not fail the command
-
-The runner now stores LuaUnit's result, then forces status `1` when test-file loading failed and LuaUnit returned success. LuaUnit's existing nonzero status is preserved. It still runs after load errors, so the run reports both loading and test execution failures.
-
-### Medium: missing rockspec or empty discovery can look like success
-
-`load_rockspec_modules()` returns `nil` when `ls` cannot start or finds no rockspec. Discovery then returns an empty list. LuaUnit may report a successful run with zero tests. This also happens if the rockspec has no module map or none of its mapped source files has a sibling test file.
-
-**Improvement:** distinguish intentional zero-test configurations from setup errors. For this repository, fail with a clear message when no rockspec/modules are found or when no test files are discovered.
-
 ### Medium: fallback paths contradict the declared Lua version range
 
 The guard and rockspec accept Lua 5.5 and newer, but manual fallback paths are fixed to `lua/5.5` and `.so`. On a newer Lua version, when LuaRocks loader does not make `luaunit` available, the fallback searches the wrong version directory; `.so` is also platform-specific. This can prevent valid runtimes from running tests.
@@ -46,12 +36,6 @@ The shell glob may return multiple files, but the runner reads only the first li
 
 **Improvement:** require exactly one matching rockspec, or accept an explicit rockspec filename from the caller.
 
-### Low: rockspec execution errors are not handled
-
-`loadfile` syntax/load errors are caught and printed, but calling `fn()` is not protected. A runtime error in the rockspec aborts the runner with a traceback rather than a concise setup error. The empty environment keeps rockspec global assignments local, but this runner does not provide resource limits for untrusted chunks.
-
-**Improvement:** wrap evaluation in `pcall`, validate the result is a table, and validate module names and source paths before registering them. Treat repository rockspecs as trusted code.
-
 ### Low: ordering is nondeterministic
 
 Modules are registered and tests discovered by iterating `build.modules` with `pairs`, so test files load in unspecified order. The Makefile also passes LuaUnit's shuffle option (`-s`), further varying execution order. Shuffling can expose order-dependent tests, but nondeterministic load order can make debugging and output harder to reproduce.
@@ -60,7 +44,7 @@ Modules are registered and tests discovered by iterating `build.modules` with `p
 
 ### Low: errors in test loading are split across stderr and LuaUnit output
 
-Load failures are written to stderr, while test results come from LuaUnit. The summary only gives a count and filenames remain in earlier messages. Once exit handling is fixed, include all failed paths in a final setup-error summary.
+Load failures are written to stderr, while test results come from LuaUnit. The summary only gives a count; individual filenames appear in preceding error messages. Include failed paths in the final summary for easier log scanning.
 
 ## Strengths
 
@@ -72,8 +56,7 @@ Load failures are written to stderr, while test results come from LuaUnit. The s
 
 ## Suggested priority
 
-1. Make test-file load failures produce a failing process exit code.
-2. Fail clearly when rockspec or test discovery returns no usable tests.
-3. Make rockspec and source paths independent of the shell and current working directory.
-4. Support Lua 5.6+ in fallback dependency paths.
-5. Sort discovery and validate rockspec contents.
+1. Make rockspec and source paths independent of the shell and current working directory.
+2. Support Lua 5.6+ in fallback dependency paths.
+3. Require exactly one rockspec or accept an explicit rockspec path.
+4. Sort discovery and include failed test paths in the final load-error summary.

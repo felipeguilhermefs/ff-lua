@@ -43,26 +43,24 @@ local lu = require("luaunit")
 -- exact sync with the rockspec — the single source of truth for module names.
 -------------------------------------------------------------------------------
 local function load_rockspec_modules()
-	local handle = io.popen("ls *.rockspec 2>/dev/null")
-	if not handle then
-		return
-	end
+	local handle = assert(io.popen("ls *.rockspec 2>/dev/null"), "could not list rockspec files")
 	local rockspec_file = handle:read("*l")
 	handle:close()
-	if not rockspec_file then
-		return
-	end
+
+	assert(rockspec_file, "no .rockspec file found in the current directory")
 
 	-- Load rockspec in a sandbox — it assigns globals like build, package, etc.
 	local env = {}
 	local fn, err = loadfile(rockspec_file, "t", env)
-	if not fn then
-		io.stderr:write("ERROR loading rockspec: " .. tostring(err) .. "\n")
-		return
-	end
-	fn()
+	assert(fn, "could not load rockspec " .. rockspec_file .. ": " .. tostring(err))
 
-	return env.build and env.build.modules
+	local ok, eval_err = pcall(fn)
+	assert(ok, "could not evaluate rockspec " .. rockspec_file .. ": " .. tostring(eval_err))
+
+	local modules = env.build and env.build.modules
+	assert(next(modules) ~= nil, "rockspec " .. rockspec_file .. " has no build.modules entries")
+
+	return modules
 end
 
 local rockspec_modules = load_rockspec_modules()
@@ -74,11 +72,9 @@ local rockspec_modules = load_rockspec_modules()
 -- require("ff.collections.array") working against local sources without
 -- installation.
 -------------------------------------------------------------------------------
-if rockspec_modules then
-	for modname, srcpath in pairs(rockspec_modules) do
-		package.preload[modname] = function()
-			return dofile(srcpath)
-		end
+for modname, srcpath in pairs(rockspec_modules) do
+	package.preload[modname] = function()
+		return dofile(srcpath)
 	end
 end
 
@@ -102,6 +98,8 @@ local function discover_tests(modules)
 		end
 	end
 
+	assert(#files > 0, "no test files discovered from rockspec modules; expected colocated *_test.lua files")
+
 	return files
 end
 
@@ -113,18 +111,9 @@ local test_files = discover_tests(rockspec_modules)
 -- namespace with Test* tables.
 -- Wrapped in pcall so a broken file doesn't prevent the rest from loading.
 -------------------------------------------------------------------------------
-local failures = {}
 for _, file in ipairs(test_files) do
 	local ok, err = pcall(dofile, file)
-	if not ok then
-		io.stderr:write("ERROR loading " .. file .. ": " .. tostring(err) .. "\n")
-		failures[#failures + 1] = file
-	end
-end
-
-if #failures > 0 then
-	io.stderr:write(#failures .. " test file(s) failed to load\n")
-	os.exit(1)
+	assert(ok, "ERROR loading " .. file .. ": " .. tostring(err) .. "\n")
 end
 
 -------------------------------------------------------------------------------
