@@ -6,10 +6,9 @@
 
 ## Execution flow
 
-1. Attempts `require("luarocks.loader")` under `pcall`. Failure is ignored so the runner can continue with manual paths.
-2. If `HOME` exists, prepends user-local LuaRocks Lua and C module paths. These paths are specifically for Lua 5.5.
-3. Parses `_VERSION` and errors when runtime is older than Lua 5.5 or version parsing fails.
-4. Loads `luaunit`.
+1. Loads `luarocks.loader` under `pcall`, failing with a dependency message if the loader is unavailable.
+2. Parses `_VERSION` and errors when runtime is older than Lua 5.5 or version parsing fails.
+3. Loads `luaunit`, failing with a dependency message if LuaUnit is unavailable for the active Lua runtime.
 5. Runs `ls *.rockspec` through `io.popen`, reads the first returned filename, and loads that file with `loadfile(..., "t", env)`. The rockspec is evaluated in a separate environment; `build.modules` is returned.
 6. Registers each rockspec module in `package.preload`. Requiring the module runs `dofile` on its source path, so tests use checked-out files rather than installed module copies.
 7. Maps each module source path ending in `.lua` to a sibling `_test.lua`, including only files that can be opened.
@@ -17,12 +16,6 @@
 9. Calls `lu.LuaUnit.run(table.unpack(arg or {}))` once and passes its result to `os.exit`. LuaUnit receives command-line options such as `-f` and `-s`.
 
 ## Findings
-
-### Medium: fallback paths contradict the declared Lua version range
-
-The guard and rockspec accept Lua 5.5 and newer, but manual fallback paths are fixed to `lua/5.5` and `.so`. On a newer Lua version, when LuaRocks loader does not make `luaunit` available, the fallback searches the wrong version directory; `.so` is also platform-specific. This can prevent valid runtimes from running tests.
-
-**Improvement:** derive Lua path suffix from the active runtime and account for platform C-module extensions, or rely on LuaRocks' loader and emit a clear dependency error when it is unavailable.
 
 ### Medium: runner depends on shell and current working directory
 
@@ -57,6 +50,5 @@ Load failures are written to stderr, while test results come from LuaUnit. The s
 ## Suggested priority
 
 1. Make rockspec and source paths independent of the shell and current working directory.
-2. Support Lua 5.6+ in fallback dependency paths.
-3. Require exactly one rockspec or accept an explicit rockspec path.
-4. Sort discovery and include failed test paths in the final load-error summary.
+2. Require exactly one rockspec or accept an explicit rockspec path.
+3. Sort discovery and include failed test paths in the final load-error summary.

@@ -4,29 +4,13 @@
 
 -------------------------------------------------------------------------------
 -- Phase 1: LuaRocks bootstrap
--- Attempt to load the LuaRocks loader so `require("luaunit")` resolves from
--- installed rocks. If it fails (pcall), we fall back to manual path injection.
+-- Load the LuaRocks loader so `require("luaunit")` resolves from installed
+-- rocks for the active Lua runtime and platform.
 -------------------------------------------------------------------------------
-pcall(require, "luarocks.loader")
+require("luarocks.loader")
 
 -------------------------------------------------------------------------------
--- Phase 2: Fallback path injection
--- When $HOME is set, prepend the user-local LuaRocks tree to package.path
--- and package.cpath. Ensures luaunit (and any C libs) are findable even
--- without the LuaRocks loader active.
--------------------------------------------------------------------------------
-local home = os.getenv("HOME") or ""
-if home ~= "" then
-	package.path = home
-		.. "/.luarocks/share/lua/5.5/?.lua;"
-		.. home
-		.. "/.luarocks/share/lua/5.5/?/init.lua;"
-		.. package.path
-	package.cpath = home .. "/.luarocks/lib/lua/5.5/?.so;" .. package.cpath
-end
-
--------------------------------------------------------------------------------
--- Phase 3: Lua 5.5 version guard
+-- Phase 2: Lua 5.5 version guard
 -- Parse _VERSION and abort early if runtime is below Lua 5.5.
 -- Prevents cryptic failures from missing 5.5 features later.
 -------------------------------------------------------------------------------
@@ -38,7 +22,7 @@ end
 local lu = require("luaunit")
 
 -------------------------------------------------------------------------------
--- Parses the .rockspec file (valid Lua) to extract the build.modules table.
+-- Phase 4: Parses the .rockspec file (valid Lua) to extract build.modules.
 -- Used by both preload registration and test discovery to keep test.lua in
 -- exact sync with the rockspec — the single source of truth for module names.
 -------------------------------------------------------------------------------
@@ -51,11 +35,10 @@ local function load_rockspec_modules()
 
 	-- Load rockspec in a sandbox — it assigns globals like build, package, etc.
 	local env = {}
-	local fn, err = loadfile(rockspec_file, "t", env)
-	assert(fn, "could not load rockspec " .. rockspec_file .. ": " .. tostring(err))
+	local load_rockspec, err = loadfile(rockspec_file, "t", env)
+	assert(load_rockspec, "could not load rockspec " .. rockspec_file .. ": " .. tostring(err))
 
-	local ok, eval_err = pcall(fn)
-	assert(ok, "could not evaluate rockspec " .. rockspec_file .. ": " .. tostring(eval_err))
+	load_rockspec()
 
 	local modules = env.build and env.build.modules
 	assert(next(modules) ~= nil, "rockspec " .. rockspec_file .. " has no build.modules entries")
@@ -109,11 +92,9 @@ local test_files = discover_tests(rockspec_modules)
 -- Phase 6: Load all test files
 -- dofile executes each file in the current Lua state, populating the global
 -- namespace with Test* tables.
--- Wrapped in pcall so a broken file doesn't prevent the rest from loading.
 -------------------------------------------------------------------------------
 for _, file in ipairs(test_files) do
-	local ok, err = pcall(dofile, file)
-	assert(ok, "ERROR loading " .. file .. ": " .. tostring(err) .. "\n")
+	dofile(file)
 end
 
 -------------------------------------------------------------------------------
