@@ -124,6 +124,7 @@ end
 
 if #failures > 0 then
 	io.stderr:write(#failures .. " test file(s) failed to load\n")
+	os.exit(1)
 end
 
 -------------------------------------------------------------------------------
