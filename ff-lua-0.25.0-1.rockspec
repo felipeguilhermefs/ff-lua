@@ -62,6 +62,6 @@ build = {
 		["ff.search.quickselect"] = "src/search/quickselect.lua",
 		["ff.sort.bucketsort"] = "src/sort/bucketsort.lua",
 		["ff.sort.quicksort"] = "src/sort/quicksort.lua",
-		["ff.spy"] = "src/test/spy.lua",
+		["ff.test.spy"] = "src/test/spy.lua",
 	},
 }
