@@ -5,13 +5,13 @@ local empty = require("ff.func.empty")
 -- String Test Suite [begin] --
 -------------------------------
 
-TestString = {}
+TestEmptyString = {}
 
-function TestString:testEmpty()
+function TestEmptyString:testEmpty()
 	lu.assertTrue(empty(""))
 end
 
-function TestString:testNonEmpty()
+function TestEmptyString:testNonEmpty()
 	lu.assertFalse(empty("a"))
 	lu.assertFalse(empty(" "))
 end
@@ -24,14 +24,14 @@ end
 -- Array Test Suite [start] --
 ------------------------------
 
-TestArray = {}
+TestEmptyArray = {}
 
-function TestArray:testEmpty()
+function TestEmptyArray:testEmpty()
 	lu.assertTrue(empty({}))
 	lu.assertTrue(empty({ nil }))
 end
 
-function TestArray:testNonEmpty()
+function TestEmptyArray:testNonEmpty()
 	lu.assertFalse(empty({ 0 }))
 	lu.assertFalse(empty({ false }))
 	lu.assertFalse(empty({ "" }))
@@ -115,9 +115,9 @@ end
 -- Non Supported Test Suite [begin] --
 --------------------------------------
 
-TestNoop = {}
+TestEmptyNoop = {}
 
-function TestNoop:testNil()
+function TestEmptyNoop:testNil()
 	lu.assertNil(empty(nil))
 	lu.assertNil(empty(0))
 	lu.assertNil(empty(true))

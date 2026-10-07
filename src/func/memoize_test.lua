@@ -2,7 +2,9 @@ local lu = require("luaunit")
 local spy = require("ff.test.spy")
 local memoize = require("ff.func.memoize")
 
-function Test_RepeatedCallsSingleArg_ShouldCallOnce()
+TestMemoize = {}
+
+function TestMemoize:testRepeatedCallsSingleArgShouldCallOnce()
 	local fn = spy(function()
 		return 1
 	end)
@@ -18,7 +20,7 @@ function Test_RepeatedCallsSingleArg_ShouldCallOnce()
 	lu.assertEquals(fn.calls, 1)
 end
 
-function Test_RepeatedCallsMultipleArg_ShouldCallOnce()
+function TestMemoize:testRepeatedCallsMultipleArgShouldCallOnce()
 	local fn = spy(function()
 		return 1
 	end)
@@ -34,7 +36,7 @@ function Test_RepeatedCallsMultipleArg_ShouldCallOnce()
 	lu.assertEquals(fn.calls, 1)
 end
 
-function Test_DifferentCalls_ShouldCallAll()
+function TestMemoize:testDifferentCallsShouldCallAll()
 	local fn = spy(function()
 		return 1
 	end)
@@ -49,7 +51,7 @@ function Test_DifferentCalls_ShouldCallAll()
 	lu.assertEquals(fn.calls, 3)
 end
 
-function Test_NonFunction_ReturnNil()
+function TestMemoize:testNonFunctionReturnNil()
 	lu.assertNil(memoize(nil))
 	lu.assertNil(memoize(true))
 	lu.assertNil(memoize("abc"))
@@ -57,7 +59,7 @@ function Test_NonFunction_ReturnNil()
 	lu.assertNil(memoize({ 1, 2, 3 }))
 end
 
-function Test_CacheNonTable_ReturnNil()
+function TestMemoize:testCacheNonTableReturnNil()
 	local fn = function()
 		return 1
 	end

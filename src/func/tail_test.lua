@@ -5,18 +5,18 @@ tail = require("ff.func.tail")
 -- String Test Suite [begin] --
 -------------------------------
 
-TestString = {}
+TestTailString = {}
 
-function TestString:test_empty()
+function TestTailString:test_empty()
   lu.assertEquals(tail(""), "")
 end
 
-function TestString:test_singleChar()
+function TestTailString:test_singleChar()
   lu.assertEquals(tail("a"), "")
   lu.assertEquals(tail(" "), "")
 end
 
-function TestString:test_multiChar()
+function TestTailString:test_multiChar()
   lu.assertEquals(tail("flores"), "lores")
   lu.assertEquals(tail("1234"), "234")
   lu.assertEquals(tail("\tlol"), "lol")
@@ -30,9 +30,9 @@ end
 -- Non Supported Test Suite [begin] --
 --------------------------------------
 
-TestNoop = {}
+TestTailNoop = {}
 
-function TestNoop:test_nil()
+function TestTailNoop:test_nil()
   lu.assertNil(tail(0))
   lu.assertNil(tail(true))
   lu.assertNil(tail({"a"}))

@@ -1,7 +1,9 @@
 local lu = require("luaunit")
 local LinkedList = require("ff.collections.linkedlist")
 
-function TestIsLinkedList()
+TestLinkedList = {}
+
+function TestLinkedList:testIsLinkedList()
 	lu.assertTrue(LinkedList.isLinkedList(LinkedList.new()))
 	lu.assertFalse(LinkedList.isLinkedList({}))
 	lu.assertFalse(LinkedList.isLinkedList(nil))
@@ -9,41 +11,41 @@ function TestIsLinkedList()
 	lu.assertFalse(LinkedList.isLinkedList(123))
 end
 
-function TestConstructorEmpty()
+function TestLinkedList:testConstructorEmpty()
 	local ll = LinkedList.new()
 	lu.assertTrue(ll:empty())
-	lu.assertEquals(0, #ll)
+	lu.assertEquals(#ll, 0)
 	lu.assertNil(ll:peekFront())
 	lu.assertNil(ll:peekBack())
 	lu.assertNil(ll:popFront())
 	lu.assertNil(ll:popBack())
 end
 
-function TestConstructorWithIterable()
+function TestLinkedList:testConstructorWithIterable()
 	local ll = LinkedList.new({ 10, 20, 30 })
-	lu.assertEquals(3, #ll)
-	lu.assertEquals(10, ll:peekFront())
-	lu.assertEquals(30, ll:peekBack())
-	lu.assertEquals(10, ll:popFront())
-	lu.assertEquals(20, ll:popFront())
-	lu.assertEquals(30, ll:popFront())
+	lu.assertEquals(#ll, 3)
+	lu.assertEquals(ll:peekFront(), 10)
+	lu.assertEquals(ll:peekBack(), 30)
+	lu.assertEquals(ll:popFront(), 10)
+	lu.assertEquals(ll:popFront(), 20)
+	lu.assertEquals(ll:popFront(), 30)
 	lu.assertTrue(ll:empty())
 end
 
-function TestConstructorWithLinkedList()
+function TestLinkedList:testConstructorWithLinkedList()
 	local ll1 = LinkedList.new({ 1, 2, 3 })
 	local ll2 = LinkedList.new(ll1)
-	lu.assertEquals(3, #ll2)
-	lu.assertTrue(ll1 == ll2)
+	lu.assertEquals(#ll2, 3)
+	lu.assertEquals(ll1 == ll2, true)
 end
 
-function TestConstructorValidation()
+function TestLinkedList:testConstructorValidation()
 	lu.assertError(LinkedList.new, "invalid")
 	lu.assertError(LinkedList.new, 123)
 	lu.assertError(LinkedList.new, true)
 end
 
-function TestEmptyAndClear()
+function TestLinkedList:testEmptyAndClear()
 	local ll = LinkedList.new()
 	lu.assertTrue(ll:empty())
 
@@ -52,7 +54,7 @@ function TestEmptyAndClear()
 
 	ll:clear()
 	lu.assertTrue(ll:empty())
-	lu.assertEquals(0, #ll)
+	lu.assertEquals(#ll, 0)
 	lu.assertNil(ll:peekFront())
 	lu.assertNil(ll:peekBack())
 
@@ -63,120 +65,120 @@ function TestEmptyAndClear()
 	ll:popFront()
 	ll:popBack()
 	lu.assertTrue(ll:empty())
-	lu.assertEquals(0, #ll)
+	lu.assertEquals(#ll, 0)
 
 	-- Verify list works after being cleared
 	ll:pushBack(99)
-	lu.assertEquals(1, #ll)
-	lu.assertEquals(99, ll:peekFront())
-	lu.assertEquals(99, ll:peekBack())
-	lu.assertEquals(99, ll:popFront())
+	lu.assertEquals(#ll, 1)
+	lu.assertEquals(ll:peekFront(), 99)
+	lu.assertEquals(ll:peekBack(), 99)
+	lu.assertEquals(ll:popFront(), 99)
 	lu.assertTrue(ll:empty())
 end
 
-function TestLen()
+function TestLinkedList:testLen()
 	local ll = LinkedList.new()
-	lu.assertEquals(0, #ll)
+	lu.assertEquals(#ll, 0)
 
 	ll:pushFront(1)
-	lu.assertEquals(1, #ll)
+	lu.assertEquals(#ll, 1)
 
 	ll:pushBack(2)
-	lu.assertEquals(2, #ll)
+	lu.assertEquals(#ll, 2)
 
 	ll:popFront()
-	lu.assertEquals(1, #ll)
+	lu.assertEquals(#ll, 1)
 
 	ll:popBack()
-	lu.assertEquals(0, #ll)
+	lu.assertEquals(#ll, 0)
 
 	-- Pop on empty keeps len 0
 	ll:popFront()
-	lu.assertEquals(0, #ll)
+	lu.assertEquals(#ll, 0)
 	ll:popBack()
-	lu.assertEquals(0, #ll)
+	lu.assertEquals(#ll, 0)
 end
 
-function TestPushFrontAndPopFront()
+function TestLinkedList:testPushFrontAndPopFront()
 	local ll = LinkedList.new()
 
 	ll:pushFront(1)
 	ll:pushFront(2)
 	ll:pushFront(3)
 
-	lu.assertEquals(3, #ll)
-	lu.assertEquals(3, ll:popFront())
-	lu.assertEquals(2, ll:popFront())
-	lu.assertEquals(1, ll:popFront())
+	lu.assertEquals(#ll, 3)
+	lu.assertEquals(ll:popFront(), 3)
+	lu.assertEquals(ll:popFront(), 2)
+	lu.assertEquals(ll:popFront(), 1)
 	lu.assertNil(ll:popFront())
 	lu.assertTrue(ll:empty())
 end
 
-function TestPushBackAndPopBack()
+function TestLinkedList:testPushBackAndPopBack()
 	local ll = LinkedList.new()
 
 	ll:pushBack(1)
 	ll:pushBack(2)
 	ll:pushBack(3)
 
-	lu.assertEquals(3, #ll)
-	lu.assertEquals(3, ll:popBack())
-	lu.assertEquals(2, ll:popBack())
-	lu.assertEquals(1, ll:popBack())
+	lu.assertEquals(#ll, 3)
+	lu.assertEquals(ll:popBack(), 3)
+	lu.assertEquals(ll:popBack(), 2)
+	lu.assertEquals(ll:popBack(), 1)
 	lu.assertNil(ll:popBack())
 	lu.assertTrue(ll:empty())
 end
 
-function TestPushFrontAndPopBack()
+function TestLinkedList:testPushFrontAndPopBack()
 	local ll = LinkedList.new()
 
 	ll:pushFront(1)
 	ll:pushFront(2)
 	ll:pushFront(3)
 
-	lu.assertEquals(1, ll:popBack())
-	lu.assertEquals(2, ll:popBack())
-	lu.assertEquals(3, ll:popBack())
+	lu.assertEquals(ll:popBack(), 1)
+	lu.assertEquals(ll:popBack(), 2)
+	lu.assertEquals(ll:popBack(), 3)
 	lu.assertNil(ll:popBack())
 	lu.assertTrue(ll:empty())
 end
 
-function TestPushBackAndPopFront()
+function TestLinkedList:testPushBackAndPopFront()
 	local ll = LinkedList.new()
 
 	ll:pushBack(1)
 	ll:pushBack(2)
 	ll:pushBack(3)
 
-	lu.assertEquals(1, ll:popFront())
-	lu.assertEquals(2, ll:popFront())
-	lu.assertEquals(3, ll:popFront())
+	lu.assertEquals(ll:popFront(), 1)
+	lu.assertEquals(ll:popFront(), 2)
+	lu.assertEquals(ll:popFront(), 3)
 	lu.assertNil(ll:popFront())
 	lu.assertTrue(ll:empty())
 end
 
-function TestPeekFrontAndPeekBack()
+function TestLinkedList:testPeekFrontAndPeekBack()
 	local ll = LinkedList.new()
 	lu.assertNil(ll:peekFront())
 	lu.assertNil(ll:peekBack())
 
 	ll:pushFront(10)
-	lu.assertEquals(10, ll:peekFront())
-	lu.assertEquals(10, ll:peekBack())
-	lu.assertEquals(1, #ll)
+	lu.assertEquals(ll:peekFront(), 10)
+	lu.assertEquals(ll:peekBack(), 10)
+	lu.assertEquals(#ll, 1)
 
 	ll:pushBack(20)
-	lu.assertEquals(10, ll:peekFront())
-	lu.assertEquals(20, ll:peekBack())
-	lu.assertEquals(2, #ll)
+	lu.assertEquals(ll:peekFront(), 10)
+	lu.assertEquals(ll:peekBack(), 20)
+	lu.assertEquals(#ll, 2)
 
 	ll:pushFront(5)
-	lu.assertEquals(5, ll:peekFront())
-	lu.assertEquals(20, ll:peekBack())
-	lu.assertEquals(3, #ll)
+	lu.assertEquals(ll:peekFront(), 5)
+	lu.assertEquals(ll:peekBack(), 20)
+	lu.assertEquals(#ll, 3)
 end
 
-function TestContains()
+function TestLinkedList:testContains()
 	local ll = LinkedList.new()
 	lu.assertFalse(ll:contains(10))
 
@@ -191,27 +193,27 @@ function TestContains()
 	lu.assertFalse(ll:contains("10"))
 
 	-- Contains should not consume or modify list
-	lu.assertEquals(3, #ll)
-	lu.assertEquals(10, ll:peekFront())
+	lu.assertEquals(#ll, 3)
+	lu.assertEquals(ll:peekFront(), 10)
 
 	lu.assertError(function()
 		ll:contains(nil)
 	end)
 end
 
-function TestReverse()
+function TestLinkedList:testReverse()
 	local ll = LinkedList.new()
 
 	-- Reverse empty list
-	lu.assertEquals(ll, ll:reverse())
+	lu.assertEquals(ll:reverse(), ll)
 	lu.assertTrue(ll:empty())
 
 	-- Reverse single element
 	ll:pushBack(1)
 	ll:reverse()
-	lu.assertEquals(1, #ll)
-	lu.assertEquals(1, ll:peekFront())
-	lu.assertEquals(1, ll:peekBack())
+	lu.assertEquals(#ll, 1)
+	lu.assertEquals(ll:peekFront(), 1)
+	lu.assertEquals(ll:peekBack(), 1)
 
 	-- Reverse multiple elements
 	ll:pushBack(2)
@@ -221,32 +223,32 @@ function TestReverse()
 
 	ll:reverse()
 	-- list should now be [4, 3, 2, 1]
-	lu.assertEquals(4, #ll)
-	lu.assertEquals(4, ll:peekFront())
-	lu.assertEquals(1, ll:peekBack())
+	lu.assertEquals(#ll, 4)
+	lu.assertEquals(ll:peekFront(), 4)
+	lu.assertEquals(ll:peekBack(), 1)
 
 	-- Check forward traversal
 	local forward = {}
 	for _, v in pairs(ll) do
 		table.insert(forward, v)
 	end
-	lu.assertEquals({ 4, 3, 2, 1 }, forward)
+	lu.assertEquals(forward, { 4, 3, 2, 1 })
 
 	-- Check popBack works correctly (backward links intact)
-	lu.assertEquals(1, ll:popBack())
-	lu.assertEquals(2, ll:popBack())
-	lu.assertEquals(3, ll:popBack())
-	lu.assertEquals(4, ll:popBack())
+	lu.assertEquals(ll:popBack(), 1)
+	lu.assertEquals(ll:popBack(), 2)
+	lu.assertEquals(ll:popBack(), 3)
+	lu.assertEquals(ll:popBack(), 4)
 	lu.assertNil(ll:popBack())
 	lu.assertTrue(ll:empty())
 end
 
-function TestConcat()
+function TestLinkedList:testConcat()
 	local ll = LinkedList.new() .. { 10, 20, 30 }
-	lu.assertEquals(3, #ll)
+	lu.assertEquals(#ll, 3)
 
 	ll = ll .. nil
-	lu.assertEquals(3, #ll)
+	lu.assertEquals(#ll, 3)
 
 	local other = LinkedList.new()
 	other:pushBack(40)
@@ -265,19 +267,19 @@ function TestConcat()
 
 	ll = ll .. stack
 
-	lu.assertEquals(8, #ll)
-	lu.assertEquals(10, ll:popFront())
-	lu.assertEquals(20, ll:popFront())
-	lu.assertEquals(30, ll:popFront())
-	lu.assertEquals(40, ll:popFront())
-	lu.assertEquals(50, ll:popFront())
-	lu.assertEquals(60, ll:popFront())
-	lu.assertEquals(70, ll:popFront())
-	lu.assertEquals(80, ll:popFront())
+	lu.assertEquals(#ll, 8)
+	lu.assertEquals(ll:popFront(), 10)
+	lu.assertEquals(ll:popFront(), 20)
+	lu.assertEquals(ll:popFront(), 30)
+	lu.assertEquals(ll:popFront(), 40)
+	lu.assertEquals(ll:popFront(), 50)
+	lu.assertEquals(ll:popFront(), 60)
+	lu.assertEquals(ll:popFront(), 70)
+	lu.assertEquals(ll:popFront(), 80)
 	lu.assertTrue(ll:empty())
 end
 
-function TestConcatValidation()
+function TestLinkedList:testConcatValidation()
 	local ll = LinkedList.new()
 	lu.assertError(function()
 		ll = ll .. "not a table"
@@ -290,28 +292,28 @@ function TestConcatValidation()
 	end)
 end
 
-function TestEquality()
+function TestLinkedList:testEquality()
 	local ll1 = LinkedList.new({ 1, 2, 3 })
 	local ll2 = LinkedList.new({ 1, 2, 3 })
 	local ll3 = LinkedList.new({ 1, 2, 4 })
 	local ll4 = LinkedList.new({ 1, 2 })
 
-	lu.assertTrue(ll1 == ll2)
-	lu.assertFalse(ll1 == ll3)
-	lu.assertFalse(ll1 == ll4)
-	lu.assertFalse(ll1 == {})
-	lu.assertFalse(ll1 == nil)
-	lu.assertFalse(ll1 == 42)
-	lu.assertFalse(ll1 == "123")
+	lu.assertEquals(ll1 == ll2, true)
+	lu.assertEquals(ll1 == ll3, false)
+	lu.assertEquals(ll1 == ll4, false)
+	lu.assertEquals(ll1 == {}, false)
+	lu.assertEquals(ll1 == nil, false)
+	lu.assertEquals(ll1 == 42, false)
+	lu.assertEquals(ll1 == "123", false)
 end
 
-function TestEqualityEmpty()
+function TestLinkedList:testEqualityEmpty()
 	local ll1 = LinkedList.new()
 	local ll2 = LinkedList.new()
-	lu.assertTrue(ll1 == ll2)
+	lu.assertEquals(ll1 == ll2, true)
 end
 
-function TestIterator()
+function TestLinkedList:testIterator()
 	local ll = LinkedList.new({ 10, 20, 30 })
 
 	local indices = {}
@@ -321,32 +323,32 @@ function TestIterator()
 		table.insert(values, val)
 	end
 
-	lu.assertEquals({ 1, 2, 3 }, indices)
-	lu.assertEquals({ 10, 20, 30 }, values)
+	lu.assertEquals(indices, { 1, 2, 3 })
+	lu.assertEquals(values, { 10, 20, 30 })
 	-- Iterator must not consume or modify the list
-	lu.assertEquals(3, #ll)
+	lu.assertEquals(#ll, 3)
 end
 
-function TestIteratorEmpty()
+function TestLinkedList:testIteratorEmpty()
 	local ll = LinkedList.new()
 	local count = 0
 	for _ in pairs(ll) do
 		count = count + 1
 	end
-	lu.assertEquals(0, count)
+	lu.assertEquals(count, 0)
 end
 
-function TestToString()
+function TestLinkedList:testToString()
 	local ll = LinkedList.new({ 1, 2, 3 })
-	lu.assertEquals("[ 1 -> 2 -> 3 ]", tostring(ll))
+	lu.assertEquals(tostring(ll), "[ 1 -> 2 -> 3 ]")
 end
 
-function TestToStringEmpty()
+function TestLinkedList:testToStringEmpty()
 	local ll = LinkedList.new()
-	lu.assertEquals("[  ]", tostring(ll))
+	lu.assertEquals(tostring(ll), "[  ]")
 end
 
-function TestPushValidation()
+function TestLinkedList:testPushValidation()
 	local ll = LinkedList.new()
 	lu.assertError(function()
 		ll:pushFront(nil)
@@ -356,7 +358,7 @@ function TestPushValidation()
 	end)
 end
 
-function TestNewIndexPreventsModifications()
+function TestLinkedList:testNewIndexPreventsModifications()
 	local ll = LinkedList.new({ 1, 2, 3 })
 
 	-- disallow adding properties

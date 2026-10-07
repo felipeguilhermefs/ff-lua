@@ -1,28 +1,30 @@
 local lu = require("luaunit")
 local factorial = require("ff.math.factorial")
 
-function TestZero()
+TestFactorial = {}
+
+function TestFactorial:testZero()
 	lu.assertEquals(0, factorial(0))
 end
 
-function TestPositive()
+function TestFactorial:testPositive()
 	lu.assertEquals(1, factorial(1))
 	lu.assertEquals(24, factorial(4))
 	lu.assertEquals(3628800, factorial(10))
 	lu.assertEquals(7034535277573963776, factorial(25))
 end
 
-function TestNegative()
+function TestFactorial:testNegative()
 	lu.assertError(factorial, -4)
 	lu.assertError(factorial, -4.2)
 end
 
-function TestNonInteger()
+function TestFactorial:testNonInteger()
 	lu.assertEquals(24, factorial(4.0))
 	lu.assertEquals(24, factorial(4.2))
 end
 
-function TestNonNumber()
+function TestFactorial:testNonNumber()
 	lu.assertError(factorial, nil)
 	lu.assertError(factorial, true)
 	lu.assertError(factorial, "something")

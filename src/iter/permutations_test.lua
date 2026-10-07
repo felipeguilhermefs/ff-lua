@@ -1,6 +1,8 @@
 local lu = require("luaunit")
 local permutations = require("ff.iter.permutations")
 
+TestPermutations = {}
+
 -----------------------------------------------------------------------------
 ---Helper method to collect the permutations in a array
 ---
@@ -16,7 +18,7 @@ local function collect(iter)
 	return res
 end
 
-function TestString()
+function TestPermutations:testString()
 	local expected = {
 		"abc",
 		"bac",
@@ -32,13 +34,13 @@ function TestString()
 	end
 end
 
-function TestEmptyString()
+function TestPermutations:testEmptyString()
 	local p = collect(permutations(""))
 	lu.assertEquals(#p, 1)
 	lu.assertEquals(p[1], "")
 end
 
-function TestArray()
+function TestPermutations:testArray()
 	local expected = {
 		{ 1, 2, 3 },
 		{ 2, 1, 3 },
@@ -54,18 +56,18 @@ function TestArray()
 	end
 end
 
-function TestEmptyArray()
+function TestPermutations:testEmptyArray()
 	local p = collect(permutations({}))
 	lu.assertEquals(#p, 1)
 	lu.assertEquals(#p[1], 0)
 end
 
-function Test4Elements()
+function TestPermutations:test4Elements()
 	local p = collect(permutations({ 1, 2, 3, 4 }))
 	lu.assertEquals(24, #p)
 end
 
-function TestNil()
+function TestPermutations:testNil()
 	lu.assertError(permutations, nil)
 end
 

@@ -3,7 +3,9 @@ local Array = require("ff.collections.array")
 local Comparator = require("ff.func.comparator")
 local binarysearch = require("ff.search.binarysearch")
 
-function TestArray()
+TestBinarySearch = {}
+
+function TestBinarySearch:testArray()
 	local a = Array.new({ 1, 2, 3, 4, 5, 6 })
 
 	lu.assertEquals(1, binarysearch(a, 1))
@@ -15,7 +17,7 @@ function TestArray()
 	lu.assertNil(binarysearch(a, 7))
 end
 
-function TestTableArray()
+function TestBinarySearch:testTableArray()
 	local a = { 6, 5, 4, 3, 2, 1 }
 
 	local cmp = Comparator.reverse(Comparator.natural)

@@ -1,23 +1,25 @@
 local lu = require("luaunit")
 local min = require("ff.math.min")
 
-function test_SingleNumber()
+TestMin = {}
+
+function TestMin:testSingleNumber()
 	lu.assertEquals(min(1), 1)
 	lu.assertEquals(min(-2), -2)
 	lu.assertEquals(min(45.9), 45.9)
 end
 
-function test_MultipleNumbers()
+function TestMin:testMultipleNumbers()
 	lu.assertEquals(min(1, 5), 1)
 	lu.assertEquals(min(4, 2, 9), 2)
 	lu.assertEquals(min(-5, -8, 2), -8)
 end
 
-function test_ArrayOfNumbers()
+function TestMin:testArrayOfNumbers()
 	lu.assertEquals(min(table.unpack({ 7, 4, 9, 3 })), 3)
 end
 
-function test_NonNumbers()
+function TestMin:testNonNumbers()
 	lu.assertNil(min(nil))
 	lu.assertNil(min(true))
 	lu.assertNil(min("something"))
@@ -28,7 +30,7 @@ function test_NonNumbers()
 	end))
 end
 
-function test_ArrayWithNumbersAndNonNumbers()
+function TestMin:testArrayWithNumbersAndNonNumbers()
 	lu.assertEquals(min(table.unpack({ 8, true, "1", 5, {} })), 5)
 end
 

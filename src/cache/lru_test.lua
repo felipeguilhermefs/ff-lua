@@ -1,7 +1,9 @@
 local lu = require("luaunit")
 local LRUCache = require("ff.cache.lru")
 
-function TestUnderCapacity()
+TestLRUCache = {}
+
+function TestLRUCache:testUnderCapacity()
 	local cache = LRUCache.new(3)
 
 	lu.assertNil(cache:get("a"))
@@ -13,7 +15,7 @@ function TestUnderCapacity()
 	lu.assertEquals(1, cache:get("a"))
 end
 
-function TestRotationWhenOverCapacity()
+function TestLRUCache:testRotationWhenOverCapacity()
 	local cache = LRUCache.new(2)
 
 	lu.assertTrue(cache:put("a", 1))
@@ -29,7 +31,7 @@ function TestRotationWhenOverCapacity()
 	lu.assertEquals(2, cache:get("b"))
 end
 
-function TestDropLeastRecentUsed()
+function TestLRUCache:testDropLeastRecentUsed()
 	local cache = LRUCache.new(2)
 
 	lu.assertTrue(cache:put("a", 1))
@@ -41,7 +43,7 @@ function TestDropLeastRecentUsed()
 	lu.assertNil(cache:get("b"))
 end
 
-function TestUpdateValueWithoutDroping()
+function TestLRUCache:testUpdateValueWithoutDroping()
 	local cache = LRUCache.new(2)
 
 	lu.assertTrue(cache:put("a", 1))
@@ -52,7 +54,7 @@ function TestUpdateValueWithoutDroping()
 	lu.assertEquals(2, cache:get("b"))
 end
 
-function TestEvict()
+function TestLRUCache:testEvict()
 	local cache = LRUCache.new(2)
 
 	lu.assertTrue(cache:put("a", 1))
@@ -66,7 +68,7 @@ function TestEvict()
 	lu.assertNil(cache:get("b"))
 end
 
-function TestNil()
+function TestLRUCache:testNil()
 	local cache = LRUCache.new(2)
 
 	lu.assertFalse(cache:put(nil, "a"))
@@ -79,7 +81,7 @@ function TestNil()
 	lu.assertFalse(cache:evict(nil))
 end
 
-function TestCapacity()
+function TestLRUCache:testCapacity()
 	lu.assertError(LRUCache.new, "a")
 	lu.assertError(LRUCache.new, nil)
 	lu.assertError(LRUCache.new, true)

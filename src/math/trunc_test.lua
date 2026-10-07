@@ -1,13 +1,15 @@
 local lu = require("luaunit")
 local trunc = require("ff.math.trunc")
 
-function test_Zero()
+TestTrunc = {}
+
+function TestTrunc:testZero()
 	lu.assertEquals(0, trunc(0))
 	lu.assertEquals(0, trunc(0.5))
 	lu.assertEquals(0, trunc(-0.1))
 end
 
-function test_Positive()
+function TestTrunc:testPositive()
 	lu.assertEquals(1, trunc(1.1))
 	lu.assertEquals(4, trunc(4.234))
 	lu.assertEquals(6, trunc(6.0))
@@ -15,13 +17,13 @@ function test_Positive()
 	lu.assertEquals(10, trunc(10.6))
 end
 
-function test_Negative()
+function TestTrunc:testNegative()
 	lu.assertEquals(-4, trunc(-4.8))
 	lu.assertEquals(-15, trunc(-15.2))
 	lu.assertEquals(-18, trunc(-18))
 end
 
-function test_NonNumber()
+function TestTrunc:testNonNumber()
 	lu.assertNil(trunc(nil))
 	lu.assertNil(trunc(true))
 	lu.assertNil(trunc("something"))

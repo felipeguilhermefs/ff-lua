@@ -3,7 +3,9 @@ local Array = require("ff.collections.array")
 local Comparator = require("ff.func.comparator")
 local quicksort = require("ff.sort.quicksort")
 
-function TestArray()
+TestQuickSort = {}
+
+function TestQuickSort:testArray()
 	local a = Array.new({ 2, 6, 3, 4, 5, 1 })
 
 	quicksort(a)
@@ -25,7 +27,7 @@ function TestArray()
 	lu.assertEquals(6, a:get(1))
 end
 
-function TestTableArray()
+function TestQuickSort:testTableArray()
 	local a = { 2, 6, 3, 4, 5, 1 }
 
 	quicksort(a)

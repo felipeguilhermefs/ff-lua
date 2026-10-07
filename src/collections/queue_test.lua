@@ -1,7 +1,9 @@
 local lu = require("luaunit")
 local Queue = require("ff.collections.queue")
 
-function TestIsQueue()
+TestQueue = {}
+
+function TestQueue:testIsQueue()
 	lu.assertTrue(Queue.isQueue(Queue.new()))
 	lu.assertFalse(Queue.isQueue({}))
 	lu.assertFalse(Queue.isQueue(nil))
@@ -9,38 +11,38 @@ function TestIsQueue()
 	lu.assertFalse(Queue.isQueue(123))
 end
 
-function TestConstructorEmpty()
+function TestQueue:testConstructorEmpty()
 	local q = Queue.new()
 	lu.assertTrue(q:empty())
-	lu.assertEquals(0, #q)
+	lu.assertEquals(#q, 0)
 end
 
-function TestConstructorWithCapacity()
+function TestQueue:testConstructorWithCapacity()
 	local q = Queue.new(nil, 5)
 	lu.assertTrue(q:empty())
-	lu.assertEquals(0, #q)
+	lu.assertEquals(#q, 0)
 end
 
-function TestConstructorWithIterable()
+function TestQueue:testConstructorWithIterable()
 	local q = Queue.new({ 10, 20, 30 })
-	lu.assertEquals(3, #q)
-	lu.assertEquals(10, q:peek())
+	lu.assertEquals(#q, 3)
+	lu.assertEquals(q:peek(), 10)
 end
 
-function TestConstructorWithCapacityAndIterable()
+function TestQueue:testConstructorWithCapacityAndIterable()
 	local q = Queue.new({ 1, 2, 3 }, 5)
-	lu.assertEquals(3, #q)
-	lu.assertEquals(1, q:peek())
+	lu.assertEquals(#q, 3)
+	lu.assertEquals(q:peek(), 1)
 end
 
-function TestConstructorValidation()
+function TestQueue:testConstructorValidation()
 	lu.assertError(Queue.new, nil, "a")
 	lu.assertError(Queue.new, nil, true)
 	lu.assertError(Queue.new, nil, -1)
 	lu.assertError(Queue.new, nil, 0)
 end
 
-function TestEmptyAndClear()
+function TestQueue:testEmptyAndClear()
 	local q = Queue.new()
 	lu.assertTrue(q:empty())
 
@@ -54,65 +56,65 @@ function TestEmptyAndClear()
 	q:enqueue("b")
 	q:clear()
 	lu.assertTrue(q:empty())
-	lu.assertEquals(0, #q)
+	lu.assertEquals(#q, 0)
 end
 
-function TestLen()
+function TestQueue:testLen()
 	local q = Queue.new()
 
-	lu.assertEquals(0, #q)
+	lu.assertEquals(#q, 0)
 
 	q:enqueue(5)
 	q:enqueue(6)
 	q:enqueue(7)
-	lu.assertEquals(3, #q)
+	lu.assertEquals(#q, 3)
 
 	q:dequeue()
 	q:dequeue()
-	lu.assertEquals(1, #q)
+	lu.assertEquals(#q, 1)
 
 	q:dequeue()
 	q:dequeue() -- dequeue on empty returns nil, len stays 0
-	lu.assertEquals(0, #q)
+	lu.assertEquals(#q, 0)
 end
 
-function TestGeneral()
+function TestQueue:testGeneral()
 	local q = Queue.new()
 
 	q:enqueue(10)
 	q:enqueue(20)
-	lu.assertEquals(10, q:dequeue())
-	lu.assertEquals(20, q:dequeue())
+	lu.assertEquals(q:dequeue(), 10)
+	lu.assertEquals(q:dequeue(), 20)
 
 	lu.assertNil(q:dequeue())
 	lu.assertNil(q:peek())
 
 	q:enqueue(30)
-	lu.assertEquals(30, q:peek())
-	lu.assertEquals(30, q:dequeue())
+	lu.assertEquals(q:peek(), 30)
+	lu.assertEquals(q:dequeue(), 30)
 	lu.assertTrue(q:empty())
 end
 
-function TestCapacity()
+function TestQueue:testCapacity()
 	local q = Queue.new(nil, 2)
 
 	lu.assertTrue(q:enqueue(1))
-	lu.assertEquals(1, #q)
+	lu.assertEquals(#q, 1)
 
 	lu.assertTrue(q:enqueue(2))
-	lu.assertEquals(2, #q)
+	lu.assertEquals(#q, 2)
 
 	lu.assertFalse(q:enqueue(3))
-	lu.assertEquals(2, #q)
+	lu.assertEquals(#q, 2)
 
-	lu.assertEquals(1, q:dequeue())
-	lu.assertEquals(1, #q)
+	lu.assertEquals(q:dequeue(), 1)
+	lu.assertEquals(#q, 1)
 
 	lu.assertTrue(q:enqueue(3))
-	lu.assertEquals(2, #q)
+	lu.assertEquals(#q, 2)
 end
 
-function TestIterator()
+function TestQueue:testIterator()
 	local q = Queue.new()
 
 	q:enqueue("a")
@@ -127,14 +129,14 @@ function TestIterator()
 		table.insert(res, item)
 	end
 
-	lu.assertEquals({ 1, 2, 3, 4 }, keys)
-	lu.assertEquals({ "a", "b", "c", "d" }, res)
+	lu.assertEquals(keys, { 1, 2, 3, 4 })
+	lu.assertEquals(res, { "a", "b", "c", "d" })
 	lu.assertFalse(q:empty())
-	lu.assertEquals(4, #q)
-	lu.assertEquals("a", q:peek())
+	lu.assertEquals(#q, 4)
+	lu.assertEquals(q:peek(), "a")
 end
 
-function TestIteratorEmpty()
+function TestQueue:testIteratorEmpty()
 	local q = Queue.new()
 
 	local count = 0
@@ -142,10 +144,10 @@ function TestIteratorEmpty()
 		count = count + 1
 	end
 
-	lu.assertEquals(0, count)
+	lu.assertEquals(count, 0)
 end
 
-function TestIteratorMultipleRuns()
+function TestQueue:testIteratorMultipleRuns()
 	local q = Queue.new({ 1, 2, 3 })
 
 	local firstRun = {}
@@ -158,12 +160,12 @@ function TestIteratorMultipleRuns()
 		table.insert(secondRun, item)
 	end
 
-	lu.assertEquals({ 1, 2, 3 }, firstRun)
-	lu.assertEquals({ 1, 2, 3 }, secondRun)
-	lu.assertEquals(3, #q)
+	lu.assertEquals(firstRun, { 1, 2, 3 })
+	lu.assertEquals(secondRun, { 1, 2, 3 })
+	lu.assertEquals(#q, 3)
 end
 
-function TestDrain()
+function TestQueue:testDrain()
 	local q = Queue.new()
 	q:enqueue("a")
 	q:enqueue("b")
@@ -175,14 +177,14 @@ function TestDrain()
 		table.insert(res, item)
 	end
 
-	lu.assertEquals({ "a", "b", "c", "d" }, res)
+	lu.assertEquals(res, { "a", "b", "c", "d" })
 	lu.assertTrue(q:empty())
-	lu.assertEquals(0, #q)
+	lu.assertEquals(#q, 0)
 	lu.assertNil(q:peek())
 	lu.assertNil(q:dequeue())
 end
 
-function TestDrainEmpty()
+function TestQueue:testDrainEmpty()
 	local q = Queue.new()
 
 	local count = 0
@@ -190,16 +192,16 @@ function TestDrainEmpty()
 		count = count + 1
 	end
 
-	lu.assertEquals(0, count)
+	lu.assertEquals(count, 0)
 	lu.assertTrue(q:empty())
 end
 
-function TestConcat()
+function TestQueue:testConcat()
 	local q = Queue.new() .. { 10, 20, 30 }
-	lu.assertEquals(3, #q)
+	lu.assertEquals(#q, 3)
 
 	q = q .. nil
-	lu.assertEquals(3, #q)
+	lu.assertEquals(#q, 3)
 
 	local s = require("ff.collections.stack").new()
 	s:push(60)
@@ -208,16 +210,16 @@ function TestConcat()
 
 	q = q .. s
 
-	lu.assertEquals(6, #q)
-	lu.assertEquals(10, q:dequeue())
-	lu.assertEquals(20, q:dequeue())
-	lu.assertEquals(30, q:dequeue())
-	lu.assertEquals(40, q:dequeue())
-	lu.assertEquals(50, q:dequeue())
-	lu.assertEquals(60, q:dequeue())
+	lu.assertEquals(#q, 6)
+	lu.assertEquals(q:dequeue(), 10)
+	lu.assertEquals(q:dequeue(), 20)
+	lu.assertEquals(q:dequeue(), 30)
+	lu.assertEquals(q:dequeue(), 40)
+	lu.assertEquals(q:dequeue(), 50)
+	lu.assertEquals(q:dequeue(), 60)
 end
 
-function TestConcatValidation()
+function TestQueue:testConcatValidation()
 	local q = Queue.new()
 	lu.assertError(function()
 		q = q .. "not a table"
@@ -227,27 +229,27 @@ function TestConcatValidation()
 	end)
 end
 
-function TestEquality()
+function TestQueue:testEquality()
 	local q1 = Queue.new({ 1, 2, 3 })
 	local q2 = Queue.new({ 1, 2, 3 })
 	local q3 = Queue.new({ 1, 2, 4 })
 	local q4 = Queue.new({ 1, 2 })
 
-	lu.assertTrue(q1 == q2)
-	lu.assertFalse(q1 == q3)
-	lu.assertFalse(q1 == q4)
-	lu.assertFalse(q1 == {})
-	lu.assertFalse(q1 == nil)
-	lu.assertFalse(q1 == 42)
+	lu.assertEquals(q1 == q2, true)
+	lu.assertEquals(q1 == q3, false)
+	lu.assertEquals(q1 == q4, false)
+	lu.assertEquals(q1 == {}, false)
+	lu.assertEquals(q1 == nil, false)
+	lu.assertEquals(q1 == 42, false)
 end
 
-function TestEqualityEmpty()
+function TestQueue:testEqualityEmpty()
 	local q1 = Queue.new()
 	local q2 = Queue.new()
-	lu.assertTrue(q1 == q2)
+	lu.assertEquals(q1 == q2, true)
 end
 
-function TestToString()
+function TestQueue:testToString()
 	local q = Queue.new()
 	q:enqueue(1)
 	q:enqueue(2)
@@ -260,13 +262,13 @@ function TestToString()
 	lu.assertTrue(str:find("Front") ~= nil)
 end
 
-function TestToStringEmpty()
+function TestQueue:testToStringEmpty()
 	local q = Queue.new()
 	local str = tostring(q)
 	lu.assertTrue(str:find("Front") ~= nil)
 end
 
-function TestClearResetsCorrectly()
+function TestQueue:testClearResetsCorrectly()
 	local q = Queue.new()
 	q:enqueue(1)
 	q:enqueue(2)
@@ -274,43 +276,43 @@ function TestClearResetsCorrectly()
 
 	-- After clear, the queue should behave as if brand new
 	lu.assertTrue(q:empty())
-	lu.assertEquals(0, #q)
+	lu.assertEquals(#q, 0)
 	lu.assertNil(q:dequeue())
 	lu.assertNil(q:peek())
 
 	lu.assertTrue(q:enqueue(99))
-	lu.assertEquals(1, #q)
-	lu.assertEquals(99, q:peek())
+	lu.assertEquals(#q, 1)
+	lu.assertEquals(q:peek(), 99)
 end
 
-function TestDequeueUntilEmpty()
+function TestQueue:testDequeueUntilEmpty()
 	local q = Queue.new()
 	q:enqueue("x")
 	q:dequeue()
 	-- Single-element dequeue calls clear() internally; verify state is coherent
 	lu.assertTrue(q:empty())
-	lu.assertEquals(0, #q)
+	lu.assertEquals(#q, 0)
 	lu.assertTrue(q:enqueue("y"))
-	lu.assertEquals("y", q:dequeue())
+	lu.assertEquals(q:dequeue(), "y")
 	lu.assertTrue(q:empty())
 end
 
-function TestMixedTypes()
+function TestQueue:testMixedTypes()
 	local q = Queue.new()
 	q:enqueue(42)
 	q:enqueue("hello")
 	q:enqueue(true)
 	q:enqueue({ 1, 2 })
 
-	lu.assertEquals(4, #q)
-	lu.assertEquals(42, q:dequeue())
-	lu.assertEquals("hello", q:dequeue())
-	lu.assertEquals(true, q:dequeue())
-	lu.assertEquals({ 1, 2 }, q:dequeue())
+	lu.assertEquals(#q, 4)
+	lu.assertEquals(q:dequeue(), 42)
+	lu.assertEquals(q:dequeue(), "hello")
+	lu.assertEquals(q:dequeue(), true)
+	lu.assertEquals(q:dequeue(), { 1, 2 })
 	lu.assertTrue(q:empty())
 end
 
-function TestContainsPresent()
+function TestQueue:testContainsPresent()
 	local q = Queue.new({ 10, 20, 30 })
 
 	lu.assertTrue(q:contains(10))
@@ -318,45 +320,45 @@ function TestContainsPresent()
 	lu.assertTrue(q:contains(30))
 end
 
-function TestContainsAbsent()
+function TestQueue:testContainsAbsent()
 	local q = Queue.new({ 10, 20, 30 })
 
 	lu.assertFalse(q:contains(99))
 	lu.assertFalse(q:contains("10"))
 end
 
-function TestContainsEmpty()
+function TestQueue:testContainsEmpty()
 	local q = Queue.new()
 	lu.assertFalse(q:contains(1))
 end
 
-function TestContainsDoesNotConsume()
+function TestQueue:testContainsDoesNotConsume()
 	local q = Queue.new({ "a", "b", "c" })
 
 	-- contains must not consume items
 	lu.assertTrue(q:contains("b"))
-	lu.assertEquals(3, #q)
-	lu.assertEquals("a", q:peek())
+	lu.assertEquals(#q, 3)
+	lu.assertEquals(q:peek(), "a")
 end
 
-function TestContainsDuplicates()
+function TestQueue:testContainsDuplicates()
 	local q = Queue.new()
 	q:enqueue(5)
 	q:enqueue(5)
 	q:enqueue(5)
 
 	lu.assertTrue(q:contains(5))
-	lu.assertEquals(3, #q) -- still intact
+	lu.assertEquals(#q, 3) -- still intact
 end
 
-function TestContainsValidation()
+function TestQueue:testContainsValidation()
 	local q = Queue.new()
 	lu.assertError(function()
 		q:contains(nil)
 	end)
 end
 
-function TestFullUnbounded()
+function TestQueue:testFullUnbounded()
 	-- An unbounded queue is never full
 	local q = Queue.new()
 	lu.assertFalse(q:full())
@@ -364,7 +366,7 @@ function TestFullUnbounded()
 	lu.assertFalse(q:full())
 end
 
-function TestFullBoundedNotFull()
+function TestQueue:testFullBoundedNotFull()
 	local q = Queue.new(nil, 3)
 	lu.assertFalse(q:full())
 	q:enqueue(1)
@@ -373,14 +375,14 @@ function TestFullBoundedNotFull()
 	lu.assertFalse(q:full())
 end
 
-function TestFullBoundedAtCapacity()
+function TestQueue:testFullBoundedAtCapacity()
 	local q = Queue.new(nil, 2)
 	q:enqueue("x")
 	q:enqueue("y")
 	lu.assertTrue(q:full())
 end
 
-function TestFullBoundedAfterDequeue()
+function TestQueue:testFullBoundedAfterDequeue()
 	local q = Queue.new(nil, 2)
 	q:enqueue(1)
 	q:enqueue(2)
@@ -393,7 +395,7 @@ function TestFullBoundedAfterDequeue()
 	lu.assertTrue(q:full())
 end
 
-function TestFullConsistentWithEnqueue()
+function TestQueue:testFullConsistentWithEnqueue()
 	-- full() should agree with enqueue() returning false
 	local q = Queue.new(nil, 3)
 	q:enqueue("a")
@@ -404,7 +406,7 @@ function TestFullConsistentWithEnqueue()
 	lu.assertFalse(q:enqueue("d"))
 end
 
-function TestNewIndexPreventsModifications()
+function TestQueue:testNewIndexPreventsModifications()
 	local q = Queue.new()
 
 	-- disallow adding properties

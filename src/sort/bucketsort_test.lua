@@ -2,7 +2,9 @@ local lu = require("luaunit")
 local Array = require("ff.collections.array")
 local bucketsort = require("ff.sort.bucketsort")
 
-function TestArray()
+TestBucketSort = {}
+
+function TestBucketSort:testArray()
 	local a = Array.new({ 2, 6, 3, 4, 5, 1 })
 
 	bucketsort(a)
@@ -26,7 +28,7 @@ function TestArray()
 	lu.assertEquals(5, a:get(6))
 end
 
-function TestTableArray()
+function TestBucketSort:testTableArray()
 	local a = { 2, 6, 3, 4, 5, 1 }
 
 	bucketsort(a)

@@ -1,7 +1,9 @@
 local lu = require("luaunit")
 local Stack = require("ff.collections.stack")
 
-function TestIsStack()
+TestStack = {}
+
+function TestStack:testIsStack()
 	local s = Stack.new()
 	lu.assertTrue(Stack.isStack(s))
 	lu.assertFalse(Stack.isStack({}))
@@ -10,16 +12,16 @@ function TestIsStack()
 	lu.assertFalse(Stack.isStack(123))
 end
 
-function TestConstructor()
+function TestStack:testConstructor()
 	local s1 = Stack.new()
 	lu.assertTrue(s1:empty())
 
 	local s2 = Stack.new({ 10, 20, 30 })
-	lu.assertEquals(3, #s2)
-	lu.assertEquals(30, s2:top())
+	lu.assertEquals(#s2, 3)
+	lu.assertEquals(s2:top(), 30)
 end
 
-function TestContains()
+function TestStack:testContains()
 	-- empty
 	local s = Stack.new()
 	lu.assertFalse(s:contains(1))
@@ -42,7 +44,7 @@ function TestContains()
 	lu.assertFalse(s:contains(30))
 end
 
-function TestEmptyAndClear()
+function TestStack:testEmptyAndClear()
 	local s = Stack.new()
 	lu.assertTrue(s:empty())
 	lu.assertNil(s:pop())
@@ -52,20 +54,20 @@ function TestEmptyAndClear()
 
 	s:clear()
 	lu.assertTrue(s:empty())
-	lu.assertEquals(0, #s)
+	lu.assertEquals(#s, 0)
 end
 
-function TestSingleItem()
+function TestStack:testSingleItem()
 	local s = Stack.new()
 	s:push(1)
 
 	lu.assertFalse(s:empty())
-	lu.assertEquals(1, s:top())
-	lu.assertEquals(1, s:pop())
+	lu.assertEquals(s:top(), 1)
+	lu.assertEquals(s:pop(), 1)
 	lu.assertTrue(s:empty())
 end
 
-function TestMultipleItems()
+function TestStack:testMultipleItems()
 	local s = Stack.new()
 	s:push(1)
 	s:push(true)
@@ -73,46 +75,46 @@ function TestMultipleItems()
 	s:push({ 4, 5, 6 })
 
 	lu.assertFalse(s:empty())
-	lu.assertEquals({ 4, 5, 6 }, s:pop())
-	lu.assertEquals("abc", s:pop())
-	lu.assertEquals(true, s:pop())
-	lu.assertEquals(1, s:top())
-	lu.assertEquals(1, s:pop())
+	lu.assertEquals(s:pop(), { 4, 5, 6 })
+	lu.assertEquals(s:pop(), "abc")
+	lu.assertEquals(s:pop(), true)
+	lu.assertEquals(s:top(), 1)
+	lu.assertEquals(s:pop(), 1)
 	lu.assertTrue(s:empty())
 end
 
-function TestNil()
+function TestStack:testNil()
 	local s = Stack.new()
 	lu.assertErrorMsgContains("entry should not be nil", function()
 		s:push(nil)
 	end)
 end
 
-function TestReverse()
+function TestStack:testReverse()
 	local s = Stack.new({ 1, 2, 3, 4 })
 
 	s:reverse()
 
-	lu.assertEquals(1, s:pop())
-	lu.assertEquals(2, s:pop())
-	lu.assertEquals(3, s:pop())
-	lu.assertEquals(4, s:pop())
+	lu.assertEquals(s:pop(), 1)
+	lu.assertEquals(s:pop(), 2)
+	lu.assertEquals(s:pop(), 3)
+	lu.assertEquals(s:pop(), 4)
 end
 
-function TestEquality()
+function TestStack:testEquality()
 	local s1 = Stack.new({ 1, 2, 3 })
 	local s2 = Stack.new({ 1, 2, 3 })
 	local s3 = Stack.new({ 1, 2, 4 })
 	local s4 = Stack.new({ 1, 2 })
 
-	lu.assertTrue(s1 == s2)
-	lu.assertFalse(s1 == s3)
-	lu.assertFalse(s1 == s4)
-	lu.assertFalse(s1 == {})
-	lu.assertFalse(s1 == nil)
+	lu.assertEquals(s1 == s2, true)
+	lu.assertEquals(s1 == s3, false)
+	lu.assertEquals(s1 == s4, false)
+	lu.assertEquals(s1 == {}, false)
+	lu.assertEquals(s1 == nil, false)
 end
 
-function TestIterator()
+function TestStack:testIterator()
 	local s = Stack.new()
 
 	s:push("a")
@@ -127,14 +129,14 @@ function TestIterator()
 		table.insert(res, item)
 	end
 
-	lu.assertEquals({ 1, 2, 3, 4 }, keys)
-	lu.assertEquals({ "d", "c", "b", "a" }, res)
+	lu.assertEquals(keys, { 1, 2, 3, 4 })
+	lu.assertEquals(res, { "d", "c", "b", "a" })
 	lu.assertFalse(s:empty())
-	lu.assertEquals(4, #s)
-	lu.assertEquals("d", s:top())
+	lu.assertEquals(#s, 4)
+	lu.assertEquals(s:top(), "d")
 end
 
-function TestIteratorEmpty()
+function TestStack:testIteratorEmpty()
 	local s = Stack.new()
 
 	local count = 0
@@ -142,10 +144,10 @@ function TestIteratorEmpty()
 		count = count + 1
 	end
 
-	lu.assertEquals(0, count)
+	lu.assertEquals(count, 0)
 end
 
-function TestIteratorMultipleRuns()
+function TestStack:testIteratorMultipleRuns()
 	local s = Stack.new({ "x", "y", "z" })
 
 	local firstRun = {}
@@ -158,12 +160,12 @@ function TestIteratorMultipleRuns()
 		table.insert(secondRun, item)
 	end
 
-	lu.assertEquals({ "z", "y", "x" }, firstRun)
-	lu.assertEquals({ "z", "y", "x" }, secondRun)
-	lu.assertEquals(3, #s)
+	lu.assertEquals(firstRun, { "z", "y", "x" })
+	lu.assertEquals(secondRun, { "z", "y", "x" })
+	lu.assertEquals(#s, 3)
 end
 
-function TestDrain()
+function TestStack:testDrain()
 	local s = Stack.new()
 	s:push("a")
 	s:push("b")
@@ -175,14 +177,14 @@ function TestDrain()
 		table.insert(res, item)
 	end
 
-	lu.assertEquals({ "d", "c", "b", "a" }, res)
+	lu.assertEquals(res, { "d", "c", "b", "a" })
 	lu.assertTrue(s:empty())
-	lu.assertEquals(0, #s)
+	lu.assertEquals(#s, 0)
 	lu.assertNil(s:top())
 	lu.assertNil(s:pop())
 end
 
-function TestDrainEmpty()
+function TestStack:testDrainEmpty()
 	local s = Stack.new()
 
 	local count = 0
@@ -190,30 +192,30 @@ function TestDrainEmpty()
 		count = count + 1
 	end
 
-	lu.assertEquals(0, count)
+	lu.assertEquals(count, 0)
 	lu.assertTrue(s:empty())
 end
 
-function TestConcat()
+function TestStack:testConcat()
 	local s = Stack.new() .. { 10, 20, 30 }
-	lu.assertEquals(3, #s)
+	lu.assertEquals(#s, 3)
 
 	s = s .. nil
-	lu.assertEquals(3, #s)
+	lu.assertEquals(#s, 3)
 
 	s = s .. Stack.new({ 60, 50, 40 })
 
-	lu.assertEquals(6, #s)
+	lu.assertEquals(#s, 6)
 
-	lu.assertEquals(60, s:pop())
-	lu.assertEquals(50, s:pop())
-	lu.assertEquals(40, s:pop())
-	lu.assertEquals(30, s:pop())
-	lu.assertEquals(20, s:pop())
-	lu.assertEquals(10, s:pop())
+	lu.assertEquals(s:pop(), 60)
+	lu.assertEquals(s:pop(), 50)
+	lu.assertEquals(s:pop(), 40)
+	lu.assertEquals(s:pop(), 30)
+	lu.assertEquals(s:pop(), 20)
+	lu.assertEquals(s:pop(), 10)
 end
 
-function TestNewIndexPreventsModifications()
+function TestStack:testNewIndexPreventsModifications()
 	local s = Stack.new({ 1, 2, 3 })
 
 	-- disallow adding properties

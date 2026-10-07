@@ -1,23 +1,25 @@
 local lu = require("luaunit")
 local max = require("ff.math.max")
 
-function test_SingleNumber()
+TestMax = {}
+
+function TestMax:testSingleNumber()
 	lu.assertEquals(max(1), 1)
 	lu.assertEquals(max(-2), -2)
 	lu.assertEquals(max(45.9), 45.9)
 end
 
-function test_MultipleNumbers()
+function TestMax:testMultipleNumbers()
 	lu.assertEquals(max(1, 5), 5)
 	lu.assertEquals(max(4, 2, 9), 9)
 	lu.assertEquals(max(-5, -8, -2), -2)
 end
 
-function test_ArrayOfNumbers()
+function TestMax:testArrayOfNumbers()
 	lu.assertEquals(max(table.unpack({ 7, 4, 9, 3 })), 9)
 end
 
-function test_NonNumbers()
+function TestMax:testNonNumbers()
 	lu.assertNil(max(nil))
 	lu.assertNil(max(true))
 	lu.assertNil(max("something"))
@@ -28,7 +30,7 @@ function test_NonNumbers()
 	end))
 end
 
-function test_ArrayWithNumbersAndNonNumbers()
+function TestMax:testArrayWithNumbersAndNonNumbers()
 	lu.assertEquals(max(table.unpack({ 8, true, "1", 5, {} })), 8)
 end
 

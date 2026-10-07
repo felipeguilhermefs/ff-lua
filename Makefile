@@ -2,7 +2,7 @@ ROCKSPEC := $(firstword $(wildcard ff-lua-*.rockspec))
 
 .PHONY: test
 test:
-	luarocks test $(ROCKSPEC) -- $(ROCKSPEC) -f -s $(ARGS)
+	luarocks test $(ROCKSPEC) -- $(ROCKSPEC) -s $(ARGS)
 
 .PHONY: lint
 lint:

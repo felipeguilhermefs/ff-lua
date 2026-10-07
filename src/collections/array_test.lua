@@ -1,24 +1,26 @@
 local lu = require("luaunit")
 local Array = require("ff.collections.array")
 
-function TestNewAndClear()
+TestArray = {}
+
+function TestArray:testNewAndClear()
 	local a = Array.new()
-	lu.assertEquals(0, #a)
+	lu.assertEquals(#a, 0)
 	lu.assertTrue(a:empty())
 
 	local b = Array.new({ 5, 6, 7 })
-	lu.assertEquals(3, #b)
+	lu.assertEquals(#b, 3)
 	lu.assertFalse(b:empty())
 
 	b:clear()
-	lu.assertEquals(0, #b)
+	lu.assertEquals(#b, 0)
 	lu.assertTrue(b:empty())
 	lu.assertError(function()
 		b:get(1)
 	end)
 end
 
-function TestEmpty()
+function TestArray:testEmpty()
 	local a = Array.new()
 	lu.assertTrue(a:empty())
 
@@ -26,14 +28,14 @@ function TestEmpty()
 	lu.assertFalse(a:empty())
 end
 
-function TestGet()
+function TestArray:testGet()
 	local a = Array.new({ 10, 20, 30 })
-	lu.assertEquals(10, a:get(1))
-	lu.assertEquals(20, a:get(2))
-	lu.assertEquals(30, a:get(3))
+	lu.assertEquals(a:get(1), 10)
+	lu.assertEquals(a:get(2), 20)
+	lu.assertEquals(a:get(3), 30)
 end
 
-function TestGetValidation()
+function TestArray:testGetValidation()
 	local a = Array.new({ 10, 20, 30 })
 
 	-- bounds validation
@@ -59,14 +61,14 @@ function TestGetValidation()
 	end)
 end
 
-function TestNoBracketAccess()
+function TestArray:testNoBracketAccess()
 	local a = Array.new({ 10, 20, 30 })
 	lu.assertNil(a[1])
 	lu.assertNil(a[2])
 	lu.assertNil(a[3])
 end
 
-function TestNewIndexPreventsModifications()
+function TestArray:testNewIndexPreventsModifications()
 	local a = Array.new({ 10, 20, 30 })
 
 	-- disallow adding properties
@@ -91,70 +93,70 @@ function TestNewIndexPreventsModifications()
 	end)
 end
 
-
-function TestEquals()
+function TestArray:testEquals()
 	local a1 = Array.new({ 10, 20, 30 })
 	local a2 = Array.new({ 10, 20, 30 })
 	local a3 = Array.new({ 10, 20, 40 })
 
-	lu.assertTrue(a1 == a2)
-	lu.assertFalse(a1 == a3)
-	lu.assertTrue(a1 == { 10, 20, 30 })
-	lu.assertFalse(a1 == "string")
+	-- LuaUnit compares table structure; boolean results exercise Array.__eq.
+	lu.assertEquals(a1 == a2, true)
+	lu.assertEquals(a1 == a3, false)
+	lu.assertEquals(a1 == { 10, 20, 30 }, true)
+	lu.assertNotEquals(a1, "string")
 end
 
-function TestSlice()
+function TestArray:testSlice()
 	local a = Array.new({ 10, 20, 30, 40, 50 })
 	local s = a:slice(2, 4)
-	lu.assertEquals(3, #s)
-	lu.assertEquals(20, s:get(1))
-	lu.assertEquals(30, s:get(2))
-	lu.assertEquals(40, s:get(3))
+	lu.assertEquals(#s, 3)
+	lu.assertEquals(s:get(1), 20)
+	lu.assertEquals(s:get(2), 30)
+	lu.assertEquals(s:get(3), 40)
 end
 
-function TestToString()
+function TestArray:testToString()
 	local a = Array.new({ 1, 2, 3 })
-	lu.assertEquals("[ 1, 2, 3 ]", tostring(a))
+	lu.assertEquals(tostring(a), "[ 1, 2, 3 ]")
 
 	local emptyArr = Array.new()
-	lu.assertEquals("[  ]", tostring(emptyArr))
+	lu.assertEquals(tostring(emptyArr), "[  ]")
 end
 
-function TestInsert()
+function TestArray:testInsert()
 	local a = Array.new()
-	lu.assertEquals(0, #a)
+	lu.assertEquals(#a, 0)
 
 	-- insert at end without index
 	a:insert(10)
-	lu.assertEquals(1, #a)
-	lu.assertEquals(10, a:get(1))
+	lu.assertEquals(#a, 1)
+	lu.assertEquals(a:get(1), 10)
 
 	a:insert(20)
-	lu.assertEquals(2, #a)
-	lu.assertEquals(20, a:get(2))
+	lu.assertEquals(#a, 2)
+	lu.assertEquals(a:get(2), 20)
 
 	-- insert with index
 	a:insert(30, 1)
-	lu.assertEquals(3, #a)
-	lu.assertEquals(30, a:get(1))
-	lu.assertEquals(10, a:get(2))
-	lu.assertEquals(20, a:get(3))
+	lu.assertEquals(#a, 3)
+	lu.assertEquals(a:get(1), 30)
+	lu.assertEquals(a:get(2), 10)
+	lu.assertEquals(a:get(3), 20)
 
 	-- insert at index in middle
 	a:insert(15, 3)
-	lu.assertEquals(4, #a)
-	lu.assertEquals(30, a:get(1))
-	lu.assertEquals(10, a:get(2))
-	lu.assertEquals(15, a:get(3))
-	lu.assertEquals(20, a:get(4))
+	lu.assertEquals(#a, 4)
+	lu.assertEquals(a:get(1), 30)
+	lu.assertEquals(a:get(2), 10)
+	lu.assertEquals(a:get(3), 15)
+	lu.assertEquals(a:get(4), 20)
 
 	-- insert at index at end (#a + 1)
 	a:insert(50, 5)
-	lu.assertEquals(5, #a)
-	lu.assertEquals(50, a:get(5))
+	lu.assertEquals(#a, 5)
+	lu.assertEquals(a:get(5), 50)
 end
 
-function TestInsertValidation()
+function TestArray:testInsertValidation()
 	local a = Array.new({ 10, 20, 30 })
 
 	-- value validation
@@ -182,35 +184,35 @@ function TestInsertValidation()
 	end)
 end
 
-function TestRemove()
+function TestArray:testRemove()
 	local a = Array.new({ 10, 20, 30 })
-	lu.assertEquals(3, #a)
+	lu.assertEquals(#a, 3)
 
-	lu.assertEquals(10, a:remove(1))
-	lu.assertEquals(2, #a)
+	lu.assertEquals(a:remove(1), 10)
+	lu.assertEquals(#a, 2)
 
-	lu.assertEquals(20, a:get(1))
-	lu.assertEquals(30, a:get(2))
+	lu.assertEquals(a:get(1), 20)
+	lu.assertEquals(a:get(2), 30)
 end
 
-function TestSwap()
+function TestArray:testSwap()
 	local a = Array.new({ 10, 20, 30 })
 
 	a:swap(1, 2)
-	lu.assertEquals(20, a:get(1))
-	lu.assertEquals(10, a:get(2))
+	lu.assertEquals(a:get(1), 20)
+	lu.assertEquals(a:get(2), 10)
 
 	a:swap(2, 3)
-	lu.assertEquals(30, a:get(2))
-	lu.assertEquals(10, a:get(3))
+	lu.assertEquals(a:get(2), 30)
+	lu.assertEquals(a:get(3), 10)
 
-	lu.assertEquals(20, a:get(1))
-	lu.assertEquals(30, a:get(2))
-	lu.assertEquals(10, a:get(3))
-	lu.assertEquals(3, #a)
+	lu.assertEquals(a:get(1), 20)
+	lu.assertEquals(a:get(2), 30)
+	lu.assertEquals(a:get(3), 10)
+	lu.assertEquals(#a, 3)
 end
 
-function TestIsArray()
+function TestArray:testIsArray()
 	lu.assertFalse(Array.isArray(nil))
 	lu.assertFalse(Array.isArray(true))
 	lu.assertFalse(Array.isArray(123))
@@ -225,17 +227,17 @@ function TestIsArray()
 	lu.assertTrue(Array.isArray(Array.new({ 4, 5, 6 })))
 end
 
-function TestIndexOf()
+function TestArray:testIndexOf()
 	local a = Array.new({ 10, 20, 30, 20 })
 
-	lu.assertEquals(1, a:indexOf(10))
-	lu.assertEquals(3, a:indexOf(30))
-	lu.assertEquals(2, a:indexOf(20))
+	lu.assertEquals(a:indexOf(10), 1)
+	lu.assertEquals(a:indexOf(30), 3)
+	lu.assertEquals(a:indexOf(20), 2)
 
 	lu.assertNil(a:indexOf(40))
 end
 
-function TestContains()
+function TestArray:testContains()
 	local a = Array.new({ 10, 20, 30 })
 
 	lu.assertTrue(a:contains(10))
@@ -253,7 +255,7 @@ function TestContains()
 	lu.assertFalse(b:contains(1))
 end
 
-function TestContainsValidation()
+function TestArray:testContainsValidation()
 	local a = Array.new({ 10, 20, 30 })
 
 	lu.assertError(function()
@@ -261,38 +263,38 @@ function TestContainsValidation()
 	end)
 end
 
-function TestConcat()
+function TestArray:testConcat()
 	local a = Array.new({ 10, 20, 30 })
-	lu.assertEquals(3, #a)
+	lu.assertEquals(#a, 3)
 
 	a = a .. { 40, 50, 60 }
 
-	lu.assertEquals(10, a:get(1))
-	lu.assertEquals(20, a:get(2))
-	lu.assertEquals(30, a:get(3))
-	lu.assertEquals(40, a:get(4))
-	lu.assertEquals(50, a:get(5))
-	lu.assertEquals(60, a:get(6))
-	lu.assertEquals(6, #a)
+	lu.assertEquals(a:get(1), 10)
+	lu.assertEquals(a:get(2), 20)
+	lu.assertEquals(a:get(3), 30)
+	lu.assertEquals(a:get(4), 40)
+	lu.assertEquals(a:get(5), 50)
+	lu.assertEquals(a:get(6), 60)
+	lu.assertEquals(#a, 6)
 
 	a = a .. nil
-	lu.assertEquals(6, #a)
+	lu.assertEquals(#a, 6)
 
 	a = a .. Array.new({ 70, 80, 90 })
-	lu.assertEquals(70, a:get(7))
-	lu.assertEquals(80, a:get(8))
-	lu.assertEquals(90, a:get(9))
-	lu.assertEquals(9, #a)
+	lu.assertEquals(a:get(7), 70)
+	lu.assertEquals(a:get(8), 80)
+	lu.assertEquals(a:get(9), 90)
+	lu.assertEquals(#a, 9)
 
-	local set = require("set").new()
+	local set = require("ff.collections.set").new()
 	set:add(100)
 	a = a .. set
 
-	lu.assertEquals(100, a:get(10))
-	lu.assertEquals(10, #a)
+	lu.assertEquals(a:get(10), 100)
+	lu.assertEquals(#a, 10)
 end
 
-function TestIterator()
+function TestArray:testIterator()
 	local a = Array.new({ 10, 20, 30 })
 
 	local tpairs = {}
@@ -301,6 +303,5 @@ function TestIterator()
 		table.insert(tpairs, value)
 	end
 
-	lu.assertEquals({ 1, 10, 2, 20, 3, 30 }, tpairs)
+	lu.assertEquals(tpairs, { 1, 10, 2, 20, 3, 30 })
 end
-
