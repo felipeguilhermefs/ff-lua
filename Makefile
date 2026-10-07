@@ -1,14 +1,16 @@
+ROCKSPEC := $(firstword $(wildcard ff-lua-*.rockspec))
+
 .PHONY: test
 test:
-	luarocks test
+	luarocks test $(ROCKSPEC) -- $(ROCKSPEC) -f -s $(ARGS)
 
 .PHONY: lint
 lint:
-	luarocks lint *.rockspec
+	luarocks lint $(ROCKSPEC)
 
 .PHONY: install
 install:
-	luarocks install --deps-only *.rockspec
+	luarocks install --deps-only $(ROCKSPEC)
 
 .PHONY: build
 build:
@@ -16,8 +18,8 @@ build:
 
 .PHONY: pack
 pack:
-	luarocks pack *.rockspec
+	luarocks pack $(ROCKSPEC)
 
 .PHONY: publish
 publish:
-	luarocks upload *.rockspec --api-key=$(LUA_ROCKS_API_KEY)
+	luarocks upload $(ROCKSPEC) --api-key=$(LUA_ROCKS_API_KEY)

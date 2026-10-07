@@ -1,5 +1,5 @@
 local lu = require("luaunit")
-local Array = require("array")
+local Array = require("ff.collections.array")
 
 function TestNewAndClear()
 	local a = Array.new()
@@ -304,4 +304,3 @@ function TestIterator()
 	lu.assertEquals({ 1, 10, 2, 20, 3, 30 }, tpairs)
 end
 
-os.exit(lu.LuaUnit.run())

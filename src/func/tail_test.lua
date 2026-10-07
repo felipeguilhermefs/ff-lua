@@ -1,5 +1,5 @@
 lu = require "luaunit"
-tail = require "tail"
+tail = require("ff.func.tail")
 
 -------------------------------
 -- String Test Suite [begin] --
@@ -42,5 +42,4 @@ end
 -- Non Supported Test Suite [end] --
 ------------------------------------
 
-os.exit(lu.LuaUnit.run())
 

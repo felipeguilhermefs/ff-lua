@@ -1,5 +1,5 @@
 local lu = require("luaunit")
-local Stack = require("stack")
+local Stack = require("ff.collections.stack")
 
 function TestIsStack()
 	local s = Stack.new()
@@ -235,4 +235,3 @@ function TestNewIndexPreventsModifications()
 	end)
 end
 
-os.exit(lu.LuaUnit.run())

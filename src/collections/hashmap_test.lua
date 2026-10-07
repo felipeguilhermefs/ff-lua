@@ -1,5 +1,5 @@
 local lu = require("luaunit")
-local HashMap = require("hashmap")
+local HashMap = require("ff.collections.hashmap")
 
 -- ---------------------------------------------------------------------------
 -- Existing tests (preserved and fixed where behaviour was undefined)
@@ -126,7 +126,7 @@ function TestConcat()
 	map = map .. nil
 	lu.assertEquals(3, #map)
 
-	local arr = require("array").new({ "d", "e", "f" })
+	local arr = require("ff.collections.array").new({ "d", "e", "f" })
 
 	map = map .. arr
 
@@ -252,7 +252,6 @@ function TestIsHashMap()
 	lu.assertFalse(HashMap.isHashMap(42))
 	lu.assertFalse(HashMap.isHashMap("string"))
 	lu.assertFalse(HashMap.isHashMap({ a = 1 }))
-	lu.assertFalse(HashMap.isHashMap(require("set").new()))
+	lu.assertFalse(HashMap.isHashMap(require("ff.collections.set").new()))
 end
 
-os.exit(lu.LuaUnit.run())

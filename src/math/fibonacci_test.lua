@@ -1,5 +1,5 @@
 local lu = require("luaunit")
-local fibonacci = require("fibonacci")
+local fibonacci = require("ff.math.fibonacci")
 
 function TestWhen0Return1()
 	lu.assertEquals(fibonacci(0), 1)
@@ -33,4 +33,3 @@ function TestWhen100Return1298777728820984005()
 	lu.assertEquals(fibonacci(100), 1298777728820984005)
 end
 
-os.exit(lu.LuaUnit.run())

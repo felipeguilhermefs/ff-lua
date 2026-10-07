@@ -1,5 +1,5 @@
 local lu = require("luaunit")
-local LRUCache = require("lru")
+local LRUCache = require("ff.cache.lru")
 
 function TestUnderCapacity()
 	local cache = LRUCache.new(3)
@@ -87,4 +87,3 @@ function TestCapacity()
 	lu.assertError(LRUCache.new, 0)
 end
 
-os.exit(lu.LuaUnit.run())

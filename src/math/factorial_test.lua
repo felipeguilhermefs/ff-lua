@@ -1,5 +1,5 @@
 local lu = require("luaunit")
-local factorial = require("factorial")
+local factorial = require("ff.math.factorial")
 
 function TestZero()
 	lu.assertEquals(0, factorial(0))
@@ -33,4 +33,3 @@ function TestNonNumber()
 	end)
 end
 
-os.exit(lu.LuaUnit.run())

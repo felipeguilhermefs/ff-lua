@@ -1,5 +1,5 @@
 local lu = require("luaunit")
-local permutations = require("permutations")
+local permutations = require("ff.iter.permutations")
 
 -----------------------------------------------------------------------------
 ---Helper method to collect the permutations in a array
@@ -69,4 +69,3 @@ function TestNil()
 	lu.assertError(permutations, nil)
 end
 
-os.exit(lu.LuaUnit.run())

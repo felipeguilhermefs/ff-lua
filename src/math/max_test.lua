@@ -1,5 +1,5 @@
 local lu = require("luaunit")
-local max = require("max")
+local max = require("ff.math.max")
 
 function test_SingleNumber()
 	lu.assertEquals(max(1), 1)
@@ -32,4 +32,3 @@ function test_ArrayWithNumbersAndNonNumbers()
 	lu.assertEquals(max(table.unpack({ 8, true, "1", 5, {} })), 8)
 end
 
-os.exit(lu.LuaUnit.run())

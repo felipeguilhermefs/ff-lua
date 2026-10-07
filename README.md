@@ -15,12 +15,30 @@ Install dependencies and package using LuaRocks (target Lua 5.5):
 make install
 ```
 
-## Development & Build Commands
+## Testing
 
-- **Run Tests:**
+- **Run all tests (recommended):**
   ```bash
   make test
   ```
+
+- **Verbose output:**
+  ```bash
+  make test ARGS="-v"
+  ```
+
+- **Run only the TestArray suite:**
+  ```bash
+  make test ARGS="TestArray"
+  ```
+
+- **Run only a specific method:**
+  ```
+  make test ARGS="TestArray.testEmpty"
+  ```
+
+## Development & Build Commands
+
 - **Lint Rockspec:**
   ```bash
   make lint
@@ -32,6 +50,10 @@ make install
 - **Pack Rock:**
   ```bash
   make pack
+  ```
+- **Publish to LuaRocks:**
+  ```bash
+  make publish
   ```
 
 ## License

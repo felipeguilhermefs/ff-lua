@@ -1,5 +1,5 @@
 local lu = require("luaunit")
-local IntervalTree = require("intervaltree")
+local IntervalTree = require("ff.collections.intervaltree")
 
 -- ---------------------------------------------------------------------------
 -- isIntervalTree
@@ -414,4 +414,3 @@ function TestNewIndexPreventsModifications()
 	end)
 end
 
-os.exit(lu.LuaUnit.run())

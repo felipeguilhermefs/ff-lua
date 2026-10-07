@@ -1,5 +1,5 @@
 local lu = require("luaunit")
-local min = require("min")
+local min = require("ff.math.min")
 
 function test_SingleNumber()
 	lu.assertEquals(min(1), 1)
@@ -32,4 +32,3 @@ function test_ArrayWithNumbersAndNonNumbers()
 	lu.assertEquals(min(table.unpack({ 8, true, "1", 5, {} })), 5)
 end
 
-os.exit(lu.LuaUnit.run())

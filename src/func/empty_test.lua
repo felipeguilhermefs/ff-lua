@@ -1,5 +1,5 @@
 local lu = require("luaunit")
-local empty = require("empty")
+local empty = require("ff.func.empty")
 
 -------------------------------
 -- String Test Suite [begin] --
@@ -126,4 +126,3 @@ end
 ------------------------------------
 -- Non Supported Test Suite [end] --
 ------------------------------------
-os.exit(lu.LuaUnit.run())

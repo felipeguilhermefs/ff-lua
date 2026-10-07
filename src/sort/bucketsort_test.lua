@@ -1,6 +1,6 @@
 local lu = require("luaunit")
 local Array = require("ff.collections.array")
-local bucketsort = require("bucketsort")
+local bucketsort = require("ff.sort.bucketsort")
 
 function TestArray()
 	local a = Array.new({ 2, 6, 3, 4, 5, 1 })
@@ -40,4 +40,3 @@ function TestTableArray()
 	lu.assertEquals({ -6, -4, -2, 1, 3, 5 }, a)
 end
 
-os.exit(lu.LuaUnit.run())

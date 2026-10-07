@@ -1,5 +1,5 @@
 local lu = require("luaunit")
-local trunc = require("trunc")
+local trunc = require("ff.math.trunc")
 
 function test_Zero()
 	lu.assertEquals(0, trunc(0))
@@ -32,4 +32,3 @@ function test_NonNumber()
 	end))
 end
 
-os.exit(lu.LuaUnit.run())

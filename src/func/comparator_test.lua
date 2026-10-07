@@ -1,5 +1,5 @@
 local lu = require("luaunit")
-local Comparator = require("comparator")
+local Comparator = require("ff.func.comparator")
 
 function TestNaturalOrder()
 	local cmp = Comparator.natural
@@ -51,4 +51,3 @@ function TestReverseNaturalOrder()
 	lu.assertEquals(Comparator.less, cmp("r", "R"))
 end
 
-os.exit(lu.LuaUnit.run())
