@@ -28,21 +28,12 @@ Boundaries: code/commits/PRs written normal.
 - **License**: MIT.
 - **Language Requirements**: Lua 5.5+ strictly required (runtime guard in `test.lua` and declared in rockspec).
 - **Package Manager**: LuaRocks 3.0+.
-- **Current Version**: `0.25.0-1` (`ff-lua-0.25.0-1.rockspec`).
 
 ---
 
 ## Build & Test Commands
 
-All standard workflows are automated via `Makefile`:
-
-- `make test`: Run complete test suite via LuaRocks test runner (`test.lua` via `luaunit`).
-- `make lint`: Lint rockspec manifest (`luarocks lint *.rockspec`).
-- `make install`: Install rockspec dependencies only (`luarocks install --deps-only *.rockspec`).
-- `make build`: Compile and pack binary rock (`luarocks build --pack-binary-rock`).
-- `make pack`: Package source rock (`luarocks pack *.rockspec`).
-- `make publish`: Upload to LuaRocks repository (`luarocks upload *.rockspec --api-key=$(LUA_ROCKS_API_KEY)`).
-- Direct test run: `lua test.lua` (requires Lua 5.5+ and LuaUnit).
+Check [README.md](README.md)
 
 ---
 
@@ -150,11 +141,7 @@ Every class module adheres to this structure:
 
 ## Testing Standards
 
-- **Framework**: `luaunit` (>= 3.4).
-- **Colocation**: Test files live alongside implementations (`<module>_test.lua`).
-- **Runner**: `test.lua` sets up `package.path` for all `src/` subdirectories and executes all test files via `dofile()`.
-- **Structure**: Tests defined as global functions `function Test<Feature>()` using `lu.assertEquals`, `lu.assertTrue`, `lu.assertFalse`, `lu.assertError`.
-- Ensure all 170+ existing unit tests pass before committing (`make test`).
+Check [test.lua](test.lua).
 
 ---
 

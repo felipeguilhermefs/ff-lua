@@ -10,12 +10,9 @@ description = {
 	license = "MIT",
 	summary = "Personal package with useful code for playful coding",
 	detailed = [[
-      Created this package for personal usage and learning of Lua.
+      Created this package for personal usage, mostly learning general Computer Science topics.
 
       This package strictly supports Lua 5.5 and over.
-
-      This is intended for mostly avoid reimplementing Data Structures and
-      Algorithms.
 
       Please don't use it for anything serious... (I don't).
    ]],
