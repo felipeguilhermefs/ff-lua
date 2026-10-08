@@ -235,18 +235,20 @@ function TestQueue:testEquality()
 	local q3 = Queue.new({ 1, 2, 4 })
 	local q4 = Queue.new({ 1, 2 })
 
-	lu.assertEquals(q1 == q2, true)
-	lu.assertEquals(q1 == q3, false)
-	lu.assertEquals(q1 == q4, false)
-	lu.assertEquals(q1 == {}, false)
-	lu.assertEquals(q1 == nil, false)
-	lu.assertEquals(q1 == 42, false)
+	-- Boolean assertions here intentionally exercise Queue.__eq.
+	lu.assertTrue(q1 == q2)
+	lu.assertFalse(q1 == q3)
+	lu.assertFalse(q1 == q4)
+	lu.assertFalse(q1 == {})
+	lu.assertFalse(q1 == nil)
+	lu.assertFalse(q1 == 42)
 end
 
 function TestQueue:testEquality_Empty()
 	local q1 = Queue.new()
 	local q2 = Queue.new()
-	lu.assertEquals(q1 == q2, true)
+	-- This assertion exercises Queue.__eq; assertEquals compares table structure.
+	lu.assertTrue(q1 == q2)
 end
 
 function TestQueue:testToString()
@@ -256,16 +258,16 @@ function TestQueue:testToString()
 	q:enqueue(3)
 
 	local str = tostring(q)
-	lu.assertTrue(str:find("1") ~= nil)
-	lu.assertTrue(str:find("2") ~= nil)
-	lu.assertTrue(str:find("3") ~= nil)
-	lu.assertTrue(str:find("Front") ~= nil)
+	lu.assertStrContains(str, "1")
+	lu.assertStrContains(str, "2")
+	lu.assertStrContains(str, "3")
+	lu.assertStrContains(str, "Front")
 end
 
 function TestQueue:testToString_Empty()
 	local q = Queue.new()
 	local str = tostring(q)
-	lu.assertTrue(str:find("Front") ~= nil)
+	lu.assertStrContains(str, "Front")
 end
 
 function TestQueue:testClear_ResetsCorrectly()
@@ -307,7 +309,7 @@ function TestQueue:testMixedTypes()
 	lu.assertEquals(#q, 4)
 	lu.assertEquals(q:dequeue(), 42)
 	lu.assertEquals(q:dequeue(), "hello")
-	lu.assertEquals(q:dequeue(), true)
+	lu.assertTrue(q:dequeue())
 	lu.assertEquals(q:dequeue(), { 1, 2 })
 	lu.assertTrue(q:empty())
 end

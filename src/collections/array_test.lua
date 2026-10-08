@@ -108,14 +108,14 @@ function TestArray:testEquals()
 	local a2 = Array.new({ 10, 20, 30 })
 	local a3 = Array.new({ 10, 20, 40 })
 
-	-- LuaUnit compares table structure; boolean results exercise Array.__eq.
-	-- Compare plain values for LuaUnit's detailed diff, then test Array.__eq.
+	-- Compare plain values for LuaUnit's detailed diff. Boolean assertions below
+	-- intentionally exercise Array.__eq, which assertEquals does not invoke.
 	lu.assertEquals(arrayValues(a1), arrayValues(a2))
-	lu.assertEquals(a1 == a2, true)
+	lu.assertTrue(a1 == a2)
 	lu.assertNotEquals(arrayValues(a1), arrayValues(a3))
-	lu.assertEquals(a1 == a3, false)
+	lu.assertFalse(a1 == a3)
 	lu.assertEquals(arrayValues(a1), { 10, 20, 30 })
-	lu.assertEquals(a1 == { 10, 20, 30 }, true)
+	lu.assertTrue(a1 == { 10, 20, 30 })
 	lu.assertNotEquals(a1, "string")
 end
 

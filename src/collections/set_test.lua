@@ -117,9 +117,7 @@ function TestSet:testIterator()
 	for item in pairs(set) do
 		table.insert(res, item)
 	end
-	table.sort(res)
-
-	lu.assertEquals(res, { 1, 2, 3, 4, 5 })
+	lu.assertItemsEquals(res, { 1, 2, 3, 4, 5 })
 end
 
 function TestSet:testConcat()
@@ -201,22 +199,23 @@ function TestSet:testEquals()
 	local s3 = Set.new({ 1, 2, 4 })
 	local s4 = Set.new({ 1, 2 })
 
-	lu.assertEquals(s1 == s2, true)
-	lu.assertEquals(s1 == s3, false)
-	lu.assertEquals(s1 == s4, false)
+	-- Boolean assertions here intentionally exercise Set.__eq.
+	lu.assertTrue(s1 == s2)
+	lu.assertFalse(s1 == s3)
+	lu.assertFalse(s1 == s4)
 
-	lu.assertEquals(s1 == { 1, 2, 3 }, false)
-	lu.assertEquals(s1 == nil, false)
-	lu.assertEquals(s1 == 42, false)
+	lu.assertFalse(s1 == { 1, 2, 3 })
+	lu.assertFalse(s1 == nil)
+	lu.assertFalse(s1 == 42)
 end
 
 function TestSet:testToString()
 	local set = Set.new({ "hello", 123, true })
 	local str = tostring(set)
 
-	lu.assertTrue(str:find("hello") ~= nil)
-	lu.assertTrue(str:find("123") ~= nil)
-	lu.assertTrue(str:find("true") ~= nil)
+	lu.assertStrContains(str, "hello")
+	lu.assertStrContains(str, "123")
+	lu.assertStrContains(str, "true")
 end
 
 function TestSet:testNewIndex_PreventsModifications()

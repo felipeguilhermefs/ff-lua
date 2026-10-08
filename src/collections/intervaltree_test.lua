@@ -320,18 +320,20 @@ function TestIntervalTree:testEquality()
 	local it3 = IntervalTree.new({ { 1, 3 }, { 7, 11 } })
 	local it4 = IntervalTree.new({ { 1, 3 } })
 
-	lu.assertEquals(it1 == it2, true)
-	lu.assertEquals(it1 == it3, false)
-	lu.assertEquals(it1 == it4, false)
-	lu.assertEquals(it1 == nil, false)
-	lu.assertEquals(it1 == {}, false)
-	lu.assertEquals(it1 == 42, false)
+	-- Boolean assertions here intentionally exercise IntervalTree.__eq.
+	lu.assertTrue(it1 == it2)
+	lu.assertFalse(it1 == it3)
+	lu.assertFalse(it1 == it4)
+	lu.assertFalse(it1 == nil)
+	lu.assertFalse(it1 == {})
+	lu.assertFalse(it1 == 42)
 end
 
 function TestIntervalTree:testEquality_Empty()
 	local e1 = IntervalTree.new()
 	local e2 = IntervalTree.new()
-	lu.assertEquals(e1 == e2, true)
+	-- This assertion exercises IntervalTree.__eq; assertEquals compares table structure.
+	lu.assertTrue(e1 == e2)
 end
 
 -- ---------------------------------------------------------------------------

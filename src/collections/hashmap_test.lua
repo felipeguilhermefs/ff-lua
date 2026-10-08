@@ -173,7 +173,7 @@ function TestHashMap:testToString()
 	local map = HashMap.new()
 	map:put("key", "value")
 
-	lu.assertEquals("{ key = value }", tostring(map))
+	lu.assertEquals(tostring(map), "{ key = value }")
 end
 
 function TestHashMap:testEquals()
@@ -182,24 +182,26 @@ function TestHashMap:testEquals()
 	local m3 = HashMap.new({ a = 1, b = 99 }) -- different value
 	local m4 = HashMap.new({ a = 1 }) -- different size
 
-	lu.assertEquals(m1 == m2, true)
-	lu.assertEquals(m1 == m3, false)
-	lu.assertEquals(m1 == m4, false)
+	-- Boolean assertions here intentionally exercise HashMap.__eq.
+	lu.assertTrue(m1 == m2)
+	lu.assertFalse(m1 == m3)
+	lu.assertFalse(m1 == m4)
 end
 
 function TestHashMap:testEquals_NotHashMap()
 	local map = HashMap.new({ a = 1 })
 
-	-- Comparing with a plain table or non-table must return false
-	lu.assertEquals(map == { a = 1 }, false)
-	lu.assertEquals(map == nil, false)
-	lu.assertEquals(map == 42, false)
+	-- These boolean assertions exercise HashMap.__eq for incompatible operands.
+	lu.assertFalse(map == { a = 1 })
+	lu.assertFalse(map == nil)
+	lu.assertFalse(map == 42)
 end
 
 function TestHashMap:testEquals_Empty()
 	local m1 = HashMap.new()
 	local m2 = HashMap.new()
-	lu.assertEquals(m1 == m2, true)
+	-- This assertion exercises HashMap.__eq; assertEquals compares table structure.
+	lu.assertTrue(m1 == m2)
 end
 
 function TestHashMap:testEquals_FalsyValues()
@@ -207,10 +209,11 @@ function TestHashMap:testEquals_FalsyValues()
 	local m2 = HashMap.new()
 	m1:put("flag", false)
 	m2:put("flag", false)
-	lu.assertEquals(m1 == m2, true)
+	-- Boolean assertions here intentionally exercise HashMap.__eq.
+	lu.assertTrue(m1 == m2)
 
 	m2:put("flag", true)
-	lu.assertEquals(m1 == m2, false)
+	lu.assertFalse(m1 == m2)
 end
 
 function TestHashMap:testNewIndex_PreventsModifications()

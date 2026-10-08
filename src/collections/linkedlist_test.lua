@@ -36,7 +36,8 @@ function TestLinkedList:testConstructor_WithLinkedList()
 	local ll1 = LinkedList.new({ 1, 2, 3 })
 	local ll2 = LinkedList.new(ll1)
 	lu.assertEquals(#ll2, 3)
-	lu.assertEquals(ll1 == ll2, true)
+	-- This assertion exercises LinkedList.__eq; assertEquals compares table structure.
+	lu.assertTrue(ll1 == ll2)
 end
 
 function TestLinkedList:testConstructor_Validation()
@@ -298,19 +299,21 @@ function TestLinkedList:testEquality()
 	local ll3 = LinkedList.new({ 1, 2, 4 })
 	local ll4 = LinkedList.new({ 1, 2 })
 
-	lu.assertEquals(ll1 == ll2, true)
-	lu.assertEquals(ll1 == ll3, false)
-	lu.assertEquals(ll1 == ll4, false)
-	lu.assertEquals(ll1 == {}, false)
-	lu.assertEquals(ll1 == nil, false)
-	lu.assertEquals(ll1 == 42, false)
-	lu.assertEquals(ll1 == "123", false)
+	-- Boolean assertions here intentionally exercise LinkedList.__eq.
+	lu.assertTrue(ll1 == ll2)
+	lu.assertFalse(ll1 == ll3)
+	lu.assertFalse(ll1 == ll4)
+	lu.assertFalse(ll1 == {})
+	lu.assertFalse(ll1 == nil)
+	lu.assertFalse(ll1 == 42)
+	lu.assertFalse(ll1 == "123")
 end
 
 function TestLinkedList:testEquality_Empty()
 	local ll1 = LinkedList.new()
 	local ll2 = LinkedList.new()
-	lu.assertEquals(ll1 == ll2, true)
+	-- This assertion exercises LinkedList.__eq; assertEquals compares table structure.
+	lu.assertTrue(ll1 == ll2)
 end
 
 function TestLinkedList:testIterator()

@@ -352,16 +352,17 @@ function TestTreeMap:testEquality()
 	local tm3 = TreeMap.new({ a = 1, b = 99, c = 3 })
 	local tm4 = TreeMap.new({ a = 1, b = 2 })
 
-	lu.assertEquals(tm1 == tm2, true)
-	lu.assertEquals(tm1 == tm3, false)
-	lu.assertEquals(tm1 == tm4, false)
-	lu.assertEquals(tm1 == nil, false)
-	lu.assertEquals(tm1 == "treemap", false)
-	lu.assertEquals(tm1 == 42, false)
+	-- Boolean assertions here intentionally exercise TreeMap.__eq.
+	lu.assertTrue(tm1 == tm2)
+	lu.assertFalse(tm1 == tm3)
+	lu.assertFalse(tm1 == tm4)
+	lu.assertFalse(tm1 == nil)
+	lu.assertFalse(tm1 == "treemap")
+	lu.assertFalse(tm1 == 42)
 
 	local empty1 = TreeMap.new()
 	local empty2 = TreeMap.new()
-	lu.assertEquals(empty1 == empty2, true)
+	lu.assertTrue(empty1 == empty2)
 end
 
 function TestTreeMap:testToString()

@@ -4,23 +4,23 @@ local trunc = require("ff.math.trunc")
 TestTrunc = {}
 
 function TestTrunc:testZero()
-	lu.assertEquals(0, trunc(0))
-	lu.assertEquals(0, trunc(0.5))
-	lu.assertEquals(0, trunc(-0.1))
+	lu.assertEquals(trunc(0), 0)
+	lu.assertEquals(trunc(0.5), 0)
+	lu.assertEquals(trunc(-0.1), 0)
 end
 
 function TestTrunc:testPositive()
-	lu.assertEquals(1, trunc(1.1))
-	lu.assertEquals(4, trunc(4.234))
-	lu.assertEquals(6, trunc(6.0))
-	lu.assertEquals(8, trunc(8))
-	lu.assertEquals(10, trunc(10.6))
+	lu.assertEquals(trunc(1.1), 1)
+	lu.assertEquals(trunc(4.234), 4)
+	lu.assertEquals(trunc(6.0), 6)
+	lu.assertEquals(trunc(8), 8)
+	lu.assertEquals(trunc(10.6), 10)
 end
 
 function TestTrunc:testNegative()
-	lu.assertEquals(-4, trunc(-4.8))
-	lu.assertEquals(-15, trunc(-15.2))
-	lu.assertEquals(-18, trunc(-18))
+	lu.assertEquals(trunc(-4.8), -4)
+	lu.assertEquals(trunc(-15.2), -15)
+	lu.assertEquals(trunc(-18), -18)
 end
 
 function TestTrunc:testNonNumber()

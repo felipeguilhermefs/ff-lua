@@ -8,12 +8,12 @@ TestQuickSelect = {}
 function TestQuickSelect:testArray()
 	local a = Array.new({ 1, 2, 3, 4, 5, 6 })
 
-	lu.assertEquals(1, quickselect(a, 1))
-	lu.assertEquals(2, quickselect(a, 2))
-	lu.assertEquals(3, quickselect(a, 3))
-	lu.assertEquals(4, quickselect(a, 4))
-	lu.assertEquals(5, quickselect(a, 5))
-	lu.assertEquals(6, quickselect(a, 6))
+	lu.assertEquals(quickselect(a, 1), 1)
+	lu.assertEquals(quickselect(a, 2), 2)
+	lu.assertEquals(quickselect(a, 3), 3)
+	lu.assertEquals(quickselect(a, 4), 4)
+	lu.assertEquals(quickselect(a, 5), 5)
+	lu.assertEquals(quickselect(a, 6), 6)
 	lu.assertNil(quickselect(a, 7))
 end
 
@@ -22,12 +22,12 @@ function TestQuickSelect:testTableArray()
 
 	local cmp = Comparator.reverse(Comparator.natural)
 
-	lu.assertEquals(1, quickselect(a, 6, cmp))
-	lu.assertEquals(2, quickselect(a, 5, cmp))
-	lu.assertEquals(3, quickselect(a, 4, cmp))
-	lu.assertEquals(4, quickselect(a, 3, cmp))
-	lu.assertEquals(5, quickselect(a, 2, cmp))
-	lu.assertEquals(6, quickselect(a, 1, cmp))
+	lu.assertEquals(quickselect(a, 6, cmp), 1)
+	lu.assertEquals(quickselect(a, 5, cmp), 2)
+	lu.assertEquals(quickselect(a, 4, cmp), 3)
+	lu.assertEquals(quickselect(a, 3, cmp), 4)
+	lu.assertEquals(quickselect(a, 2, cmp), 5)
+	lu.assertEquals(quickselect(a, 1, cmp), 6)
 	lu.assertNil(quickselect(a, 7, cmp))
 end
 

@@ -4,14 +4,14 @@ local factorial = require("ff.math.factorial")
 TestFactorial = {}
 
 function TestFactorial:testZero()
-	lu.assertEquals(0, factorial(0))
+	lu.assertEquals(factorial(0), 0)
 end
 
 function TestFactorial:testPositive()
-	lu.assertEquals(1, factorial(1))
-	lu.assertEquals(24, factorial(4))
-	lu.assertEquals(3628800, factorial(10))
-	lu.assertEquals(7034535277573963776, factorial(25))
+	lu.assertEquals(factorial(1), 1)
+	lu.assertEquals(factorial(4), 24)
+	lu.assertEquals(factorial(10), 3628800)
+	lu.assertEquals(factorial(25), 7034535277573963776)
 end
 
 function TestFactorial:testNegative()
@@ -20,8 +20,8 @@ function TestFactorial:testNegative()
 end
 
 function TestFactorial:testNonInteger()
-	lu.assertEquals(24, factorial(4.0))
-	lu.assertEquals(24, factorial(4.2))
+	lu.assertEquals(factorial(4.0), 24)
+	lu.assertEquals(factorial(4.2), 24)
 end
 
 function TestFactorial:testNonNumber()

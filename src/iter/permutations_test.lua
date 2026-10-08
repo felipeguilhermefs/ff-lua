@@ -64,7 +64,7 @@ end
 
 function TestPermutations:testPermutations_FourElements()
 	local p = collect(permutations({ 1, 2, 3, 4 }))
-	lu.assertEquals(24, #p)
+	lu.assertEquals(#p, 24)
 end
 
 function TestPermutations:testNil()

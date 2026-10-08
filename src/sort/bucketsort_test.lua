@@ -9,23 +9,23 @@ function TestBucketSort:testArray()
 
 	bucketsort(a)
 
-	lu.assertEquals(1, a:get(1))
-	lu.assertEquals(2, a:get(2))
-	lu.assertEquals(3, a:get(3))
-	lu.assertEquals(4, a:get(4))
-	lu.assertEquals(5, a:get(5))
-	lu.assertEquals(6, a:get(6))
+	lu.assertEquals(a:get(1), 1)
+	lu.assertEquals(a:get(2), 2)
+	lu.assertEquals(a:get(3), 3)
+	lu.assertEquals(a:get(4), 4)
+	lu.assertEquals(a:get(5), 5)
+	lu.assertEquals(a:get(6), 6)
 
 	a = Array.new({ -2, -6, 3, -4, 5, 1 })
 
 	bucketsort(a)
 
-	lu.assertEquals(-6, a:get(1))
-	lu.assertEquals(-4, a:get(2))
-	lu.assertEquals(-2, a:get(3))
-	lu.assertEquals(1, a:get(4))
-	lu.assertEquals(3, a:get(5))
-	lu.assertEquals(5, a:get(6))
+	lu.assertEquals(a:get(1), -6)
+	lu.assertEquals(a:get(2), -4)
+	lu.assertEquals(a:get(3), -2)
+	lu.assertEquals(a:get(4), 1)
+	lu.assertEquals(a:get(5), 3)
+	lu.assertEquals(a:get(6), 5)
 end
 
 function TestBucketSort:testTableArray()
@@ -33,12 +33,12 @@ function TestBucketSort:testTableArray()
 
 	bucketsort(a)
 
-	lu.assertEquals({ 1, 2, 3, 4, 5, 6 }, a)
+	lu.assertEquals(a, { 1, 2, 3, 4, 5, 6 })
 
 	a = { -2, -6, 3, -4, 5, 1 }
 
 	bucketsort(a, -6, 5)
 
-	lu.assertEquals({ -6, -4, -2, 1, 3, 5 }, a)
+	lu.assertEquals(a, { -6, -4, -2, 1, 3, 5 })
 end
 

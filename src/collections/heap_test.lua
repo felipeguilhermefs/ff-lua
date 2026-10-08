@@ -477,18 +477,20 @@ function TestHeap:testEquality()
 	local h3 = Heap.new({ 1, 2, 4 })
 	local h4 = Heap.new({ 1, 2 })
 
-	lu.assertEquals(h1 == h2, true)
-	lu.assertEquals(h1 == h3, false)
-	lu.assertEquals(h1 == h4, false)
-	lu.assertEquals(h1 == {}, false)
-	lu.assertEquals(h1 == nil, false)
-	lu.assertEquals(h1 == 42, false)
+	-- Boolean assertions here intentionally exercise Heap.__eq.
+	lu.assertTrue(h1 == h2)
+	lu.assertFalse(h1 == h3)
+	lu.assertFalse(h1 == h4)
+	lu.assertFalse(h1 == {})
+	lu.assertFalse(h1 == nil)
+	lu.assertFalse(h1 == 42)
 end
 
 function TestHeap:testEquality_Empty()
 	local h1 = Heap.new()
 	local h2 = Heap.new()
-	lu.assertEquals(h1 == h2, true)
+	-- This assertion exercises Heap.__eq; assertEquals compares table structure.
+	lu.assertTrue(h1 == h2)
 end
 
 function TestHeap:testLen()
@@ -510,11 +512,11 @@ end
 function TestHeap:testToString()
 	local h = Heap.new({ 1, 2, 3 })
 	local str = tostring(h)
-	lu.assertTrue(str:find("1") ~= nil)
-	lu.assertTrue(str:find("2") ~= nil)
-	lu.assertTrue(str:find("3") ~= nil)
-	lu.assertTrue(str:find("%[") ~= nil)
-	lu.assertTrue(str:find("%]") ~= nil)
+	lu.assertStrContains(str, "1")
+	lu.assertStrContains(str, "2")
+	lu.assertStrContains(str, "3")
+	lu.assertStrContains(str, "[")
+	lu.assertStrContains(str, "]")
 end
 
 function TestHeap:testToString_Empty()

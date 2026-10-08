@@ -9,26 +9,26 @@ function TestLRUCache:testUnderCapacity()
 	lu.assertNil(cache:get("a"))
 
 	lu.assertTrue(cache:put("a", 1))
-	lu.assertEquals(1, cache:get("a"))
+	lu.assertEquals(cache:get("a"), 1)
 	lu.assertTrue(cache:put("b", 2))
 	lu.assertTrue(cache:put("c", 3))
-	lu.assertEquals(1, cache:get("a"))
+	lu.assertEquals(cache:get("a"), 1)
 end
 
 function TestLRUCache:testRotationWhenOverCapacity()
 	local cache = LRUCache.new(2)
 
 	lu.assertTrue(cache:put("a", 1))
-	lu.assertEquals(1, cache:get("a"))
+	lu.assertEquals(cache:get("a"), 1)
 
 	lu.assertTrue(cache:put("b", 2))
-	lu.assertEquals(2, cache:get("b"))
+	lu.assertEquals(cache:get("b"), 2)
 
 	lu.assertTrue(cache:put("c", 3))
-	lu.assertEquals(3, cache:get("c"))
+	lu.assertEquals(cache:get("c"), 3)
 
 	lu.assertNil(cache:get("a"))
-	lu.assertEquals(2, cache:get("b"))
+	lu.assertEquals(cache:get("b"), 2)
 end
 
 function TestLRUCache:testDropLeastRecentUsed()
@@ -36,10 +36,10 @@ function TestLRUCache:testDropLeastRecentUsed()
 
 	lu.assertTrue(cache:put("a", 1))
 	lu.assertTrue(cache:put("b", 2))
-	lu.assertEquals(1, cache:get("a"))
+	lu.assertEquals(cache:get("a"), 1)
 	lu.assertTrue(cache:put("c", 3))
 
-	lu.assertEquals(1, cache:get("a"))
+	lu.assertEquals(cache:get("a"), 1)
 	lu.assertNil(cache:get("b"))
 end
 
@@ -50,8 +50,8 @@ function TestLRUCache:testUpdateValueWithoutDroping()
 	lu.assertTrue(cache:put("b", 2))
 	lu.assertTrue(cache:put("a", 3))
 
-	lu.assertEquals(3, cache:get("a"))
-	lu.assertEquals(2, cache:get("b"))
+	lu.assertEquals(cache:get("a"), 3)
+	lu.assertEquals(cache:get("b"), 2)
 end
 
 function TestLRUCache:testEvict()
@@ -63,7 +63,7 @@ function TestLRUCache:testEvict()
 	lu.assertTrue(cache:evict("a"))
 	lu.assertTrue(cache:put("c", 3))
 
-	lu.assertEquals(3, cache:get("c"))
+	lu.assertEquals(cache:get("c"), 3)
 	lu.assertNil(cache:get("a"))
 	lu.assertNil(cache:get("b"))
 end

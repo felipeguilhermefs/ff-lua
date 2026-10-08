@@ -52,7 +52,8 @@ function TestRadixTree:testConstructor()
 	-- Constructor with another RadixTree
 	local tCopy = RadixTree.new(t2)
 	lu.assertEquals(#tCopy, 3)
-	lu.assertEquals(tCopy == t2, true)
+	-- This assertion exercises RadixTree.__eq; assertEquals compares table structure.
+	lu.assertTrue(tCopy == t2)
 
 	-- Validation
 	lu.assertErrorMsgContains("caseSensitive should be a boolean", RadixTree.new, nil, 123)
@@ -158,9 +159,9 @@ function TestRadixTree:testFind()
 	-- Prefix search returns all matching words
 	words = t:find("cat")
 	lu.assertEquals(#words, 3)
-	lu.assertEquals(words:indexOf("cat") == nil, false)
-	lu.assertEquals(words:indexOf("category") == nil, false)
-	lu.assertEquals(words:indexOf("cataclysm") == nil, false)
+	lu.assertNotNil(words:indexOf("cat"))
+	lu.assertNotNil(words:indexOf("category"))
+	lu.assertNotNil(words:indexOf("cataclysm"))
 
 	-- Find nothing when prefix is empty
 	words = t:find("")
@@ -286,19 +287,21 @@ function TestRadixTree:testEquality()
 	local t4 = RadixTree.new({ "apple", "banana", "citrus" })
 	local t5 = RadixTree.new({ "apple", "banana", "cherry" }, false)
 
-	lu.assertEquals(t1 == t2, true)
-	lu.assertEquals(t1 == t3, false)
-	lu.assertEquals(t1 == t4, false)
-	lu.assertEquals(t1 == t5, false) -- Different case sensitivity
+	-- Boolean assertions here intentionally exercise RadixTree.__eq.
+	lu.assertTrue(t1 == t2)
+	lu.assertFalse(t1 == t3)
+	lu.assertFalse(t1 == t4)
+	lu.assertFalse(t1 == t5) -- Different case sensitivity
 
-	lu.assertEquals(t1 == nil, false)
-	lu.assertEquals(t1 == {}, false)
-	lu.assertEquals(t1 == "apple", false)
-	lu.assertEquals(t1 == 123, false)
+	lu.assertFalse(t1 == nil)
+	lu.assertFalse(t1 == {})
+	lu.assertFalse(t1 == "apple")
+	lu.assertFalse(t1 == 123)
 
 	local empty1 = RadixTree.new()
 	local empty2 = RadixTree.new()
-	lu.assertEquals(empty1 == empty2, true)
+	-- This assertion exercises RadixTree.__eq; assertEquals compares table structure.
+	lu.assertTrue(empty1 == empty2)
 end
 
 function TestRadixTree:testLen()
@@ -331,10 +334,8 @@ function TestRadixTree:testPairs()
 		lu.assertEquals(i, count)
 		table.insert(words, word)
 	end
-	table.sort(words)
-
 	lu.assertEquals(count, 3)
-	lu.assertEquals(words, { "alpha", "beta", "gamma" })
+	lu.assertItemsEquals(words, { "alpha", "beta", "gamma" })
 end
 
 function TestRadixTree:testToString()

@@ -10,21 +10,21 @@ function TestQuickSort:testArray()
 
 	quicksort(a)
 
-	lu.assertEquals(1, a:get(1))
-	lu.assertEquals(2, a:get(2))
-	lu.assertEquals(3, a:get(3))
-	lu.assertEquals(4, a:get(4))
-	lu.assertEquals(5, a:get(5))
-	lu.assertEquals(6, a:get(6))
+	lu.assertEquals(a:get(1), 1)
+	lu.assertEquals(a:get(2), 2)
+	lu.assertEquals(a:get(3), 3)
+	lu.assertEquals(a:get(4), 4)
+	lu.assertEquals(a:get(5), 5)
+	lu.assertEquals(a:get(6), 6)
 
 	quicksort(a, Comparator.reverse(Comparator.natural))
 
-	lu.assertEquals(1, a:get(6))
-	lu.assertEquals(2, a:get(5))
-	lu.assertEquals(3, a:get(4))
-	lu.assertEquals(4, a:get(3))
-	lu.assertEquals(5, a:get(2))
-	lu.assertEquals(6, a:get(1))
+	lu.assertEquals(a:get(6), 1)
+	lu.assertEquals(a:get(5), 2)
+	lu.assertEquals(a:get(4), 3)
+	lu.assertEquals(a:get(3), 4)
+	lu.assertEquals(a:get(2), 5)
+	lu.assertEquals(a:get(1), 6)
 end
 
 function TestQuickSort:testTableArray()
@@ -32,10 +32,10 @@ function TestQuickSort:testTableArray()
 
 	quicksort(a)
 
-	lu.assertEquals({ 1, 2, 3, 4, 5, 6 }, a)
+	lu.assertEquals(a, { 1, 2, 3, 4, 5, 6 })
 
 	quicksort(a, Comparator.reverse(Comparator.natural))
 
-	lu.assertEquals({ 6, 5, 4, 3, 2, 1 }, a)
+	lu.assertEquals(a, { 6, 5, 4, 3, 2, 1 })
 end
 
