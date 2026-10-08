@@ -46,10 +46,10 @@ function TestTreeMap:testConstructorWithComparator()
 end
 
 function TestTreeMap:testConstructorValidation()
-	lu.assertError(TreeMap.new, nil, "invalid")
-	lu.assertError(TreeMap.new, nil, 123)
-	lu.assertError(TreeMap.new, nil, true)
-	lu.assertError(TreeMap.new, { a = 1 }, "not_a_function")
+	lu.assertErrorMsgContains("comparator should be a function", TreeMap.new, nil, "invalid")
+	lu.assertErrorMsgContains("comparator should be a function", TreeMap.new, nil, 123)
+	lu.assertErrorMsgContains("comparator should be a function", TreeMap.new, nil, true)
+	lu.assertErrorMsgContains("comparator should be a function", TreeMap.new, { a = 1 }, "not_a_function")
 end
 
 function TestTreeMap:testEmptyAndClear()
@@ -91,10 +91,10 @@ function TestTreeMap:testGetAndPut()
 	lu.assertEquals(#tm, 2)
 
 	-- Assertion on nil keys / values
-	lu.assertError(function()
+	lu.assertErrorMsgContains("key should not be nil", function()
 		tm:put(nil, 1)
 	end)
-	lu.assertError(function()
+	lu.assertErrorMsgContains("value should not be nil", function()
 		tm:put("c", nil)
 	end)
 end
@@ -191,10 +191,10 @@ function TestTreeMap:testCompute()
 		end), 9)
 	lu.assertEquals(tm:get(3), 9)
 
-	lu.assertError(function()
+	lu.assertErrorMsgContains("key should not be nil", function()
 		tm:compute(nil, function() end)
 	end)
-	lu.assertError(function()
+	lu.assertErrorMsgContains("fn should be a function", function()
 		tm:compute(3, "not_a_function")
 	end)
 end

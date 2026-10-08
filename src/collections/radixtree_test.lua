@@ -55,8 +55,8 @@ function TestRadixTree:testConstructor()
 	lu.assertEquals(tCopy == t2, true)
 
 	-- Validation
-	lu.assertError(RadixTree.new, nil, 123)
-	lu.assertError(RadixTree.new, nil, "invalid")
+	lu.assertErrorMsgContains("caseSensitive should be a boolean", RadixTree.new, nil, 123)
+	lu.assertErrorMsgContains("caseSensitive should be a boolean", RadixTree.new, nil, "invalid")
 end
 
 function TestRadixTree:testEmptyAndClear()
@@ -92,13 +92,13 @@ function TestRadixTree:testInsert()
 	lu.assertEquals(#t, 1)
 
 	-- Empty string insert
-	lu.assertError(t.insert, t, "")
+	lu.assertErrorMsgContains("word should not be an empty string", t.insert, t, "")
 
 	-- Type validations
-	lu.assertError(t.insert, t, true)
-	lu.assertError(t.insert, t, 2)
-	lu.assertError(t.insert, t, nil)
-	lu.assertError(t.insert, t, {})
+	lu.assertErrorMsgContains("word should be a string", t.insert, t, true)
+	lu.assertErrorMsgContains("word should be a string", t.insert, t, 2)
+	lu.assertErrorMsgContains("word should be a string", t.insert, t, nil)
+	lu.assertErrorMsgContains("word should be a string", t.insert, t, {})
 end
 
 function TestRadixTree:testContains()
@@ -127,9 +127,9 @@ function TestRadixTree:testContains()
 	lu.assertFalse(t:contains("cate", true))
 
 	-- Type assertions
-	lu.assertError(t.contains, t, true)
-	lu.assertError(t.contains, t, 2)
-	lu.assertError(t.contains, t, nil)
+	lu.assertErrorMsgContains("prefix should be a string", t.contains, t, true)
+	lu.assertErrorMsgContains("prefix should be a string", t.contains, t, 2)
+	lu.assertErrorMsgContains("prefix should be a string", t.contains, t, nil)
 end
 
 function TestRadixTree:testFind()
@@ -171,9 +171,9 @@ function TestRadixTree:testFind()
 	lu.assertEquals(#words, 0)
 
 	-- Type validations
-	lu.assertError(t.find, t, nil)
-	lu.assertError(t.find, t, 123)
-	lu.assertError(t.find, t, true)
+	lu.assertErrorMsgContains("prefix should be a string", t.find, t, nil)
+	lu.assertErrorMsgContains("prefix should be a string", t.find, t, 123)
+	lu.assertErrorMsgContains("prefix should be a string", t.find, t, true)
 end
 
 function TestRadixTree:testRemove()
@@ -237,8 +237,8 @@ function TestRadixTree:testRemove()
 	lu.assertEquals(#t, 1)
 
 	-- Validations
-	lu.assertError(t.remove, t, 123)
-	lu.assertError(t.remove, t, nil)
+	lu.assertErrorMsgContains("prefix should be a string", t.remove, t, 123)
+	lu.assertErrorMsgContains("prefix should be a string", t.remove, t, nil)
 end
 
 function TestRadixTree:testConcat()
@@ -271,10 +271,10 @@ function TestRadixTree:testConcat()
 	lu.assertEquals(#t, 5)
 
 	-- Error on invalid type
-	lu.assertError(function()
+	lu.assertErrorMsgContains("iterable should be a table", function()
 		local _ = t .. 123
 	end)
-	lu.assertError(function()
+	lu.assertErrorMsgContains("iterable should be a table", function()
 		local _ = t .. "string"
 	end)
 end

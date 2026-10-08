@@ -1,6 +1,16 @@
 local lu = require("luaunit")
 local Array = require("ff.collections.array")
 
+-- LuaUnit's assertEquals compares tables structurally, not via Array.__eq;
+-- plain-table snapshots give element-level diffs without exposing internals.
+local function arrayValues(array)
+	local values = {}
+	for index, value in pairs(array) do
+		values[index] = value
+	end
+	return values
+end
+
 TestArray = {}
 
 function TestArray:testNewAndClear()
@@ -15,7 +25,7 @@ function TestArray:testNewAndClear()
 	b:clear()
 	lu.assertEquals(#b, 0)
 	lu.assertTrue(b:empty())
-	lu.assertError(function()
+	lu.assertErrorMsgContains("index out of bounds", function()
 		b:get(1)
 	end)
 end
@@ -39,24 +49,24 @@ function TestArray:testGetValidation()
 	local a = Array.new({ 10, 20, 30 })
 
 	-- bounds validation
-	lu.assertError(function()
+	lu.assertErrorMsgContains("index out of bounds", function()
 		a:get(0)
 	end)
-	lu.assertError(function()
+	lu.assertErrorMsgContains("index out of bounds", function()
 		a:get(4)
 	end)
-	lu.assertError(function()
+	lu.assertErrorMsgContains("index out of bounds", function()
 		a:get(-1)
 	end)
 
 	-- numeric validation
-	lu.assertError(function()
+	lu.assertErrorMsgContains("index should be a number", function()
 		a:get("1")
 	end)
-	lu.assertError(function()
+	lu.assertErrorMsgContains("index should be a number", function()
 		a:get(nil)
 	end)
-	lu.assertError(function()
+	lu.assertErrorMsgContains("index should be a number", function()
 		a:get(true)
 	end)
 end
@@ -99,8 +109,12 @@ function TestArray:testEquals()
 	local a3 = Array.new({ 10, 20, 40 })
 
 	-- LuaUnit compares table structure; boolean results exercise Array.__eq.
+	-- Compare plain values for LuaUnit's detailed diff, then test Array.__eq.
+	lu.assertEquals(arrayValues(a1), arrayValues(a2))
 	lu.assertEquals(a1 == a2, true)
+	lu.assertNotEquals(arrayValues(a1), arrayValues(a3))
 	lu.assertEquals(a1 == a3, false)
+	lu.assertEquals(arrayValues(a1), { 10, 20, 30 })
 	lu.assertEquals(a1 == { 10, 20, 30 }, true)
 	lu.assertNotEquals(a1, "string")
 end
@@ -160,26 +174,26 @@ function TestArray:testInsertValidation()
 	local a = Array.new({ 10, 20, 30 })
 
 	-- value validation
-	lu.assertError(function()
+	lu.assertErrorMsgContains("value should not be nil", function()
 		a:insert(nil)
 	end)
 
 	-- bounds validation
-	lu.assertError(function()
+	lu.assertErrorMsgContains("index out of bounds", function()
 		a:insert(40, 0)
 	end)
-	lu.assertError(function()
+	lu.assertErrorMsgContains("index out of bounds", function()
 		a:insert(40, -1)
 	end)
-	lu.assertError(function()
+	lu.assertErrorMsgContains("index out of bounds", function()
 		a:insert(40, 5)
 	end)
 
 	-- numeric validation
-	lu.assertError(function()
+	lu.assertErrorMsgContains("index should be a number", function()
 		a:insert(40, "1")
 	end)
-	lu.assertError(function()
+	lu.assertErrorMsgContains("index should be a number", function()
 		a:insert(40, true)
 	end)
 end
@@ -258,7 +272,7 @@ end
 function TestArray:testContainsValidation()
 	local a = Array.new({ 10, 20, 30 })
 
-	lu.assertError(function()
+	lu.assertErrorMsgContains("value should not be nil", function()
 		a:contains(nil)
 	end)
 end

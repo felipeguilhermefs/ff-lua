@@ -36,10 +36,10 @@ function TestQueue:testConstructorWithCapacityAndIterable()
 end
 
 function TestQueue:testConstructorValidation()
-	lu.assertError(Queue.new, nil, "a")
-	lu.assertError(Queue.new, nil, true)
-	lu.assertError(Queue.new, nil, -1)
-	lu.assertError(Queue.new, nil, 0)
+	lu.assertErrorMsgContains("capacity should be a number", Queue.new, nil, "a")
+	lu.assertErrorMsgContains("capacity should be a number", Queue.new, nil, true)
+	lu.assertErrorMsgContains("capacity should be positive", Queue.new, nil, -1)
+	lu.assertErrorMsgContains("capacity should be positive", Queue.new, nil, 0)
 end
 
 function TestQueue:testEmptyAndClear()
@@ -221,10 +221,10 @@ end
 
 function TestQueue:testConcatValidation()
 	local q = Queue.new()
-	lu.assertError(function()
+	lu.assertErrorMsgContains("iterable should be a table", function()
 		q = q .. "not a table"
 	end)
-	lu.assertError(function()
+	lu.assertErrorMsgContains("iterable should be a table", function()
 		q = q .. 42
 	end)
 end
@@ -353,7 +353,7 @@ end
 
 function TestQueue:testContainsValidation()
 	local q = Queue.new()
-	lu.assertError(function()
+	lu.assertErrorMsgContains("value should not be nil", function()
 		q:contains(nil)
 	end)
 end

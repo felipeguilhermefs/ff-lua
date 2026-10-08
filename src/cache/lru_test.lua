@@ -82,10 +82,9 @@ function TestLRUCache:testNil()
 end
 
 function TestLRUCache:testCapacity()
-	lu.assertError(LRUCache.new, "a")
-	lu.assertError(LRUCache.new, nil)
-	lu.assertError(LRUCache.new, true)
-	lu.assertError(LRUCache.new, -1)
-	lu.assertError(LRUCache.new, 0)
+	lu.assertErrorMsgContains("Capacity should be a number", LRUCache.new, "a")
+	lu.assertErrorMsgContains("Capacity should be a number", LRUCache.new, nil)
+	lu.assertErrorMsgContains("Capacity should be a number", LRUCache.new, true)
+	lu.assertErrorMsgContains("Capacity should be positive", LRUCache.new, -1)
+	lu.assertErrorMsgContains("Capacity should be positive", LRUCache.new, 0)
 end
-

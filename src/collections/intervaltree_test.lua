@@ -49,8 +49,8 @@ function TestIntervalTree:testConstructorNilIterable()
 end
 
 function TestIntervalTree:testConstructorValidation()
-	lu.assertError(IntervalTree.new, "not_a_table")
-	lu.assertError(IntervalTree.new, 42)
+	lu.assertErrorMsgContains("iterable should be a table", IntervalTree.new, "not_a_table")
+	lu.assertErrorMsgContains("iterable should be a table", IntervalTree.new, 42)
 end
 
 -- ---------------------------------------------------------------------------
@@ -104,10 +104,10 @@ end
 
 function TestIntervalTree:testContainsValidation()
 	local it = IntervalTree.new()
-	lu.assertError(function()
+	lu.assertErrorMsgContains("'value' should be a number", function()
 		it:contains("not_a_number")
 	end)
-	lu.assertError(function()
+	lu.assertErrorMsgContains("'value' should be a number", function()
 		it:contains(nil)
 	end)
 end
@@ -144,10 +144,10 @@ end
 
 function TestIntervalTree:testInsertValidation()
 	local it = IntervalTree.new()
-	lu.assertError(function()
+	lu.assertErrorMsgContains("'low' should be a number", function()
 		it:insert("a", 1)
 	end)
-	lu.assertError(function()
+	lu.assertErrorMsgContains("'high' should be a number", function()
 		it:insert(1, "b")
 	end)
 end
@@ -264,10 +264,10 @@ end
 
 function TestIntervalTree:testRemoveValidation()
 	local it = IntervalTree.new()
-	lu.assertError(function()
+	lu.assertErrorMsgContains("'low' should be a number", function()
 		it:remove("a", 1)
 	end)
-	lu.assertError(function()
+	lu.assertErrorMsgContains("'high' should be a number", function()
 		it:remove(1, "b")
 	end)
 end
@@ -302,10 +302,10 @@ end
 
 function TestIntervalTree:testConcatValidation()
 	local it = IntervalTree.new()
-	lu.assertError(function()
+	lu.assertErrorMsgContains("iterable should be a table", function()
 		it = it .. "not_a_table"
 	end)
-	lu.assertError(function()
+	lu.assertErrorMsgContains("iterable should be a table", function()
 		it = it .. 42
 	end)
 end

@@ -96,20 +96,18 @@ function TestHashMap:testIterator()
 	map:put("c", 3)
 	map:put("d", 4)
 
-	local res = {}
+	local actual_pairs = {}
 	for k, v in pairs(map) do
-		res[#res + 1] = { key = k, value = v }
+		actual_pairs[#actual_pairs + 1] = { key = k, value = v }
 	end
-	table.sort(res, function(a, b)
-		return a.key < b.key
-	end)
 
-	lu.assertEquals(res, {
+	local expected_pairs = {
 		{ key = "a", value = 1 },
 		{ key = "b", value = 2 },
 		{ key = "c", value = 3 },
 		{ key = "d", value = 4 },
-	})
+	}
+	lu.assertItemsEquals(actual_pairs, expected_pairs)
 end
 
 function TestHashMap:testConcat()
@@ -247,4 +245,3 @@ function TestHashMap:testIsHashMap()
 	lu.assertFalse(HashMap.isHashMap({ a = 1 }))
 	lu.assertFalse(HashMap.isHashMap(require("ff.collections.set").new()))
 end
-

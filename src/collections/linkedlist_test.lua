@@ -40,9 +40,9 @@ function TestLinkedList:testConstructorWithLinkedList()
 end
 
 function TestLinkedList:testConstructorValidation()
-	lu.assertError(LinkedList.new, "invalid")
-	lu.assertError(LinkedList.new, 123)
-	lu.assertError(LinkedList.new, true)
+	lu.assertErrorMsgContains("iterable should be a table", LinkedList.new, "invalid")
+	lu.assertErrorMsgContains("iterable should be a table", LinkedList.new, 123)
+	lu.assertErrorMsgContains("iterable should be a table", LinkedList.new, true)
 end
 
 function TestLinkedList:testEmptyAndClear()
@@ -196,7 +196,7 @@ function TestLinkedList:testContains()
 	lu.assertEquals(#ll, 3)
 	lu.assertEquals(ll:peekFront(), 10)
 
-	lu.assertError(function()
+	lu.assertErrorMsgContains("value should not be nil", function()
 		ll:contains(nil)
 	end)
 end
@@ -281,13 +281,13 @@ end
 
 function TestLinkedList:testConcatValidation()
 	local ll = LinkedList.new()
-	lu.assertError(function()
+	lu.assertErrorMsgContains("iterable should be a table", function()
 		ll = ll .. "not a table"
 	end)
-	lu.assertError(function()
+	lu.assertErrorMsgContains("iterable should be a table", function()
 		ll = ll .. 42
 	end)
-	lu.assertError(function()
+	lu.assertErrorMsgContains("iterable should be a table", function()
 		ll = ll .. true
 	end)
 end
@@ -350,10 +350,10 @@ end
 
 function TestLinkedList:testPushValidation()
 	local ll = LinkedList.new()
-	lu.assertError(function()
+	lu.assertErrorMsgContains("entry should not be nil", function()
 		ll:pushFront(nil)
 	end)
-	lu.assertError(function()
+	lu.assertErrorMsgContains("entry should not be nil", function()
 		ll:pushBack(nil)
 	end)
 end

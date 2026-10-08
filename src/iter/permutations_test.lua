@@ -68,6 +68,6 @@ function TestPermutations:test4Elements()
 end
 
 function TestPermutations:testNil()
-	lu.assertError(permutations, nil)
+	lu.assertErrorMsgContains("Only arrays and strings are accepted", permutations, nil)
 end
 

@@ -15,8 +15,8 @@ function TestFactorial:testPositive()
 end
 
 function TestFactorial:testNegative()
-	lu.assertError(factorial, -4)
-	lu.assertError(factorial, -4.2)
+	lu.assertErrorMsgContains("Should be positive", factorial, -4)
+	lu.assertErrorMsgContains("Should be positive", factorial, -4.2)
 end
 
 function TestFactorial:testNonInteger()
@@ -25,12 +25,12 @@ function TestFactorial:testNonInteger()
 end
 
 function TestFactorial:testNonNumber()
-	lu.assertError(factorial, nil)
-	lu.assertError(factorial, true)
-	lu.assertError(factorial, "something")
-	lu.assertError(factorial, { 1, 2, 3 })
-	lu.assertError(factorial, { a = 1, b = 2 })
-	lu.assertError(factorial, function()
+	lu.assertErrorMsgContains("Should be a number", factorial, nil)
+	lu.assertErrorMsgContains("Should be a number", factorial, true)
+	lu.assertErrorMsgContains("Should be a number", factorial, "something")
+	lu.assertErrorMsgContains("Should be a number", factorial, { 1, 2, 3 })
+	lu.assertErrorMsgContains("Should be a number", factorial, { a = 1, b = 2 })
+	lu.assertErrorMsgContains("Should be a number", factorial, function()
 		return 1
 	end)
 end
