@@ -1,31 +1,35 @@
+-----------------------------------------------------------------------------
+-- 1. Upvalue caching & Imports
+-----------------------------------------------------------------------------
 local lu = require("luaunit")
 local Set = require("ff.collections.set")
 
+-----------------------------------------------------------------------------
+-- 2. Test Suite Table Definition
+-----------------------------------------------------------------------------
 TestSet = {}
 
-function TestSet:testEmpty()
-	local set = Set.new()
-	lu.assertTrue(set:empty())
+-----------------------------------------------------------------------------
+-- 3. Suite Lifecycle Hooks (Optional)
+-- Not needed: each test creates its own fixtures.
+-----------------------------------------------------------------------------
 
-	set:add("a")
-	lu.assertFalse(set:empty())
+-----------------------------------------------------------------------------
+-- 4. Constructor & Type Guard Tests
+-----------------------------------------------------------------------------
 
-	set:clear()
-	lu.assertTrue(set:empty())
+function TestSet:testIsSet()
+	lu.assertTrue(Set.isSet(Set.new()))
+	lu.assertTrue(Set.isSet(Set.new({ 1, 2, 3 })))
+	lu.assertFalse(Set.isSet({ 1, 2, 3 }))
+	lu.assertFalse(Set.isSet(nil))
+	lu.assertFalse(Set.isSet("set"))
+	lu.assertFalse(Set.isSet(123))
 end
 
-function TestSet:testAdd()
-	local set = Set.new()
-
-	lu.assertTrue(set:add("c"))
-	lu.assertTrue(set:contains("c"))
-
-	lu.assertFalse(set:add("c"))
-	lu.assertTrue(set:contains("c"))
-
-	lu.assertTrue(set:add("d"))
-	lu.assertTrue(set:contains("d", "c"))
-end
+-----------------------------------------------------------------------------
+-- 5. Core Accessor & Inspection Tests
+-----------------------------------------------------------------------------
 
 function TestSet:testContains()
 	local set = Set.new()
@@ -46,18 +50,6 @@ function TestSet:testContains()
 	lu.assertTrue(set:contains("f", "h"))
 	lu.assertFalse(set:contains("f", "i"))
 	lu.assertFalse(set:contains())
-end
-
-function TestSet:testRemove()
-	local set = Set.new({ "f", "g" })
-	lu.assertEquals(#set, 2)
-
-	set:remove("f")
-
-	lu.assertFalse(set:contains("f"))
-	lu.assertTrue(set:contains("g"))
-
-	lu.assertEquals(#set, 1)
 end
 
 function TestSet:testDiff()
@@ -110,64 +102,6 @@ function TestSet:testUnion()
 	lu.assertEquals(#setUnion3, 3)
 end
 
-function TestSet:testIterator()
-	local set = Set.new({ 1, 2, 3, 4, 5 })
-
-	local res = {}
-	for item in pairs(set) do
-		table.insert(res, item)
-	end
-	lu.assertItemsEquals(res, { 1, 2, 3, 4, 5 })
-end
-
-function TestSet:testConcat()
-	local set = Set.new({ 10, 20, 30 })
-	lu.assertEquals(#set, 3)
-
-	set = set .. { 40, 50, 60 }
-
-	lu.assertTrue(set:contains(10, 20, 30, 40, 50, 60))
-	lu.assertEquals(#set, 6)
-
-	set = set .. nil
-	lu.assertEquals(#set, 6)
-
-	set = set .. Set.new({ 70, 80, 90 })
-	lu.assertTrue(set:contains(70, 80, 90))
-	lu.assertEquals(#set, 9)
-
-	local q = require("ff.collections.queue").new()
-	q:enqueue(100)
-	set = set .. q
-
-	lu.assertTrue(set:contains(100))
-	lu.assertEquals(#set, 10)
-end
-
-function TestSet:testIsSet()
-	lu.assertTrue(Set.isSet(Set.new()))
-	lu.assertTrue(Set.isSet(Set.new({ 1, 2, 3 })))
-	lu.assertFalse(Set.isSet({ 1, 2, 3 }))
-	lu.assertFalse(Set.isSet(nil))
-	lu.assertFalse(Set.isSet("set"))
-	lu.assertFalse(Set.isSet(123))
-end
-
-function TestSet:testBooleanValues()
-	local set = Set.new()
-	lu.assertTrue(set:add(false))
-	lu.assertEquals(#set, 1)
-	lu.assertTrue(set:contains(false))
-
-	lu.assertFalse(set:add(false))
-	lu.assertEquals(#set, 1)
-
-	lu.assertTrue(set:remove(false))
-	lu.assertEquals(#set, 0)
-	lu.assertFalse(set:contains(false))
-	lu.assertFalse(set:remove(false))
-end
-
 function TestSet:testSymmetricDiff()
 	local set1 = Set.new({ 1, 2, 3, 4 })
 	local set2 = Set.new({ 3, 4, 5, 6 })
@@ -191,6 +125,99 @@ function TestSet:testSubsetSupersetDisjoint()
 
 	lu.assertTrue(sub:disjoint(other))
 	lu.assertFalse(sub:disjoint(super))
+end
+
+-----------------------------------------------------------------------------
+function TestSet:testIterator()
+	local set = Set.new({ 1, 2, 3, 4, 5 })
+
+	local res = {}
+	for item in pairs(set) do
+		table.insert(res, item)
+	end
+	lu.assertItemsEquals(res, { 1, 2, 3, 4, 5 })
+end
+
+-- 6. Mutation & Modification Tests
+-----------------------------------------------------------------------------
+
+function TestSet:testEmpty()
+	local set = Set.new()
+	lu.assertTrue(set:empty())
+
+	set:add("a")
+	lu.assertFalse(set:empty())
+
+	set:clear()
+	lu.assertTrue(set:empty())
+end
+
+function TestSet:testAdd()
+	local set = Set.new()
+
+	lu.assertTrue(set:add("c"))
+	lu.assertTrue(set:contains("c"))
+
+	lu.assertFalse(set:add("c"))
+	lu.assertTrue(set:contains("c"))
+
+	lu.assertTrue(set:add("d"))
+	lu.assertTrue(set:contains("d", "c"))
+end
+
+function TestSet:testRemove()
+	local set = Set.new({ "f", "g" })
+	lu.assertEquals(#set, 2)
+
+	set:remove("f")
+
+	lu.assertFalse(set:contains("f"))
+	lu.assertTrue(set:contains("g"))
+
+	lu.assertEquals(#set, 1)
+end
+
+function TestSet:testBooleanValues()
+	local set = Set.new()
+	lu.assertTrue(set:add(false))
+	lu.assertEquals(#set, 1)
+	lu.assertTrue(set:contains(false))
+
+	lu.assertFalse(set:add(false))
+	lu.assertEquals(#set, 1)
+
+	lu.assertTrue(set:remove(false))
+	lu.assertEquals(#set, 0)
+	lu.assertFalse(set:contains(false))
+	lu.assertFalse(set:remove(false))
+end
+
+-----------------------------------------------------------------------------
+-- 7. Metamethod Tests (__len, __eq, __concat, __tostring, __newindex)
+-----------------------------------------------------------------------------
+
+function TestSet:testConcat()
+	local set = Set.new({ 10, 20, 30 })
+	lu.assertEquals(#set, 3)
+
+	set = set .. { 40, 50, 60 }
+
+	lu.assertTrue(set:contains(10, 20, 30, 40, 50, 60))
+	lu.assertEquals(#set, 6)
+
+	set = set .. nil
+	lu.assertEquals(#set, 6)
+
+	set = set .. Set.new({ 70, 80, 90 })
+	lu.assertTrue(set:contains(70, 80, 90))
+	lu.assertEquals(#set, 9)
+
+	local q = require("ff.collections.queue").new()
+	q:enqueue(100)
+	set = set .. q
+
+	lu.assertTrue(set:contains(100))
+	lu.assertEquals(#set, 10)
 end
 
 function TestSet:testEquals()
@@ -239,4 +266,3 @@ function TestSet:testNewIndex_PreventsModifications()
 		s.add = function() end
 	end)
 end
-

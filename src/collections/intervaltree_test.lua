@@ -1,11 +1,22 @@
+-----------------------------------------------------------------------------
+-- 1. Upvalue caching & Imports
+-----------------------------------------------------------------------------
 local lu = require("luaunit")
 local IntervalTree = require("ff.collections.intervaltree")
 
+-----------------------------------------------------------------------------
+-- 2. Test Suite Table Definition
+-----------------------------------------------------------------------------
 TestIntervalTree = {}
 
--- ---------------------------------------------------------------------------
--- isIntervalTree
--- ---------------------------------------------------------------------------
+-----------------------------------------------------------------------------
+-- 3. Suite Lifecycle Hooks (Optional)
+-- Not needed: each test creates its own fixtures.
+-----------------------------------------------------------------------------
+
+-----------------------------------------------------------------------------
+-- 4. Constructor & Type Guard Tests
+-----------------------------------------------------------------------------
 
 function TestIntervalTree:testIsIntervalTree()
 	lu.assertTrue(IntervalTree.isIntervalTree(IntervalTree.new()))
@@ -15,8 +26,6 @@ function TestIntervalTree:testIsIntervalTree()
 	lu.assertFalse(IntervalTree.isIntervalTree(123))
 end
 
--- ---------------------------------------------------------------------------
--- Constructor
 -- ---------------------------------------------------------------------------
 
 function TestIntervalTree:testConstructor_Empty()
@@ -54,33 +63,10 @@ function TestIntervalTree:testConstructor_Validation()
 end
 
 -- ---------------------------------------------------------------------------
--- clear / empty
--- ---------------------------------------------------------------------------
 
-function TestIntervalTree:testEmptyAndClear()
-	local it = IntervalTree.new()
-
-	lu.assertTrue(it:empty())
-	lu.assertEquals(#it, 0)
-
-	it:insert(1, 2)
-	lu.assertFalse(it:empty())
-	lu.assertEquals(#it, 1)
-
-	it:clear()
-	lu.assertTrue(it:empty())
-	lu.assertEquals(#it, 0)
-
-	-- Re-use after clear
-	it:insert(3, 4)
-	it:insert(8, 9)
-	lu.assertFalse(it:empty())
-	lu.assertEquals(#it, 2)
-end
-
--- ---------------------------------------------------------------------------
--- contains
--- ---------------------------------------------------------------------------
+-----------------------------------------------------------------------------
+-- 5. Core Accessor & Inspection Tests
+-----------------------------------------------------------------------------
 
 function TestIntervalTree:testContains()
 	local it = IntervalTree.new()
@@ -113,7 +99,59 @@ function TestIntervalTree:testContains_Validation()
 end
 
 -- ---------------------------------------------------------------------------
--- insert
+
+-----------------------------------------------------------------------------
+function TestIntervalTree:testPairs_InOrder()
+	local it = IntervalTree.new({ { 10, 20 }, { 1, 3 }, { 50, 60 }, { 30, 40 } })
+	local res = {}
+	for low, high in pairs(it) do
+		table.insert(res, { low, high })
+	end
+
+	-- Expect ascending by low
+	lu.assertEquals(res, {
+		{ 1, 3 },
+		{ 10, 20 },
+		{ 30, 40 },
+		{ 50, 60 },
+	})
+end
+
+function TestIntervalTree:testPairs_Empty()
+	local it = IntervalTree.new()
+	local count = 0
+	for _ in pairs(it) do
+		count = count + 1
+	end
+	lu.assertEquals(count, 0)
+end
+
+-- ---------------------------------------------------------------------------
+
+-- 6. Mutation & Modification Tests
+-----------------------------------------------------------------------------
+
+function TestIntervalTree:testEmptyAndClear()
+	local it = IntervalTree.new()
+
+	lu.assertTrue(it:empty())
+	lu.assertEquals(#it, 0)
+
+	it:insert(1, 2)
+	lu.assertFalse(it:empty())
+	lu.assertEquals(#it, 1)
+
+	it:clear()
+	lu.assertTrue(it:empty())
+	lu.assertEquals(#it, 0)
+
+	-- Re-use after clear
+	it:insert(3, 4)
+	it:insert(8, 9)
+	lu.assertFalse(it:empty())
+	lu.assertEquals(#it, 2)
+end
+
 -- ---------------------------------------------------------------------------
 
 function TestIntervalTree:testInsert()
@@ -179,8 +217,6 @@ function TestIntervalTree:testInsert_ManyMerge()
 	lu.assertEquals(high, 10)
 end
 
--- ---------------------------------------------------------------------------
--- remove
 -- ---------------------------------------------------------------------------
 
 function TestIntervalTree:testRemove_Exact()
@@ -273,8 +309,10 @@ function TestIntervalTree:testRemove_Validation()
 end
 
 -- ---------------------------------------------------------------------------
--- __concat
--- ---------------------------------------------------------------------------
+
+-----------------------------------------------------------------------------
+-- 7. Metamethod Tests (__len, __eq, __concat, __tostring, __newindex)
+-----------------------------------------------------------------------------
 
 function TestIntervalTree:testConcat()
 	local it = IntervalTree.new() .. { { 1, 3 }, { 7, 10 } }
@@ -311,8 +349,6 @@ function TestIntervalTree:testConcat_Validation()
 end
 
 -- ---------------------------------------------------------------------------
--- __eq
--- ---------------------------------------------------------------------------
 
 function TestIntervalTree:testEquality()
 	local it1 = IntervalTree.new({ { 1, 3 }, { 7, 10 } })
@@ -337,8 +373,6 @@ function TestIntervalTree:testEquality_Empty()
 end
 
 -- ---------------------------------------------------------------------------
--- __len
--- ---------------------------------------------------------------------------
 
 function TestIntervalTree:testLen()
 	local it = IntervalTree.new()
@@ -355,37 +389,6 @@ function TestIntervalTree:testLen()
 	lu.assertEquals(#it, 1)
 end
 
--- ---------------------------------------------------------------------------
--- __pairs  (in-order)
--- ---------------------------------------------------------------------------
-
-function TestIntervalTree:testPairs_InOrder()
-	local it = IntervalTree.new({ { 10, 20 }, { 1, 3 }, { 50, 60 }, { 30, 40 } })
-	local res = {}
-	for low, high in pairs(it) do
-		table.insert(res, { low, high })
-	end
-
-	-- Expect ascending by low
-	lu.assertEquals(res, {
-		{ 1, 3 },
-		{ 10, 20 },
-		{ 30, 40 },
-		{ 50, 60 },
-	})
-end
-
-function TestIntervalTree:testPairs_Empty()
-	local it = IntervalTree.new()
-	local count = 0
-	for _ in pairs(it) do
-		count = count + 1
-	end
-	lu.assertEquals(count, 0)
-end
-
--- ---------------------------------------------------------------------------
--- __tostring
 -- ---------------------------------------------------------------------------
 
 function TestIntervalTree:testToString()
@@ -417,4 +420,3 @@ function TestIntervalTree:testNewIndex_PreventsModifications()
 		it.insert = function() end
 	end)
 end
-

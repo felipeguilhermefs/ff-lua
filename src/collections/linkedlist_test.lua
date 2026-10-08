@@ -1,7 +1,22 @@
+-----------------------------------------------------------------------------
+-- 1. Upvalue caching & Imports
+-----------------------------------------------------------------------------
 local lu = require("luaunit")
 local LinkedList = require("ff.collections.linkedlist")
 
+-----------------------------------------------------------------------------
+-- 2. Test Suite Table Definition
+-----------------------------------------------------------------------------
 TestLinkedList = {}
+
+-----------------------------------------------------------------------------
+-- 3. Suite Lifecycle Hooks (Optional)
+-- Not needed: each test creates its own fixtures.
+-----------------------------------------------------------------------------
+
+-----------------------------------------------------------------------------
+-- 4. Constructor & Type Guard Tests
+-----------------------------------------------------------------------------
 
 function TestLinkedList:testIsLinkedList()
 	lu.assertTrue(LinkedList.isLinkedList(LinkedList.new()))
@@ -46,6 +61,83 @@ function TestLinkedList:testConstructor_Validation()
 	lu.assertErrorMsgContains("iterable should be a table", LinkedList.new, true)
 end
 
+-----------------------------------------------------------------------------
+-- 5. Core Accessor & Inspection Tests
+-----------------------------------------------------------------------------
+
+function TestLinkedList:testPeekFrontAndPeekBack()
+	local ll = LinkedList.new()
+	lu.assertNil(ll:peekFront())
+	lu.assertNil(ll:peekBack())
+
+	ll:pushFront(10)
+	lu.assertEquals(ll:peekFront(), 10)
+	lu.assertEquals(ll:peekBack(), 10)
+	lu.assertEquals(#ll, 1)
+
+	ll:pushBack(20)
+	lu.assertEquals(ll:peekFront(), 10)
+	lu.assertEquals(ll:peekBack(), 20)
+	lu.assertEquals(#ll, 2)
+
+	ll:pushFront(5)
+	lu.assertEquals(ll:peekFront(), 5)
+	lu.assertEquals(ll:peekBack(), 20)
+	lu.assertEquals(#ll, 3)
+end
+
+function TestLinkedList:testContains()
+	local ll = LinkedList.new()
+	lu.assertFalse(ll:contains(10))
+
+	ll:pushBack(10)
+	ll:pushBack(20)
+	ll:pushBack(30)
+
+	lu.assertTrue(ll:contains(10))
+	lu.assertTrue(ll:contains(20))
+	lu.assertTrue(ll:contains(30))
+	lu.assertFalse(ll:contains(40))
+	lu.assertFalse(ll:contains("10"))
+
+	-- Contains should not consume or modify list
+	lu.assertEquals(#ll, 3)
+	lu.assertEquals(ll:peekFront(), 10)
+
+	lu.assertErrorMsgContains("value should not be nil", function()
+		ll:contains(nil)
+	end)
+end
+
+-----------------------------------------------------------------------------
+function TestLinkedList:testIterator()
+	local ll = LinkedList.new({ 10, 20, 30 })
+
+	local indices = {}
+	local values = {}
+	for idx, val in pairs(ll) do
+		table.insert(indices, idx)
+		table.insert(values, val)
+	end
+
+	lu.assertEquals(indices, { 1, 2, 3 })
+	lu.assertEquals(values, { 10, 20, 30 })
+	-- Iterator must not consume or modify the list
+	lu.assertEquals(#ll, 3)
+end
+
+function TestLinkedList:testIterator_Empty()
+	local ll = LinkedList.new()
+	local count = 0
+	for _ in pairs(ll) do
+		count = count + 1
+	end
+	lu.assertEquals(count, 0)
+end
+
+-- 6. Mutation & Modification Tests
+-----------------------------------------------------------------------------
+
 function TestLinkedList:testEmptyAndClear()
 	local ll = LinkedList.new()
 	lu.assertTrue(ll:empty())
@@ -75,29 +167,6 @@ function TestLinkedList:testEmptyAndClear()
 	lu.assertEquals(ll:peekBack(), 99)
 	lu.assertEquals(ll:popFront(), 99)
 	lu.assertTrue(ll:empty())
-end
-
-function TestLinkedList:testLen()
-	local ll = LinkedList.new()
-	lu.assertEquals(#ll, 0)
-
-	ll:pushFront(1)
-	lu.assertEquals(#ll, 1)
-
-	ll:pushBack(2)
-	lu.assertEquals(#ll, 2)
-
-	ll:popFront()
-	lu.assertEquals(#ll, 1)
-
-	ll:popBack()
-	lu.assertEquals(#ll, 0)
-
-	-- Pop on empty keeps len 0
-	ll:popFront()
-	lu.assertEquals(#ll, 0)
-	ll:popBack()
-	lu.assertEquals(#ll, 0)
 end
 
 function TestLinkedList:testPushFrontAndPopFront()
@@ -158,50 +227,6 @@ function TestLinkedList:testPushBackAndPopFront()
 	lu.assertTrue(ll:empty())
 end
 
-function TestLinkedList:testPeekFrontAndPeekBack()
-	local ll = LinkedList.new()
-	lu.assertNil(ll:peekFront())
-	lu.assertNil(ll:peekBack())
-
-	ll:pushFront(10)
-	lu.assertEquals(ll:peekFront(), 10)
-	lu.assertEquals(ll:peekBack(), 10)
-	lu.assertEquals(#ll, 1)
-
-	ll:pushBack(20)
-	lu.assertEquals(ll:peekFront(), 10)
-	lu.assertEquals(ll:peekBack(), 20)
-	lu.assertEquals(#ll, 2)
-
-	ll:pushFront(5)
-	lu.assertEquals(ll:peekFront(), 5)
-	lu.assertEquals(ll:peekBack(), 20)
-	lu.assertEquals(#ll, 3)
-end
-
-function TestLinkedList:testContains()
-	local ll = LinkedList.new()
-	lu.assertFalse(ll:contains(10))
-
-	ll:pushBack(10)
-	ll:pushBack(20)
-	ll:pushBack(30)
-
-	lu.assertTrue(ll:contains(10))
-	lu.assertTrue(ll:contains(20))
-	lu.assertTrue(ll:contains(30))
-	lu.assertFalse(ll:contains(40))
-	lu.assertFalse(ll:contains("10"))
-
-	-- Contains should not consume or modify list
-	lu.assertEquals(#ll, 3)
-	lu.assertEquals(ll:peekFront(), 10)
-
-	lu.assertErrorMsgContains("value should not be nil", function()
-		ll:contains(nil)
-	end)
-end
-
 function TestLinkedList:testReverse()
 	local ll = LinkedList.new()
 
@@ -242,6 +267,43 @@ function TestLinkedList:testReverse()
 	lu.assertEquals(ll:popBack(), 4)
 	lu.assertNil(ll:popBack())
 	lu.assertTrue(ll:empty())
+end
+
+function TestLinkedList:testPush_Validation()
+	local ll = LinkedList.new()
+	lu.assertErrorMsgContains("entry should not be nil", function()
+		ll:pushFront(nil)
+	end)
+	lu.assertErrorMsgContains("entry should not be nil", function()
+		ll:pushBack(nil)
+	end)
+end
+
+-----------------------------------------------------------------------------
+-- 7. Metamethod Tests (__len, __eq, __concat, __tostring, __newindex)
+-----------------------------------------------------------------------------
+
+function TestLinkedList:testLen()
+	local ll = LinkedList.new()
+	lu.assertEquals(#ll, 0)
+
+	ll:pushFront(1)
+	lu.assertEquals(#ll, 1)
+
+	ll:pushBack(2)
+	lu.assertEquals(#ll, 2)
+
+	ll:popFront()
+	lu.assertEquals(#ll, 1)
+
+	ll:popBack()
+	lu.assertEquals(#ll, 0)
+
+	-- Pop on empty keeps len 0
+	ll:popFront()
+	lu.assertEquals(#ll, 0)
+	ll:popBack()
+	lu.assertEquals(#ll, 0)
 end
 
 function TestLinkedList:testConcat()
@@ -316,31 +378,6 @@ function TestLinkedList:testEquality_Empty()
 	lu.assertTrue(ll1 == ll2)
 end
 
-function TestLinkedList:testIterator()
-	local ll = LinkedList.new({ 10, 20, 30 })
-
-	local indices = {}
-	local values = {}
-	for idx, val in pairs(ll) do
-		table.insert(indices, idx)
-		table.insert(values, val)
-	end
-
-	lu.assertEquals(indices, { 1, 2, 3 })
-	lu.assertEquals(values, { 10, 20, 30 })
-	-- Iterator must not consume or modify the list
-	lu.assertEquals(#ll, 3)
-end
-
-function TestLinkedList:testIterator_Empty()
-	local ll = LinkedList.new()
-	local count = 0
-	for _ in pairs(ll) do
-		count = count + 1
-	end
-	lu.assertEquals(count, 0)
-end
-
 function TestLinkedList:testToString()
 	local ll = LinkedList.new({ 1, 2, 3 })
 	lu.assertEquals(tostring(ll), "[ 1 -> 2 -> 3 ]")
@@ -349,16 +386,6 @@ end
 function TestLinkedList:testToString_Empty()
 	local ll = LinkedList.new()
 	lu.assertEquals(tostring(ll), "[  ]")
-end
-
-function TestLinkedList:testPush_Validation()
-	local ll = LinkedList.new()
-	lu.assertErrorMsgContains("entry should not be nil", function()
-		ll:pushFront(nil)
-	end)
-	lu.assertErrorMsgContains("entry should not be nil", function()
-		ll:pushBack(nil)
-	end)
 end
 
 function TestLinkedList:testNewIndex_PreventsModifications()
@@ -382,4 +409,3 @@ function TestLinkedList:testNewIndex_PreventsModifications()
 		ll.pushBack = function() end
 	end)
 end
-

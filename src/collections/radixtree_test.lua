@@ -1,9 +1,24 @@
+-----------------------------------------------------------------------------
+-- 1. Upvalue caching & Imports
+-----------------------------------------------------------------------------
 local lu = require("luaunit")
 local RadixTree = require("ff.collections.radixtree")
 local Array = require("ff.collections.array")
 local Set = require("ff.collections.set")
 
+-----------------------------------------------------------------------------
+-- 2. Test Suite Table Definition
+-----------------------------------------------------------------------------
 TestRadixTree = {}
+
+-----------------------------------------------------------------------------
+-- 3. Suite Lifecycle Hooks (Optional)
+-- Not needed: each test creates its own fixtures.
+-----------------------------------------------------------------------------
+
+-----------------------------------------------------------------------------
+-- 4. Constructor & Type Guard Tests
+-----------------------------------------------------------------------------
 
 function TestRadixTree:testIsRadixTree()
 	lu.assertTrue(RadixTree.isRadixTree(RadixTree.new()))
@@ -60,47 +75,9 @@ function TestRadixTree:testConstructor()
 	lu.assertErrorMsgContains("caseSensitive should be a boolean", RadixTree.new, nil, "invalid")
 end
 
-function TestRadixTree:testEmptyAndClear()
-	local t = RadixTree.new()
-
-	lu.assertTrue(t:empty())
-	lu.assertEquals(#t, 0)
-
-	t:insert("apple")
-	lu.assertFalse(t:empty())
-	lu.assertEquals(#t, 1)
-
-	t:clear()
-	lu.assertTrue(t:empty())
-	lu.assertEquals(#t, 0)
-	lu.assertFalse(t:contains("apple"))
-
-	-- Re-use after clear
-	lu.assertTrue(t:insert("banana"))
-	lu.assertEquals(#t, 1)
-	lu.assertTrue(t:contains("banana", true))
-end
-
-function TestRadixTree:testInsert()
-	local t = RadixTree.new()
-
-	-- First insert returns true
-	lu.assertTrue(t:insert("cat"))
-	lu.assertEquals(#t, 1)
-
-	-- Duplicate insert returns false
-	lu.assertFalse(t:insert("cat"))
-	lu.assertEquals(#t, 1)
-
-	-- Empty string insert
-	lu.assertErrorMsgContains("word should not be an empty string", t.insert, t, "")
-
-	-- Type validations
-	lu.assertErrorMsgContains("word should be a string", t.insert, t, true)
-	lu.assertErrorMsgContains("word should be a string", t.insert, t, 2)
-	lu.assertErrorMsgContains("word should be a string", t.insert, t, nil)
-	lu.assertErrorMsgContains("word should be a string", t.insert, t, {})
-end
+-----------------------------------------------------------------------------
+-- 5. Core Accessor & Inspection Tests
+-----------------------------------------------------------------------------
 
 function TestRadixTree:testContains()
 	local t = RadixTree.new()
@@ -177,6 +154,89 @@ function TestRadixTree:testFind()
 	lu.assertErrorMsgContains("prefix should be a string", t.find, t, true)
 end
 
+function TestRadixTree:testCaseSensitivity()
+	local ts = RadixTree.new()
+
+	ts:insert("wolf")
+	lu.assertTrue(ts:contains("wo"))
+	lu.assertFalse(ts:contains("Wo"))
+
+	ts:insert("Wolf")
+	lu.assertTrue(ts:contains("Wo"))
+	lu.assertEquals(#ts, 2)
+
+	local ti = RadixTree.new(nil, false)
+
+	ti:insert("wolf")
+	lu.assertTrue(ti:contains("wo"))
+	lu.assertTrue(ti:contains("Wo"))
+
+	lu.assertFalse(ti:insert("Wolf"))
+	lu.assertEquals(#ti, 1)
+	lu.assertTrue(ti:contains("WOLF", true))
+	lu.assertTrue(ti:contains("wolf", true))
+end
+
+-----------------------------------------------------------------------------
+function TestRadixTree:testPairs()
+	local t = RadixTree.new({ "alpha", "beta", "gamma" })
+
+	local words = {}
+	local count = 0
+	for i, word in pairs(t) do
+		count = count + 1
+		lu.assertEquals(i, count)
+		table.insert(words, word)
+	end
+	lu.assertEquals(count, 3)
+	lu.assertItemsEquals(words, { "alpha", "beta", "gamma" })
+end
+
+-- 6. Mutation & Modification Tests
+-----------------------------------------------------------------------------
+
+function TestRadixTree:testEmptyAndClear()
+	local t = RadixTree.new()
+
+	lu.assertTrue(t:empty())
+	lu.assertEquals(#t, 0)
+
+	t:insert("apple")
+	lu.assertFalse(t:empty())
+	lu.assertEquals(#t, 1)
+
+	t:clear()
+	lu.assertTrue(t:empty())
+	lu.assertEquals(#t, 0)
+	lu.assertFalse(t:contains("apple"))
+
+	-- Re-use after clear
+	lu.assertTrue(t:insert("banana"))
+	lu.assertEquals(#t, 1)
+	lu.assertTrue(t:contains("banana", true))
+end
+
+function TestRadixTree:testInsert()
+	local t = RadixTree.new()
+
+	-- First insert returns true
+	lu.assertTrue(t:insert("cat"))
+	lu.assertEquals(#t, 1)
+
+	-- Duplicate insert returns false
+	lu.assertFalse(t:insert("cat"))
+	lu.assertEquals(#t, 1)
+
+	-- Empty string insert
+	lu.assertErrorMsgContains("word should not be an empty string", t.insert, t, "")
+
+	-- Type validations
+	lu.assertErrorMsgContains("word should be a string", t.insert, t, true)
+	lu.assertErrorMsgContains("word should be a string", t.insert, t, 2)
+	lu.assertErrorMsgContains("word should be a string", t.insert, t, nil)
+	lu.assertErrorMsgContains("word should be a string", t.insert, t, {})
+end
+
 function TestRadixTree:testRemove()
 	local t = RadixTree.new()
 
@@ -240,133 +300,6 @@ function TestRadixTree:testRemove()
 	-- Validations
 	lu.assertErrorMsgContains("prefix should be a string", t.remove, t, 123)
 	lu.assertErrorMsgContains("prefix should be a string", t.remove, t, nil)
-end
-
-function TestRadixTree:testConcat()
-	local t = RadixTree.new()
-
-	t = t .. { "mouse", "mousse" }
-
-	lu.assertTrue(t:contains("mouse"))
-	lu.assertTrue(t:contains("mousse"))
-	lu.assertEquals(#t, 2)
-
-	local t2 = RadixTree.new()
-	t2:insert("moose")
-
-	t = t .. t2
-	lu.assertTrue(t:contains("mouse"))
-	lu.assertTrue(t:contains("mousse"))
-	lu.assertTrue(t:contains("moose"))
-	lu.assertEquals(#t, 3)
-
-	-- Concat with Set
-	local s = Set.new({ "rat", "rabbit" })
-	t = t .. s
-	lu.assertEquals(#t, 5)
-	lu.assertTrue(t:contains("rat", true))
-	lu.assertTrue(t:contains("rabbit", true))
-
-	-- Concat with nil
-	t = t .. nil
-	lu.assertEquals(#t, 5)
-
-	-- Error on invalid type
-	lu.assertErrorMsgContains("iterable should be a table", function()
-		local _ = t .. 123
-	end)
-	lu.assertErrorMsgContains("iterable should be a table", function()
-		local _ = t .. "string"
-	end)
-end
-
-function TestRadixTree:testEquality()
-	local t1 = RadixTree.new({ "apple", "banana", "cherry" })
-	local t2 = RadixTree.new({ "cherry", "apple", "banana" })
-	local t3 = RadixTree.new({ "apple", "banana" })
-	local t4 = RadixTree.new({ "apple", "banana", "citrus" })
-	local t5 = RadixTree.new({ "apple", "banana", "cherry" }, false)
-
-	-- Boolean assertions here intentionally exercise RadixTree.__eq.
-	lu.assertTrue(t1 == t2)
-	lu.assertFalse(t1 == t3)
-	lu.assertFalse(t1 == t4)
-	lu.assertFalse(t1 == t5) -- Different case sensitivity
-
-	lu.assertFalse(t1 == nil)
-	lu.assertFalse(t1 == {})
-	lu.assertFalse(t1 == "apple")
-	lu.assertFalse(t1 == 123)
-
-	local empty1 = RadixTree.new()
-	local empty2 = RadixTree.new()
-	-- This assertion exercises RadixTree.__eq; assertEquals compares table structure.
-	lu.assertTrue(empty1 == empty2)
-end
-
-function TestRadixTree:testLen()
-	local t = RadixTree.new()
-	lu.assertEquals(#t, 0)
-
-	t:insert("a")
-	lu.assertEquals(#t, 1)
-
-	t:insert("ab")
-	lu.assertEquals(#t, 2)
-
-	t:insert("ab")
-	lu.assertEquals(#t, 2)
-
-	t:remove("ab", true)
-	lu.assertEquals(#t, 1)
-
-	t:clear()
-	lu.assertEquals(#t, 0)
-end
-
-function TestRadixTree:testPairs()
-	local t = RadixTree.new({ "alpha", "beta", "gamma" })
-
-	local words = {}
-	local count = 0
-	for i, word in pairs(t) do
-		count = count + 1
-		lu.assertEquals(i, count)
-		table.insert(words, word)
-	end
-	lu.assertEquals(count, 3)
-	lu.assertItemsEquals(words, { "alpha", "beta", "gamma" })
-end
-
-function TestRadixTree:testToString()
-	local empty = RadixTree.new()
-	lu.assertEquals(tostring(empty), "{  }")
-
-	local t = RadixTree.new({ "dog", "cat", "bird" })
-	lu.assertEquals(tostring(t), "{ bird, cat, dog }")
-end
-
-function TestRadixTree:testCaseSensitivity()
-	local ts = RadixTree.new()
-
-	ts:insert("wolf")
-	lu.assertTrue(ts:contains("wo"))
-	lu.assertFalse(ts:contains("Wo"))
-
-	ts:insert("Wolf")
-	lu.assertTrue(ts:contains("Wo"))
-	lu.assertEquals(#ts, 2)
-
-	local ti = RadixTree.new(nil, false)
-
-	ti:insert("wolf")
-	lu.assertTrue(ti:contains("wo"))
-	lu.assertTrue(ti:contains("Wo"))
-
-	lu.assertFalse(ti:insert("Wolf"))
-	lu.assertEquals(#ti, 1)
-	lu.assertTrue(ti:contains("WOLF", true))
-	lu.assertTrue(ti:contains("wolf", true))
 end
 
 function TestRadixTree:testRadix_SplittingAndMerging()
@@ -506,6 +439,100 @@ function TestRadixTree:testRadix_SingleCharacterWords()
 	lu.assertTrue(t:contains("abcd", true))
 end
 
+-----------------------------------------------------------------------------
+-- 7. Metamethod Tests (__len, __eq, __concat, __tostring, __newindex)
+-----------------------------------------------------------------------------
+
+function TestRadixTree:testConcat()
+	local t = RadixTree.new()
+
+	t = t .. { "mouse", "mousse" }
+
+	lu.assertTrue(t:contains("mouse"))
+	lu.assertTrue(t:contains("mousse"))
+	lu.assertEquals(#t, 2)
+
+	local t2 = RadixTree.new()
+	t2:insert("moose")
+
+	t = t .. t2
+	lu.assertTrue(t:contains("mouse"))
+	lu.assertTrue(t:contains("mousse"))
+	lu.assertTrue(t:contains("moose"))
+	lu.assertEquals(#t, 3)
+
+	-- Concat with Set
+	local s = Set.new({ "rat", "rabbit" })
+	t = t .. s
+	lu.assertEquals(#t, 5)
+	lu.assertTrue(t:contains("rat", true))
+	lu.assertTrue(t:contains("rabbit", true))
+
+	-- Concat with nil
+	t = t .. nil
+	lu.assertEquals(#t, 5)
+
+	-- Error on invalid type
+	lu.assertErrorMsgContains("iterable should be a table", function()
+		local _ = t .. 123
+	end)
+	lu.assertErrorMsgContains("iterable should be a table", function()
+		local _ = t .. "string"
+	end)
+end
+
+function TestRadixTree:testEquality()
+	local t1 = RadixTree.new({ "apple", "banana", "cherry" })
+	local t2 = RadixTree.new({ "cherry", "apple", "banana" })
+	local t3 = RadixTree.new({ "apple", "banana" })
+	local t4 = RadixTree.new({ "apple", "banana", "citrus" })
+	local t5 = RadixTree.new({ "apple", "banana", "cherry" }, false)
+
+	-- Boolean assertions here intentionally exercise RadixTree.__eq.
+	lu.assertTrue(t1 == t2)
+	lu.assertFalse(t1 == t3)
+	lu.assertFalse(t1 == t4)
+	lu.assertFalse(t1 == t5) -- Different case sensitivity
+
+	lu.assertFalse(t1 == nil)
+	lu.assertFalse(t1 == {})
+	lu.assertFalse(t1 == "apple")
+	lu.assertFalse(t1 == 123)
+
+	local empty1 = RadixTree.new()
+	local empty2 = RadixTree.new()
+	-- This assertion exercises RadixTree.__eq; assertEquals compares table structure.
+	lu.assertTrue(empty1 == empty2)
+end
+
+function TestRadixTree:testLen()
+	local t = RadixTree.new()
+	lu.assertEquals(#t, 0)
+
+	t:insert("a")
+	lu.assertEquals(#t, 1)
+
+	t:insert("ab")
+	lu.assertEquals(#t, 2)
+
+	t:insert("ab")
+	lu.assertEquals(#t, 2)
+
+	t:remove("ab", true)
+	lu.assertEquals(#t, 1)
+
+	t:clear()
+	lu.assertEquals(#t, 0)
+end
+
+function TestRadixTree:testToString()
+	local empty = RadixTree.new()
+	lu.assertEquals(tostring(empty), "{  }")
+
+	local t = RadixTree.new({ "dog", "cat", "bird" })
+	lu.assertEquals(tostring(t), "{ bird, cat, dog }")
+end
+
 function TestRadixTree:testNewIndex_PreventsModifications()
 	local rt = RadixTree.new()
 
@@ -527,4 +554,3 @@ function TestRadixTree:testNewIndex_PreventsModifications()
 		rt.insert = function() end
 	end)
 end
-

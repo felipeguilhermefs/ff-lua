@@ -1,3 +1,6 @@
+-----------------------------------------------------------------------------
+-- 1. Upvalue caching & Imports
+-----------------------------------------------------------------------------
 local lu = require("luaunit")
 local Array = require("ff.collections.array")
 
@@ -11,7 +14,36 @@ local function arrayValues(array)
 	return values
 end
 
+-----------------------------------------------------------------------------
+-- 2. Test Suite Table Definition
+-----------------------------------------------------------------------------
 TestArray = {}
+
+-----------------------------------------------------------------------------
+-- 3. Suite Lifecycle Hooks (Optional)
+-- Not needed: each test creates its own fixtures.
+-----------------------------------------------------------------------------
+
+-----------------------------------------------------------------------------
+-- 4. Constructor & Type Guard Tests
+-----------------------------------------------------------------------------
+
+function TestArray:testIsArray()
+	lu.assertFalse(Array.isArray(nil))
+	lu.assertFalse(Array.isArray(true))
+	lu.assertFalse(Array.isArray(123))
+	lu.assertFalse(Array.isArray("abc"))
+	lu.assertFalse(Array.isArray({ a = 1, b = 2, c = 3 }))
+	lu.assertFalse(Array.isArray({ 1, 2, 3, a = 1, b = 2, c = 3 }))
+	lu.assertFalse(Array.isArray({ [1] = "a", foo = "bar" }))
+
+	lu.assertTrue(Array.isArray({}))
+	lu.assertTrue(Array.isArray({ 1, 2, 3 }))
+	lu.assertTrue(Array.isArray(Array.new()))
+	lu.assertTrue(Array.isArray(Array.new({ 4, 5, 6 })))
+end
+
+-----------------------------------------------------------------------------
 
 function TestArray:testNewAndClear()
 	local a = Array.new()
@@ -29,6 +61,9 @@ function TestArray:testNewAndClear()
 		b:get(1)
 	end)
 end
+
+-- 5. Core Accessor & Inspection Tests
+-----------------------------------------------------------------------------
 
 function TestArray:testEmpty()
 	local a = Array.new()
@@ -71,54 +106,6 @@ function TestArray:testGet_Validation()
 	end)
 end
 
-function TestArray:testNoBracketAccess()
-	local a = Array.new({ 10, 20, 30 })
-	lu.assertNil(a[1])
-	lu.assertNil(a[2])
-	lu.assertNil(a[3])
-end
-
-function TestArray:testNewIndex_PreventsModifications()
-	local a = Array.new({ 10, 20, 30 })
-
-	-- disallow adding properties
-	lu.assertErrorMsgContains("cannot add new properties, methods or functions to Array", function()
-		a.foo = "bar"
-	end)
-
-	-- disallow adding numeric indices
-	lu.assertErrorMsgContains("cannot add new properties, methods or functions to Array", function()
-		a[1] = 99
-	end)
-	lu.assertErrorMsgContains("cannot add new properties, methods or functions to Array", function()
-		a[4] = 40
-	end)
-
-	-- disallow adding methods or functions
-	lu.assertErrorMsgContains("cannot add new properties, methods or functions to Array", function()
-		a.myFunc = function() end
-	end)
-	lu.assertErrorMsgContains("cannot add new properties, methods or functions to Array", function()
-		a.get = function() end
-	end)
-end
-
-function TestArray:testEquals()
-	local a1 = Array.new({ 10, 20, 30 })
-	local a2 = Array.new({ 10, 20, 30 })
-	local a3 = Array.new({ 10, 20, 40 })
-
-	-- Compare plain values for LuaUnit's detailed diff. Boolean assertions below
-	-- intentionally exercise Array.__eq, which assertEquals does not invoke.
-	lu.assertEquals(arrayValues(a1), arrayValues(a2))
-	lu.assertTrue(a1 == a2)
-	lu.assertNotEquals(arrayValues(a1), arrayValues(a3))
-	lu.assertFalse(a1 == a3)
-	lu.assertEquals(arrayValues(a1), { 10, 20, 30 })
-	lu.assertTrue(a1 == { 10, 20, 30 })
-	lu.assertNotEquals(a1, "string")
-end
-
 function TestArray:testSlice()
 	local a = Array.new({ 10, 20, 30, 40, 50 })
 	local s = a:slice(2, 4)
@@ -128,13 +115,64 @@ function TestArray:testSlice()
 	lu.assertEquals(s:get(3), 40)
 end
 
-function TestArray:testToString()
-	local a = Array.new({ 1, 2, 3 })
-	lu.assertEquals(tostring(a), "[ 1, 2, 3 ]")
+function TestArray:testIndexOf()
+	local a = Array.new({ 10, 20, 30, 20 })
 
-	local emptyArr = Array.new()
-	lu.assertEquals(tostring(emptyArr), "[  ]")
+	lu.assertEquals(a:indexOf(10), 1)
+	lu.assertEquals(a:indexOf(30), 3)
+	lu.assertEquals(a:indexOf(20), 2)
+
+	lu.assertNil(a:indexOf(40))
 end
+
+function TestArray:testContains()
+	local a = Array.new({ 10, 20, 30 })
+
+	lu.assertTrue(a:contains(10))
+	lu.assertTrue(a:contains(20))
+	lu.assertTrue(a:contains(30))
+	lu.assertFalse(a:contains(40))
+
+	-- empty array contains nothing
+	local empty = Array.new()
+	lu.assertFalse(empty:contains(10))
+
+	-- duplicate values
+	local b = Array.new({ 5, 5, 5 })
+	lu.assertTrue(b:contains(5))
+	lu.assertFalse(b:contains(1))
+end
+
+function TestArray:testContains_Validation()
+	local a = Array.new({ 10, 20, 30 })
+
+	lu.assertErrorMsgContains("value should not be nil", function()
+		a:contains(nil)
+	end)
+end
+
+-----------------------------------------------------------------------------
+function TestArray:testNoBracketAccess()
+	local a = Array.new({ 10, 20, 30 })
+	lu.assertNil(a[1])
+	lu.assertNil(a[2])
+	lu.assertNil(a[3])
+end
+
+function TestArray:testIterator()
+	local a = Array.new({ 10, 20, 30 })
+
+	local tpairs = {}
+	for key, value in pairs(a) do
+		table.insert(tpairs, key)
+		table.insert(tpairs, value)
+	end
+
+	lu.assertEquals(tpairs, { 1, 10, 2, 20, 3, 30 })
+end
+
+-- 6. Mutation & Modification Tests
+-----------------------------------------------------------------------------
 
 function TestArray:testInsert()
 	local a = Array.new()
@@ -226,55 +264,57 @@ function TestArray:testSwap()
 	lu.assertEquals(#a, 3)
 end
 
-function TestArray:testIsArray()
-	lu.assertFalse(Array.isArray(nil))
-	lu.assertFalse(Array.isArray(true))
-	lu.assertFalse(Array.isArray(123))
-	lu.assertFalse(Array.isArray("abc"))
-	lu.assertFalse(Array.isArray({ a = 1, b = 2, c = 3 }))
-	lu.assertFalse(Array.isArray({ 1, 2, 3, a = 1, b = 2, c = 3 }))
-	lu.assertFalse(Array.isArray({ [1] = "a", foo = "bar" }))
+-----------------------------------------------------------------------------
+-- 7. Metamethod Tests (__len, __eq, __concat, __tostring, __newindex)
+-----------------------------------------------------------------------------
 
-	lu.assertTrue(Array.isArray({}))
-	lu.assertTrue(Array.isArray({ 1, 2, 3 }))
-	lu.assertTrue(Array.isArray(Array.new()))
-	lu.assertTrue(Array.isArray(Array.new({ 4, 5, 6 })))
-end
-
-function TestArray:testIndexOf()
-	local a = Array.new({ 10, 20, 30, 20 })
-
-	lu.assertEquals(a:indexOf(10), 1)
-	lu.assertEquals(a:indexOf(30), 3)
-	lu.assertEquals(a:indexOf(20), 2)
-
-	lu.assertNil(a:indexOf(40))
-end
-
-function TestArray:testContains()
+function TestArray:testNewIndex_PreventsModifications()
 	local a = Array.new({ 10, 20, 30 })
 
-	lu.assertTrue(a:contains(10))
-	lu.assertTrue(a:contains(20))
-	lu.assertTrue(a:contains(30))
-	lu.assertFalse(a:contains(40))
-
-	-- empty array contains nothing
-	local empty = Array.new()
-	lu.assertFalse(empty:contains(10))
-
-	-- duplicate values
-	local b = Array.new({ 5, 5, 5 })
-	lu.assertTrue(b:contains(5))
-	lu.assertFalse(b:contains(1))
-end
-
-function TestArray:testContains_Validation()
-	local a = Array.new({ 10, 20, 30 })
-
-	lu.assertErrorMsgContains("value should not be nil", function()
-		a:contains(nil)
+	-- disallow adding properties
+	lu.assertErrorMsgContains("cannot add new properties, methods or functions to Array", function()
+		a.foo = "bar"
 	end)
+
+	-- disallow adding numeric indices
+	lu.assertErrorMsgContains("cannot add new properties, methods or functions to Array", function()
+		a[1] = 99
+	end)
+	lu.assertErrorMsgContains("cannot add new properties, methods or functions to Array", function()
+		a[4] = 40
+	end)
+
+	-- disallow adding methods or functions
+	lu.assertErrorMsgContains("cannot add new properties, methods or functions to Array", function()
+		a.myFunc = function() end
+	end)
+	lu.assertErrorMsgContains("cannot add new properties, methods or functions to Array", function()
+		a.get = function() end
+	end)
+end
+
+function TestArray:testEquals()
+	local a1 = Array.new({ 10, 20, 30 })
+	local a2 = Array.new({ 10, 20, 30 })
+	local a3 = Array.new({ 10, 20, 40 })
+
+	-- Compare plain values for LuaUnit's detailed diff. Boolean assertions below
+	-- intentionally exercise Array.__eq, which assertEquals does not invoke.
+	lu.assertEquals(arrayValues(a1), arrayValues(a2))
+	lu.assertTrue(a1 == a2)
+	lu.assertNotEquals(arrayValues(a1), arrayValues(a3))
+	lu.assertFalse(a1 == a3)
+	lu.assertEquals(arrayValues(a1), { 10, 20, 30 })
+	lu.assertTrue(a1 == { 10, 20, 30 })
+	lu.assertNotEquals(a1, "string")
+end
+
+function TestArray:testToString()
+	local a = Array.new({ 1, 2, 3 })
+	lu.assertEquals(tostring(a), "[ 1, 2, 3 ]")
+
+	local emptyArr = Array.new()
+	lu.assertEquals(tostring(emptyArr), "[  ]")
 end
 
 function TestArray:testConcat()
@@ -306,16 +346,4 @@ function TestArray:testConcat()
 
 	lu.assertEquals(a:get(10), 100)
 	lu.assertEquals(#a, 10)
-end
-
-function TestArray:testIterator()
-	local a = Array.new({ 10, 20, 30 })
-
-	local tpairs = {}
-	for key, value in pairs(a) do
-		table.insert(tpairs, key)
-		table.insert(tpairs, value)
-	end
-
-	lu.assertEquals(tpairs, { 1, 10, 2, 20, 3, 30 })
 end

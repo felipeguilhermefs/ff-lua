@@ -1,8 +1,23 @@
+-----------------------------------------------------------------------------
+-- 1. Upvalue caching & Imports
+-----------------------------------------------------------------------------
 local lu = require("luaunit")
 local TreeMap = require("ff.collections.treemap")
 local Comparator = require("ff.func.comparator")
 
+-----------------------------------------------------------------------------
+-- 2. Test Suite Table Definition
+-----------------------------------------------------------------------------
 TestTreeMap = {}
+
+-----------------------------------------------------------------------------
+-- 3. Suite Lifecycle Hooks (Optional)
+-- Not needed: each test creates its own fixtures.
+-----------------------------------------------------------------------------
+
+-----------------------------------------------------------------------------
+-- 4. Constructor & Type Guard Tests
+-----------------------------------------------------------------------------
 
 function TestTreeMap:testIsTreeMap()
 	lu.assertTrue(TreeMap.isTreeMap(TreeMap.new()))
@@ -52,6 +67,163 @@ function TestTreeMap:testConstructor_Validation()
 	lu.assertErrorMsgContains("comparator should be a function", TreeMap.new, { a = 1 }, "not_a_function")
 end
 
+function TestTreeMap:testCustomComparator()
+	local function ScoreComparator(a, b)
+		if a.score > b.score then
+			return 1
+		end
+		if a.score < b.score then
+			return -1
+		else
+			return 0
+		end
+	end
+
+	local tm = TreeMap.new(nil, ScoreComparator)
+	local o1 = { score = 10, name = "first" }
+	local o2 = { score = 20, name = "second" }
+	local o3 = { score = 5, name = "zero" }
+
+	tm:put(o1, "alpha")
+	tm:put(o2, "beta")
+	tm:put(o3, "gamma")
+
+	lu.assertEquals(#tm, 3)
+	lu.assertEquals(tm:get({ score = 5 }), "gamma")
+	lu.assertEquals(tm:get({ score = 10 }), "alpha")
+	lu.assertEquals(tm:get({ score = 20 }), "beta")
+
+	local minKey, _ = tm:min()
+	lu.assertEquals(minKey.score, 5)
+	local maxKey, _ = tm:max()
+	lu.assertEquals(maxKey.score, 20)
+end
+
+-----------------------------------------------------------------------------
+-- 5. Core Accessor & Inspection Tests
+-----------------------------------------------------------------------------
+
+function TestTreeMap:testContains()
+	local tm = TreeMap.new()
+
+	lu.assertFalse(tm:contains("key"))
+
+	tm:put("key", "value")
+	lu.assertTrue(tm:contains("key"))
+	lu.assertFalse(tm:contains("missing"))
+
+	tm:remove("key")
+	lu.assertFalse(tm:contains("key"))
+end
+
+function TestTreeMap:testMinMax()
+	local tm = TreeMap.new()
+	lu.assertNil(tm:min())
+	lu.assertNil(tm:max())
+
+	tm:put(7, "seven")
+	tm:put(3, "three")
+	tm:put(9, "nine")
+	tm:put(1, "one")
+	tm:put(5, "five")
+
+	local minK, minV = tm:min()
+	lu.assertEquals(minK, 1)
+	lu.assertEquals(minV, "one")
+
+	local maxK, maxV = tm:max()
+	lu.assertEquals(maxK, 9)
+	lu.assertEquals(maxV, "nine")
+end
+
+function TestTreeMap:testFloorCeiling()
+	local tm = TreeMap.new()
+	tm:put(10, "ten")
+	tm:put(20, "twenty")
+	tm:put(30, "thirty")
+	tm:put(40, "forty")
+	tm:put(50, "fifty")
+
+	-- floor (<=)
+	lu.assertNil(tm:floor(5))
+	lu.assertEquals(tm:floor(10), 10)
+	lu.assertEquals(tm:floor(15), 10)
+	lu.assertEquals(tm:floor(20), 20)
+	lu.assertEquals(tm:floor(50), 50)
+	lu.assertEquals(tm:floor(99), 50)
+
+	-- ceiling (>=)
+	lu.assertEquals(tm:ceiling(5), 10)
+	lu.assertEquals(tm:ceiling(10), 10)
+	lu.assertEquals(tm:ceiling(15), 20)
+	lu.assertEquals(tm:ceiling(50), 50)
+	lu.assertNil(tm:ceiling(55))
+end
+
+function TestTreeMap:testRange()
+	local tm = TreeMap.new()
+	for i = 1, 10 do
+		tm:put(i, i * 10)
+	end
+
+	-- Range [3, 7]
+	local r1 = {}
+	for k, v in tm:range(3, 7) do
+		table.insert(r1, { k, v })
+	end
+	lu.assertEquals(r1, {
+		{ 3, 30 },
+		{ 4, 40 },
+		{ 5, 50 },
+		{ 6, 60 },
+		{ 7, 70 },
+	})
+
+	-- Unbounded below [nil, 4]
+	local r2 = {}
+	for k, v in tm:range(nil, 4) do
+		table.insert(r2, { k, v })
+	end
+	lu.assertEquals(r2, {
+		{ 1, 10 },
+		{ 2, 20 },
+		{ 3, 30 },
+		{ 4, 40 },
+	})
+
+	-- Unbounded above [8, nil]
+	local r3 = {}
+	for k, v in tm:range(8, nil) do
+		table.insert(r3, { k, v })
+	end
+	lu.assertEquals(r3, {
+		{ 8, 80 },
+		{ 9, 90 },
+		{ 10, 100 },
+	})
+end
+
+-----------------------------------------------------------------------------
+function TestTreeMap:testPairs()
+	local tm = TreeMap.new({ d = 4, b = 2, a = 1, c = 3 })
+
+	local res = {}
+	for k, v in pairs(tm) do
+		table.insert(res, { key = k, value = v })
+	end
+
+	-- pairs iterates in ascending key order
+	lu.assertEquals(res, {
+		{ key = "a", value = 1 },
+		{ key = "b", value = 2 },
+		{ key = "c", value = 3 },
+		{ key = "d", value = 4 },
+	})
+end
+
+-- 6. Mutation & Modification Tests
+-----------------------------------------------------------------------------
+
 function TestTreeMap:testEmptyAndClear()
 	local tm = TreeMap.new()
 
@@ -97,19 +269,6 @@ function TestTreeMap:testGetAndPut()
 	lu.assertErrorMsgContains("value should not be nil", function()
 		tm:put("c", nil)
 	end)
-end
-
-function TestTreeMap:testContains()
-	local tm = TreeMap.new()
-
-	lu.assertFalse(tm:contains("key"))
-
-	tm:put("key", "value")
-	lu.assertTrue(tm:contains("key"))
-	lu.assertFalse(tm:contains("missing"))
-
-	tm:remove("key")
-	lu.assertFalse(tm:contains("key"))
 end
 
 function TestTreeMap:testRemove()
@@ -224,109 +383,9 @@ function TestTreeMap:testMerge()
 	lu.assertEquals(tm2:get("z"), 30)
 end
 
-function TestTreeMap:testMinMax()
-	local tm = TreeMap.new()
-	lu.assertNil(tm:min())
-	lu.assertNil(tm:max())
-
-	tm:put(7, "seven")
-	tm:put(3, "three")
-	tm:put(9, "nine")
-	tm:put(1, "one")
-	tm:put(5, "five")
-
-	local minK, minV = tm:min()
-	lu.assertEquals(minK, 1)
-	lu.assertEquals(minV, "one")
-
-	local maxK, maxV = tm:max()
-	lu.assertEquals(maxK, 9)
-	lu.assertEquals(maxV, "nine")
-end
-
-function TestTreeMap:testFloorCeiling()
-	local tm = TreeMap.new()
-	tm:put(10, "ten")
-	tm:put(20, "twenty")
-	tm:put(30, "thirty")
-	tm:put(40, "forty")
-	tm:put(50, "fifty")
-
-	-- floor (<=)
-	lu.assertNil(tm:floor(5))
-	lu.assertEquals(tm:floor(10), 10)
-	lu.assertEquals(tm:floor(15), 10)
-	lu.assertEquals(tm:floor(20), 20)
-	lu.assertEquals(tm:floor(50), 50)
-	lu.assertEquals(tm:floor(99), 50)
-
-	-- ceiling (>=)
-	lu.assertEquals(tm:ceiling(5), 10)
-	lu.assertEquals(tm:ceiling(10), 10)
-	lu.assertEquals(tm:ceiling(15), 20)
-	lu.assertEquals(tm:ceiling(50), 50)
-	lu.assertNil(tm:ceiling(55))
-end
-
-function TestTreeMap:testRange()
-	local tm = TreeMap.new()
-	for i = 1, 10 do
-		tm:put(i, i * 10)
-	end
-
-	-- Range [3, 7]
-	local r1 = {}
-	for k, v in tm:range(3, 7) do
-		table.insert(r1, { k, v })
-	end
-	lu.assertEquals(r1, {
-		{ 3, 30 },
-		{ 4, 40 },
-		{ 5, 50 },
-		{ 6, 60 },
-		{ 7, 70 },
-	})
-
-	-- Unbounded below [nil, 4]
-	local r2 = {}
-	for k, v in tm:range(nil, 4) do
-		table.insert(r2, { k, v })
-	end
-	lu.assertEquals(r2, {
-		{ 1, 10 },
-		{ 2, 20 },
-		{ 3, 30 },
-		{ 4, 40 },
-	})
-
-	-- Unbounded above [8, nil]
-	local r3 = {}
-	for k, v in tm:range(8, nil) do
-		table.insert(r3, { k, v })
-	end
-	lu.assertEquals(r3, {
-		{ 8, 80 },
-		{ 9, 90 },
-		{ 10, 100 },
-	})
-end
-
-function TestTreeMap:testPairs()
-	local tm = TreeMap.new({ d = 4, b = 2, a = 1, c = 3 })
-
-	local res = {}
-	for k, v in pairs(tm) do
-		table.insert(res, { key = k, value = v })
-	end
-
-	-- pairs iterates in ascending key order
-	lu.assertEquals(res, {
-		{ key = "a", value = 1 },
-		{ key = "b", value = 2 },
-		{ key = "c", value = 3 },
-		{ key = "d", value = 4 },
-	})
-end
+-----------------------------------------------------------------------------
+-- 7. Metamethod Tests (__len, __eq, __concat, __tostring, __newindex)
+-----------------------------------------------------------------------------
 
 function TestTreeMap:testConcat()
 	local tm = TreeMap.new() .. { a = 10, b = 20, c = 30 }
@@ -373,38 +432,6 @@ function TestTreeMap:testToString()
 	lu.assertEquals(tostring(tm), "{ a = 1, b = 2, c = 3 }")
 end
 
-function TestTreeMap:testCustomComparator()
-	local function ScoreComparator(a, b)
-		if a.score > b.score then
-			return 1
-		end
-		if a.score < b.score then
-			return -1
-		else
-			return 0
-		end
-	end
-
-	local tm = TreeMap.new(nil, ScoreComparator)
-	local o1 = { score = 10, name = "first" }
-	local o2 = { score = 20, name = "second" }
-	local o3 = { score = 5, name = "zero" }
-
-	tm:put(o1, "alpha")
-	tm:put(o2, "beta")
-	tm:put(o3, "gamma")
-
-	lu.assertEquals(#tm, 3)
-	lu.assertEquals(tm:get({ score = 5 }), "gamma")
-	lu.assertEquals(tm:get({ score = 10 }), "alpha")
-	lu.assertEquals(tm:get({ score = 20 }), "beta")
-
-	local minKey, _ = tm:min()
-	lu.assertEquals(minKey.score, 5)
-	local maxKey, _ = tm:max()
-	lu.assertEquals(maxKey.score, 20)
-end
-
 function TestTreeMap:testNewIndex_PreventsModifications()
 	local tm = TreeMap.new()
 
@@ -426,4 +453,3 @@ function TestTreeMap:testNewIndex_PreventsModifications()
 		tm.get = function() end
 	end)
 end
-

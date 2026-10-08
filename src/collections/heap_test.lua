@@ -1,8 +1,23 @@
+-----------------------------------------------------------------------------
+-- 1. Upvalue caching & Imports
+-----------------------------------------------------------------------------
 local lu = require("luaunit")
 local Comparator = require("ff.func.comparator")
 local Heap = require("ff.collections.heap")
 
+-----------------------------------------------------------------------------
+-- 2. Test Suite Table Definition
+-----------------------------------------------------------------------------
 TestHeap = {}
+
+-----------------------------------------------------------------------------
+-- 3. Suite Lifecycle Hooks (Optional)
+-- Not needed: each test creates its own fixtures.
+-----------------------------------------------------------------------------
+
+-----------------------------------------------------------------------------
+-- 4. Constructor & Type Guard Tests
+-----------------------------------------------------------------------------
 
 function TestHeap:testIsHeap()
 	local h = Heap.new()
@@ -126,82 +141,9 @@ function TestHeap:testConstructorMinMax_WithIterable()
 	lu.assertNil(maxH:pop())
 end
 
-function TestHeap:testPushAndPeek()
-	local h = Heap.new()
-
-	h:push(4)
-	lu.assertEquals(h:peek(), 4)
-	h:push(5)
-	lu.assertEquals(h:peek(), 4)
-	h:push(1)
-	lu.assertEquals(h:peek(), 1)
-	h:push(3)
-	lu.assertEquals(h:peek(), 1)
-end
-
-function TestHeap:testPush_Validation()
-	local h = Heap.new()
-	lu.assertErrorMsgContains("value should not be nil", function()
-		h:push(nil)
-	end)
-end
-
-function TestHeap:testPop()
-	local h = Heap.new()
-
-	h:push(4)
-	h:push(5)
-	h:push(1)
-	h:push(3)
-	h:push(2)
-
-	lu.assertEquals(h:pop(), 1)
-	lu.assertEquals(h:pop(), 2)
-	lu.assertEquals(h:pop(), 3)
-	lu.assertEquals(h:pop(), 4)
-	lu.assertEquals(h:pop(), 5)
-	lu.assertNil(h:pop())
-end
-
-function TestHeap:testPop_Empty()
-	local h = Heap.new()
-	lu.assertNil(h:pop())
-	lu.assertNil(h:peek())
-	lu.assertTrue(h:empty())
-	lu.assertEquals(#h, 0)
-end
-
-function TestHeap:testEmptyAndClear()
-	local h = Heap.new()
-
-	lu.assertTrue(h:empty())
-
-	h:push(2)
-	lu.assertFalse(h:empty())
-	h:push(3)
-	lu.assertFalse(h:empty())
-
-	h:pop()
-	lu.assertFalse(h:empty())
-	h:pop()
-	lu.assertTrue(h:empty())
-
-	h:push(10)
-	h:push(20)
-	lu.assertEquals(#h, 2)
-	h:clear()
-	lu.assertTrue(h:empty())
-	lu.assertEquals(#h, 0)
-	lu.assertNil(h:peek())
-	lu.assertNil(h:pop())
-
-	-- Verify it works normally after clear
-	h:push(42)
-	lu.assertEquals(#h, 1)
-	lu.assertEquals(h:peek(), 42)
-	lu.assertEquals(h:pop(), 42)
-	lu.assertTrue(h:empty())
-end
+-----------------------------------------------------------------------------
+-- 5. Core Accessor & Inspection Tests
+-----------------------------------------------------------------------------
 
 function TestHeap:testContains()
 	local h = Heap.new()
@@ -238,90 +180,6 @@ function TestHeap:testContains_Validation()
 	lu.assertErrorMsgContains("attempt to compare string with number", function()
 		h:contains("10")
 	end)
-end
-
-function TestHeap:testDuplicates()
-	local h = Heap.new()
-	h:push(5)
-	h:push(5)
-	h:push(2)
-	h:push(8)
-	h:push(2)
-	h:push(5)
-	h:push(8)
-
-	lu.assertEquals(#h, 7)
-	lu.assertEquals(h:pop(), 2)
-	lu.assertEquals(h:pop(), 2)
-	lu.assertEquals(h:pop(), 5)
-	lu.assertEquals(h:pop(), 5)
-	lu.assertEquals(h:pop(), 5)
-	lu.assertEquals(h:pop(), 8)
-	lu.assertEquals(h:pop(), 8)
-	lu.assertNil(h:pop())
-end
-
-function TestHeap:testMaxHeap()
-	local h = Heap.newMax({ 5, 7, 9 })
-
-	h:push(6)
-	h:push(8)
-	h:push(7)
-
-	lu.assertEquals(h:pop(), 9)
-	lu.assertEquals(h:pop(), 8)
-	lu.assertEquals(h:pop(), 7)
-	lu.assertEquals(h:pop(), 7)
-	lu.assertEquals(h:pop(), 6)
-	lu.assertEquals(h:pop(), 5)
-	lu.assertNil(h:pop())
-end
-
-function TestHeap:testString()
-	local h = Heap.new()
-
-	h:push("b")
-	h:push("e")
-	h:push("c")
-	h:push("a")
-	h:push("d")
-
-	lu.assertEquals(h:pop(), "a")
-	lu.assertEquals(h:pop(), "b")
-	lu.assertEquals(h:pop(), "c")
-	lu.assertEquals(h:pop(), "d")
-	lu.assertEquals(h:pop(), "e")
-	lu.assertNil(h:pop())
-end
-
-function TestHeap:testComparator()
-	local function max(a, b)
-		if a.priority < b.priority then
-			return Comparator.greater
-		end
-
-		if a.priority > b.priority then
-			return Comparator.less
-		end
-
-		return Comparator.equal
-	end
-
-	local function obj(priority, value)
-		return { priority = priority, value = value }
-	end
-
-	local h = Heap.new({ obj(5, "a"), obj(7, "b"), obj(9, "c") }, max)
-
-	h:push(obj(6, true))
-	h:push(obj(8, false))
-
-	lu.assertEquals(h:pop(), { priority = 9, value = "c" })
-	lu.assertEquals(h:pop(), { priority = 8, value = false })
-	lu.assertEquals(h:pop(), { priority = 7, value = "b" })
-	lu.assertEquals(h:pop(), { priority = 6, value = true })
-	lu.assertEquals(h:pop(), { priority = 5, value = "a" })
-	lu.assertNil(h:pop())
 end
 
 function TestHeap:testIterator()
@@ -390,139 +248,6 @@ function TestHeap:testIterator_LevelOrder()
 	end
 	lu.assertEquals(levelOrder, { 10, 30, 20, 50, 40 })
 	lu.assertEquals(#h, 5)
-end
-
-function TestHeap:testDrain()
-	local h = Heap.new()
-	h:push("b")
-	h:push("d")
-	h:push("c")
-	h:push("a")
-
-	local res = {}
-	for item in h:drain() do
-		table.insert(res, item)
-	end
-
-	-- Drain yields in priority order (min-to-max)
-	lu.assertEquals(res, { "a", "b", "c", "d" })
-	lu.assertTrue(h:empty())
-	lu.assertEquals(#h, 0)
-	lu.assertNil(h:peek())
-	lu.assertNil(h:pop())
-end
-
-function TestHeap:testDrain_MaxHeap()
-	local h = Heap.newMax({ 10, 50, 30, 20, 40 })
-
-	local res = {}
-	for item in h:drain() do
-		table.insert(res, item)
-	end
-
-	-- Max-heap drain yields descending order
-	lu.assertEquals(res, { 50, 40, 30, 20, 10 })
-	lu.assertTrue(h:empty())
-	lu.assertEquals(#h, 0)
-end
-
-function TestHeap:testDrain_Empty()
-	local h = Heap.new()
-
-	local count = 0
-	for _ in h:drain() do
-		count = count + 1
-	end
-
-	lu.assertEquals(count, 0)
-	lu.assertTrue(h:empty())
-end
-
-function TestHeap:testConcat()
-	local h = Heap.new() .. { 10, 20, 30 }
-	lu.assertEquals(#h, 3)
-
-	h = h .. nil
-	lu.assertEquals(#h, 3)
-
-	local ll = require("ff.collections.linkedlist").new()
-	ll:pushBack(40)
-	ll:pushBack(50)
-	ll:pushBack(60)
-
-	h = h .. ll
-
-	lu.assertEquals(#h, 6)
-	lu.assertEquals(h:pop(), 10)
-	lu.assertEquals(h:pop(), 20)
-	lu.assertEquals(h:pop(), 30)
-	lu.assertEquals(h:pop(), 40)
-	lu.assertEquals(h:pop(), 50)
-	lu.assertEquals(h:pop(), 60)
-end
-
-function TestHeap:testConcat_Validation()
-	local h = Heap.new()
-	lu.assertErrorMsgContains("iterable should be a table", function()
-		h = h .. "not a table"
-	end)
-	lu.assertErrorMsgContains("iterable should be a table", function()
-		h = h .. 42
-	end)
-end
-
-function TestHeap:testEquality()
-	local h1 = Heap.new({ 1, 2, 3 })
-	local h2 = Heap.new({ 1, 2, 3 })
-	local h3 = Heap.new({ 1, 2, 4 })
-	local h4 = Heap.new({ 1, 2 })
-
-	-- Boolean assertions here intentionally exercise Heap.__eq.
-	lu.assertTrue(h1 == h2)
-	lu.assertFalse(h1 == h3)
-	lu.assertFalse(h1 == h4)
-	lu.assertFalse(h1 == {})
-	lu.assertFalse(h1 == nil)
-	lu.assertFalse(h1 == 42)
-end
-
-function TestHeap:testEquality_Empty()
-	local h1 = Heap.new()
-	local h2 = Heap.new()
-	-- This assertion exercises Heap.__eq; assertEquals compares table structure.
-	lu.assertTrue(h1 == h2)
-end
-
-function TestHeap:testLen()
-	local h = Heap.new()
-	lu.assertEquals(#h, 0)
-
-	h:push(10)
-	lu.assertEquals(#h, 1)
-	h:push(20)
-	h:push(30)
-	lu.assertEquals(#h, 3)
-
-	h:pop()
-	lu.assertEquals(#h, 2)
-	h:clear()
-	lu.assertEquals(#h, 0)
-end
-
-function TestHeap:testToString()
-	local h = Heap.new({ 1, 2, 3 })
-	local str = tostring(h)
-	lu.assertStrContains(str, "1")
-	lu.assertStrContains(str, "2")
-	lu.assertStrContains(str, "3")
-	lu.assertStrContains(str, "[")
-	lu.assertStrContains(str, "]")
-end
-
-function TestHeap:testToString_Empty()
-	local h = Heap.new()
-	local str = tostring(h)
-	lu.assertEquals(str, "[  ]")
 end
 
 function TestHeap:testIndexOf()
@@ -684,31 +409,6 @@ function TestHeap:testIndexOf_Validation()
 	end)
 end
 
-function TestHeap:testCapacity_Push()
-	local h = Heap.new(nil, nil, 2)
-
-	lu.assertTrue(h:push(10))
-	lu.assertEquals(#h, 1)
-	lu.assertFalse(h:full())
-
-	lu.assertTrue(h:push(20))
-	lu.assertEquals(#h, 2)
-	lu.assertTrue(h:full())
-
-	-- Pushing to full heap returns false and does not modify heap
-	lu.assertFalse(h:push(30))
-	lu.assertEquals(#h, 2)
-
-	-- Popping makes room
-	lu.assertEquals(h:pop(), 10)
-	lu.assertEquals(#h, 1)
-	lu.assertFalse(h:full())
-
-	lu.assertTrue(h:push(30))
-	lu.assertEquals(#h, 2)
-	lu.assertTrue(h:full())
-end
-
 function TestHeap:testFull_Unbounded()
 	local h = Heap.new()
 	lu.assertFalse(h:full())
@@ -767,6 +467,333 @@ function TestHeap:testFull_ConsistentWithPush()
 	lu.assertFalse(h:push("d"))
 end
 
+-----------------------------------------------------------------------------
+-- 6. Mutation & Modification Tests
+-----------------------------------------------------------------------------
+
+function TestHeap:testPushAndPeek()
+	local h = Heap.new()
+
+	h:push(4)
+	lu.assertEquals(h:peek(), 4)
+	h:push(5)
+	lu.assertEquals(h:peek(), 4)
+	h:push(1)
+	lu.assertEquals(h:peek(), 1)
+	h:push(3)
+	lu.assertEquals(h:peek(), 1)
+end
+
+function TestHeap:testPush_Validation()
+	local h = Heap.new()
+	lu.assertErrorMsgContains("value should not be nil", function()
+		h:push(nil)
+	end)
+end
+
+function TestHeap:testPop()
+	local h = Heap.new()
+
+	h:push(4)
+	h:push(5)
+	h:push(1)
+	h:push(3)
+	h:push(2)
+
+	lu.assertEquals(h:pop(), 1)
+	lu.assertEquals(h:pop(), 2)
+	lu.assertEquals(h:pop(), 3)
+	lu.assertEquals(h:pop(), 4)
+	lu.assertEquals(h:pop(), 5)
+	lu.assertNil(h:pop())
+end
+
+function TestHeap:testPop_Empty()
+	local h = Heap.new()
+	lu.assertNil(h:pop())
+	lu.assertNil(h:peek())
+	lu.assertTrue(h:empty())
+	lu.assertEquals(#h, 0)
+end
+
+function TestHeap:testEmptyAndClear()
+	local h = Heap.new()
+
+	lu.assertTrue(h:empty())
+
+	h:push(2)
+	lu.assertFalse(h:empty())
+	h:push(3)
+	lu.assertFalse(h:empty())
+
+	h:pop()
+	lu.assertFalse(h:empty())
+	h:pop()
+	lu.assertTrue(h:empty())
+
+	h:push(10)
+	h:push(20)
+	lu.assertEquals(#h, 2)
+	h:clear()
+	lu.assertTrue(h:empty())
+	lu.assertEquals(#h, 0)
+	lu.assertNil(h:peek())
+	lu.assertNil(h:pop())
+
+	-- Verify it works normally after clear
+	h:push(42)
+	lu.assertEquals(#h, 1)
+	lu.assertEquals(h:peek(), 42)
+	lu.assertEquals(h:pop(), 42)
+	lu.assertTrue(h:empty())
+end
+
+function TestHeap:testDuplicates()
+	local h = Heap.new()
+	h:push(5)
+	h:push(5)
+	h:push(2)
+	h:push(8)
+	h:push(2)
+	h:push(5)
+	h:push(8)
+
+	lu.assertEquals(#h, 7)
+	lu.assertEquals(h:pop(), 2)
+	lu.assertEquals(h:pop(), 2)
+	lu.assertEquals(h:pop(), 5)
+	lu.assertEquals(h:pop(), 5)
+	lu.assertEquals(h:pop(), 5)
+	lu.assertEquals(h:pop(), 8)
+	lu.assertEquals(h:pop(), 8)
+	lu.assertNil(h:pop())
+end
+
+function TestHeap:testMaxHeap()
+	local h = Heap.newMax({ 5, 7, 9 })
+
+	h:push(6)
+	h:push(8)
+	h:push(7)
+
+	lu.assertEquals(h:pop(), 9)
+	lu.assertEquals(h:pop(), 8)
+	lu.assertEquals(h:pop(), 7)
+	lu.assertEquals(h:pop(), 7)
+	lu.assertEquals(h:pop(), 6)
+	lu.assertEquals(h:pop(), 5)
+	lu.assertNil(h:pop())
+end
+
+function TestHeap:testString()
+	local h = Heap.new()
+
+	h:push("b")
+	h:push("e")
+	h:push("c")
+	h:push("a")
+	h:push("d")
+
+	lu.assertEquals(h:pop(), "a")
+	lu.assertEquals(h:pop(), "b")
+	lu.assertEquals(h:pop(), "c")
+	lu.assertEquals(h:pop(), "d")
+	lu.assertEquals(h:pop(), "e")
+	lu.assertNil(h:pop())
+end
+
+function TestHeap:testComparator()
+	local function max(a, b)
+		if a.priority < b.priority then
+			return Comparator.greater
+		end
+
+		if a.priority > b.priority then
+			return Comparator.less
+		end
+
+		return Comparator.equal
+	end
+
+	local function obj(priority, value)
+		return { priority = priority, value = value }
+	end
+
+	local h = Heap.new({ obj(5, "a"), obj(7, "b"), obj(9, "c") }, max)
+
+	h:push(obj(6, true))
+	h:push(obj(8, false))
+
+	lu.assertEquals(h:pop(), { priority = 9, value = "c" })
+	lu.assertEquals(h:pop(), { priority = 8, value = false })
+	lu.assertEquals(h:pop(), { priority = 7, value = "b" })
+	lu.assertEquals(h:pop(), { priority = 6, value = true })
+	lu.assertEquals(h:pop(), { priority = 5, value = "a" })
+	lu.assertNil(h:pop())
+end
+
+function TestHeap:testDrain()
+	local h = Heap.new()
+	h:push("b")
+	h:push("d")
+	h:push("c")
+	h:push("a")
+
+	local res = {}
+	for item in h:drain() do
+		table.insert(res, item)
+	end
+
+	-- Drain yields in priority order (min-to-max)
+	lu.assertEquals(res, { "a", "b", "c", "d" })
+	lu.assertTrue(h:empty())
+	lu.assertEquals(#h, 0)
+	lu.assertNil(h:peek())
+	lu.assertNil(h:pop())
+end
+
+function TestHeap:testDrain_MaxHeap()
+	local h = Heap.newMax({ 10, 50, 30, 20, 40 })
+
+	local res = {}
+	for item in h:drain() do
+		table.insert(res, item)
+	end
+
+	-- Max-heap drain yields descending order
+	lu.assertEquals(res, { 50, 40, 30, 20, 10 })
+	lu.assertTrue(h:empty())
+	lu.assertEquals(#h, 0)
+end
+
+function TestHeap:testDrain_Empty()
+	local h = Heap.new()
+
+	local count = 0
+	for _ in h:drain() do
+		count = count + 1
+	end
+
+	lu.assertEquals(count, 0)
+	lu.assertTrue(h:empty())
+end
+
+function TestHeap:testCapacity_Push()
+	local h = Heap.new(nil, nil, 2)
+
+	lu.assertTrue(h:push(10))
+	lu.assertEquals(#h, 1)
+	lu.assertFalse(h:full())
+
+	lu.assertTrue(h:push(20))
+	lu.assertEquals(#h, 2)
+	lu.assertTrue(h:full())
+
+	-- Pushing to full heap returns false and does not modify heap
+	lu.assertFalse(h:push(30))
+	lu.assertEquals(#h, 2)
+
+	-- Popping makes room
+	lu.assertEquals(h:pop(), 10)
+	lu.assertEquals(#h, 1)
+	lu.assertFalse(h:full())
+
+	lu.assertTrue(h:push(30))
+	lu.assertEquals(#h, 2)
+	lu.assertTrue(h:full())
+end
+
+-----------------------------------------------------------------------------
+-- 7. Metamethod Tests (__len, __eq, __concat, __tostring, __newindex)
+-----------------------------------------------------------------------------
+
+function TestHeap:testConcat()
+	local h = Heap.new() .. { 10, 20, 30 }
+	lu.assertEquals(#h, 3)
+
+	h = h .. nil
+	lu.assertEquals(#h, 3)
+
+	local ll = require("ff.collections.linkedlist").new()
+	ll:pushBack(40)
+	ll:pushBack(50)
+	ll:pushBack(60)
+
+	h = h .. ll
+
+	lu.assertEquals(#h, 6)
+	lu.assertEquals(h:pop(), 10)
+	lu.assertEquals(h:pop(), 20)
+	lu.assertEquals(h:pop(), 30)
+	lu.assertEquals(h:pop(), 40)
+	lu.assertEquals(h:pop(), 50)
+	lu.assertEquals(h:pop(), 60)
+end
+
+function TestHeap:testConcat_Validation()
+	local h = Heap.new()
+	lu.assertErrorMsgContains("iterable should be a table", function()
+		h = h .. "not a table"
+	end)
+	lu.assertErrorMsgContains("iterable should be a table", function()
+		h = h .. 42
+	end)
+end
+
+function TestHeap:testEquality()
+	local h1 = Heap.new({ 1, 2, 3 })
+	local h2 = Heap.new({ 1, 2, 3 })
+	local h3 = Heap.new({ 1, 2, 4 })
+	local h4 = Heap.new({ 1, 2 })
+
+	-- Boolean assertions here intentionally exercise Heap.__eq.
+	lu.assertTrue(h1 == h2)
+	lu.assertFalse(h1 == h3)
+	lu.assertFalse(h1 == h4)
+	lu.assertFalse(h1 == {})
+	lu.assertFalse(h1 == nil)
+	lu.assertFalse(h1 == 42)
+end
+
+function TestHeap:testEquality_Empty()
+	local h1 = Heap.new()
+	local h2 = Heap.new()
+	-- This assertion exercises Heap.__eq; assertEquals compares table structure.
+	lu.assertTrue(h1 == h2)
+end
+
+function TestHeap:testLen()
+	local h = Heap.new()
+	lu.assertEquals(#h, 0)
+
+	h:push(10)
+	lu.assertEquals(#h, 1)
+	h:push(20)
+	h:push(30)
+	lu.assertEquals(#h, 3)
+
+	h:pop()
+	lu.assertEquals(#h, 2)
+	h:clear()
+	lu.assertEquals(#h, 0)
+end
+
+function TestHeap:testToString()
+	local h = Heap.new({ 1, 2, 3 })
+	local str = tostring(h)
+	lu.assertStrContains(str, "1")
+	lu.assertStrContains(str, "2")
+	lu.assertStrContains(str, "3")
+	lu.assertStrContains(str, "[")
+	lu.assertStrContains(str, "]")
+end
+
+function TestHeap:testToString_Empty()
+	local h = Heap.new()
+	local str = tostring(h)
+	lu.assertEquals(str, "[  ]")
+end
+
 function TestHeap:testNewIndex_PreventsModifications()
 	local h = Heap.new()
 
@@ -788,4 +815,3 @@ function TestHeap:testNewIndex_PreventsModifications()
 		h.peek = function() end
 	end)
 end
-
