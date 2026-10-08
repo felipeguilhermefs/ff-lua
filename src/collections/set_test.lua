@@ -219,7 +219,7 @@ function TestSet:testToString()
 	lu.assertTrue(str:find("true") ~= nil)
 end
 
-function TestSet:testNewIndexPreventsModifications()
+function TestSet:testNewIndex_PreventsModifications()
 	local s = Set.new({ 1, 2, 3 })
 
 	-- disallow adding properties

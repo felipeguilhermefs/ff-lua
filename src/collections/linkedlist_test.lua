@@ -11,7 +11,7 @@ function TestLinkedList:testIsLinkedList()
 	lu.assertFalse(LinkedList.isLinkedList(123))
 end
 
-function TestLinkedList:testConstructorEmpty()
+function TestLinkedList:testConstructor_Empty()
 	local ll = LinkedList.new()
 	lu.assertTrue(ll:empty())
 	lu.assertEquals(#ll, 0)
@@ -21,7 +21,7 @@ function TestLinkedList:testConstructorEmpty()
 	lu.assertNil(ll:popBack())
 end
 
-function TestLinkedList:testConstructorWithIterable()
+function TestLinkedList:testConstructor_WithIterable()
 	local ll = LinkedList.new({ 10, 20, 30 })
 	lu.assertEquals(#ll, 3)
 	lu.assertEquals(ll:peekFront(), 10)
@@ -32,14 +32,14 @@ function TestLinkedList:testConstructorWithIterable()
 	lu.assertTrue(ll:empty())
 end
 
-function TestLinkedList:testConstructorWithLinkedList()
+function TestLinkedList:testConstructor_WithLinkedList()
 	local ll1 = LinkedList.new({ 1, 2, 3 })
 	local ll2 = LinkedList.new(ll1)
 	lu.assertEquals(#ll2, 3)
 	lu.assertEquals(ll1 == ll2, true)
 end
 
-function TestLinkedList:testConstructorValidation()
+function TestLinkedList:testConstructor_Validation()
 	lu.assertErrorMsgContains("iterable should be a table", LinkedList.new, "invalid")
 	lu.assertErrorMsgContains("iterable should be a table", LinkedList.new, 123)
 	lu.assertErrorMsgContains("iterable should be a table", LinkedList.new, true)
@@ -279,7 +279,7 @@ function TestLinkedList:testConcat()
 	lu.assertTrue(ll:empty())
 end
 
-function TestLinkedList:testConcatValidation()
+function TestLinkedList:testConcat_Validation()
 	local ll = LinkedList.new()
 	lu.assertErrorMsgContains("iterable should be a table", function()
 		ll = ll .. "not a table"
@@ -307,7 +307,7 @@ function TestLinkedList:testEquality()
 	lu.assertEquals(ll1 == "123", false)
 end
 
-function TestLinkedList:testEqualityEmpty()
+function TestLinkedList:testEquality_Empty()
 	local ll1 = LinkedList.new()
 	local ll2 = LinkedList.new()
 	lu.assertEquals(ll1 == ll2, true)
@@ -329,7 +329,7 @@ function TestLinkedList:testIterator()
 	lu.assertEquals(#ll, 3)
 end
 
-function TestLinkedList:testIteratorEmpty()
+function TestLinkedList:testIterator_Empty()
 	local ll = LinkedList.new()
 	local count = 0
 	for _ in pairs(ll) do
@@ -343,12 +343,12 @@ function TestLinkedList:testToString()
 	lu.assertEquals(tostring(ll), "[ 1 -> 2 -> 3 ]")
 end
 
-function TestLinkedList:testToStringEmpty()
+function TestLinkedList:testToString_Empty()
 	local ll = LinkedList.new()
 	lu.assertEquals(tostring(ll), "[  ]")
 end
 
-function TestLinkedList:testPushValidation()
+function TestLinkedList:testPush_Validation()
 	local ll = LinkedList.new()
 	lu.assertErrorMsgContains("entry should not be nil", function()
 		ll:pushFront(nil)
@@ -358,7 +358,7 @@ function TestLinkedList:testPushValidation()
 	end)
 end
 
-function TestLinkedList:testNewIndexPreventsModifications()
+function TestLinkedList:testNewIndex_PreventsModifications()
 	local ll = LinkedList.new({ 1, 2, 3 })
 
 	-- disallow adding properties

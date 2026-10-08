@@ -45,7 +45,7 @@ function TestArray:testGet()
 	lu.assertEquals(a:get(3), 30)
 end
 
-function TestArray:testGetValidation()
+function TestArray:testGet_Validation()
 	local a = Array.new({ 10, 20, 30 })
 
 	-- bounds validation
@@ -78,7 +78,7 @@ function TestArray:testNoBracketAccess()
 	lu.assertNil(a[3])
 end
 
-function TestArray:testNewIndexPreventsModifications()
+function TestArray:testNewIndex_PreventsModifications()
 	local a = Array.new({ 10, 20, 30 })
 
 	-- disallow adding properties
@@ -170,7 +170,7 @@ function TestArray:testInsert()
 	lu.assertEquals(a:get(5), 50)
 end
 
-function TestArray:testInsertValidation()
+function TestArray:testInsert_Validation()
 	local a = Array.new({ 10, 20, 30 })
 
 	-- value validation
@@ -269,7 +269,7 @@ function TestArray:testContains()
 	lu.assertFalse(b:contains(1))
 end
 
-function TestArray:testContainsValidation()
+function TestArray:testContains_Validation()
 	local a = Array.new({ 10, 20, 30 })
 
 	lu.assertErrorMsgContains("value should not be nil", function()

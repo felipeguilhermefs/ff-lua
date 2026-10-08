@@ -7,16 +7,16 @@ head = require("ff.func.head")
 
 TestHeadString = {}
 
-function TestHeadString:test_empty()
+function TestHeadString:testHead_Empty()
   lu.assertEquals(head(""), "")
 end
 
-function TestHeadString:test_singleChar()
+function TestHeadString:testHead_SingleChar()
   lu.assertEquals(head("a"), "a")
   lu.assertEquals(head(" "), " ")
 end
 
-function TestHeadString:test_multiChar()
+function TestHeadString:testHead_MultiChar()
   lu.assertEquals(head("flores"), "f")
   lu.assertEquals(head("1234"), "1")
   lu.assertEquals(head("\tlol"), "\t")
@@ -32,7 +32,7 @@ end
 
 TestHeadNoop = {}
 
-function TestHeadNoop:test_nil()
+function TestHeadNoop:testHead_Nil()
   lu.assertNil(head(0))
   lu.assertNil(head(true))
   lu.assertNil(head({"a"}))

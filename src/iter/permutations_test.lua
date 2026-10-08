@@ -62,7 +62,7 @@ function TestPermutations:testEmptyArray()
 	lu.assertEquals(#p[1], 0)
 end
 
-function TestPermutations:test4Elements()
+function TestPermutations:testPermutations_FourElements()
 	local p = collect(permutations({ 1, 2, 3, 4 }))
 	lu.assertEquals(24, #p)
 end

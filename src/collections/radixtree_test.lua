@@ -368,7 +368,7 @@ function TestRadixTree:testCaseSensitivity()
 	lu.assertTrue(ti:contains("wolf", true))
 end
 
-function TestRadixTree:testRadixSplittingAndMerging()
+function TestRadixTree:testRadix_SplittingAndMerging()
 	local t = RadixTree.new()
 
 	-- Complex branch splitting
@@ -430,7 +430,7 @@ function TestRadixTree:testRadixSplittingAndMerging()
 	lu.assertTrue(t:contains("rubens", true))
 end
 
-function TestRadixTree:testRadixPrefixRemoval()
+function TestRadixTree:testRadix_PrefixRemoval()
 	local t = RadixTree.new({ "test", "testing", "tester", "team", "toast" })
 	lu.assertEquals(#t, 5)
 
@@ -452,7 +452,7 @@ function TestRadixTree:testRadixPrefixRemoval()
 	lu.assertEquals(#t, 2)
 end
 
-function TestRadixTree:testRadixLongSharedPrefixes()
+function TestRadixTree:testRadix_LongSharedPrefixes()
 	local t = RadixTree.new({
 		"internationalization",
 		"international",
@@ -487,7 +487,7 @@ function TestRadixTree:testRadixLongSharedPrefixes()
 	lu.assertTrue(t:contains("internal", true))
 end
 
-function TestRadixTree:testRadixSingleCharacterWords()
+function TestRadixTree:testRadix_SingleCharacterWords()
 	local t = RadixTree.new({ "a", "ab", "abc", "abcd", "b", "ba", "bc" })
 	lu.assertEquals(#t, 7)
 
@@ -505,7 +505,7 @@ function TestRadixTree:testRadixSingleCharacterWords()
 	lu.assertTrue(t:contains("abcd", true))
 end
 
-function TestRadixTree:testNewIndexPreventsModifications()
+function TestRadixTree:testNewIndex_PreventsModifications()
 	local rt = RadixTree.new()
 
 	-- disallow adding properties

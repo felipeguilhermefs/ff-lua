@@ -12,13 +12,13 @@ function TestTreeMap:testIsTreeMap()
 	lu.assertFalse(TreeMap.isTreeMap(123))
 end
 
-function TestTreeMap:testConstructorEmpty()
+function TestTreeMap:testConstructor_Empty()
 	local tm = TreeMap.new()
 	lu.assertTrue(tm:empty())
 	lu.assertEquals(#tm, 0)
 end
 
-function TestTreeMap:testConstructorWithIterable()
+function TestTreeMap:testConstructor_WithIterable()
 	local tm = TreeMap.new({ d = 40, b = 20, a = 10, c = 30 })
 	lu.assertFalse(tm:empty())
 	lu.assertEquals(#tm, 4)
@@ -28,7 +28,7 @@ function TestTreeMap:testConstructorWithIterable()
 	lu.assertEquals(tm:get("d"), 40)
 end
 
-function TestTreeMap:testConstructorWithComparator()
+function TestTreeMap:testConstructor_WithComparator()
 	local tm = TreeMap.new(nil, Comparator.reverse(Comparator.natural))
 	tm:put(1, "one")
 	tm:put(2, "two")
@@ -45,7 +45,7 @@ function TestTreeMap:testConstructorWithComparator()
 	lu.assertEquals(v, "one")
 end
 
-function TestTreeMap:testConstructorValidation()
+function TestTreeMap:testConstructor_Validation()
 	lu.assertErrorMsgContains("comparator should be a function", TreeMap.new, nil, "invalid")
 	lu.assertErrorMsgContains("comparator should be a function", TreeMap.new, nil, 123)
 	lu.assertErrorMsgContains("comparator should be a function", TreeMap.new, nil, true)
@@ -146,7 +146,7 @@ function TestTreeMap:testRemove()
 	lu.assertNil(tm:get(4))
 end
 
-function TestTreeMap:testRemoveEdgeCases()
+function TestTreeMap:testRemove_EdgeCases()
 	local tm = TreeMap.new()
 
 	-- Empty tree
@@ -404,7 +404,7 @@ function TestTreeMap:testCustomComparator()
 	lu.assertEquals(maxKey.score, 20)
 end
 
-function TestTreeMap:testNewIndexPreventsModifications()
+function TestTreeMap:testNewIndex_PreventsModifications()
 	local tm = TreeMap.new()
 
 	-- disallow adding properties

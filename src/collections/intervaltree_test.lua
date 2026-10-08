@@ -19,13 +19,13 @@ end
 -- Constructor
 -- ---------------------------------------------------------------------------
 
-function TestIntervalTree:testConstructorEmpty()
+function TestIntervalTree:testConstructor_Empty()
 	local it = IntervalTree.new()
 	lu.assertTrue(it:empty())
 	lu.assertEquals(#it, 0)
 end
 
-function TestIntervalTree:testConstructorWithIterable()
+function TestIntervalTree:testConstructor_WithIterable()
 	local it = IntervalTree.new({ { 1, 3 }, { 7, 10 }, { 20, 25 } })
 	lu.assertFalse(it:empty())
 	lu.assertEquals(#it, 3)
@@ -35,7 +35,7 @@ function TestIntervalTree:testConstructorWithIterable()
 	lu.assertFalse(it:contains(5))
 end
 
-function TestIntervalTree:testConstructorIterableMergesOverlaps()
+function TestIntervalTree:testConstructor_IterableMergesOverlaps()
 	-- Overlapping pairs in iterable should be merged on insertion
 	local it = IntervalTree.new({ { 1, 5 }, { 3, 8 }, { 20, 30 } })
 	lu.assertEquals(#it, 2)
@@ -43,12 +43,12 @@ function TestIntervalTree:testConstructorIterableMergesOverlaps()
 	lu.assertFalse(it:contains(15))
 end
 
-function TestIntervalTree:testConstructorNilIterable()
+function TestIntervalTree:testConstructor_NilIterable()
 	lu.assertNotNil(IntervalTree.new(nil))
 	lu.assertEquals(#IntervalTree.new(nil), 0)
 end
 
-function TestIntervalTree:testConstructorValidation()
+function TestIntervalTree:testConstructor_Validation()
 	lu.assertErrorMsgContains("iterable should be a table", IntervalTree.new, "not_a_table")
 	lu.assertErrorMsgContains("iterable should be a table", IntervalTree.new, 42)
 end
@@ -102,7 +102,7 @@ function TestIntervalTree:testContains()
 	lu.assertFalse(it:contains(11))
 end
 
-function TestIntervalTree:testContainsValidation()
+function TestIntervalTree:testContains_Validation()
 	local it = IntervalTree.new()
 	lu.assertErrorMsgContains("'value' should be a number", function()
 		it:contains("not_a_number")
@@ -134,7 +134,7 @@ function TestIntervalTree:testInsert()
 	end
 end
 
-function TestIntervalTree:testInsertSwappedBoundaries()
+function TestIntervalTree:testInsert_SwappedBoundaries()
 	-- insert(high, low) should be normalised to insert(low, high)
 	local it = IntervalTree.new()
 	it:insert(10, 1)
@@ -142,7 +142,7 @@ function TestIntervalTree:testInsertSwappedBoundaries()
 	lu.assertTrue(it:contains(5))
 end
 
-function TestIntervalTree:testInsertValidation()
+function TestIntervalTree:testInsert_Validation()
 	local it = IntervalTree.new()
 	lu.assertErrorMsgContains("'low' should be a number", function()
 		it:insert("a", 1)
@@ -152,7 +152,7 @@ function TestIntervalTree:testInsertValidation()
 	end)
 end
 
-function TestIntervalTree:testInsertMergesAdjacent()
+function TestIntervalTree:testInsert_MergesAdjacent()
 	-- [1,3] and [3,6] share boundary 3 -- they overlap and must merge
 	local it = IntervalTree.new()
 	it:insert(1, 3)
@@ -162,7 +162,7 @@ function TestIntervalTree:testInsertMergesAdjacent()
 	lu.assertTrue(it:contains(5))
 end
 
-function TestIntervalTree:testInsertManyMerge()
+function TestIntervalTree:testInsert_ManyMerge()
 	local it = IntervalTree.new()
 	-- Insert non-overlapping first
 	it:insert(1, 2)
@@ -183,7 +183,7 @@ end
 -- remove
 -- ---------------------------------------------------------------------------
 
-function TestIntervalTree:testRemoveExact()
+function TestIntervalTree:testRemove_Exact()
 	local it = IntervalTree.new({ { 1, 3 }, { 7, 10 }, { 20, 25 } })
 	lu.assertEquals(#it, 3)
 
@@ -193,25 +193,25 @@ function TestIntervalTree:testRemoveExact()
 	lu.assertTrue(it:contains(2))
 end
 
-function TestIntervalTree:testRemoveNotFound()
+function TestIntervalTree:testRemove_NotFound()
 	local it = IntervalTree.new({ { 1, 3 }, { 7, 10 } })
 	lu.assertEquals(it:remove(4, 6), 0) -- no overlap with [1, 3] or [7, 10]
 	lu.assertEquals(#it, 2)
 end
 
-function TestIntervalTree:testRemoveFromEmpty()
+function TestIntervalTree:testRemove_FromEmpty()
 	local it = IntervalTree.new()
 	lu.assertEquals(it:remove(1, 5), 0)
 	lu.assertEquals(#it, 0)
 end
 
-function TestIntervalTree:testRemoveSwappedBoundaries()
+function TestIntervalTree:testRemove_SwappedBoundaries()
 	local it = IntervalTree.new({ { 1, 5 } })
 	lu.assertEquals(it:remove(5, 1), 1) -- normalised internally
 	lu.assertTrue(it:empty())
 end
 
-function TestIntervalTree:testRemovePartialOverlap()
+function TestIntervalTree:testRemove_PartialOverlap()
 	local it = IntervalTree.new({ { 1, 5 }, { 10, 15 } })
 	lu.assertEquals(it:remove(4, 8), 1) -- overlaps [1, 5]
 	lu.assertEquals(#it, 1)
@@ -219,7 +219,7 @@ function TestIntervalTree:testRemovePartialOverlap()
 	lu.assertTrue(it:contains(12))
 end
 
-function TestIntervalTree:testRemoveMultipleOverlaps()
+function TestIntervalTree:testRemove_MultipleOverlaps()
 	local it = IntervalTree.new({ { 1, 3 }, { 5, 8 }, { 10, 12 }, { 15, 20 } })
 	lu.assertEquals(#it, 4)
 
@@ -232,7 +232,7 @@ function TestIntervalTree:testRemoveMultipleOverlaps()
 	lu.assertTrue(it:contains(18))
 end
 
-function TestIntervalTree:testRemoveTouchingBoundaries()
+function TestIntervalTree:testRemove_TouchingBoundaries()
 	local it = IntervalTree.new({ { 1, 3 }, { 5, 8 } })
 	-- [3, 5] touches upper bound of [1, 3] and lower bound of [5, 8]
 	lu.assertEquals(it:remove(3, 5), 2)
@@ -240,7 +240,7 @@ function TestIntervalTree:testRemoveTouchingBoundaries()
 	lu.assertTrue(it:empty())
 end
 
-function TestIntervalTree:testRemoveLenCorrectness()
+function TestIntervalTree:testRemove_LenCorrectness()
 	-- Validates the two-child deletion bug is fixed
 	local it = IntervalTree.new()
 	it:insert(10, 20)
@@ -262,7 +262,7 @@ function TestIntervalTree:testRemoveLenCorrectness()
 	lu.assertTrue(it:empty())
 end
 
-function TestIntervalTree:testRemoveValidation()
+function TestIntervalTree:testRemove_Validation()
 	local it = IntervalTree.new()
 	lu.assertErrorMsgContains("'low' should be a number", function()
 		it:remove("a", 1)
@@ -283,24 +283,24 @@ function TestIntervalTree:testConcat()
 	lu.assertTrue(it:contains(9))
 end
 
-function TestIntervalTree:testConcatNil()
+function TestIntervalTree:testConcat_Nil()
 	local it = IntervalTree.new() .. nil
 	lu.assertEquals(#it, 0)
 end
 
-function TestIntervalTree:testConcatMergesOverlaps()
+function TestIntervalTree:testConcat_MergesOverlaps()
 	local it = IntervalTree.new({ { 1, 5 } }) .. { { 3, 8 } }
 	lu.assertEquals(#it, 1)
 	lu.assertTrue(it:contains(6))
 end
 
-function TestIntervalTree:testConcatChaining()
+function TestIntervalTree:testConcat_Chaining()
 	local it = IntervalTree.new() .. { { 1, 2 } }
 	it = it .. { { 10, 20 } }
 	lu.assertEquals(#it, 2)
 end
 
-function TestIntervalTree:testConcatValidation()
+function TestIntervalTree:testConcat_Validation()
 	local it = IntervalTree.new()
 	lu.assertErrorMsgContains("iterable should be a table", function()
 		it = it .. "not_a_table"
@@ -328,7 +328,7 @@ function TestIntervalTree:testEquality()
 	lu.assertEquals(it1 == 42, false)
 end
 
-function TestIntervalTree:testEqualityEmpty()
+function TestIntervalTree:testEquality_Empty()
 	local e1 = IntervalTree.new()
 	local e2 = IntervalTree.new()
 	lu.assertEquals(e1 == e2, true)
@@ -357,7 +357,7 @@ end
 -- __pairs  (in-order)
 -- ---------------------------------------------------------------------------
 
-function TestIntervalTree:testPairsInOrder()
+function TestIntervalTree:testPairs_InOrder()
 	local it = IntervalTree.new({ { 10, 20 }, { 1, 3 }, { 50, 60 }, { 30, 40 } })
 	local res = {}
 	for low, high in pairs(it) do
@@ -373,7 +373,7 @@ function TestIntervalTree:testPairsInOrder()
 	})
 end
 
-function TestIntervalTree:testPairsEmpty()
+function TestIntervalTree:testPairs_Empty()
 	local it = IntervalTree.new()
 	local count = 0
 	for _ in pairs(it) do
@@ -394,7 +394,7 @@ function TestIntervalTree:testToString()
 	lu.assertEquals(tostring(it), "{ [1, 3], [7, 10] }")
 end
 
-function TestIntervalTree:testNewIndexPreventsModifications()
+function TestIntervalTree:testNewIndex_PreventsModifications()
 	local it = IntervalTree.new()
 
 	-- disallow adding properties

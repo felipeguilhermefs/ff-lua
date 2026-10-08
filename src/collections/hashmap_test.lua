@@ -187,7 +187,7 @@ function TestHashMap:testEquals()
 	lu.assertEquals(m1 == m4, false)
 end
 
-function TestHashMap:testEqualsNotHashMap()
+function TestHashMap:testEquals_NotHashMap()
 	local map = HashMap.new({ a = 1 })
 
 	-- Comparing with a plain table or non-table must return false
@@ -196,13 +196,13 @@ function TestHashMap:testEqualsNotHashMap()
 	lu.assertEquals(map == 42, false)
 end
 
-function TestHashMap:testEqualsEmpty()
+function TestHashMap:testEquals_Empty()
 	local m1 = HashMap.new()
 	local m2 = HashMap.new()
 	lu.assertEquals(m1 == m2, true)
 end
 
-function TestHashMap:testEqualsFalsyValues()
+function TestHashMap:testEquals_FalsyValues()
 	local m1 = HashMap.new()
 	local m2 = HashMap.new()
 	m1:put("flag", false)
@@ -213,7 +213,7 @@ function TestHashMap:testEqualsFalsyValues()
 	lu.assertEquals(m1 == m2, false)
 end
 
-function TestHashMap:testNewIndexPreventsModifications()
+function TestHashMap:testNewIndex_PreventsModifications()
 	local m = HashMap.new({ a = 1 })
 
 	-- disallow adding properties

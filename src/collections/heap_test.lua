@@ -15,7 +15,7 @@ function TestHeap:testIsHeap()
 	lu.assertFalse(Heap.isHeap(123))
 end
 
-function TestHeap:testConstructorEmpty()
+function TestHeap:testConstructor_Empty()
 	local h = Heap.new()
 	lu.assertTrue(h:empty())
 	lu.assertEquals(#h, 0)
@@ -23,7 +23,7 @@ function TestHeap:testConstructorEmpty()
 	lu.assertNil(h:pop())
 end
 
-function TestHeap:testConstructorWithIterable()
+function TestHeap:testConstructor_WithIterable()
 	local h = Heap.new({ 30, 10, 20 })
 	lu.assertEquals(#h, 3)
 	lu.assertEquals(h:peek(), 10)
@@ -33,7 +33,7 @@ function TestHeap:testConstructorWithIterable()
 	lu.assertTrue(h:empty())
 end
 
-function TestHeap:testConstructorWithComparator()
+function TestHeap:testConstructor_WithComparator()
 	local h = Heap.new(nil, Comparator.reverse(Comparator.natural))
 	lu.assertTrue(h:empty())
 	lu.assertEquals(#h, 0)
@@ -49,7 +49,7 @@ function TestHeap:testConstructorWithComparator()
 	lu.assertTrue(h:empty())
 end
 
-function TestHeap:testConstructorWithComparatorAndIterable()
+function TestHeap:testConstructor_WithComparatorAndIterable()
 	local h = Heap.new({ 10, 30, 20 }, Comparator.reverse(Comparator.natural))
 	lu.assertEquals(#h, 3)
 	lu.assertEquals(h:pop(), 30)
@@ -57,7 +57,7 @@ function TestHeap:testConstructorWithComparatorAndIterable()
 	lu.assertEquals(h:pop(), 10)
 end
 
-function TestHeap:testConstructorWithCapacity()
+function TestHeap:testConstructor_WithCapacity()
 	local h = Heap.new(nil, nil, 5)
 	lu.assertTrue(h:empty())
 	lu.assertEquals(#h, 0)
@@ -74,7 +74,7 @@ function TestHeap:testConstructorWithCapacity()
 	lu.assertFalse(maxH:full())
 end
 
-function TestHeap:testConstructorWithCapacityAndIterable()
+function TestHeap:testConstructor_WithCapacityAndIterable()
 	local h = Heap.new({ 10, 20, 30 }, nil, 5)
 	lu.assertEquals(#h, 3)
 	lu.assertFalse(h:full())
@@ -92,7 +92,7 @@ function TestHeap:testConstructorWithCapacityAndIterable()
 	lu.assertTrue(maxH:full())
 end
 
-function TestHeap:testConstructorCapacityValidation()
+function TestHeap:testConstructor_CapacityValidation()
 	lu.assertErrorMsgContains("comparator should be a function", Heap.new, nil, "a")
 	lu.assertErrorMsgContains("comparator should be a function", Heap.new, nil, true)
 	lu.assertErrorMsgContains("comparator should be a function", Heap.new, nil, -1)
@@ -108,7 +108,7 @@ function TestHeap:testConstructorCapacityValidation()
 	lu.assertErrorMsgContains("capacity should be positive", Heap.newMax, nil, -1)
 end
 
-function TestHeap:testConstructorMinMaxWithIterable()
+function TestHeap:testConstructorMinMax_WithIterable()
 	local minH = Heap.newMin({ 5, 3, 8, 1 })
 	lu.assertEquals(#minH, 4)
 	lu.assertEquals(minH:pop(), 1)
@@ -139,7 +139,7 @@ function TestHeap:testPushAndPeek()
 	lu.assertEquals(h:peek(), 1)
 end
 
-function TestHeap:testPushValidation()
+function TestHeap:testPush_Validation()
 	local h = Heap.new()
 	lu.assertErrorMsgContains("value should not be nil", function()
 		h:push(nil)
@@ -163,7 +163,7 @@ function TestHeap:testPop()
 	lu.assertNil(h:pop())
 end
 
-function TestHeap:testPopEmpty()
+function TestHeap:testPop_Empty()
 	local h = Heap.new()
 	lu.assertNil(h:pop())
 	lu.assertNil(h:peek())
@@ -228,7 +228,7 @@ function TestHeap:testContains()
 	lu.assertTrue(h:contains(30))
 end
 
-function TestHeap:testContainsValidation()
+function TestHeap:testContains_Validation()
 	local h = Heap.new()
 	lu.assertErrorMsgContains("value should not be nil", function()
 		h:contains(nil)
@@ -346,7 +346,7 @@ function TestHeap:testIterator()
 	lu.assertEquals(h:peek(), "a")
 end
 
-function TestHeap:testIteratorEmpty()
+function TestHeap:testIterator_Empty()
 	local h = Heap.new()
 
 	local count = 0
@@ -357,7 +357,7 @@ function TestHeap:testIteratorEmpty()
 	lu.assertEquals(count, 0)
 end
 
-function TestHeap:testIteratorMultipleRuns()
+function TestHeap:testIterator_MultipleRuns()
 	local h = Heap.new({ 10, 20, 30 })
 
 	local firstRun = {}
@@ -375,7 +375,7 @@ function TestHeap:testIteratorMultipleRuns()
 	lu.assertEquals(#h, 3)
 end
 
-function TestHeap:testIteratorLevelOrder()
+function TestHeap:testIterator_LevelOrder()
 	local h = Heap.new()
 	h:push(10)
 	h:push(30)
@@ -412,7 +412,7 @@ function TestHeap:testDrain()
 	lu.assertNil(h:pop())
 end
 
-function TestHeap:testDrainMaxHeap()
+function TestHeap:testDrain_MaxHeap()
 	local h = Heap.newMax({ 10, 50, 30, 20, 40 })
 
 	local res = {}
@@ -426,7 +426,7 @@ function TestHeap:testDrainMaxHeap()
 	lu.assertEquals(#h, 0)
 end
 
-function TestHeap:testDrainEmpty()
+function TestHeap:testDrain_Empty()
 	local h = Heap.new()
 
 	local count = 0
@@ -461,7 +461,7 @@ function TestHeap:testConcat()
 	lu.assertEquals(h:pop(), 60)
 end
 
-function TestHeap:testConcatValidation()
+function TestHeap:testConcat_Validation()
 	local h = Heap.new()
 	lu.assertErrorMsgContains("iterable should be a table", function()
 		h = h .. "not a table"
@@ -485,7 +485,7 @@ function TestHeap:testEquality()
 	lu.assertEquals(h1 == 42, false)
 end
 
-function TestHeap:testEqualityEmpty()
+function TestHeap:testEquality_Empty()
 	local h1 = Heap.new()
 	local h2 = Heap.new()
 	lu.assertEquals(h1 == h2, true)
@@ -517,7 +517,7 @@ function TestHeap:testToString()
 	lu.assertTrue(str:find("%]") ~= nil)
 end
 
-function TestHeap:testToStringEmpty()
+function TestHeap:testToString_Empty()
 	local h = Heap.new()
 	local str = tostring(h)
 	lu.assertEquals(str, "[  ]")
@@ -547,7 +547,7 @@ function TestHeap:testIndexOf()
 	lu.assertNil(Heap.new():indexOf(10))
 end
 
-function TestHeap:testIndexOfWithStartIndex()
+function TestHeap:testIndexOf_WithStartIndex()
 	local h = Heap.new({ 10, 20, 30, 40, 50, 60, 70 })
 
 	-- Searching starting from left child (index 2) finds elements in that subtree
@@ -569,7 +569,7 @@ function TestHeap:testIndexOfWithStartIndex()
 	lu.assertNil(h:indexOf(10, 100))
 end
 
-function TestHeap:testIndexOfMaxHeap()
+function TestHeap:testIndexOf_MaxHeap()
 	local maxH = Heap.newMax({ 70, 60, 50, 40, 30, 20, 10 })
 
 	-- Root is max element (index 1)
@@ -590,7 +590,7 @@ function TestHeap:testIndexOfMaxHeap()
 	lu.assertNil(maxH:indexOf(0))
 end
 
-function TestHeap:testIndexOfMaxHeapSubtree()
+function TestHeap:testIndexOf_MaxHeapSubtree()
 	local maxH = Heap.newMax({ 100, 80, 90, 40, 50, 60, 70 })
 
 	local leftVal = maxH._entries:get(2)
@@ -611,7 +611,7 @@ function TestHeap:testIndexOfMaxHeapSubtree()
 	lu.assertNil(maxH:indexOf(rightVal, 2))
 end
 
-function TestHeap:testIndexOfMaxHeapDuplicates()
+function TestHeap:testIndexOf_MaxHeapDuplicates()
 	local maxH = Heap.newMax({ 50, 40, 40, 30, 20, 20, 10 })
 
 	for _, val in ipairs({ 50, 40, 30, 20, 10 }) do
@@ -621,7 +621,7 @@ function TestHeap:testIndexOfMaxHeapDuplicates()
 	end
 end
 
-function TestHeap:testIndexOfObjectHeapTies()
+function TestHeap:testIndexOf_ObjectHeapTies()
 	local function cmp(a, b)
 		return Comparator.natural(a.priority, b.priority)
 	end
@@ -640,7 +640,7 @@ function TestHeap:testIndexOfObjectHeapTies()
 	lu.assertFalse(h:contains(c))
 end
 
-function TestHeap:testIndexOfMaxHeapObjectTies()
+function TestHeap:testIndexOf_MaxHeapObjectTies()
 	local function maxObjCmp(a, b)
 		return Comparator.reverse(Comparator.natural)(a.priority, b.priority)
 	end
@@ -662,7 +662,7 @@ function TestHeap:testIndexOfMaxHeapObjectTies()
 	lu.assertFalse(h:contains(d))
 end
 
-function TestHeap:testIndexOfValidation()
+function TestHeap:testIndexOf_Validation()
 	local h = Heap.new({ 10, 20, 30 })
 
 	lu.assertErrorMsgContains("value should not be nil", function()
@@ -682,7 +682,7 @@ function TestHeap:testIndexOfValidation()
 	end)
 end
 
-function TestHeap:testCapacityPush()
+function TestHeap:testCapacity_Push()
 	local h = Heap.new(nil, nil, 2)
 
 	lu.assertTrue(h:push(10))
@@ -707,7 +707,7 @@ function TestHeap:testCapacityPush()
 	lu.assertTrue(h:full())
 end
 
-function TestHeap:testFullUnbounded()
+function TestHeap:testFull_Unbounded()
 	local h = Heap.new()
 	lu.assertFalse(h:full())
 	h:push(1)
@@ -722,7 +722,7 @@ function TestHeap:testFullUnbounded()
 	lu.assertFalse(maxH:full())
 end
 
-function TestHeap:testFullBoundedNotFull()
+function TestHeap:testFull_BoundedNotFull()
 	local h = Heap.new(nil, nil, 3)
 	lu.assertFalse(h:full())
 	h:push(1)
@@ -731,14 +731,14 @@ function TestHeap:testFullBoundedNotFull()
 	lu.assertFalse(h:full())
 end
 
-function TestHeap:testFullBoundedAtCapacity()
+function TestHeap:testFull_BoundedAtCapacity()
 	local h = Heap.new(nil, nil, 2)
 	h:push(1)
 	h:push(2)
 	lu.assertTrue(h:full())
 end
 
-function TestHeap:testFullBoundedAfterPopAndClear()
+function TestHeap:testFull_BoundedAfterPopAndClear()
 	local h = Heap.new(nil, nil, 2)
 	h:push(1)
 	h:push(2)
@@ -755,7 +755,7 @@ function TestHeap:testFullBoundedAfterPopAndClear()
 	lu.assertEquals(#h, 0)
 end
 
-function TestHeap:testFullConsistentWithPush()
+function TestHeap:testFull_ConsistentWithPush()
 	local h = Heap.new(nil, nil, 3)
 	h:push("a")
 	h:push("b")
@@ -765,7 +765,7 @@ function TestHeap:testFullConsistentWithPush()
 	lu.assertFalse(h:push("d"))
 end
 
-function TestHeap:testNewIndexPreventsModifications()
+function TestHeap:testNewIndex_PreventsModifications()
 	local h = Heap.new()
 
 	-- disallow adding properties

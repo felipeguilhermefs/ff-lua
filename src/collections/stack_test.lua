@@ -136,7 +136,7 @@ function TestStack:testIterator()
 	lu.assertEquals(s:top(), "d")
 end
 
-function TestStack:testIteratorEmpty()
+function TestStack:testIterator_Empty()
 	local s = Stack.new()
 
 	local count = 0
@@ -147,7 +147,7 @@ function TestStack:testIteratorEmpty()
 	lu.assertEquals(count, 0)
 end
 
-function TestStack:testIteratorMultipleRuns()
+function TestStack:testIterator_MultipleRuns()
 	local s = Stack.new({ "x", "y", "z" })
 
 	local firstRun = {}
@@ -184,7 +184,7 @@ function TestStack:testDrain()
 	lu.assertNil(s:pop())
 end
 
-function TestStack:testDrainEmpty()
+function TestStack:testDrain_Empty()
 	local s = Stack.new()
 
 	local count = 0
@@ -215,7 +215,7 @@ function TestStack:testConcat()
 	lu.assertEquals(s:pop(), 10)
 end
 
-function TestStack:testNewIndexPreventsModifications()
+function TestStack:testNewIndex_PreventsModifications()
 	local s = Stack.new({ 1, 2, 3 })
 
 	-- disallow adding properties
