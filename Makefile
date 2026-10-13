@@ -1,8 +1,9 @@
 ROCKSPEC := $(firstword $(wildcard ff-lua-*.rockspec))
+MODULE ?=
 
 .PHONY: test
 test:
-	luarocks test $(ROCKSPEC) -- $(ROCKSPEC) -s $(ARGS)
+	luarocks test $(ROCKSPEC) -- $(ROCKSPEC) $(MODULE)
 
 .PHONY: lint
 lint:

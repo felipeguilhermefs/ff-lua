@@ -1,12 +1,11 @@
-lu = require "luaunit"
-tail = require("ff.func.tail")
+local lu = require "luaunit"
+local tail = require("ff.func.tail")
 
 -------------------------------
 -- String Test Suite [begin] --
 -------------------------------
 
-TestTailString = {}
-
+local TestTailString = {}
 function TestTailString:testTail_Empty()
   lu.assertEquals(tail(""), "")
 end
@@ -30,8 +29,7 @@ end
 -- Non Supported Test Suite [begin] --
 --------------------------------------
 
-TestTailNoop = {}
-
+local TestTailNoop = {}
 function TestTailNoop:testTail_Nil()
   lu.assertNil(tail(0))
   lu.assertNil(tail(true))
@@ -42,4 +40,7 @@ end
 -- Non Supported Test Suite [end] --
 ------------------------------------
 
-
+return {
+	TestTailString = TestTailString,
+	TestTailNoop = TestTailNoop,
+}

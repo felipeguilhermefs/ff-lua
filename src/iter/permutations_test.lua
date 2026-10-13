@@ -1,8 +1,7 @@
 local lu = require("luaunit")
 local permutations = require("ff.iter.permutations")
 
-TestPermutations = {}
-
+local TestPermutations = {}
 -----------------------------------------------------------------------------
 ---Helper method to collect the permutations in a array
 ---
@@ -71,3 +70,4 @@ function TestPermutations:testNil()
 	lu.assertErrorMsgContains("Only arrays and strings are accepted", permutations, nil)
 end
 
+return { TestPermutations = TestPermutations }

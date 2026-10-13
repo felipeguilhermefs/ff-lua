@@ -1,8 +1,7 @@
 local lu = require("luaunit")
 local trunc = require("ff.math.trunc")
 
-TestTrunc = {}
-
+local TestTrunc = {}
 function TestTrunc:testZero()
 	lu.assertEquals(trunc(0), 0)
 	lu.assertEquals(trunc(0.5), 0)
@@ -34,3 +33,4 @@ function TestTrunc:testNonNumber()
 	end))
 end
 
+return { TestTrunc = TestTrunc }

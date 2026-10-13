@@ -1,8 +1,7 @@
 local lu = require("luaunit")
 local factorial = require("ff.math.factorial")
 
-TestFactorial = {}
-
+local TestFactorial = {}
 function TestFactorial:testZero()
 	lu.assertEquals(factorial(0), 0)
 end
@@ -35,3 +34,4 @@ function TestFactorial:testNonNumber()
 	end)
 end
 
+return { TestFactorial = TestFactorial }

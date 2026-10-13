@@ -9,8 +9,7 @@ local Set = require("ff.collections.set")
 -----------------------------------------------------------------------------
 -- 2. Test Suite Table Definition
 -----------------------------------------------------------------------------
-TestRadixTree = {}
-
+local TestRadixTree = {}
 -----------------------------------------------------------------------------
 -- 3. Suite Lifecycle Hooks (Optional)
 -- Not needed: each test creates its own fixtures.
@@ -554,3 +553,5 @@ function TestRadixTree:testNewIndex_PreventsModifications()
 		rt.insert = function() end
 	end)
 end
+
+return { TestRadixTree = TestRadixTree }

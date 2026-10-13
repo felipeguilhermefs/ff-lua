@@ -7,8 +7,7 @@ local Stack = require("ff.collections.stack")
 -----------------------------------------------------------------------------
 -- 2. Test Suite Table Definition
 -----------------------------------------------------------------------------
-TestStack = {}
-
+local TestStack = {}
 -----------------------------------------------------------------------------
 -- 3. Suite Lifecycle Hooks (Optional)
 -- Not needed: each test creates its own fixtures.
@@ -264,3 +263,5 @@ function TestStack:testNewIndex_PreventsModifications()
 		s.push = function() end
 	end)
 end
+
+return { TestStack = TestStack }

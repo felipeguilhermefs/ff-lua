@@ -2,8 +2,7 @@ local lu = require("luaunit")
 local spy = require("ff.test.spy")
 local memoize = require("ff.func.memoize")
 
-TestMemoize = {}
-
+local TestMemoize = {}
 function TestMemoize:testRepeatedCallsSingleArgShouldCallOnce()
 	local fn = spy(function()
 		return 1
@@ -68,3 +67,5 @@ function TestMemoize:testCacheNonTableReturnNil()
 	lu.assertNil(memoize(fn, "abc"))
 	lu.assertNil(memoize(fn, 9))
 end
+
+return { TestMemoize = TestMemoize }

@@ -8,8 +8,7 @@ local Comparator = require("ff.func.comparator")
 -----------------------------------------------------------------------------
 -- 2. Test Suite Table Definition
 -----------------------------------------------------------------------------
-TestTreeMap = {}
-
+local TestTreeMap = {}
 -----------------------------------------------------------------------------
 -- 3. Suite Lifecycle Hooks (Optional)
 -- Not needed: each test creates its own fixtures.
@@ -453,3 +452,5 @@ function TestTreeMap:testNewIndex_PreventsModifications()
 		tm.get = function() end
 	end)
 end
+
+return { TestTreeMap = TestTreeMap }

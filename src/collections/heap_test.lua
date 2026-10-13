@@ -8,8 +8,7 @@ local Heap = require("ff.collections.heap")
 -----------------------------------------------------------------------------
 -- 2. Test Suite Table Definition
 -----------------------------------------------------------------------------
-TestHeap = {}
-
+local TestHeap = {}
 -----------------------------------------------------------------------------
 -- 3. Suite Lifecycle Hooks (Optional)
 -- Not needed: each test creates its own fixtures.
@@ -815,3 +814,5 @@ function TestHeap:testNewIndex_PreventsModifications()
 		h.peek = function() end
 	end)
 end
+
+return { TestHeap = TestHeap }

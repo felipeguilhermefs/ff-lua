@@ -7,8 +7,7 @@ local HashMap = require("ff.collections.hashmap")
 -----------------------------------------------------------------------------
 -- 2. Test Suite Table Definition
 -----------------------------------------------------------------------------
-TestHashMap = {}
-
+local TestHashMap = {}
 -----------------------------------------------------------------------------
 -- 3. Suite Lifecycle Hooks (Optional)
 -- Not needed: each test creates its own fixtures.
@@ -272,3 +271,5 @@ function TestHashMap:testNewIndex_PreventsModifications()
 		m.get = function() end
 	end)
 end
+
+return { TestHashMap = TestHashMap }

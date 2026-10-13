@@ -7,8 +7,7 @@ local IntervalTree = require("ff.collections.intervaltree")
 -----------------------------------------------------------------------------
 -- 2. Test Suite Table Definition
 -----------------------------------------------------------------------------
-TestIntervalTree = {}
-
+local TestIntervalTree = {}
 -----------------------------------------------------------------------------
 -- 3. Suite Lifecycle Hooks (Optional)
 -- Not needed: each test creates its own fixtures.
@@ -420,3 +419,5 @@ function TestIntervalTree:testNewIndex_PreventsModifications()
 		it.insert = function() end
 	end)
 end
+
+return { TestIntervalTree = TestIntervalTree }

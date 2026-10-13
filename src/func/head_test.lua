@@ -1,12 +1,11 @@
-lu = require "luaunit"
-head = require("ff.func.head")
+local lu = require "luaunit"
+local head = require("ff.func.head")
 
 -------------------------------
 -- String Test Suite [begin] --
 -------------------------------
 
-TestHeadString = {}
-
+local TestHeadString = {}
 function TestHeadString:testHead_Empty()
   lu.assertEquals(head(""), "")
 end
@@ -30,8 +29,7 @@ end
 -- Non Supported Test Suite [begin] --
 --------------------------------------
 
-TestHeadNoop = {}
-
+local TestHeadNoop = {}
 function TestHeadNoop:testHead_Nil()
   lu.assertNil(head(0))
   lu.assertNil(head(true))
@@ -42,4 +40,7 @@ end
 -- Non Supported Test Suite [end] --
 ------------------------------------
 
-
+return {
+	TestHeadString = TestHeadString,
+	TestHeadNoop = TestHeadNoop,
+}

@@ -7,8 +7,7 @@ local Set = require("ff.collections.set")
 -----------------------------------------------------------------------------
 -- 2. Test Suite Table Definition
 -----------------------------------------------------------------------------
-TestSet = {}
-
+local TestSet = {}
 -----------------------------------------------------------------------------
 -- 3. Suite Lifecycle Hooks (Optional)
 -- Not needed: each test creates its own fixtures.
@@ -266,3 +265,5 @@ function TestSet:testNewIndex_PreventsModifications()
 		s.add = function() end
 	end)
 end
+
+return { TestSet = TestSet }

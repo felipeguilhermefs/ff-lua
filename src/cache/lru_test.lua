@@ -1,8 +1,7 @@
 local lu = require("luaunit")
 local LRUCache = require("ff.cache.lru")
 
-TestLRUCache = {}
-
+local TestLRUCache = {}
 function TestLRUCache:testUnderCapacity()
 	local cache = LRUCache.new(3)
 
@@ -88,3 +87,5 @@ function TestLRUCache:testCapacity()
 	lu.assertErrorMsgContains("Capacity should be positive", LRUCache.new, -1)
 	lu.assertErrorMsgContains("Capacity should be positive", LRUCache.new, 0)
 end
+
+return { TestLRUCache = TestLRUCache }

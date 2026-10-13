@@ -32,7 +32,7 @@ local function put(cache, args, value)
   level.value = value
 end
 
-function memoize(fn, cache)
+local function memoize(fn, cache)
   if not is_callable(fn) then
     return nil
   end

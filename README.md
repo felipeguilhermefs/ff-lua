@@ -22,20 +22,13 @@ make install
   make test
   ```
 
-- **Verbose output:**
+- **Run tests for one module:**
   ```bash
-  make test ARGS="-v"
+  make test MODULE=ff.collections.array
   ```
 
-- **Run only the TestArray suite:**
-  ```bash
-  make test ARGS="TestArray"
-  ```
-
-- **Run only a specific method:**
-  ```
-  make test ARGS="TestArray.testEmpty"
-  ```
+`MODULE` must match module name from rockspec, such as `ff.collections.array`.
+Omit `MODULE` to run tests for all modules.
 
 ## Development & Build Commands
 

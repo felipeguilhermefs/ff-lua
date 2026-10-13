@@ -7,8 +7,7 @@ local LinkedList = require("ff.collections.linkedlist")
 -----------------------------------------------------------------------------
 -- 2. Test Suite Table Definition
 -----------------------------------------------------------------------------
-TestLinkedList = {}
-
+local TestLinkedList = {}
 -----------------------------------------------------------------------------
 -- 3. Suite Lifecycle Hooks (Optional)
 -- Not needed: each test creates its own fixtures.
@@ -409,3 +408,5 @@ function TestLinkedList:testNewIndex_PreventsModifications()
 		ll.pushBack = function() end
 	end)
 end
+
+return { TestLinkedList = TestLinkedList }

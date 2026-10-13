@@ -3,8 +3,7 @@ local Array = require("ff.collections.array")
 local Comparator = require("ff.func.comparator")
 local quickselect = require("ff.search.quickselect")
 
-TestQuickSelect = {}
-
+local TestQuickSelect = {}
 function TestQuickSelect:testArray()
 	local a = Array.new({ 1, 2, 3, 4, 5, 6 })
 
@@ -31,3 +30,4 @@ function TestQuickSelect:testTableArray()
 	lu.assertNil(quickselect(a, 7, cmp))
 end
 
+return { TestQuickSelect = TestQuickSelect }

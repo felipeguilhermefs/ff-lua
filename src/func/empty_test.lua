@@ -5,8 +5,7 @@ local empty = require("ff.func.empty")
 -- String Test Suite [begin] --
 -------------------------------
 
-TestEmptyString = {}
-
+local TestEmptyString = {}
 function TestEmptyString:testEmpty()
 	lu.assertTrue(empty(""))
 end
@@ -24,8 +23,7 @@ end
 -- Array Test Suite [start] --
 ------------------------------
 
-TestEmptyArray = {}
-
+local TestEmptyArray = {}
 function TestEmptyArray:testEmpty()
 	lu.assertTrue(empty({}))
 	lu.assertTrue(empty({ nil }))
@@ -47,8 +45,7 @@ end
 -- Map Test Suite [begin] --
 ----------------------------
 
-TestMap = {}
-
+local TestMap = {}
 function TestMap:testEmpty()
 	lu.assertTrue(empty({}))
 	lu.assertTrue(empty({ ["a"] = nil }))
@@ -88,8 +85,7 @@ local function delegate()
 	return d
 end
 
-TestDelegate = {}
-
+local TestDelegate = {}
 function TestDelegate:testEmpty()
 	local d = delegate()
 	lu.assertTrue(empty(d))
@@ -115,8 +111,7 @@ end
 -- Non Supported Test Suite [begin] --
 --------------------------------------
 
-TestEmptyNoop = {}
-
+local TestEmptyNoop = {}
 function TestEmptyNoop:testNil()
 	lu.assertNil(empty(nil))
 	lu.assertNil(empty(0))
@@ -126,3 +121,11 @@ end
 ------------------------------------
 -- Non Supported Test Suite [end] --
 ------------------------------------
+
+return {
+	TestEmptyString = TestEmptyString,
+	TestEmptyArray = TestEmptyArray,
+	TestMap = TestMap,
+	TestDelegate = TestDelegate,
+	TestEmptyNoop = TestEmptyNoop,
+}

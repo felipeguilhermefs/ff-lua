@@ -7,8 +7,7 @@ local Queue = require("ff.collections.queue")
 -----------------------------------------------------------------------------
 -- 2. Test Suite Table Definition
 -----------------------------------------------------------------------------
-TestQueue = {}
-
+local TestQueue = {}
 -----------------------------------------------------------------------------
 -- 3. Suite Lifecycle Hooks (Optional)
 -- Not needed: each test creates its own fixtures.
@@ -456,3 +455,5 @@ function TestQueue:testNewIndex_PreventsModifications()
 		q.peek = function() end
 	end)
 end
+
+return { TestQueue = TestQueue }

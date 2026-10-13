@@ -1,8 +1,7 @@
 local lu = require("luaunit")
 local fibonacci = require("ff.math.fibonacci")
 
-TestFibonacci = {}
-
+local TestFibonacci = {}
 function TestFibonacci:testWhen0Return1()
 	lu.assertEquals(fibonacci(0), 1)
 end
@@ -35,3 +34,4 @@ function TestFibonacci:testWhen100Return1298777728820984005()
 	lu.assertEquals(fibonacci(100), 1298777728820984005)
 end
 
+return { TestFibonacci = TestFibonacci }

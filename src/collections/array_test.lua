@@ -17,8 +17,7 @@ end
 -----------------------------------------------------------------------------
 -- 2. Test Suite Table Definition
 -----------------------------------------------------------------------------
-TestArray = {}
-
+local TestArray = {}
 -----------------------------------------------------------------------------
 -- 3. Suite Lifecycle Hooks (Optional)
 -- Not needed: each test creates its own fixtures.
@@ -347,3 +346,5 @@ function TestArray:testConcat()
 	lu.assertEquals(a:get(10), 100)
 	lu.assertEquals(#a, 10)
 end
+
+return { TestArray = TestArray }

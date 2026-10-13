@@ -1,8 +1,7 @@
 local lu = require("luaunit")
 local max = require("ff.math.max")
 
-TestMax = {}
-
+local TestMax = {}
 function TestMax:testSingleNumber()
 	lu.assertEquals(max(1), 1)
 	lu.assertEquals(max(-2), -2)
@@ -34,3 +33,4 @@ function TestMax:testArrayWithNumbersAndNonNumbers()
 	lu.assertEquals(max(table.unpack({ 8, true, "1", 5, {} })), 8)
 end
 
+return { TestMax = TestMax }
