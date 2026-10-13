@@ -38,21 +38,21 @@ local append = table.insert
 ---We load the rockspec into an empty sandbox table (`env`) to capture these
 ---declarations without polluting the global environment `_G`.
 ---
----@param filename string Path to the .rockspec file.
+---@param filepath string Path to the .rockspec file.
+---
 ---@return table env Table containing the parsed rockspec declarations.
 -----------------------------------------------------------------------------
-local function loadrockspec(filename)
-	if filename == nil or filename == "" then
-		error("missing rockspec file name")
+local function loadRockspec(filepath)
+	if filepath == nil or not filepath:match("rockspec$") then
+		error(fmt("rockspec '%s' not found", filepath))
 	end
 
-	-- Isolated environment table to capture rockspec globals
 	local env = {}
 
 	-- Load the rockspec chunk in text-only mode ("t") using env as its _ENV
-	local load, err = loadfile(filename, "t", env)
+	local load, err = loadfile(filepath, "t", env)
 	if load == nil or err then
-		error(fmt("could not load rockspec %s: %s.", filename, err))
+		error(fmt("could not load rockspec %s: %s.", filepath, err))
 	end
 
 	-- Execute the rockspec chunk to populate the env table
@@ -60,38 +60,29 @@ local function loadrockspec(filename)
 
 	-- Validate structural requirements needed by this test harness
 	if type(env.build) ~= "table" then
-		error(fmt("rockspec '%s' has no 'build' table", filename))
+		error(fmt("rockspec '%s' has no 'build' table", filepath))
 	end
 
 	if type(env.build.modules) ~= "table" then
-		error(fmt("rockspec '%s' has no 'build.modules' table", filename))
+		error(fmt("rockspec '%s' has no 'build.modules' table", filepath))
 	end
 
 	if next(env.build.modules) == nil then
-		error(fmt("rockspec %s has no build.modules entries", filename))
+		error(fmt("rockspec '%s' has no build.modules entries", filepath))
 	end
 
 	if type(env.dependencies) ~= "table" then
-		error(fmt("rockspec '%s' has no 'dependencies' table", filename))
+		error(fmt("rockspec '%s' has no 'dependencies' table", filepath))
 	end
 
 	if next(env.dependencies) == nil then
-		error(fmt("rockspec %s has no dependency entries", filename))
+		error(fmt("rockspec '%s' has no dependency entries", filepath))
 	end
 
 	return env
 end
 
-local rockspec_path = arg and arg[1]
-local selected_module = arg and arg[2]
-if rockspec_path == nil or rockspec_path == "" or selected_module == "" or (arg and arg[3] ~= nil) then
-	error("usage: lua test.lua <rockspec> [module]")
-end
-
-local rockspec = loadrockspec(rockspec_path)
-if selected_module and rockspec.build.modules[selected_module] == nil then
-	error(fmt("module '%s' not found in rockspec %s", selected_module, rockspec_path))
-end
+local rockspec = loadRockspec(arg and arg[1])
 
 -----------------------------------------------------------------------------
 ---Validates that the host Lua runtime satisfies the version required by the rockspec.
@@ -103,7 +94,7 @@ end
 ---
 ---@param dependencies table Array of dependency strings from the rockspec.
 -----------------------------------------------------------------------------
-local function checkversion(dependencies)
+local function checkVersion(dependencies)
 	local rmajor, rminor
 
 	-- Find the minimum Lua version constraint declaration
@@ -131,7 +122,7 @@ local function checkversion(dependencies)
 end
 
 -- Verify Lua runtime compatibility before running tests
-checkversion(rockspec.dependencies)
+checkVersion(rockspec.dependencies)
 
 -----------------------------------------------------------------------------
 -- Framework setup & dynamic module preloading
@@ -139,74 +130,98 @@ checkversion(rockspec.dependencies)
 
 local lu = require("luaunit")
 
--- Register each module from rockspec.build.modules into package.preload.
+-----------------------------------------------------------------------------
+---Register each module from rockspec.build.modules into package.preload.
+---
 -- This maps the canonical module name (e.g., "ff.collections.array") to its
 -- local file path (e.g., "src/collections/array.lua"), allowing tests to
 -- require modules normally without installing the package or altering package.path.
-for module, srcpath in pairs(rockspec.build.modules) do
-	package.preload[module] = function()
-		return dofile(srcpath)
+---
+---@param modules table Map of module name to source file defined in the rockspec.
+-----------------------------------------------------------------------------
+local function registerModules(modules)
+	for module, srcpath in pairs(modules) do
+		package.preload[module] = function()
+			return dofile(srcpath)
+		end
 	end
 end
+
+registerModules(rockspec.build.modules)
 
 -----------------------------------------------------------------------------
 -- Discover and load modular test suites
 -----------------------------------------------------------------------------
 
+-----------------------------------------------------------------------------
+---Register each module from rockspec.build.modules into package.preload.
+---
 -- Convention: each source file in `src/` has its corresponding test file
 -- alongside it with a `_test.lua` suffix (e.g., `array.lua` -> `array_test.lua`).
 -- Each test module returns a map from suite name to suite table. Empty test
 -- modules return an empty map.
-local suites = {}
-local suite_sources = {}
+---
+---@param modules table Map of module name to source file defined in the rockspec.
+---@param selectedModule string? Name of the module to test specifically.
+---				 Test all if nothing is given.
+---
+---@return table Array with the loaded test suites.
+-----------------------------------------------------------------------------
+local function loadTestSuites(modules, selectedModule)
+	-- Override modules with selected module if provided
+	if selectedModule then
+		local srcPath = modules[selectedModule]
+		if srcPath == nil then
+			error(fmt("module '%s' not found in rockspec", selectedModule))
+		end
 
-local function register_suite(name, suite, testpath)
-	if type(name) ~= "string" or not name:match("^Test") then
-		error(fmt("invalid test suite name in %s: %s", testpath, tostring(name)))
+		modules = { [selectedModule] = srcPath }
 	end
 
-	if type(suite) ~= "table" then
-		error(fmt("test suite %s in %s should return a table", name, testpath))
+	local suites, registeredSuites = {}, {}
+
+	for _, srcPath in pairs(modules) do
+		local testPath = srcPath:gsub("%.lua$", "_test.lua")
+
+		local testFile, err = loadfile(testPath)
+		if testFile == nil then
+			error(fmt("could not load test file %s: %s", testPath, err))
+		end
+
+		local testSuiteMap = testFile()
+		if type(testSuiteMap) ~= "table" then
+			error(fmt("test file %s should return a suite map", testPath))
+		end
+
+		for name, suite in pairs(testSuiteMap) do
+			if type(name) ~= "string" or not name:match("^Test") then
+				error(fmt("invalid test suite name in %s: %s", testPath, tostring(name)))
+			end
+
+			if type(suite) ~= "table" then
+				error(fmt("test suite %s in %s should return a table class", name, testPath))
+			end
+
+			if registeredSuites[name] then
+				error(
+					fmt(
+						"duplicate test suite name '%s' in %s (already declared in %s)",
+						name,
+						testPath,
+						registeredSuites[name]
+					)
+				)
+			end
+
+			registeredSuites[name] = testPath
+			append(suites, { name, suite })
+		end
 	end
 
-	if suite_sources[name] then
-		error(fmt("duplicate test suite name '%s' in %s (already declared in %s)", name, testpath, suite_sources[name]))
-	end
-
-	suite_sources[name] = testpath
-	append(suites, { name, suite })
+	return suites
 end
 
-local modules_to_test = {}
-for module, srcpath in pairs(rockspec.build.modules) do
-	if selected_module == nil or module == selected_module then
-		append(modules_to_test, { module, srcpath })
-	end
-end
-table.sort(modules_to_test, function(a, b)
-	return a[1] < b[1]
-end)
-
-for _, module_entry in ipairs(modules_to_test) do
-	local testpath = module_entry[2]:gsub("%.lua$", "_test.lua")
-	local chunk, err = loadfile(testpath)
-	if chunk == nil then
-		error(fmt("could not load test file %s: %s", testpath, err))
-	end
-
-	local suite_map = chunk()
-	if type(suite_map) ~= "table" then
-		error(fmt("test file %s should return a suite map", testpath))
-	end
-
-	for name, suite in pairs(suite_map) do
-		register_suite(name, suite, testpath)
-	end
-end
-
-table.sort(suites, function(a, b)
-	return a[1] < b[1]
-end)
+local testSuites = loadTestSuites(rockspec.build.modules, arg and arg[2])
 
 -----------------------------------------------------------------------------
 -- Test execution
@@ -217,5 +232,5 @@ runner.shuffle = true
 runner.verbosity = lu.VERBOSITY_VERBOSE
 
 -- Run explicitly registered instances so LuaUnit never needs to inspect _G.
-local exitcode = runner:runSuiteByInstancesNoCmdLineParsing(suites)
+local exitcode = runner:runSuiteByInstancesNoCmdLineParsing(testSuites)
 os.exit(exitcode)
