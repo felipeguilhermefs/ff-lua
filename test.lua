@@ -212,6 +212,10 @@ end)
 -- Test execution
 -----------------------------------------------------------------------------
 
+local runner = lu.LuaUnit.new()
+runner.shuffle = true
+runner.verbosity = lu.VERBOSITY_VERBOSE
+
 -- Run explicitly registered instances so LuaUnit never needs to inspect _G.
-local exitcode = lu.LuaUnit.new():runSuiteByInstancesNoCmdLineParsing(suites)
+local exitcode = runner:runSuiteByInstancesNoCmdLineParsing(suites)
 os.exit(exitcode)
