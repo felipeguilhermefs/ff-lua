@@ -17,7 +17,7 @@ local function collect(iter)
 	return res
 end
 
-function TestPermutations:testString()
+function TestPermutations:testStringInputYieldsEveryPermutation()
 	local expected = {
 		"abc",
 		"bac",
@@ -33,13 +33,13 @@ function TestPermutations:testString()
 	end
 end
 
-function TestPermutations:testEmptyString()
+function TestPermutations:testEmptyStringYieldsOneEmptyPermutation()
 	local p = collect(permutations(""))
 	lu.assertEquals(#p, 1)
 	lu.assertEquals(p[1], "")
 end
 
-function TestPermutations:testArray()
+function TestPermutations:testArrayInputYieldsEveryPermutation()
 	local expected = {
 		{ 1, 2, 3 },
 		{ 2, 1, 3 },
@@ -55,18 +55,18 @@ function TestPermutations:testArray()
 	end
 end
 
-function TestPermutations:testEmptyArray()
+function TestPermutations:testEmptyArrayYieldsOneEmptyPermutation()
 	local p = collect(permutations({}))
 	lu.assertEquals(#p, 1)
 	lu.assertEquals(#p[1], 0)
 end
 
-function TestPermutations:testPermutations_FourElements()
+function TestPermutations:testFourElementInputYieldsTwentyFourPermutations()
 	local p = collect(permutations({ 1, 2, 3, 4 }))
 	lu.assertEquals(#p, 24)
 end
 
-function TestPermutations:testNil()
+function TestPermutations:testNilInputReturnsNil()
 	lu.assertErrorMsgContains("Only arrays and strings are accepted", permutations, nil)
 end
 

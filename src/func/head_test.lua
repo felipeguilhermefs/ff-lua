@@ -6,16 +6,16 @@ local head = require("ff.func.head")
 -------------------------------
 
 local TestHeadString = {}
-function TestHeadString:testHead_Empty()
+function TestHeadString:testHeadOfEmptyStringReturnsEmptyString()
   lu.assertEquals(head(""), "")
 end
 
-function TestHeadString:testHead_SingleChar()
+function TestHeadString:testHeadOfSingleCharacterStringReturnsThatCharacter()
   lu.assertEquals(head("a"), "a")
   lu.assertEquals(head(" "), " ")
 end
 
-function TestHeadString:testHead_MultiChar()
+function TestHeadString:testHeadOfStringReturnsFirstCharacter()
   lu.assertEquals(head("flores"), "f")
   lu.assertEquals(head("1234"), "1")
   lu.assertEquals(head("\tlol"), "\t")
@@ -30,7 +30,7 @@ end
 --------------------------------------
 
 local TestHeadNoop = {}
-function TestHeadNoop:testHead_Nil()
+function TestHeadNoop:testHeadOfNilReturnsNil()
   lu.assertNil(head(0))
   lu.assertNil(head(true))
   lu.assertNil(head({"a"}))

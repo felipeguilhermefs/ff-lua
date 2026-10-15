@@ -4,7 +4,7 @@ local Comparator = require("ff.func.comparator")
 local quickselect = require("ff.search.quickselect")
 
 local TestQuickSelect = {}
-function TestQuickSelect:testArray()
+function TestQuickSelect:testArrayInputReturnsValueAtRequestedRank()
 	local a = Array.new({ 1, 2, 3, 4, 5, 6 })
 
 	lu.assertEquals(quickselect(a, 1), 1)
@@ -16,7 +16,7 @@ function TestQuickSelect:testArray()
 	lu.assertNil(quickselect(a, 7))
 end
 
-function TestQuickSelect:testTableArray()
+function TestQuickSelect:testTableArrayInputReturnsValueAtRequestedRank()
 	local a = { 6, 5, 4, 3, 2, 1 }
 
 	local cmp = Comparator.reverse(Comparator.natural)

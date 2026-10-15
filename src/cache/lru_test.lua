@@ -2,7 +2,7 @@ local lu = require("luaunit")
 local LRUCache = require("ff.cache.lru")
 
 local TestLRUCache = {}
-function TestLRUCache:testUnderCapacity()
+function TestLRUCache:testCacheRetainsEntriesBelowCapacity()
 	local cache = LRUCache.new(3)
 
 	lu.assertNil(cache:get("a"))
@@ -14,7 +14,7 @@ function TestLRUCache:testUnderCapacity()
 	lu.assertEquals(cache:get("a"), 1)
 end
 
-function TestLRUCache:testRotationWhenOverCapacity()
+function TestLRUCache:testCacheEvictsLeastRecentlyUsedEntryWhenCapacityIsExceeded()
 	local cache = LRUCache.new(2)
 
 	lu.assertTrue(cache:put("a", 1))
@@ -30,7 +30,7 @@ function TestLRUCache:testRotationWhenOverCapacity()
 	lu.assertEquals(cache:get("b"), 2)
 end
 
-function TestLRUCache:testDropLeastRecentUsed()
+function TestLRUCache:testCacheDropsLeastRecentlyUsedEntry()
 	local cache = LRUCache.new(2)
 
 	lu.assertTrue(cache:put("a", 1))
@@ -42,7 +42,7 @@ function TestLRUCache:testDropLeastRecentUsed()
 	lu.assertNil(cache:get("b"))
 end
 
-function TestLRUCache:testUpdateValueWithoutDroping()
+function TestLRUCache:testUpdatingExistingEntryDoesNotEvictAnotherEntry()
 	local cache = LRUCache.new(2)
 
 	lu.assertTrue(cache:put("a", 1))
@@ -53,7 +53,7 @@ function TestLRUCache:testUpdateValueWithoutDroping()
 	lu.assertEquals(cache:get("b"), 2)
 end
 
-function TestLRUCache:testEvict()
+function TestLRUCache:testEvictionRemovesRequestedEntry()
 	local cache = LRUCache.new(2)
 
 	lu.assertTrue(cache:put("a", 1))
@@ -67,7 +67,7 @@ function TestLRUCache:testEvict()
 	lu.assertNil(cache:get("b"))
 end
 
-function TestLRUCache:testNil()
+function TestLRUCache:testCacheRejectsNilKeysAndValues()
 	local cache = LRUCache.new(2)
 
 	lu.assertFalse(cache:put(nil, "a"))
@@ -80,7 +80,7 @@ function TestLRUCache:testNil()
 	lu.assertFalse(cache:evict(nil))
 end
 
-function TestLRUCache:testCapacity()
+function TestLRUCache:testConstructorRejectsInvalidCapacity()
 	lu.assertErrorMsgContains("Capacity should be a number", LRUCache.new, "a")
 	lu.assertErrorMsgContains("Capacity should be a number", LRUCache.new, nil)
 	lu.assertErrorMsgContains("Capacity should be a number", LRUCache.new, true)

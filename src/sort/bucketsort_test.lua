@@ -3,7 +3,7 @@ local Array = require("ff.collections.array")
 local bucketsort = require("ff.sort.bucketsort")
 
 local TestBucketSort = {}
-function TestBucketSort:testArray()
+function TestBucketSort:testArrayInputReturnsValuesInAscendingOrder()
 	local a = Array.new({ 2, 6, 3, 4, 5, 1 })
 
 	bucketsort(a)
@@ -27,7 +27,7 @@ function TestBucketSort:testArray()
 	lu.assertEquals(a:get(6), 5)
 end
 
-function TestBucketSort:testTableArray()
+function TestBucketSort:testTableArrayInputReturnsValuesInAscendingOrder()
 	local a = { 2, 6, 3, 4, 5, 1 }
 
 	bucketsort(a)

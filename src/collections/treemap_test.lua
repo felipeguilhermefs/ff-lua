@@ -18,7 +18,7 @@ local TestTreeMap = {}
 -- 4. Constructor & Type Guard Tests
 -----------------------------------------------------------------------------
 
-function TestTreeMap:testIsTreeMap()
+function TestTreeMap:testTypeGuardRecognizesTreeMapsAndRejectsOtherValues()
 	lu.assertTrue(TreeMap.isTreeMap(TreeMap.new()))
 	lu.assertFalse(TreeMap.isTreeMap({}))
 	lu.assertFalse(TreeMap.isTreeMap(nil))
@@ -26,13 +26,13 @@ function TestTreeMap:testIsTreeMap()
 	lu.assertFalse(TreeMap.isTreeMap(123))
 end
 
-function TestTreeMap:testConstructor_Empty()
+function TestTreeMap:testEmptyConstructorCreatesEmptyTreeMap()
 	local tm = TreeMap.new()
 	lu.assertTrue(tm:empty())
 	lu.assertEquals(#tm, 0)
 end
 
-function TestTreeMap:testConstructor_WithIterable()
+function TestTreeMap:testConstructorCopiesKeyValueEntries()
 	local tm = TreeMap.new({ d = 40, b = 20, a = 10, c = 30 })
 	lu.assertFalse(tm:empty())
 	lu.assertEquals(#tm, 4)
@@ -42,7 +42,7 @@ function TestTreeMap:testConstructor_WithIterable()
 	lu.assertEquals(tm:get("d"), 40)
 end
 
-function TestTreeMap:testConstructor_WithComparator()
+function TestTreeMap:testComparatorConstructorReversesKeyOrder()
 	local tm = TreeMap.new(nil, Comparator.reverse(Comparator.natural))
 	tm:put(1, "one")
 	tm:put(2, "two")
@@ -59,14 +59,14 @@ function TestTreeMap:testConstructor_WithComparator()
 	lu.assertEquals(v, "one")
 end
 
-function TestTreeMap:testConstructor_Validation()
+function TestTreeMap:testConstructorRejectsInvalidComparators()
 	lu.assertErrorMsgContains("comparator should be a function", TreeMap.new, nil, "invalid")
 	lu.assertErrorMsgContains("comparator should be a function", TreeMap.new, nil, 123)
 	lu.assertErrorMsgContains("comparator should be a function", TreeMap.new, nil, true)
 	lu.assertErrorMsgContains("comparator should be a function", TreeMap.new, { a = 1 }, "not_a_function")
 end
 
-function TestTreeMap:testCustomComparator()
+function TestTreeMap:testCustomComparatorOrdersStructuredKeys()
 	local function ScoreComparator(a, b)
 		if a.score > b.score then
 			return 1
@@ -102,7 +102,7 @@ end
 -- 5. Core Accessor & Inspection Tests
 -----------------------------------------------------------------------------
 
-function TestTreeMap:testContains()
+function TestTreeMap:testContainsReportsStoredAndRemovedKeysCorrectly()
 	local tm = TreeMap.new()
 
 	lu.assertFalse(tm:contains("key"))
@@ -115,7 +115,7 @@ function TestTreeMap:testContains()
 	lu.assertFalse(tm:contains("key"))
 end
 
-function TestTreeMap:testMinMax()
+function TestTreeMap:testMinAndMaxReturnBoundaryEntriesOrNilWhenEmpty()
 	local tm = TreeMap.new()
 	lu.assertNil(tm:min())
 	lu.assertNil(tm:max())
@@ -135,7 +135,7 @@ function TestTreeMap:testMinMax()
 	lu.assertEquals(maxV, "nine")
 end
 
-function TestTreeMap:testFloorCeiling()
+function TestTreeMap:testFloorAndCeilingReturnNearestKeysWithinBounds()
 	local tm = TreeMap.new()
 	tm:put(10, "ten")
 	tm:put(20, "twenty")
@@ -159,7 +159,7 @@ function TestTreeMap:testFloorCeiling()
 	lu.assertNil(tm:ceiling(55))
 end
 
-function TestTreeMap:testRange()
+function TestTreeMap:testRangeYieldsEntriesWithinInclusiveBounds()
 	local tm = TreeMap.new()
 	for i = 1, 10 do
 		tm:put(i, i * 10)
@@ -203,7 +203,7 @@ function TestTreeMap:testRange()
 end
 
 -----------------------------------------------------------------------------
-function TestTreeMap:testPairs()
+function TestTreeMap:testIterationYieldsEntriesInAscendingKeyOrder()
 	local tm = TreeMap.new({ d = 4, b = 2, a = 1, c = 3 })
 
 	local res = {}
@@ -223,7 +223,7 @@ end
 -- 6. Mutation & Modification Tests
 -----------------------------------------------------------------------------
 
-function TestTreeMap:testEmptyAndClear()
+function TestTreeMap:testClearEmptiesTreeMapAndAllowsReuse()
 	local tm = TreeMap.new()
 
 	lu.assertTrue(tm:empty())
@@ -243,7 +243,7 @@ function TestTreeMap:testEmptyAndClear()
 	lu.assertEquals(tm:get("z"), 26)
 end
 
-function TestTreeMap:testGetAndPut()
+function TestTreeMap:testPutAddsOrReplacesValuesAndGetReturnsThem()
 	local tm = TreeMap.new()
 
 	lu.assertNil(tm:get("a"))
@@ -270,7 +270,7 @@ function TestTreeMap:testGetAndPut()
 	end)
 end
 
-function TestTreeMap:testRemove()
+function TestTreeMap:testRemoveDeletesRequestedKeyAndPreservesOtherEntries()
 	local tm = TreeMap.new()
 
 	tm:put(4, "four")
@@ -304,7 +304,7 @@ function TestTreeMap:testRemove()
 	lu.assertNil(tm:get(4))
 end
 
-function TestTreeMap:testRemove_EdgeCases()
+function TestTreeMap:testRemoveHandlesMissingAndBoundaryKeys()
 	local tm = TreeMap.new()
 
 	-- Empty tree
@@ -333,7 +333,7 @@ function TestTreeMap:testRemove_EdgeCases()
 	lu.assertFalse(tmLeft:contains(20))
 end
 
-function TestTreeMap:testCompute()
+function TestTreeMap:testComputeStoresOnlyMissingKeys()
 	local tm = TreeMap.new()
 
 	lu.assertEquals(tm:compute(2, function()
@@ -357,7 +357,7 @@ function TestTreeMap:testCompute()
 	end)
 end
 
-function TestTreeMap:testMerge()
+function TestTreeMap:testMergeCombinesOverlappingAndDistinctKeys()
 	local function add(a, b)
 		return a + b
 	end
@@ -386,7 +386,7 @@ end
 -- 7. Metamethod Tests (__len, __eq, __concat, __tostring, __newindex)
 -----------------------------------------------------------------------------
 
-function TestTreeMap:testConcat()
+function TestTreeMap:testConcatAppendsMapEntries()
 	local tm = TreeMap.new() .. { a = 10, b = 20, c = 30 }
 	lu.assertEquals(#tm, 3)
 
@@ -404,7 +404,7 @@ function TestTreeMap:testConcat()
 	lu.assertEquals(tm:get("e"), 50)
 end
 
-function TestTreeMap:testEquality()
+function TestTreeMap:testTreeMapsWithSameEntriesCompareEqual()
 	local tm1 = TreeMap.new({ a = 1, b = 2, c = 3 })
 	local tm2 = TreeMap.new({ c = 3, a = 1, b = 2 })
 	local tm3 = TreeMap.new({ a = 1, b = 99, c = 3 })
@@ -423,7 +423,7 @@ function TestTreeMap:testEquality()
 	lu.assertTrue(empty1 == empty2)
 end
 
-function TestTreeMap:testToString()
+function TestTreeMap:testToStringFormatsTreeMapEntries()
 	local emptyTm = TreeMap.new()
 	lu.assertEquals(tostring(emptyTm), "{  }")
 
@@ -431,7 +431,7 @@ function TestTreeMap:testToString()
 	lu.assertEquals(tostring(tm), "{ a = 1, b = 2, c = 3 }")
 end
 
-function TestTreeMap:testNewIndex_PreventsModifications()
+function TestTreeMap:testNewPropertiesAndMethodsCannotBeAddedOrReplaced()
 	local tm = TreeMap.new()
 
 	-- disallow adding properties

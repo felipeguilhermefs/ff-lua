@@ -9,6 +9,15 @@ local Heap = require("ff.collections.heap")
 -- 2. Test Suite Table Definition
 -----------------------------------------------------------------------------
 local TestHeap = {}
+
+local function entriesByIndex(heap)
+	local entries = {}
+	for index, value in pairs(heap) do
+		entries[index] = value
+	end
+	return entries
+end
+
 -----------------------------------------------------------------------------
 -- 3. Suite Lifecycle Hooks (Optional)
 -- Not needed: each test creates its own fixtures.
@@ -18,7 +27,7 @@ local TestHeap = {}
 -- 4. Constructor & Type Guard Tests
 -----------------------------------------------------------------------------
 
-function TestHeap:testIsHeap()
+function TestHeap:testTypeGuardRecognizesHeapsAndRejectsOtherValues()
 	local h = Heap.new()
 	lu.assertTrue(Heap.isHeap(h))
 	lu.assertTrue(Heap.isHeap(Heap.newMin()))
@@ -29,7 +38,7 @@ function TestHeap:testIsHeap()
 	lu.assertFalse(Heap.isHeap(123))
 end
 
-function TestHeap:testConstructor_Empty()
+function TestHeap:testEmptyConstructorCreatesEmptyHeap()
 	local h = Heap.new()
 	lu.assertTrue(h:empty())
 	lu.assertEquals(#h, 0)
@@ -37,7 +46,7 @@ function TestHeap:testConstructor_Empty()
 	lu.assertNil(h:pop())
 end
 
-function TestHeap:testConstructor_WithIterable()
+function TestHeap:testConstructorOrdersIterableValuesByPriority()
 	local h = Heap.new({ 30, 10, 20 })
 	lu.assertEquals(#h, 3)
 	lu.assertEquals(h:peek(), 10)
@@ -47,7 +56,7 @@ function TestHeap:testConstructor_WithIterable()
 	lu.assertTrue(h:empty())
 end
 
-function TestHeap:testConstructor_WithComparator()
+function TestHeap:testComparatorConstructorUsesRequestedPriority()
 	local h = Heap.new(nil, Comparator.reverse(Comparator.natural))
 	lu.assertTrue(h:empty())
 	lu.assertEquals(#h, 0)
@@ -63,7 +72,7 @@ function TestHeap:testConstructor_WithComparator()
 	lu.assertTrue(h:empty())
 end
 
-function TestHeap:testConstructor_WithComparatorAndIterable()
+function TestHeap:testComparatorConstructorOrdersInitialValuesByPriority()
 	local h = Heap.new({ 10, 30, 20 }, Comparator.reverse(Comparator.natural))
 	lu.assertEquals(#h, 3)
 	lu.assertEquals(h:pop(), 30)
@@ -71,7 +80,7 @@ function TestHeap:testConstructor_WithComparatorAndIterable()
 	lu.assertEquals(h:pop(), 10)
 end
 
-function TestHeap:testConstructor_WithCapacity()
+function TestHeap:testCapacityConstructorsCreateEmptyBoundedHeaps()
 	local h = Heap.new(nil, nil, 5)
 	lu.assertTrue(h:empty())
 	lu.assertEquals(#h, 0)
@@ -88,7 +97,7 @@ function TestHeap:testConstructor_WithCapacity()
 	lu.assertFalse(maxH:full())
 end
 
-function TestHeap:testConstructor_WithCapacityAndIterable()
+function TestHeap:testCapacityConstructorsLoadInitialValuesWithinLimit()
 	local h = Heap.new({ 10, 20, 30 }, nil, 5)
 	lu.assertEquals(#h, 3)
 	lu.assertFalse(h:full())
@@ -106,7 +115,7 @@ function TestHeap:testConstructor_WithCapacityAndIterable()
 	lu.assertTrue(maxH:full())
 end
 
-function TestHeap:testConstructor_CapacityValidation()
+function TestHeap:testConstructorsRejectInvalidComparatorAndCapacity()
 	lu.assertErrorMsgContains("comparator should be a function", Heap.new, nil, "a")
 	lu.assertErrorMsgContains("comparator should be a function", Heap.new, nil, true)
 	lu.assertErrorMsgContains("comparator should be a function", Heap.new, nil, -1)
@@ -122,7 +131,7 @@ function TestHeap:testConstructor_CapacityValidation()
 	lu.assertErrorMsgContains("capacity should be positive", Heap.newMax, nil, -1)
 end
 
-function TestHeap:testConstructorMinMax_WithIterable()
+function TestHeap:testMinAndMaxConstructorsProduceExpectedPriorityOrder()
 	local minH = Heap.newMin({ 5, 3, 8, 1 })
 	lu.assertEquals(#minH, 4)
 	lu.assertEquals(minH:pop(), 1)
@@ -144,7 +153,7 @@ end
 -- 5. Core Accessor & Inspection Tests
 -----------------------------------------------------------------------------
 
-function TestHeap:testContains()
+function TestHeap:testContainsFindsStoredValuesWithoutConsumingHeap()
 	local h = Heap.new()
 	lu.assertFalse(h:contains(1))
 
@@ -169,7 +178,7 @@ function TestHeap:testContains()
 	lu.assertTrue(h:contains(30))
 end
 
-function TestHeap:testContains_Validation()
+function TestHeap:testContainsRejectsNilAndIncomparableValues()
 	local h = Heap.new()
 	lu.assertErrorMsgContains("value should not be nil", function()
 		h:contains(nil)
@@ -181,7 +190,7 @@ function TestHeap:testContains_Validation()
 	end)
 end
 
-function TestHeap:testIterator()
+function TestHeap:testIterationYieldsHeapValuesInLevelOrder()
 	local h = Heap.new()
 
 	h:push("b")
@@ -203,7 +212,7 @@ function TestHeap:testIterator()
 	lu.assertEquals(h:peek(), "a")
 end
 
-function TestHeap:testIterator_Empty()
+function TestHeap:testIterationOfEmptyHeapYieldsNoValues()
 	local h = Heap.new()
 
 	local count = 0
@@ -214,7 +223,7 @@ function TestHeap:testIterator_Empty()
 	lu.assertEquals(count, 0)
 end
 
-function TestHeap:testIterator_MultipleRuns()
+function TestHeap:testRepeatedIterationPreservesHeapContents()
 	local h = Heap.new({ 10, 20, 30 })
 
 	local firstRun = {}
@@ -232,7 +241,7 @@ function TestHeap:testIterator_MultipleRuns()
 	lu.assertEquals(#h, 3)
 end
 
-function TestHeap:testIterator_LevelOrder()
+function TestHeap:testIterationYieldsValuesInLevelOrder()
 	local h = Heap.new()
 	h:push(10)
 	h:push(30)
@@ -249,17 +258,18 @@ function TestHeap:testIterator_LevelOrder()
 	lu.assertEquals(#h, 5)
 end
 
-function TestHeap:testIndexOf()
+function TestHeap:testIndexOfFindsStoredValuesAndReturnsNilForMissingValues()
 	local h = Heap.new({ 10, 20, 30, 40, 50, 60, 70 })
+	local entries = entriesByIndex(h)
 
 	-- Root element is at index 1
 	lu.assertEquals(h:indexOf(10), 1)
 
-	-- All existing elements return an index containing that value
+	-- Every existing value returns a public heap index.
 	for _, val in ipairs({ 10, 20, 30, 40, 50, 60, 70 }) do
 		local idx = h:indexOf(val)
 		lu.assertNotNil(idx)
-		lu.assertEquals(h._entries:get(idx), val)
+		lu.assertEquals(entries[idx], val)
 	end
 
 	-- Smaller than root (pruned immediately)
@@ -273,39 +283,40 @@ function TestHeap:testIndexOf()
 	lu.assertNil(Heap.new():indexOf(10))
 end
 
-function TestHeap:testIndexOf_WithStartIndex()
+function TestHeap:testIndexOfSearchesOnlyRequestedSubtree()
 	local h = Heap.new({ 10, 20, 30, 40, 50, 60, 70 })
 
 	-- Searching starting from left child (index 2) finds elements in that subtree
-	local leftVal = h._entries:get(2)
+	local leftVal = 20
 	local idx = h:indexOf(leftVal, 2)
 	lu.assertEquals(idx, 2)
 
-	-- Child of index 2 (index 4 or 5)
+	-- Value at child index 4 belongs to the requested subtree.
 	if #h >= 4 then
-		local childVal = h._entries:get(4)
+		local childVal = 40
 		lu.assertEquals(h:indexOf(childVal, 2), 4)
 	end
 
-	-- Right child element (index 3) is not in left subtree (index 2)
-	local rightVal = h._entries:get(3)
+	-- Value at right child index 3 is outside the requested left subtree.
+	local rightVal = 30
 	lu.assertNil(h:indexOf(rightVal, 2))
 
 	-- Searching beyond heap bounds returns nil
 	lu.assertNil(h:indexOf(10, 100))
 end
 
-function TestHeap:testIndexOf_MaxHeap()
+function TestHeap:testMaxHeapIndexOfFindsValuesAndRejectsValuesOutsideHeap()
 	local maxH = Heap.newMax({ 70, 60, 50, 40, 30, 20, 10 })
+	local entries = entriesByIndex(maxH)
 
 	-- Root is max element (index 1)
 	lu.assertEquals(maxH:indexOf(70), 1)
 
-	-- All existing elements return an index containing that value
+	-- Every existing value returns a public heap index.
 	for _, val in ipairs({ 70, 60, 50, 40, 30, 20, 10 }) do
 		local idx = maxH:indexOf(val)
 		lu.assertNotNil(idx)
-		lu.assertEquals(maxH._entries:get(idx), val)
+		lu.assertEquals(entries[idx], val)
 	end
 
 	-- Larger than root (pruned immediately)
@@ -316,11 +327,11 @@ function TestHeap:testIndexOf_MaxHeap()
 	lu.assertNil(maxH:indexOf(0))
 end
 
-function TestHeap:testIndexOf_MaxHeapSubtree()
+function TestHeap:testMaxHeapIndexOfSearchesOnlyRequestedSubtree()
 	local maxH = Heap.newMax({ 100, 80, 90, 40, 50, 60, 70 })
 
-	local leftVal = maxH._entries:get(2)
-	local rightVal = maxH._entries:get(3)
+	local leftVal = 80
+	local rightVal = 90
 
 	-- Search starting at root finds both
 	lu.assertEquals(maxH:indexOf(leftVal, 1), 2)
@@ -329,7 +340,7 @@ function TestHeap:testIndexOf_MaxHeapSubtree()
 	-- Search starting at left subtree finds leftVal and its descendants
 	lu.assertEquals(maxH:indexOf(leftVal, 2), 2)
 	if #maxH >= 4 then
-		local childVal = maxH._entries:get(4)
+		local childVal = 40
 		lu.assertEquals(maxH:indexOf(childVal, 2), 4)
 	end
 
@@ -337,17 +348,18 @@ function TestHeap:testIndexOf_MaxHeapSubtree()
 	lu.assertNil(maxH:indexOf(rightVal, 2))
 end
 
-function TestHeap:testIndexOf_MaxHeapDuplicates()
+function TestHeap:testMaxHeapIndexOfFindsDuplicateValues()
 	local maxH = Heap.newMax({ 50, 40, 40, 30, 20, 20, 10 })
+	local entries = entriesByIndex(maxH)
 
 	for _, val in ipairs({ 50, 40, 30, 20, 10 }) do
 		local idx = maxH:indexOf(val)
 		lu.assertNotNil(idx)
-		lu.assertEquals(maxH._entries:get(idx), val)
+		lu.assertEquals(entries[idx], val)
 	end
 end
 
-function TestHeap:testIndexOf_ObjectHeapTies()
+function TestHeap:testIndexOfFindsObjectValuesWithEqualPriority()
 	local function cmp(a, b)
 		return Comparator.natural(a.priority, b.priority)
 	end
@@ -366,7 +378,7 @@ function TestHeap:testIndexOf_ObjectHeapTies()
 	lu.assertFalse(h:contains(c))
 end
 
-function TestHeap:testIndexOf_MaxHeapObjectTies()
+function TestHeap:testMaxHeapIndexOfFindsObjectValuesWithEqualPriority()
 	local function maxObjCmp(a, b)
 		return Comparator.reverse(Comparator.natural)(a.priority, b.priority)
 	end
@@ -388,7 +400,7 @@ function TestHeap:testIndexOf_MaxHeapObjectTies()
 	lu.assertFalse(h:contains(d))
 end
 
-function TestHeap:testIndexOf_Validation()
+function TestHeap:testIndexOfRejectsNilValuesAndInvalidStartIndexes()
 	local h = Heap.new({ 10, 20, 30 })
 
 	lu.assertErrorMsgContains("value should not be nil", function()
@@ -408,7 +420,7 @@ function TestHeap:testIndexOf_Validation()
 	end)
 end
 
-function TestHeap:testFull_Unbounded()
+function TestHeap:testUnboundedHeapsNeverReportFull()
 	local h = Heap.new()
 	lu.assertFalse(h:full())
 	h:push(1)
@@ -423,7 +435,7 @@ function TestHeap:testFull_Unbounded()
 	lu.assertFalse(maxH:full())
 end
 
-function TestHeap:testFull_BoundedNotFull()
+function TestHeap:testBoundedHeapReportsNotFullBelowCapacity()
 	local h = Heap.new(nil, nil, 3)
 	lu.assertFalse(h:full())
 	h:push(1)
@@ -432,14 +444,14 @@ function TestHeap:testFull_BoundedNotFull()
 	lu.assertFalse(h:full())
 end
 
-function TestHeap:testFull_BoundedAtCapacity()
+function TestHeap:testBoundedHeapReportsFullAtCapacity()
 	local h = Heap.new(nil, nil, 2)
 	h:push(1)
 	h:push(2)
 	lu.assertTrue(h:full())
 end
 
-function TestHeap:testFull_BoundedAfterPopAndClear()
+function TestHeap:testRemovingValuesOrClearingMakesCapacityAvailable()
 	local h = Heap.new(nil, nil, 2)
 	h:push(1)
 	h:push(2)
@@ -456,7 +468,7 @@ function TestHeap:testFull_BoundedAfterPopAndClear()
 	lu.assertEquals(#h, 0)
 end
 
-function TestHeap:testFull_ConsistentWithPush()
+function TestHeap:testFullHeapRejectsPush()
 	local h = Heap.new(nil, nil, 3)
 	h:push("a")
 	h:push("b")
@@ -470,7 +482,7 @@ end
 -- 6. Mutation & Modification Tests
 -----------------------------------------------------------------------------
 
-function TestHeap:testPushAndPeek()
+function TestHeap:testPushMaintainsSmallestValueAtHeapRoot()
 	local h = Heap.new()
 
 	h:push(4)
@@ -483,14 +495,14 @@ function TestHeap:testPushAndPeek()
 	lu.assertEquals(h:peek(), 1)
 end
 
-function TestHeap:testPush_Validation()
+function TestHeap:testPushRejectsNilValues()
 	local h = Heap.new()
 	lu.assertErrorMsgContains("value should not be nil", function()
 		h:push(nil)
 	end)
 end
 
-function TestHeap:testPop()
+function TestHeap:testPopReturnsValuesInAscendingPriorityOrder()
 	local h = Heap.new()
 
 	h:push(4)
@@ -507,7 +519,7 @@ function TestHeap:testPop()
 	lu.assertNil(h:pop())
 end
 
-function TestHeap:testPop_Empty()
+function TestHeap:testPopAndPeekOnEmptyHeapReturnNil()
 	local h = Heap.new()
 	lu.assertNil(h:pop())
 	lu.assertNil(h:peek())
@@ -515,7 +527,7 @@ function TestHeap:testPop_Empty()
 	lu.assertEquals(#h, 0)
 end
 
-function TestHeap:testEmptyAndClear()
+function TestHeap:testPopAndClearUpdateEmptyStateAndAllowReuse()
 	local h = Heap.new()
 
 	lu.assertTrue(h:empty())
@@ -547,7 +559,7 @@ function TestHeap:testEmptyAndClear()
 	lu.assertTrue(h:empty())
 end
 
-function TestHeap:testDuplicates()
+function TestHeap:testPopPreservesDuplicateValues()
 	local h = Heap.new()
 	h:push(5)
 	h:push(5)
@@ -568,7 +580,7 @@ function TestHeap:testDuplicates()
 	lu.assertNil(h:pop())
 end
 
-function TestHeap:testMaxHeap()
+function TestHeap:testMaxHeapPopsValuesInDescendingPriorityOrder()
 	local h = Heap.newMax({ 5, 7, 9 })
 
 	h:push(6)
@@ -584,7 +596,7 @@ function TestHeap:testMaxHeap()
 	lu.assertNil(h:pop())
 end
 
-function TestHeap:testString()
+function TestHeap:testHeapOrdersStringValuesByNaturalPriority()
 	local h = Heap.new()
 
 	h:push("b")
@@ -601,7 +613,7 @@ function TestHeap:testString()
 	lu.assertNil(h:pop())
 end
 
-function TestHeap:testComparator()
+function TestHeap:testHeapUsesCustomComparatorForObjectPriority()
 	local function max(a, b)
 		if a.priority < b.priority then
 			return Comparator.greater
@@ -631,7 +643,7 @@ function TestHeap:testComparator()
 	lu.assertNil(h:pop())
 end
 
-function TestHeap:testDrain()
+function TestHeap:testDrainYieldsValuesInAscendingPriorityOrderAndEmptiesHeap()
 	local h = Heap.new()
 	h:push("b")
 	h:push("d")
@@ -651,7 +663,7 @@ function TestHeap:testDrain()
 	lu.assertNil(h:pop())
 end
 
-function TestHeap:testDrain_MaxHeap()
+function TestHeap:testMaxHeapDrainYieldsValuesInDescendingPriorityOrder()
 	local h = Heap.newMax({ 10, 50, 30, 20, 40 })
 
 	local res = {}
@@ -665,7 +677,7 @@ function TestHeap:testDrain_MaxHeap()
 	lu.assertEquals(#h, 0)
 end
 
-function TestHeap:testDrain_Empty()
+function TestHeap:testDrainOnEmptyHeapYieldsNoValues()
 	local h = Heap.new()
 
 	local count = 0
@@ -677,7 +689,7 @@ function TestHeap:testDrain_Empty()
 	lu.assertTrue(h:empty())
 end
 
-function TestHeap:testCapacity_Push()
+function TestHeap:testBoundedHeapRejectsPushAtCapacityAndAcceptsAfterPop()
 	local h = Heap.new(nil, nil, 2)
 
 	lu.assertTrue(h:push(10))
@@ -706,7 +718,7 @@ end
 -- 7. Metamethod Tests (__len, __eq, __concat, __tostring, __newindex)
 -----------------------------------------------------------------------------
 
-function TestHeap:testConcat()
+function TestHeap:testConcatAppendsValuesFromIterableCollections()
 	local h = Heap.new() .. { 10, 20, 30 }
 	lu.assertEquals(#h, 3)
 
@@ -729,7 +741,7 @@ function TestHeap:testConcat()
 	lu.assertEquals(h:pop(), 60)
 end
 
-function TestHeap:testConcat_Validation()
+function TestHeap:testConcatRejectsNonTableValues()
 	local h = Heap.new()
 	lu.assertErrorMsgContains("iterable should be a table", function()
 		h = h .. "not a table"
@@ -739,7 +751,7 @@ function TestHeap:testConcat_Validation()
 	end)
 end
 
-function TestHeap:testEquality()
+function TestHeap:testHeapsWithSameValuesCompareEqual()
 	local h1 = Heap.new({ 1, 2, 3 })
 	local h2 = Heap.new({ 1, 2, 3 })
 	local h3 = Heap.new({ 1, 2, 4 })
@@ -754,14 +766,14 @@ function TestHeap:testEquality()
 	lu.assertFalse(h1 == 42)
 end
 
-function TestHeap:testEquality_Empty()
+function TestHeap:testEmptyHeapsCompareEqual()
 	local h1 = Heap.new()
 	local h2 = Heap.new()
 	-- This assertion exercises Heap.__eq; assertEquals compares table structure.
 	lu.assertTrue(h1 == h2)
 end
 
-function TestHeap:testLen()
+function TestHeap:testLengthTracksPushPopAndClearOperations()
 	local h = Heap.new()
 	lu.assertEquals(#h, 0)
 
@@ -777,7 +789,7 @@ function TestHeap:testLen()
 	lu.assertEquals(#h, 0)
 end
 
-function TestHeap:testToString()
+function TestHeap:testToStringFormatsHeapValues()
 	local h = Heap.new({ 1, 2, 3 })
 	local str = tostring(h)
 	lu.assertStrContains(str, "1")
@@ -787,13 +799,13 @@ function TestHeap:testToString()
 	lu.assertStrContains(str, "]")
 end
 
-function TestHeap:testToString_Empty()
+function TestHeap:testToStringFormatsEmptyHeap()
 	local h = Heap.new()
 	local str = tostring(h)
 	lu.assertEquals(str, "[  ]")
 end
 
-function TestHeap:testNewIndex_PreventsModifications()
+function TestHeap:testNewPropertiesAndMethodsCannotBeAddedOrReplaced()
 	local h = Heap.new()
 
 	-- disallow adding properties

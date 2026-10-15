@@ -6,11 +6,11 @@ local empty = require("ff.func.empty")
 -------------------------------
 
 local TestEmptyString = {}
-function TestEmptyString:testEmpty()
+function TestEmptyString:testEmptyInputReturnsTrue()
 	lu.assertTrue(empty(""))
 end
 
-function TestEmptyString:testNonEmpty()
+function TestEmptyString:testNonEmptyInputReturnsFalse()
 	lu.assertFalse(empty("a"))
 	lu.assertFalse(empty(" "))
 end
@@ -24,12 +24,12 @@ end
 ------------------------------
 
 local TestEmptyArray = {}
-function TestEmptyArray:testEmpty()
+function TestEmptyArray:testEmptyInputReturnsTrue()
 	lu.assertTrue(empty({}))
 	lu.assertTrue(empty({ nil }))
 end
 
-function TestEmptyArray:testNonEmpty()
+function TestEmptyArray:testNonEmptyInputReturnsFalse()
 	lu.assertFalse(empty({ 0 }))
 	lu.assertFalse(empty({ false }))
 	lu.assertFalse(empty({ "" }))
@@ -46,12 +46,12 @@ end
 ----------------------------
 
 local TestMap = {}
-function TestMap:testEmpty()
+function TestMap:testEmptyInputReturnsTrue()
 	lu.assertTrue(empty({}))
 	lu.assertTrue(empty({ ["a"] = nil }))
 end
 
-function TestMap:testNonEmpty()
+function TestMap:testNonEmptyInputReturnsFalse()
 	lu.assertFalse(empty({ a = 0 }))
 	lu.assertFalse(empty({ [false] = true }))
 	lu.assertFalse(empty({ [""] = "v" }))
@@ -86,7 +86,7 @@ local function delegate()
 end
 
 local TestDelegate = {}
-function TestDelegate:testEmpty()
+function TestDelegate:testEmptyInputReturnsTrue()
 	local d = delegate()
 	lu.assertTrue(empty(d))
 
@@ -96,7 +96,7 @@ function TestDelegate:testEmpty()
 	lu.assertTrue(empty(d))
 end
 
-function TestDelegate:testNonEmpty()
+function TestDelegate:testNonEmptyInputReturnsFalse()
 	local d = delegate()
 
 	d.insert("something")
@@ -112,7 +112,7 @@ end
 --------------------------------------
 
 local TestEmptyNoop = {}
-function TestEmptyNoop:testNil()
+function TestEmptyNoop:testUnsupportedInputsReturnNil()
 	lu.assertNil(empty(nil))
 	lu.assertNil(empty(0))
 	lu.assertNil(empty(true))

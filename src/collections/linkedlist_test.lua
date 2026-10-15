@@ -17,7 +17,7 @@ local TestLinkedList = {}
 -- 4. Constructor & Type Guard Tests
 -----------------------------------------------------------------------------
 
-function TestLinkedList:testIsLinkedList()
+function TestLinkedList:testTypeGuardRecognizesLinkedListsAndRejectsOtherValues()
 	lu.assertTrue(LinkedList.isLinkedList(LinkedList.new()))
 	lu.assertFalse(LinkedList.isLinkedList({}))
 	lu.assertFalse(LinkedList.isLinkedList(nil))
@@ -25,7 +25,7 @@ function TestLinkedList:testIsLinkedList()
 	lu.assertFalse(LinkedList.isLinkedList(123))
 end
 
-function TestLinkedList:testConstructor_Empty()
+function TestLinkedList:testEmptyConstructorCreatesEmptyLinkedList()
 	local ll = LinkedList.new()
 	lu.assertTrue(ll:empty())
 	lu.assertEquals(#ll, 0)
@@ -35,7 +35,7 @@ function TestLinkedList:testConstructor_Empty()
 	lu.assertNil(ll:popBack())
 end
 
-function TestLinkedList:testConstructor_WithIterable()
+function TestLinkedList:testConstructorPreservesIterableOrder()
 	local ll = LinkedList.new({ 10, 20, 30 })
 	lu.assertEquals(#ll, 3)
 	lu.assertEquals(ll:peekFront(), 10)
@@ -46,7 +46,7 @@ function TestLinkedList:testConstructor_WithIterable()
 	lu.assertTrue(ll:empty())
 end
 
-function TestLinkedList:testConstructor_WithLinkedList()
+function TestLinkedList:testConstructorCopiesValuesFromAnotherLinkedList()
 	local ll1 = LinkedList.new({ 1, 2, 3 })
 	local ll2 = LinkedList.new(ll1)
 	lu.assertEquals(#ll2, 3)
@@ -54,7 +54,7 @@ function TestLinkedList:testConstructor_WithLinkedList()
 	lu.assertTrue(ll1 == ll2)
 end
 
-function TestLinkedList:testConstructor_Validation()
+function TestLinkedList:testConstructorRejectsNonTableIterables()
 	lu.assertErrorMsgContains("iterable should be a table", LinkedList.new, "invalid")
 	lu.assertErrorMsgContains("iterable should be a table", LinkedList.new, 123)
 	lu.assertErrorMsgContains("iterable should be a table", LinkedList.new, true)
@@ -64,7 +64,7 @@ end
 -- 5. Core Accessor & Inspection Tests
 -----------------------------------------------------------------------------
 
-function TestLinkedList:testPeekFrontAndPeekBack()
+function TestLinkedList:testEndpointPeeksReturnValuesAtBothEnds()
 	local ll = LinkedList.new()
 	lu.assertNil(ll:peekFront())
 	lu.assertNil(ll:peekBack())
@@ -85,7 +85,7 @@ function TestLinkedList:testPeekFrontAndPeekBack()
 	lu.assertEquals(#ll, 3)
 end
 
-function TestLinkedList:testContains()
+function TestLinkedList:testContainsReportsStoredValuesAndRejectsMissingValuesWithoutMutation()
 	local ll = LinkedList.new()
 	lu.assertFalse(ll:contains(10))
 
@@ -103,13 +103,17 @@ function TestLinkedList:testContains()
 	lu.assertEquals(#ll, 3)
 	lu.assertEquals(ll:peekFront(), 10)
 
+end
+
+function TestLinkedList:testContainsRejectsNilValues()
+	local ll = LinkedList.new()
 	lu.assertErrorMsgContains("value should not be nil", function()
 		ll:contains(nil)
 	end)
 end
 
 -----------------------------------------------------------------------------
-function TestLinkedList:testIterator()
+function TestLinkedList:testIterationYieldsOneBasedIndexesAndValues()
 	local ll = LinkedList.new({ 10, 20, 30 })
 
 	local indices = {}
@@ -125,7 +129,7 @@ function TestLinkedList:testIterator()
 	lu.assertEquals(#ll, 3)
 end
 
-function TestLinkedList:testIterator_Empty()
+function TestLinkedList:testIterationOfEmptyLinkedListYieldsNoValues()
 	local ll = LinkedList.new()
 	local count = 0
 	for _ in pairs(ll) do
@@ -137,7 +141,7 @@ end
 -- 6. Mutation & Modification Tests
 -----------------------------------------------------------------------------
 
-function TestLinkedList:testEmptyAndClear()
+function TestLinkedList:testClearEmptiesLinkedListAndAllowsReuse()
 	local ll = LinkedList.new()
 	lu.assertTrue(ll:empty())
 
@@ -168,7 +172,7 @@ function TestLinkedList:testEmptyAndClear()
 	lu.assertTrue(ll:empty())
 end
 
-function TestLinkedList:testPushFrontAndPopFront()
+function TestLinkedList:testFrontInsertionAndRemovalPreserveLifoOrder()
 	local ll = LinkedList.new()
 
 	ll:pushFront(1)
@@ -183,7 +187,7 @@ function TestLinkedList:testPushFrontAndPopFront()
 	lu.assertTrue(ll:empty())
 end
 
-function TestLinkedList:testPushBackAndPopBack()
+function TestLinkedList:testBackInsertionAndRemovalPreserveLifoOrder()
 	local ll = LinkedList.new()
 
 	ll:pushBack(1)
@@ -198,7 +202,7 @@ function TestLinkedList:testPushBackAndPopBack()
 	lu.assertTrue(ll:empty())
 end
 
-function TestLinkedList:testPushFrontAndPopBack()
+function TestLinkedList:testFrontInsertionAndBackRemovalPreserveOppositeOrder()
 	local ll = LinkedList.new()
 
 	ll:pushFront(1)
@@ -212,7 +216,7 @@ function TestLinkedList:testPushFrontAndPopBack()
 	lu.assertTrue(ll:empty())
 end
 
-function TestLinkedList:testPushBackAndPopFront()
+function TestLinkedList:testBackInsertionAndFrontRemovalPreserveFifoOrder()
 	local ll = LinkedList.new()
 
 	ll:pushBack(1)
@@ -226,7 +230,7 @@ function TestLinkedList:testPushBackAndPopFront()
 	lu.assertTrue(ll:empty())
 end
 
-function TestLinkedList:testReverse()
+function TestLinkedList:testReverseSwapsTraversalAndEndpointOrder()
 	local ll = LinkedList.new()
 
 	-- Reverse empty list
@@ -268,7 +272,7 @@ function TestLinkedList:testReverse()
 	lu.assertTrue(ll:empty())
 end
 
-function TestLinkedList:testPush_Validation()
+function TestLinkedList:testPushOperationsRejectNilValues()
 	local ll = LinkedList.new()
 	lu.assertErrorMsgContains("entry should not be nil", function()
 		ll:pushFront(nil)
@@ -282,7 +286,7 @@ end
 -- 7. Metamethod Tests (__len, __eq, __concat, __tostring, __newindex)
 -----------------------------------------------------------------------------
 
-function TestLinkedList:testLen()
+function TestLinkedList:testLengthTracksInsertionAndRemovalAtBothEnds()
 	local ll = LinkedList.new()
 	lu.assertEquals(#ll, 0)
 
@@ -305,7 +309,7 @@ function TestLinkedList:testLen()
 	lu.assertEquals(#ll, 0)
 end
 
-function TestLinkedList:testConcat()
+function TestLinkedList:testConcatAppendsValuesFromMultipleIterableTypes()
 	local ll = LinkedList.new() .. { 10, 20, 30 }
 	lu.assertEquals(#ll, 3)
 
@@ -341,7 +345,7 @@ function TestLinkedList:testConcat()
 	lu.assertTrue(ll:empty())
 end
 
-function TestLinkedList:testConcat_Validation()
+function TestLinkedList:testConcatRejectsNonTableValues()
 	local ll = LinkedList.new()
 	lu.assertErrorMsgContains("iterable should be a table", function()
 		ll = ll .. "not a table"
@@ -354,7 +358,7 @@ function TestLinkedList:testConcat_Validation()
 	end)
 end
 
-function TestLinkedList:testEquality()
+function TestLinkedList:testListsWithSameValuesCompareEqual()
 	local ll1 = LinkedList.new({ 1, 2, 3 })
 	local ll2 = LinkedList.new({ 1, 2, 3 })
 	local ll3 = LinkedList.new({ 1, 2, 4 })
@@ -370,24 +374,24 @@ function TestLinkedList:testEquality()
 	lu.assertFalse(ll1 == "123")
 end
 
-function TestLinkedList:testEquality_Empty()
+function TestLinkedList:testEmptyLinkedListsCompareEqual()
 	local ll1 = LinkedList.new()
 	local ll2 = LinkedList.new()
 	-- This assertion exercises LinkedList.__eq; assertEquals compares table structure.
 	lu.assertTrue(ll1 == ll2)
 end
 
-function TestLinkedList:testToString()
+function TestLinkedList:testToStringFormatsLinkedListInOrder()
 	local ll = LinkedList.new({ 1, 2, 3 })
 	lu.assertEquals(tostring(ll), "[ 1 -> 2 -> 3 ]")
 end
 
-function TestLinkedList:testToString_Empty()
+function TestLinkedList:testToStringFormatsEmptyLinkedList()
 	local ll = LinkedList.new()
 	lu.assertEquals(tostring(ll), "[  ]")
 end
 
-function TestLinkedList:testNewIndex_PreventsModifications()
+function TestLinkedList:testNewPropertiesAndMethodsCannotBeAddedOrReplaced()
 	local ll = LinkedList.new({ 1, 2, 3 })
 
 	-- disallow adding properties

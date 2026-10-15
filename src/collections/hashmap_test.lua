@@ -17,7 +17,7 @@ local TestHashMap = {}
 -- 4. Constructor & Type Guard Tests
 -----------------------------------------------------------------------------
 
-function TestHashMap:testIsHashMap()
+function TestHashMap:testTypeGuardRecognizesHashMapsAndRejectsOtherValues()
 	lu.assertTrue(HashMap.isHashMap(HashMap.new()))
 	lu.assertTrue(HashMap.isHashMap(HashMap.new({ a = 1 })))
 
@@ -30,7 +30,7 @@ end
 
 -----------------------------------------------------------------------------
 
-function TestHashMap:testNewWithInitialiser()
+function TestHashMap:testConstructorCopiesEntriesFromTable()
 	local map = HashMap.new({ x = 1, y = 2, z = 3 })
 
 	lu.assertEquals(#map, 3)
@@ -39,7 +39,7 @@ function TestHashMap:testNewWithInitialiser()
 	lu.assertEquals(map:get("z"), 3)
 end
 
-function TestHashMap:testNewWithHashMapInitialiser()
+function TestHashMap:testConstructorCopiesEntriesFromHashMapIndependently()
 	local source = HashMap.new({ a = 10, b = 20 })
 	local copy = HashMap.new(source)
 
@@ -55,7 +55,7 @@ end
 -- 5. Core Accessor & Inspection Tests
 -----------------------------------------------------------------------------
 
-function TestHashMap:testGet()
+function TestHashMap:testGetReturnsStoredValuesAndNilForMissingKeys()
 	local map = HashMap.new()
 
 	lu.assertNil(map:get("a"))
@@ -67,20 +67,25 @@ function TestHashMap:testGet()
 	lu.assertEquals(map:get(1), "a")
 end
 
-function TestHashMap:testContains()
+function TestHashMap:testContainsReportsMissingKeysAsAbsent()
 	local map = HashMap.new()
-
 	lu.assertFalse(map:contains("e"))
+end
 
+function TestHashMap:testContainsReportsKeyWithFalseValueAsPresent()
+	local map = HashMap.new()
 	map:put("e", false)
 	lu.assertTrue(map:contains("e"))
+end
 
+function TestHashMap:testRemovedKeyIsNoLongerContained()
+	local map = HashMap.new({ e = false })
 	map:remove("e")
 	lu.assertFalse(map:contains("e"))
 end
 
 -----------------------------------------------------------------------------
-function TestHashMap:testIterator()
+function TestHashMap:testIterationYieldsEveryStoredKeyValuePair()
 	local map = HashMap.new()
 
 	map:put("a", 1)
@@ -105,7 +110,7 @@ end
 -- 6. Mutation & Modification Tests
 -----------------------------------------------------------------------------
 
-function TestHashMap:testEmpty()
+function TestHashMap:testClearMakesMapEmpty()
 	local map = HashMap.new()
 	lu.assertTrue(map:empty())
 
@@ -116,7 +121,7 @@ function TestHashMap:testEmpty()
 	lu.assertTrue(map:empty())
 end
 
-function TestHashMap:testPut()
+function TestHashMap:testPutAddsEntriesAndReplacesExistingValues()
 	local map = HashMap.new()
 
 	map:put("c", 1)
@@ -133,7 +138,7 @@ function TestHashMap:testPut()
 	lu.assertEquals(#map, 2)
 end
 
-function TestHashMap:testRemove()
+function TestHashMap:testRemoveDeletesOnlyRequestedEntry()
 	local map = HashMap.new()
 
 	map:put("f", false)
@@ -148,7 +153,7 @@ function TestHashMap:testRemove()
 	lu.assertEquals(#map, 1)
 end
 
-function TestHashMap:testCompute()
+function TestHashMap:testComputeStoresOnlyMissingKeys()
 	local map = HashMap.new()
 
 	lu.assertEquals(map:compute("a", function()
@@ -162,7 +167,7 @@ function TestHashMap:testCompute()
 		end), 9)
 end
 
-function TestHashMap:testMerge()
+function TestHashMap:testMergeCombinesOverlappingAndDistinctKeys()
 	local function add(a, b)
 		return a + b
 	end
@@ -183,7 +188,7 @@ end
 -- 7. Metamethod Tests (__len, __eq, __concat, __tostring, __newindex)
 -----------------------------------------------------------------------------
 
-function TestHashMap:testConcat()
+function TestHashMap:testConcatAppendsTableAndArrayEntries()
 	local map = HashMap.new() .. { a = 10, b = 20, c = 30 }
 	lu.assertEquals(#map, 3)
 
@@ -203,14 +208,14 @@ function TestHashMap:testConcat()
 	lu.assertEquals(map:get(3), "f")
 end
 
-function TestHashMap:testToString()
+function TestHashMap:testToStringFormatsKeyValuePairs()
 	local map = HashMap.new()
 	map:put("key", "value")
 
 	lu.assertEquals(tostring(map), "{ key = value }")
 end
 
-function TestHashMap:testEquals()
+function TestHashMap:testMapsWithSameEntriesCompareEqual()
 	local m1 = HashMap.new({ a = 1, b = 2 })
 	local m2 = HashMap.new({ a = 1, b = 2 })
 	local m3 = HashMap.new({ a = 1, b = 99 }) -- different value
@@ -222,7 +227,7 @@ function TestHashMap:testEquals()
 	lu.assertFalse(m1 == m4)
 end
 
-function TestHashMap:testEquals_NotHashMap()
+function TestHashMap:testMapDoesNotCompareEqualToOtherValueTypes()
 	local map = HashMap.new({ a = 1 })
 
 	-- These boolean assertions exercise HashMap.__eq for incompatible operands.
@@ -231,14 +236,14 @@ function TestHashMap:testEquals_NotHashMap()
 	lu.assertFalse(map == 42)
 end
 
-function TestHashMap:testEquals_Empty()
+function TestHashMap:testEmptyMapsCompareEqual()
 	local m1 = HashMap.new()
 	local m2 = HashMap.new()
 	-- This assertion exercises HashMap.__eq; assertEquals compares table structure.
 	lu.assertTrue(m1 == m2)
 end
 
-function TestHashMap:testEquals_FalsyValues()
+function TestHashMap:testEqualityIncludesFalseValues()
 	local m1 = HashMap.new()
 	local m2 = HashMap.new()
 	m1:put("flag", false)
@@ -250,7 +255,7 @@ function TestHashMap:testEquals_FalsyValues()
 	lu.assertFalse(m1 == m2)
 end
 
-function TestHashMap:testNewIndex_PreventsModifications()
+function TestHashMap:testNewPropertiesAndMethodsCannotBeAddedOrReplaced()
 	local m = HashMap.new({ a = 1 })
 
 	-- disallow adding properties

@@ -6,16 +6,16 @@ local tail = require("ff.func.tail")
 -------------------------------
 
 local TestTailString = {}
-function TestTailString:testTail_Empty()
+function TestTailString:testTailOfEmptyStringReturnsEmptyString()
   lu.assertEquals(tail(""), "")
 end
 
-function TestTailString:testTail_SingleChar()
+function TestTailString:testTailOfSingleCharacterStringReturnsEmptyString()
   lu.assertEquals(tail("a"), "")
   lu.assertEquals(tail(" "), "")
 end
 
-function TestTailString:testTail_MultiChar()
+function TestTailString:testTailOfStringReturnsCharactersAfterFirst()
   lu.assertEquals(tail("flores"), "lores")
   lu.assertEquals(tail("1234"), "234")
   lu.assertEquals(tail("\tlol"), "lol")
@@ -30,7 +30,7 @@ end
 --------------------------------------
 
 local TestTailNoop = {}
-function TestTailNoop:testTail_Nil()
+function TestTailNoop:testTailOfNilReturnsNil()
   lu.assertNil(tail(0))
   lu.assertNil(tail(true))
   lu.assertNil(tail({"a"}))

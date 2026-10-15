@@ -17,7 +17,7 @@ local TestSet = {}
 -- 4. Constructor & Type Guard Tests
 -----------------------------------------------------------------------------
 
-function TestSet:testIsSet()
+function TestSet:testTypeGuardRecognizesSetsAndRejectsOtherValues()
 	lu.assertTrue(Set.isSet(Set.new()))
 	lu.assertTrue(Set.isSet(Set.new({ 1, 2, 3 })))
 	lu.assertFalse(Set.isSet({ 1, 2, 3 }))
@@ -30,28 +30,26 @@ end
 -- 5. Core Accessor & Inspection Tests
 -----------------------------------------------------------------------------
 
-function TestSet:testContains()
-	local set = Set.new()
-
-	lu.assertFalse(set:contains("e"))
-
-	set:add("e")
-	lu.assertTrue(set:contains("e"))
-
-	set:remove("e")
-	lu.assertFalse(set:contains("e"))
-
-	set:add("f")
-	set:add("g")
-	set:add("h")
-
-	lu.assertTrue(set:contains("f", "g", "h"))
-	lu.assertTrue(set:contains("f", "h"))
-	lu.assertFalse(set:contains("f", "i"))
-	lu.assertFalse(set:contains())
+function TestSet:testEmptySetDoesNotContainValues()
+	lu.assertFalse(Set.new():contains("e"))
 end
 
-function TestSet:testDiff()
+function TestSet:testContainsReturnsTrueWhenEveryRequestedValueIsPresent()
+	local set = Set.new({ "f", "g", "h" })
+	lu.assertTrue(set:contains("f", "g", "h"))
+	lu.assertTrue(set:contains("f", "h"))
+end
+
+function TestSet:testContainsReturnsFalseWhenAnyRequestedValueIsMissing()
+	local set = Set.new({ "f", "g", "h" })
+	lu.assertFalse(set:contains("f", "i"))
+end
+
+function TestSet:testContainsWithoutValuesReturnsFalse()
+	lu.assertFalse(Set.new({ "f" }):contains())
+end
+
+function TestSet:testDiffReturnsValuesPresentOnlyInEachSet()
 	local set1 = Set.new({ "a", "b", "c" })
 	local set2 = Set.new({ "b", "c", "d" })
 
@@ -68,7 +66,7 @@ function TestSet:testDiff()
 	lu.assertEquals(#setDiff3, 3)
 end
 
-function TestSet:testIntersection()
+function TestSet:testIntersectionReturnsOnlySharedValues()
 	local set1 = Set.new({ "a", "b", "c" })
 	local set2 = Set.new({ "b", "c", "d" })
 
@@ -84,7 +82,7 @@ function TestSet:testIntersection()
 	lu.assertEquals(#setInter3, 0)
 end
 
-function TestSet:testUnion()
+function TestSet:testUnionReturnsDistinctValuesFromBothSets()
 	local set1 = Set.new({ "a", "b", "c" })
 	local set2 = Set.new({ "b", "c", "d" })
 
@@ -101,7 +99,7 @@ function TestSet:testUnion()
 	lu.assertEquals(#setUnion3, 3)
 end
 
-function TestSet:testSymmetricDiff()
+function TestSet:testSymmetricDiffReturnsValuesPresentInOnlyOneSet()
 	local set1 = Set.new({ 1, 2, 3, 4 })
 	local set2 = Set.new({ 3, 4, 5, 6 })
 
@@ -112,7 +110,7 @@ function TestSet:testSymmetricDiff()
 	lu.assertFalse(sym:contains(4))
 end
 
-function TestSet:testSubsetSupersetDisjoint()
+function TestSet:testSubsetAndSupersetReportSetContainment()
 	local sub = Set.new({ 1, 2 })
 	local super = Set.new({ 1, 2, 3, 4 })
 	local other = Set.new({ 5, 6 })
@@ -122,12 +120,18 @@ function TestSet:testSubsetSupersetDisjoint()
 	lu.assertTrue(super:superset(sub))
 	lu.assertFalse(sub:superset(super))
 
+end
+
+function TestSet:testDisjointReportsWhetherSetsShareValues()
+	local sub = Set.new({ 1, 2 })
+	local super = Set.new({ 1, 2, 3, 4 })
+	local other = Set.new({ 5, 6 })
 	lu.assertTrue(sub:disjoint(other))
 	lu.assertFalse(sub:disjoint(super))
 end
 
 -----------------------------------------------------------------------------
-function TestSet:testIterator()
+function TestSet:testIterationYieldsEveryStoredValue()
 	local set = Set.new({ 1, 2, 3, 4, 5 })
 
 	local res = {}
@@ -140,7 +144,7 @@ end
 -- 6. Mutation & Modification Tests
 -----------------------------------------------------------------------------
 
-function TestSet:testEmpty()
+function TestSet:testClearMakesSetEmpty()
 	local set = Set.new()
 	lu.assertTrue(set:empty())
 
@@ -151,7 +155,7 @@ function TestSet:testEmpty()
 	lu.assertTrue(set:empty())
 end
 
-function TestSet:testAdd()
+function TestSet:testAddReportsWhetherValueWasNew()
 	local set = Set.new()
 
 	lu.assertTrue(set:add("c"))
@@ -164,7 +168,7 @@ function TestSet:testAdd()
 	lu.assertTrue(set:contains("d", "c"))
 end
 
-function TestSet:testRemove()
+function TestSet:testRemoveDeletesOnlyRequestedValue()
 	local set = Set.new({ "f", "g" })
 	lu.assertEquals(#set, 2)
 
@@ -176,7 +180,7 @@ function TestSet:testRemove()
 	lu.assertEquals(#set, 1)
 end
 
-function TestSet:testBooleanValues()
+function TestSet:testFalseCanBeStoredAndRemovedAsAValue()
 	local set = Set.new()
 	lu.assertTrue(set:add(false))
 	lu.assertEquals(#set, 1)
@@ -195,7 +199,7 @@ end
 -- 7. Metamethod Tests (__len, __eq, __concat, __tostring, __newindex)
 -----------------------------------------------------------------------------
 
-function TestSet:testConcat()
+function TestSet:testConcatAddsDistinctValuesFromIterables()
 	local set = Set.new({ 10, 20, 30 })
 	lu.assertEquals(#set, 3)
 
@@ -219,7 +223,7 @@ function TestSet:testConcat()
 	lu.assertEquals(#set, 10)
 end
 
-function TestSet:testEquals()
+function TestSet:testSetsCompareEqualRegardlessOfInsertionOrder()
 	local s1 = Set.new({ 1, 2, 3 })
 	local s2 = Set.new({ 3, 2, 1 })
 	local s3 = Set.new({ 1, 2, 4 })
@@ -235,7 +239,7 @@ function TestSet:testEquals()
 	lu.assertFalse(s1 == 42)
 end
 
-function TestSet:testToString()
+function TestSet:testToStringIncludesStoredValues()
 	local set = Set.new({ "hello", 123, true })
 	local str = tostring(set)
 
@@ -244,7 +248,7 @@ function TestSet:testToString()
 	lu.assertStrContains(str, "true")
 end
 
-function TestSet:testNewIndex_PreventsModifications()
+function TestSet:testNewPropertiesAndMethodsCannotBeAddedOrReplaced()
 	local s = Set.new({ 1, 2, 3 })
 
 	-- disallow adding properties

@@ -17,7 +17,7 @@ local TestStack = {}
 -- 4. Constructor & Type Guard Tests
 -----------------------------------------------------------------------------
 
-function TestStack:testIsStack()
+function TestStack:testTypeGuardRecognizesStacksAndRejectsOtherValues()
 	local s = Stack.new()
 	lu.assertTrue(Stack.isStack(s))
 	lu.assertFalse(Stack.isStack({}))
@@ -26,7 +26,7 @@ function TestStack:testIsStack()
 	lu.assertFalse(Stack.isStack(123))
 end
 
-function TestStack:testConstructor()
+function TestStack:testConstructorPreservesIterableOrderAndSetsTop()
 	local s1 = Stack.new()
 	lu.assertTrue(s1:empty())
 
@@ -39,31 +39,32 @@ end
 -- 5. Core Accessor & Inspection Tests
 -----------------------------------------------------------------------------
 
-function TestStack:testContains()
-	-- empty
-	local s = Stack.new()
-	lu.assertFalse(s:contains(1))
+function TestStack:testEmptyStackDoesNotContainValues()
+	local stack = Stack.new()
+	lu.assertFalse(stack:contains(1))
+end
 
-	s:push(10)
-	s:push(20)
-	s:push(30)
+function TestStack:testContainsReportsEachStoredValueAsPresent()
+	local stack = Stack.new({ 10, 20, 30 })
+	lu.assertTrue(stack:contains(10))
+	lu.assertTrue(stack:contains(20))
+	lu.assertTrue(stack:contains(30))
+end
 
-	-- present
-	lu.assertTrue(s:contains(10))
-	lu.assertTrue(s:contains(20))
-	lu.assertTrue(s:contains(30))
+function TestStack:testContainsReportsUnstoredValuesAsAbsent()
+	local stack = Stack.new({ 10, 20, 30 })
+	lu.assertFalse(stack:contains(99))
+	lu.assertFalse(stack:contains("10"))
+end
 
-	-- absent
-	lu.assertFalse(s:contains(99))
-	lu.assertFalse(s:contains("10"))
-
-	-- not present anymore
-	s:pop()
-	lu.assertFalse(s:contains(30))
+function TestStack:testPoppedValueIsNoLongerContained()
+	local stack = Stack.new({ 10, 20, 30 })
+	stack:pop()
+	lu.assertFalse(stack:contains(30))
 end
 
 -----------------------------------------------------------------------------
-function TestStack:testIterator()
+function TestStack:testIterationYieldsValuesFromTopToBottom()
 	local s = Stack.new()
 
 	s:push("a")
@@ -85,7 +86,7 @@ function TestStack:testIterator()
 	lu.assertEquals(s:top(), "d")
 end
 
-function TestStack:testIterator_Empty()
+function TestStack:testIterationOfEmptyStackYieldsNoValues()
 	local s = Stack.new()
 
 	local count = 0
@@ -96,7 +97,7 @@ function TestStack:testIterator_Empty()
 	lu.assertEquals(count, 0)
 end
 
-function TestStack:testIterator_MultipleRuns()
+function TestStack:testRepeatedIterationPreservesStackContents()
 	local s = Stack.new({ "x", "y", "z" })
 
 	local firstRun = {}
@@ -117,20 +118,20 @@ end
 -- 6. Mutation & Modification Tests
 -----------------------------------------------------------------------------
 
-function TestStack:testEmptyAndClear()
-	local s = Stack.new()
-	lu.assertTrue(s:empty())
-	lu.assertNil(s:pop())
-
-	s:push("item")
-	lu.assertFalse(s:empty())
-
-	s:clear()
-	lu.assertTrue(s:empty())
-	lu.assertEquals(#s, 0)
+function TestStack:testPopOnEmptyStackReturnsNil()
+	local stack = Stack.new()
+	lu.assertTrue(stack:empty())
+	lu.assertNil(stack:pop())
 end
 
-function TestStack:testSingleItem()
+function TestStack:testClearRemovesAllPushedValues()
+	local stack = Stack.new({ "item" })
+	stack:clear()
+	lu.assertTrue(stack:empty())
+	lu.assertEquals(#stack, 0)
+end
+
+function TestStack:testPushAndPopPreserveSingleValue()
 	local s = Stack.new()
 	s:push(1)
 
@@ -140,7 +141,7 @@ function TestStack:testSingleItem()
 	lu.assertTrue(s:empty())
 end
 
-function TestStack:testMultipleItems()
+function TestStack:testPopReturnsPushedValuesInLastInFirstOutOrder()
 	local s = Stack.new()
 	s:push(1)
 	s:push(true)
@@ -156,14 +157,14 @@ function TestStack:testMultipleItems()
 	lu.assertTrue(s:empty())
 end
 
-function TestStack:testNil()
+function TestStack:testPushRejectsNilEntries()
 	local s = Stack.new()
 	lu.assertErrorMsgContains("entry should not be nil", function()
 		s:push(nil)
 	end)
 end
 
-function TestStack:testReverse()
+function TestStack:testReverseMakesBottomValuePopFirst()
 	local s = Stack.new({ 1, 2, 3, 4 })
 
 	s:reverse()
@@ -174,7 +175,7 @@ function TestStack:testReverse()
 	lu.assertEquals(s:pop(), 4)
 end
 
-function TestStack:testDrain()
+function TestStack:testDrainYieldsValuesInLastInFirstOutOrderAndEmptiesStack()
 	local s = Stack.new()
 	s:push("a")
 	s:push("b")
@@ -193,7 +194,7 @@ function TestStack:testDrain()
 	lu.assertNil(s:pop())
 end
 
-function TestStack:testDrain_Empty()
+function TestStack:testDrainOnEmptyStackYieldsNoValues()
 	local s = Stack.new()
 
 	local count = 0
@@ -209,7 +210,7 @@ end
 -- 7. Metamethod Tests (__len, __eq, __concat, __tostring, __newindex)
 -----------------------------------------------------------------------------
 
-function TestStack:testEquality()
+function TestStack:testStacksWithSameValuesCompareEqual()
 	local s1 = Stack.new({ 1, 2, 3 })
 	local s2 = Stack.new({ 1, 2, 3 })
 	local s3 = Stack.new({ 1, 2, 4 })
@@ -223,7 +224,7 @@ function TestStack:testEquality()
 	lu.assertFalse(s1 == nil)
 end
 
-function TestStack:testConcat()
+function TestStack:testConcatAppendsValuesToStack()
 	local s = Stack.new() .. { 10, 20, 30 }
 	lu.assertEquals(#s, 3)
 
@@ -242,7 +243,7 @@ function TestStack:testConcat()
 	lu.assertEquals(s:pop(), 10)
 end
 
-function TestStack:testNewIndex_PreventsModifications()
+function TestStack:testNewPropertiesAndMethodsCannotBeAddedOrReplaced()
 	local s = Stack.new({ 1, 2, 3 })
 
 	-- disallow adding properties
