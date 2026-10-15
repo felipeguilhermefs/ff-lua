@@ -1,23 +1,9 @@
------------------------------------------------------------------------------
--- 1. Upvalue caching & Imports
------------------------------------------------------------------------------
 local lu = require("luaunit")
 local HashMap = require("ff.collections.hashmap")
 
------------------------------------------------------------------------------
--- 2. Test Suite Table Definition
------------------------------------------------------------------------------
 local TestHashMap = {}
------------------------------------------------------------------------------
--- 3. Suite Lifecycle Hooks (Optional)
--- Not needed: each test creates its own fixtures.
------------------------------------------------------------------------------
 
------------------------------------------------------------------------------
--- 4. Constructor & Type Guard Tests
------------------------------------------------------------------------------
-
-function TestHashMap:testIsHashMap()
+function TestHashMap:testTypeGuard_RecognizesHashMapsAndRejectsOtherValues()
 	lu.assertTrue(HashMap.isHashMap(HashMap.new()))
 	lu.assertTrue(HashMap.isHashMap(HashMap.new({ a = 1 })))
 
@@ -28,9 +14,7 @@ function TestHashMap:testIsHashMap()
 	lu.assertFalse(HashMap.isHashMap(require("ff.collections.set").new()))
 end
 
------------------------------------------------------------------------------
-
-function TestHashMap:testNewWithInitialiser()
+function TestHashMap:testConstructor_CopiesEntriesFromTable()
 	local map = HashMap.new({ x = 1, y = 2, z = 3 })
 
 	lu.assertEquals(#map, 3)
@@ -39,48 +23,57 @@ function TestHashMap:testNewWithInitialiser()
 	lu.assertEquals(map:get("z"), 3)
 end
 
-function TestHashMap:testNewWithHashMapInitialiser()
+function TestHashMap:testConstructor_CopiesEntriesFromHashMapIndependently()
 	local source = HashMap.new({ a = 10, b = 20 })
+
 	local copy = HashMap.new(source)
 
 	lu.assertEquals(#copy, 2)
 	lu.assertEquals(copy:get("a"), 10)
 	lu.assertEquals(copy:get("b"), 20)
 
-	-- Confirm shallow independence
 	copy:put("a", 99)
+
 	lu.assertEquals(source:get("a"), 10)
 end
 
--- 5. Core Accessor & Inspection Tests
------------------------------------------------------------------------------
-
-function TestHashMap:testGet()
+function TestHashMap:testGet_ReturnsStoredValuesAndNilForMissingKeys()
 	local map = HashMap.new()
 
 	lu.assertNil(map:get("a"))
 
 	map:put("a", 1)
+
 	lu.assertEquals(map:get("a"), 1)
 
 	map:put(1, "a")
+
 	lu.assertEquals(map:get(1), "a")
 end
 
-function TestHashMap:testContains()
+function TestHashMap:testContains_ReportsMissingKeysAsAbsent()
 	local map = HashMap.new()
 
 	lu.assertFalse(map:contains("e"))
+end
+
+function TestHashMap:testContains_ReportsKeyWithFalseValueAsPresent()
+	local map = HashMap.new()
 
 	map:put("e", false)
+
 	lu.assertTrue(map:contains("e"))
+end
+
+function TestHashMap:testRemovedKey_IsNoLongerContained()
+	local map = HashMap.new({ e = false })
 
 	map:remove("e")
+
 	lu.assertFalse(map:contains("e"))
 end
 
------------------------------------------------------------------------------
-function TestHashMap:testIterator()
+function TestHashMap:testIteration_YieldsEveryStoredKeyValuePair()
 	local map = HashMap.new()
 
 	map:put("a", 1)
@@ -99,43 +92,46 @@ function TestHashMap:testIterator()
 		{ key = "c", value = 3 },
 		{ key = "d", value = 4 },
 	}
+
 	lu.assertItemsEquals(actual_pairs, expected_pairs)
 end
 
--- 6. Mutation & Modification Tests
------------------------------------------------------------------------------
-
-function TestHashMap:testEmpty()
+function TestHashMap:testClear_MakesMapEmpty()
 	local map = HashMap.new()
+
 	lu.assertTrue(map:empty())
 
 	map:put("a", 1)
+
 	lu.assertFalse(map:empty())
 
 	map:clear()
+
 	lu.assertTrue(map:empty())
 end
 
-function TestHashMap:testPut()
+function TestHashMap:testPut_AddsEntriesAndReplacesExistingValues()
 	local map = HashMap.new()
 
 	map:put("c", 1)
+
 	lu.assertEquals(map:get("c"), 1)
 	lu.assertEquals(#map, 1)
 
 	map:put("c", 2)
+
 	lu.assertEquals(map:get("c"), 2)
 	lu.assertEquals(#map, 1)
 
 	map:put("d", 3)
+
 	lu.assertEquals(map:get("d"), 3)
 	lu.assertEquals(map:get("c"), 2)
 	lu.assertEquals(#map, 2)
 end
 
-function TestHashMap:testRemove()
+function TestHashMap:testRemove_DeletesOnlyRequestedEntry()
 	local map = HashMap.new()
-
 	map:put("f", false)
 	map:put("g", true)
 	lu.assertEquals(#map, 2)
@@ -144,25 +140,33 @@ function TestHashMap:testRemove()
 
 	lu.assertFalse(map:contains("f"))
 	lu.assertTrue(map:contains("g"))
-
 	lu.assertEquals(#map, 1)
 end
 
-function TestHashMap:testCompute()
+function TestHashMap:testCompute_StoresOnlyMissingKeys()
 	local map = HashMap.new()
 
-	lu.assertEquals(map:compute("a", function()
+	lu.assertEquals(
+		map:compute("a", function()
 			return 1
-		end), 1)
-	lu.assertEquals(map:compute("a", function()
+		end),
+		1
+	)
+	lu.assertEquals(
+		map:compute("a", function()
 			return 2
-		end), 1)
-	lu.assertEquals(map:compute(3, function(key)
+		end),
+		1
+	)
+	lu.assertEquals(
+		map:compute(3, function(key)
 			return key * key
-		end), 9)
+		end),
+		9
+	)
 end
 
-function TestHashMap:testMerge()
+function TestHashMap:testMerge_CombinesOverlappingAndDistinctKeys()
 	local function add(a, b)
 		return a + b
 	end
@@ -179,19 +183,12 @@ function TestHashMap:testMerge()
 	lu.assertEquals(map:get("d"), 4)
 end
 
------------------------------------------------------------------------------
--- 7. Metamethod Tests (__len, __eq, __concat, __tostring, __newindex)
------------------------------------------------------------------------------
-
-function TestHashMap:testConcat()
-	local map = HashMap.new() .. { a = 10, b = 20, c = 30 }
-	lu.assertEquals(#map, 3)
-
-	map = map .. nil
-	lu.assertEquals(#map, 3)
-
+function TestHashMap:testConcat_AppendsTableAndArrayEntries()
+	local map = HashMap.new()
 	local arr = require("ff.collections.array").new({ "d", "e", "f" })
 
+	map = map .. { a = 10, b = 20, c = 30 }
+	map = map .. nil
 	map = map .. arr
 
 	lu.assertEquals(#map, 6)
@@ -203,67 +200,65 @@ function TestHashMap:testConcat()
 	lu.assertEquals(map:get(3), "f")
 end
 
-function TestHashMap:testToString()
+function TestHashMap:testToString_FormatsKeyValuePairs()
 	local map = HashMap.new()
 	map:put("key", "value")
 
-	lu.assertEquals(tostring(map), "{ key = value }")
+	local text = tostring(map)
+
+	lu.assertEquals(text, "{ key = value }")
 end
 
-function TestHashMap:testEquals()
+function TestHashMap:testMapsWithSameEntries_CompareEqual()
 	local m1 = HashMap.new({ a = 1, b = 2 })
 	local m2 = HashMap.new({ a = 1, b = 2 })
 	local m3 = HashMap.new({ a = 1, b = 99 }) -- different value
 	local m4 = HashMap.new({ a = 1 }) -- different size
 
-	-- Boolean assertions here intentionally exercise HashMap.__eq.
 	lu.assertTrue(m1 == m2)
 	lu.assertFalse(m1 == m3)
 	lu.assertFalse(m1 == m4)
 end
 
-function TestHashMap:testEquals_NotHashMap()
+function TestHashMap:testMap_DoesNotCompareEqualToOtherValueTypes()
 	local map = HashMap.new({ a = 1 })
 
-	-- These boolean assertions exercise HashMap.__eq for incompatible operands.
 	lu.assertFalse(map == { a = 1 })
 	lu.assertFalse(map == nil)
 	lu.assertFalse(map == 42)
 end
 
-function TestHashMap:testEquals_Empty()
+function TestHashMap:testEmptyMaps_CompareEqual()
 	local m1 = HashMap.new()
 	local m2 = HashMap.new()
-	-- This assertion exercises HashMap.__eq; assertEquals compares table structure.
+
 	lu.assertTrue(m1 == m2)
 end
 
-function TestHashMap:testEquals_FalsyValues()
+function TestHashMap:testEquality_IncludesFalseValues()
 	local m1 = HashMap.new()
 	local m2 = HashMap.new()
 	m1:put("flag", false)
 	m2:put("flag", false)
-	-- Boolean assertions here intentionally exercise HashMap.__eq.
+
 	lu.assertTrue(m1 == m2)
 
 	m2:put("flag", true)
+
 	lu.assertFalse(m1 == m2)
 end
 
-function TestHashMap:testNewIndex_PreventsModifications()
+function TestHashMap:testNewPropertiesAndMethods_CannotBeAddedOrReplaced()
 	local m = HashMap.new({ a = 1 })
 
-	-- disallow adding properties
 	lu.assertErrorMsgContains("cannot add new properties, methods or functions to HashMap", function()
 		m.foo = "bar"
 	end)
 
-	-- disallow adding numeric indices via bracket assignment
 	lu.assertErrorMsgContains("cannot add new properties, methods or functions to HashMap", function()
 		m[1] = 99
 	end)
 
-	-- disallow adding methods or functions
 	lu.assertErrorMsgContains("cannot add new properties, methods or functions to HashMap", function()
 		m.myFunc = function() end
 	end)

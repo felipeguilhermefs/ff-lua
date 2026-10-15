@@ -1,72 +1,6 @@
 local lu = require("luaunit")
 local empty = require("ff.func.empty")
 
--------------------------------
--- String Test Suite [begin] --
--------------------------------
-
-local TestEmptyString = {}
-function TestEmptyString:testEmpty()
-	lu.assertTrue(empty(""))
-end
-
-function TestEmptyString:testNonEmpty()
-	lu.assertFalse(empty("a"))
-	lu.assertFalse(empty(" "))
-end
-
-------------------------------
--- String Test Suite [end] ---
-------------------------------
-
-------------------------------
--- Array Test Suite [start] --
-------------------------------
-
-local TestEmptyArray = {}
-function TestEmptyArray:testEmpty()
-	lu.assertTrue(empty({}))
-	lu.assertTrue(empty({ nil }))
-end
-
-function TestEmptyArray:testNonEmpty()
-	lu.assertFalse(empty({ 0 }))
-	lu.assertFalse(empty({ false }))
-	lu.assertFalse(empty({ "" }))
-	lu.assertFalse(empty({ {} }))
-	lu.assertFalse(empty({ 1, true, "s", { 1 } }))
-end
-
-----------------------------
--- Array Test Suite [end] --
-----------------------------
-
-----------------------------
--- Map Test Suite [begin] --
-----------------------------
-
-local TestMap = {}
-function TestMap:testEmpty()
-	lu.assertTrue(empty({}))
-	lu.assertTrue(empty({ ["a"] = nil }))
-end
-
-function TestMap:testNonEmpty()
-	lu.assertFalse(empty({ a = 0 }))
-	lu.assertFalse(empty({ [false] = true }))
-	lu.assertFalse(empty({ [""] = "v" }))
-	lu.assertFalse(empty({ ["l"] = {} }))
-	lu.assertFalse(empty({ [1] = true, [10] = { 1 } }))
-end
-
---------------------------
--- Map Test Suite [end] --
---------------------------
-
----------------------------------
--- Delegate Test Suite [begin] --
----------------------------------
-
 local function delegate()
 	local d = {}
 
@@ -85,9 +19,50 @@ local function delegate()
 	return d
 end
 
-local TestDelegate = {}
-function TestDelegate:testEmpty()
+local TestEmptyString = {}
+local TestEmptyArray = {}
+local TestEmptyMap = {}
+local TestEmptyDelegate = {}
+local TestEmptyNoop = {}
+
+function TestEmptyString:testEmptyInput_ReturnsTrue()
+	lu.assertTrue(empty(""))
+end
+
+function TestEmptyString:testNonEmptyInput_ReturnsFalse()
+	lu.assertFalse(empty("a"))
+	lu.assertFalse(empty(" "))
+end
+
+function TestEmptyArray:testEmptyInput_ReturnsTrue()
+	lu.assertTrue(empty({}))
+	lu.assertTrue(empty({ nil }))
+end
+
+function TestEmptyArray:testNonEmptyInput_ReturnsFalse()
+	lu.assertFalse(empty({ 0 }))
+	lu.assertFalse(empty({ false }))
+	lu.assertFalse(empty({ "" }))
+	lu.assertFalse(empty({ {} }))
+	lu.assertFalse(empty({ 1, true, "s", { 1 } }))
+end
+
+function TestEmptyMap:testEmptyInput_ReturnsTrue()
+	lu.assertTrue(empty({}))
+	lu.assertTrue(empty({ ["a"] = nil }))
+end
+
+function TestEmptyMap:testNonEmptyInput_ReturnsFalse()
+	lu.assertFalse(empty({ a = 0 }))
+	lu.assertFalse(empty({ [false] = true }))
+	lu.assertFalse(empty({ [""] = "v" }))
+	lu.assertFalse(empty({ ["l"] = {} }))
+	lu.assertFalse(empty({ [1] = true, [10] = { 1 } }))
+end
+
+function TestEmptyDelegate:testEmptyInput_ReturnsTrue()
 	local d = delegate()
+
 	lu.assertTrue(empty(d))
 
 	d.insert("something")
@@ -96,36 +71,25 @@ function TestDelegate:testEmpty()
 	lu.assertTrue(empty(d))
 end
 
-function TestDelegate:testNonEmpty()
+function TestEmptyDelegate:testNonEmptyInput_ReturnsFalse()
 	local d = delegate()
 
 	d.insert("something")
+
 	lu.assertFalse(empty(d))
 end
 
--------------------------------
--- Delegate Test Suite [end] --
--------------------------------
-
---------------------------------------
--- Non Supported Test Suite [begin] --
---------------------------------------
-
-local TestEmptyNoop = {}
-function TestEmptyNoop:testNil()
+function TestEmptyNoop:testUnsupportedInputs_ReturnNil()
 	lu.assertNil(empty(nil))
 	lu.assertNil(empty(0))
 	lu.assertNil(empty(true))
 	lu.assertNil(empty(1.6))
 end
-------------------------------------
--- Non Supported Test Suite [end] --
-------------------------------------
 
 return {
 	TestEmptyString = TestEmptyString,
 	TestEmptyArray = TestEmptyArray,
-	TestMap = TestMap,
-	TestDelegate = TestDelegate,
+	TestEmptyMap = TestEmptyMap,
+	TestEmptyDelegate = TestEmptyDelegate,
 	TestEmptyNoop = TestEmptyNoop,
 }

@@ -2,7 +2,8 @@ local lu = require("luaunit")
 local Comparator = require("ff.func.comparator")
 
 local TestComparator = {}
-function TestComparator:testNaturalOrder()
+
+function TestComparator:testNaturalComparator_OrdersNumbersAndStrings()
 	local cmp = Comparator.natural
 
 	lu.assertEquals(Comparator.less, cmp(1, 2))
@@ -27,7 +28,7 @@ function TestComparator:testNaturalOrder()
 	lu.assertEquals(Comparator.greater, cmp("r", "R"))
 end
 
-function TestComparator:testReverseNaturalOrder()
+function TestComparator:testReverseComparator_InvertsNaturalOrdering()
 	local cmp = Comparator.reverse(Comparator.natural)
 
 	lu.assertEquals(Comparator.greater, cmp(1, 2))

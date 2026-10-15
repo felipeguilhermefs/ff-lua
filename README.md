@@ -24,11 +24,10 @@ make install
 
 - **Run tests for one module:**
   ```bash
-  make test MODULE=ff.collections.array
+  make test MODULE='ff.collections.array'
   ```
 
-`MODULE` must match module name from rockspec, such as `ff.collections.array`.
-Omit `MODULE` to run tests for all modules.
+Test guidelines found in [`docs/test-guidelines.md`](docs/test-guidelines.md).
 
 ## Development & Build Commands
 

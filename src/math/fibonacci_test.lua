@@ -2,35 +2,36 @@ local lu = require("luaunit")
 local fibonacci = require("ff.math.fibonacci")
 
 local TestFibonacci = {}
-function TestFibonacci:testWhen0Return1()
+
+function TestFibonacci:testZero_IsOne()
 	lu.assertEquals(fibonacci(0), 1)
 end
 
-function TestFibonacci:testWhen1Return1()
+function TestFibonacci:testOne_IsOne()
 	lu.assertEquals(fibonacci(1), 1)
 end
 
-function TestFibonacci:testWhen2Return2()
+function TestFibonacci:testTwo_IsTwo()
 	lu.assertEquals(fibonacci(2), 2)
 end
 
-function TestFibonacci:testWhen3Return3()
+function TestFibonacci:testThree_IsThree()
 	lu.assertEquals(fibonacci(3), 3)
 end
 
-function TestFibonacci:testWhen4Return5()
+function TestFibonacci:testFour_IsFive()
 	lu.assertEquals(fibonacci(4), 5)
 end
 
-function TestFibonacci:testWhen5Return8()
+function TestFibonacci:testFive_IsEight()
 	lu.assertEquals(fibonacci(5), 8)
 end
 
-function TestFibonacci:testWhen7Return21()
+function TestFibonacci:testSeven_IsTwentyOne()
 	lu.assertEquals(fibonacci(7), 21)
 end
 
-function TestFibonacci:testWhen100Return1298777728820984005()
+function TestFibonacci:testHundred_IsLargeNumber()
 	lu.assertEquals(fibonacci(100), 1298777728820984005)
 end
 

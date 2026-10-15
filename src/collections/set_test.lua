@@ -1,23 +1,11 @@
------------------------------------------------------------------------------
--- 1. Upvalue caching & Imports
------------------------------------------------------------------------------
 local lu = require("luaunit")
 local Set = require("ff.collections.set")
 
------------------------------------------------------------------------------
--- 2. Test Suite Table Definition
------------------------------------------------------------------------------
+local append = table.insert
+
 local TestSet = {}
------------------------------------------------------------------------------
--- 3. Suite Lifecycle Hooks (Optional)
--- Not needed: each test creates its own fixtures.
------------------------------------------------------------------------------
 
------------------------------------------------------------------------------
--- 4. Constructor & Type Guard Tests
------------------------------------------------------------------------------
-
-function TestSet:testIsSet()
+function TestSet:testTypeGuard_RecognizesSetsAndRejectsOtherValues()
 	lu.assertTrue(Set.isSet(Set.new()))
 	lu.assertTrue(Set.isSet(Set.new({ 1, 2, 3 })))
 	lu.assertFalse(Set.isSet({ 1, 2, 3 }))
@@ -26,36 +14,33 @@ function TestSet:testIsSet()
 	lu.assertFalse(Set.isSet(123))
 end
 
------------------------------------------------------------------------------
--- 5. Core Accessor & Inspection Tests
------------------------------------------------------------------------------
+function TestSet:testEmptySet_DoesNotContainValues()
+	lu.assertFalse(Set.new():contains("e"))
+end
 
-function TestSet:testContains()
-	local set = Set.new()
-
-	lu.assertFalse(set:contains("e"))
-
-	set:add("e")
-	lu.assertTrue(set:contains("e"))
-
-	set:remove("e")
-	lu.assertFalse(set:contains("e"))
-
-	set:add("f")
-	set:add("g")
-	set:add("h")
+function TestSet:testContains_ReturnsTrueWhenValueIsPresent()
+	local set = Set.new({ "f", "g", "h" })
 
 	lu.assertTrue(set:contains("f", "g", "h"))
 	lu.assertTrue(set:contains("f", "h"))
-	lu.assertFalse(set:contains("f", "i"))
-	lu.assertFalse(set:contains())
 end
 
-function TestSet:testDiff()
+function TestSet:testContains_ReturnsFalseWhenValueIsMissing()
+	local set = Set.new({ "f", "g", "h" })
+
+	lu.assertFalse(set:contains("f", "i"))
+end
+
+function TestSet:testContainsWithoutValues_ReturnsFalse()
+	lu.assertFalse(Set.new({ "f" }):contains())
+end
+
+function TestSet:testDiff_ReturnsValuesPresentOnlyInEachSet()
 	local set1 = Set.new({ "a", "b", "c" })
 	local set2 = Set.new({ "b", "c", "d" })
 
 	local setDiff1 = set1:diff(set2)
+
 	lu.assertTrue(setDiff1:contains("a"))
 	lu.assertEquals(#setDiff1, 1)
 
@@ -68,11 +53,12 @@ function TestSet:testDiff()
 	lu.assertEquals(#setDiff3, 3)
 end
 
-function TestSet:testIntersection()
+function TestSet:testIntersection_ReturnsOnlySharedValues()
 	local set1 = Set.new({ "a", "b", "c" })
 	local set2 = Set.new({ "b", "c", "d" })
 
 	local setInter1 = set1:intersection(set2)
+
 	lu.assertTrue(setInter1:contains("b", "c"))
 	lu.assertEquals(#setInter1, 2)
 
@@ -84,11 +70,12 @@ function TestSet:testIntersection()
 	lu.assertEquals(#setInter3, 0)
 end
 
-function TestSet:testUnion()
+function TestSet:testUnion_ReturnsDistinctValuesFromBothSets()
 	local set1 = Set.new({ "a", "b", "c" })
 	local set2 = Set.new({ "b", "c", "d" })
 
 	local setUnion1 = set1:union(set2)
+
 	lu.assertTrue(setUnion1:contains("a", "b", "c", "d"))
 	lu.assertEquals(#setUnion1, 4)
 
@@ -101,57 +88,64 @@ function TestSet:testUnion()
 	lu.assertEquals(#setUnion3, 3)
 end
 
-function TestSet:testSymmetricDiff()
+function TestSet:testSymmetricDiff_ReturnsValuesPresentInOnlyOneSet()
 	local set1 = Set.new({ 1, 2, 3, 4 })
 	local set2 = Set.new({ 3, 4, 5, 6 })
 
 	local sym = set1:symdiff(set2)
+
 	lu.assertEquals(#sym, 4)
 	lu.assertTrue(sym:contains(1, 2, 5, 6))
 	lu.assertFalse(sym:contains(3))
 	lu.assertFalse(sym:contains(4))
 end
 
-function TestSet:testSubsetSupersetDisjoint()
+function TestSet:testSubsetAndSuperset_ReportSetContainment()
 	local sub = Set.new({ 1, 2 })
 	local super = Set.new({ 1, 2, 3, 4 })
-	local other = Set.new({ 5, 6 })
 
 	lu.assertTrue(sub:subset(super))
 	lu.assertFalse(super:subset(sub))
 	lu.assertTrue(super:superset(sub))
 	lu.assertFalse(sub:superset(super))
+end
+
+function TestSet:testDisjoint_ReportsWhetherSetsShareValues()
+	local sub = Set.new({ 1, 2 })
+	local super = Set.new({ 1, 2, 3, 4 })
+	local other = Set.new({ 5, 6 })
 
 	lu.assertTrue(sub:disjoint(other))
 	lu.assertFalse(sub:disjoint(super))
 end
 
------------------------------------------------------------------------------
-function TestSet:testIterator()
+function TestSet:testIteration_YieldsEveryStoredValue()
 	local set = Set.new({ 1, 2, 3, 4, 5 })
 
 	local res = {}
+
 	for item in pairs(set) do
-		table.insert(res, item)
+		append(res, item)
 	end
+
 	lu.assertItemsEquals(res, { 1, 2, 3, 4, 5 })
 end
 
--- 6. Mutation & Modification Tests
------------------------------------------------------------------------------
-
-function TestSet:testEmpty()
+function TestSet:testClear_MakesSetEmpty()
 	local set = Set.new()
+
 	lu.assertTrue(set:empty())
 
 	set:add("a")
+
 	lu.assertFalse(set:empty())
 
 	set:clear()
+
 	lu.assertTrue(set:empty())
 end
 
-function TestSet:testAdd()
+function TestSet:testAdd_ReportsWhetherValueWasNew()
 	local set = Set.new()
 
 	lu.assertTrue(set:add("c"))
@@ -164,7 +158,7 @@ function TestSet:testAdd()
 	lu.assertTrue(set:contains("d", "c"))
 end
 
-function TestSet:testRemove()
+function TestSet:testRemove_DeletesOnlyRequestedValue()
 	local set = Set.new({ "f", "g" })
 	lu.assertEquals(#set, 2)
 
@@ -172,12 +166,12 @@ function TestSet:testRemove()
 
 	lu.assertFalse(set:contains("f"))
 	lu.assertTrue(set:contains("g"))
-
 	lu.assertEquals(#set, 1)
 end
 
-function TestSet:testBooleanValues()
+function TestSet:testFalseValue_CanBeStoredAndRemovedAsValue()
 	local set = Set.new()
+
 	lu.assertTrue(set:add(false))
 	lu.assertEquals(#set, 1)
 	lu.assertTrue(set:contains(false))
@@ -191,11 +185,7 @@ function TestSet:testBooleanValues()
 	lu.assertFalse(set:remove(false))
 end
 
------------------------------------------------------------------------------
--- 7. Metamethod Tests (__len, __eq, __concat, __tostring, __newindex)
------------------------------------------------------------------------------
-
-function TestSet:testConcat()
+function TestSet:testConcat_AddsDistinctValuesFromIterables()
 	local set = Set.new({ 10, 20, 30 })
 	lu.assertEquals(#set, 3)
 
@@ -205,9 +195,11 @@ function TestSet:testConcat()
 	lu.assertEquals(#set, 6)
 
 	set = set .. nil
+
 	lu.assertEquals(#set, 6)
 
 	set = set .. Set.new({ 70, 80, 90 })
+
 	lu.assertTrue(set:contains(70, 80, 90))
 	lu.assertEquals(#set, 9)
 
@@ -219,13 +211,12 @@ function TestSet:testConcat()
 	lu.assertEquals(#set, 10)
 end
 
-function TestSet:testEquals()
+function TestSet:testSetsWithSameValues_CompareEqualRegardlessOfInsertionOrder()
 	local s1 = Set.new({ 1, 2, 3 })
 	local s2 = Set.new({ 3, 2, 1 })
 	local s3 = Set.new({ 1, 2, 4 })
 	local s4 = Set.new({ 1, 2 })
 
-	-- Boolean assertions here intentionally exercise Set.__eq.
 	lu.assertTrue(s1 == s2)
 	lu.assertFalse(s1 == s3)
 	lu.assertFalse(s1 == s4)
@@ -235,8 +226,9 @@ function TestSet:testEquals()
 	lu.assertFalse(s1 == 42)
 end
 
-function TestSet:testToString()
+function TestSet:testToString_IncludesStoredValues()
 	local set = Set.new({ "hello", 123, true })
+
 	local str = tostring(set)
 
 	lu.assertStrContains(str, "hello")
@@ -244,20 +236,17 @@ function TestSet:testToString()
 	lu.assertStrContains(str, "true")
 end
 
-function TestSet:testNewIndex_PreventsModifications()
+function TestSet:testNewPropertiesAndMethods_CannotBeAddedOrReplaced()
 	local s = Set.new({ 1, 2, 3 })
 
-	-- disallow adding properties
 	lu.assertErrorMsgContains("cannot add new properties, methods or functions to Set", function()
 		s.foo = "bar"
 	end)
 
-	-- disallow adding numeric indices
 	lu.assertErrorMsgContains("cannot add new properties, methods or functions to Set", function()
 		s[1] = 99
 	end)
 
-	-- disallow adding methods or functions
 	lu.assertErrorMsgContains("cannot add new properties, methods or functions to Set", function()
 		s.myFunc = function() end
 	end)
