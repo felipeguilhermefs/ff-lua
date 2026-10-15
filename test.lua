@@ -15,6 +15,9 @@
 -- 4. Module-Scoped Test Discovery: Runs every suite returned by one colocated
 -- test module, or all test modules when no module name is supplied.
 --
+-- 5. Strict Globals: Rejects new global declarations from source modules and
+-- test suites.
+--
 -----------------------------------------------------------------------------
 -----------------------------------------------------------------------------
 
@@ -25,6 +28,11 @@ require("luarocks.loader")
 -----------------------------------------------------------------------------
 -- Cache function references
 -----------------------------------------------------------------------------
+
+-- General
+local error = error
+local setmetatable = setmetatable
+local tostring = tostring
 
 -- String
 local fmt = string.format
@@ -129,6 +137,17 @@ checkVersion(rockspec.dependencies)
 -----------------------------------------------------------------------------
 
 local lu = require("luaunit")
+
+local function lockGlobals()
+	setmetatable(_G, {
+		__newindex = function(_, key)
+			error(fmt("attempt to declare global variable '%s'", tostring(key)))
+		end,
+	})
+end
+
+-- Lock globals only after LuaRocks and LuaUnit finish initializing.
+lockGlobals()
 
 -----------------------------------------------------------------------------
 ---Register each module from rockspec.build.modules into package.preload.

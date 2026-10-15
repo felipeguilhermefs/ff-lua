@@ -141,7 +141,7 @@ Every class module adheres to this structure:
 
 ## Testing Standards
 
-Check [test.lua](test.lua).
+Test files use local imports and return suite maps in the form `{ TestName = TestClass }`. `test.lua` registers those suites explicitly with LuaUnit and rejects undeclared global reads and new global declarations after LuaRocks and LuaUnit initialize. See [test.lua](test.lua) for runner behavior.
 
 ---
 
