@@ -22,8 +22,11 @@ local TestArray = {}
 -- Scenarios: construction behavior.
 -- Test methods start with `test` and describe context, action, and outcome.
 function TestArray:testNewArrayStartsEmpty()
+	-- Given: construction has no initial values.
+	-- When: create an empty Array.
 	local array = Array.new()
 
+	-- Then: it reports empty and has length zero.
 	lu.assertTrue(array:empty())
 	lu.assertEquals(#array, 0)
 end
@@ -43,9 +46,11 @@ end
 
 -- Scenarios: validation behavior.
 function TestArray:testInsertRejectsNilValue()
+	-- Given: an empty Array.
 	local array = Array.new()
 
-	-- Error contract: wrap method invocation in a closure for LuaUnit.
+	-- When: attempt to insert nil.
+	-- Then: the public API reports its validation error.
 	lu.assertErrorMsgContains("value should not be nil", function()
 		array:insert(nil)
 	end)

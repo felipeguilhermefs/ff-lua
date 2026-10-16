@@ -8,10 +8,13 @@ local TestMemoize = {}
 
 -- Scenarios: memoization behavior
 function TestMemoize:testRepeatedSingleArgumentCallsUseCachedResult()
+	-- Given: the spy observes calls keyed by one repeated argument.
 	local fn = spy(function()
 		return 1
 	end)
 
+	-- When: call the memoized wrapper four times with the same key.
+	-- Then: the wrapped function runs once for that key.
 	lu.assertEquals(fn.calls, 0)
 
 	local mfn = memoize(fn)
@@ -24,10 +27,13 @@ function TestMemoize:testRepeatedSingleArgumentCallsUseCachedResult()
 end
 
 function TestMemoize:testRepeatedMultipleArgumentCallsUseCachedResult()
+	-- Given: the spy observes calls keyed by one repeated three-argument tuple.
 	local fn = spy(function()
 		return 1
 	end)
 
+	-- When: repeat the same three-argument tuple through the wrapper.
+	-- Then: the wrapped function runs once for that tuple.
 	lu.assertEquals(fn.calls, 0)
 
 	local mfn = memoize(fn)
@@ -40,10 +46,13 @@ function TestMemoize:testRepeatedMultipleArgumentCallsUseCachedResult()
 end
 
 function TestMemoize:testCallsWithDifferentArgumentsComputeSeparateResults()
+	-- Given: the spy observes calls keyed by three distinct argument tuples.
 	local fn = spy(function()
 		return 1
 	end)
 
+	-- When: call the wrapper with three distinct argument tuples.
+	-- Then: the wrapped function runs once for each tuple.
 	lu.assertEquals(fn.calls, 0)
 
 	local mfn = memoize(fn)
@@ -55,6 +64,9 @@ function TestMemoize:testCallsWithDifferentArgumentsComputeSeparateResults()
 end
 
 function TestMemoize:testNonCallableInputsReturnNil()
+	-- Given: inputs include nil, booleans, strings, numbers, and tables.
+	-- When: pass each value as memoize's function argument.
+	-- Then: memoize returns nil for every non-callable value.
 	lu.assertNil(memoize(nil))
 	lu.assertNil(memoize(true))
 	lu.assertNil(memoize("abc"))
@@ -63,10 +75,13 @@ function TestMemoize:testNonCallableInputsReturnNil()
 end
 
 function TestMemoize:testMemoizeRejectsNonTableCache()
+	-- Given: a valid function is paired with boolean, string, and number caches.
 	local fn = function()
 		return 1
 	end
 
+	-- When: pass each invalid cache to memoize.
+	-- Then: memoize returns nil for each invalid cache.
 	lu.assertNil(memoize(fn, true))
 	lu.assertNil(memoize(fn, "abc"))
 	lu.assertNil(memoize(fn, 9))

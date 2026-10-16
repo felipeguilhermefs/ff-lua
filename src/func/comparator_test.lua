@@ -7,8 +7,11 @@ local TestComparator = {}
 
 -- Scenarios: ordering behavior
 function TestComparator:testNaturalComparatorOrdersNumbersAndStrings()
+	-- Given: numeric and string pairs cover less, equal, and greater cases.
 	local cmp = Comparator.natural
 
+	-- When: pass each pair to the natural comparator.
+	-- Then: results are less, equal, or greater according to value order.
 	lu.assertEquals(Comparator.less, cmp(1, 2))
 	lu.assertEquals(Comparator.less, cmp(-2, 1))
 	lu.assertEquals(Comparator.less, cmp(0, 1))
@@ -32,8 +35,11 @@ function TestComparator:testNaturalComparatorOrdersNumbersAndStrings()
 end
 
 function TestComparator:testReverseComparatorInvertsNaturalOrdering()
+	-- Given: the natural comparator and the same ordered pairs are used.
 	local cmp = Comparator.reverse(Comparator.natural)
 
+	-- When: pass each pair to the reversed comparator.
+	-- Then: less and greater results swap while equal results stay equal.
 	lu.assertEquals(Comparator.greater, cmp(1, 2))
 	lu.assertEquals(Comparator.greater, cmp(-2, 1))
 	lu.assertEquals(Comparator.greater, cmp(0, 1))

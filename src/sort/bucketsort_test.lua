@@ -8,10 +8,13 @@ local TestBucketSort = {}
 
 -- Scenarios: bucket sort behavior
 function TestBucketSort:testArrayInputReturnsValuesInAscendingOrder()
+	-- Given: Arrays contain unsorted positive values, then mixed signed values.
 	local a = Array.new({ 2, 6, 3, 4, 5, 1 })
 
+	-- When: sort both Arrays in place.
 	bucketsort(a)
 
+	-- Then: each Array exposes the same values in ascending order.
 	lu.assertEquals(a:get(1), 1)
 	lu.assertEquals(a:get(2), 2)
 	lu.assertEquals(a:get(3), 3)
@@ -32,10 +35,13 @@ function TestBucketSort:testArrayInputReturnsValuesInAscendingOrder()
 end
 
 function TestBucketSort:testTableArrayInputReturnsValuesInAscendingOrder()
+	-- Given: plain tables contain unsorted positive and mixed signed values.
 	local a = { 2, 6, 3, 4, 5, 1 }
 
+	-- When: sort each table in place, using explicit bounds for the signed data.
 	bucketsort(a)
 
+	-- Then: both tables contain their values in ascending order.
 	lu.assertEquals(a, { 1, 2, 3, 4, 5, 6 })
 
 	a = { -2, -6, 3, -4, 5, 1 }

@@ -16,6 +16,7 @@ local TestPermutations = {}
 
 -- Scenarios: permutation behavior
 function TestPermutations:testStringInputYieldsEveryPermutation()
+	-- Given: "abc" has six expected orderings.
 	local expected = {
 		"abc",
 		"bac",
@@ -25,19 +26,28 @@ function TestPermutations:testStringInputYieldsEveryPermutation()
 		"cba",
 	}
 	local index = 1
+
+	-- When: iterate over permutations of "abc".
 	for value in permutations("abc") do
+
+		-- Then: each yielded string matches the next expected ordering.
 		lu.assertEquals(value, expected[index])
 		index = index + 1
 	end
 end
 
 function TestPermutations:testEmptyStringYieldsOneEmptyPermutation()
+	-- Given: the source string has no characters.
+	-- When: collect the permutations generated from an empty string.
 	local p = collect(permutations(""))
+
+	-- Then: collection contains exactly one empty string.
 	lu.assertEquals(#p, 1)
 	lu.assertEquals(p[1], "")
 end
 
 function TestPermutations:testArrayInputYieldsEveryPermutation()
+	-- Given: the three-element input has six expected orderings.
 	local expected = {
 		{ 1, 2, 3 },
 		{ 2, 1, 3 },
@@ -47,24 +57,39 @@ function TestPermutations:testArrayInputYieldsEveryPermutation()
 		{ 3, 2, 1 },
 	}
 	local index = 1
+
+	-- When: iterate over permutations of the three values.
 	for value in permutations({ 1, 2, 3 }) do
+
+		-- Then: each yielded array matches the next expected ordering.
 		lu.assertEquals(value, expected[index])
 		index = index + 1
 	end
 end
 
 function TestPermutations:testEmptyArrayYieldsOneEmptyPermutation()
+	-- Given: the source array has no elements.
+	-- When: collect the permutations generated from an empty array.
 	local p = collect(permutations({}))
+
+	-- Then: collection contains exactly one empty array.
 	lu.assertEquals(#p, 1)
 	lu.assertEquals(#p[1], 0)
 end
 
 function TestPermutations:testFourElementInputYieldsTwentyFourPermutations()
+	-- Given: the source array contains four distinct elements.
+	-- When: collect every generated ordering.
 	local p = collect(permutations({ 1, 2, 3, 4 }))
+
+	-- Then: collection contains 24 orderings.
 	lu.assertEquals(#p, 24)
 end
 
 function TestPermutations:testNilInputRaisesValidationError()
+	-- Given: the source value is nil.
+	-- When: pass nil to the permutations generator.
+	-- Then: validation reports that only arrays and strings are accepted.
 	lu.assertErrorMsgContains("Only arrays and strings are accepted", permutations, nil)
 end
 

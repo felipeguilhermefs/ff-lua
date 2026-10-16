@@ -9,8 +9,11 @@ local TestQuickSelect = {}
 
 -- Scenarios: selection behavior
 function TestQuickSelect:testArrayInputReturnsValueAtRequestedRank()
+	-- Given: an Array stores integers 1 through 6 in ascending order.
 	local a = Array.new({ 1, 2, 3, 4, 5, 6 })
 
+	-- When: request ranks 1 through 6, then rank 7.
+	-- Then: each valid rank returns its matching value; rank 7 returns nil.
 	lu.assertEquals(quickselect(a, 1), 1)
 	lu.assertEquals(quickselect(a, 2), 2)
 	lu.assertEquals(quickselect(a, 3), 3)
@@ -21,10 +24,13 @@ function TestQuickSelect:testArrayInputReturnsValueAtRequestedRank()
 end
 
 function TestQuickSelect:testTableArrayInputReturnsValueAtRequestedRank()
+	-- Given: a plain table stores integers 6 through 1 in descending order.
 	local a = { 6, 5, 4, 3, 2, 1 }
 
 	local cmp = Comparator.reverse(Comparator.natural)
 
+	-- When: request each rank with the reverse comparator, then rank 7.
+	-- Then: results follow comparator order; rank 7 returns nil.
 	lu.assertEquals(quickselect(a, 6, cmp), 1)
 	lu.assertEquals(quickselect(a, 5, cmp), 2)
 	lu.assertEquals(quickselect(a, 4, cmp), 3)

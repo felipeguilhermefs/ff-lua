@@ -38,16 +38,21 @@ global suite variables; the runner enables strict global checks.
 
 ## Given, When, Then and comments
 
-Arrange each test in this order:
+Every `test...` method must contain these comment sections in order:
 
-1. **Given**: create the subject and establish its starting state.
-2. **When**: call the public operation being specified.
-3. **Then**: assert its return value, resulting state, or documented error.
+1. `-- Given:` marks inputs, fixtures, and initial state.
+2. `-- When:` marks the public behavior being exercised.
+3. `-- Then:` marks assertions for the return value, resulting state, or error.
 
-Separate setup, action, and assertions with blank lines. Add `-- Given:`,
-`-- When:`, and `-- Then:` comments when they clarify a non-obvious step or a
-sequence of operations. Omit comments that merely narrate obvious code. Comments
-should explain intent or a subtle contract and sit next to the relevant step.
+Place each marker inside its test method, immediately before the code it labels.
+Give each phase distinct, test-specific content: `Given` describes the input and
+starting state, `When` names the operation performed, and `Then` states the
+observable result or error. Do not repeat the test name across all three
+markers or use generic placeholders. If the behavior call is inside a LuaUnit
+assertion, place `-- When:` and `-- Then:` consecutively above it. For tests that
+check separate behavior steps, additional `-- When:` / `-- Then:` pairs may
+mark each step and its outcome.
+Separate phases with blank lines. Do not narrate obvious statements.
 
 Each test should read as one behavior specification. Keep names and assertions
 focused on observable results; split scenarios with unrelated expected results.

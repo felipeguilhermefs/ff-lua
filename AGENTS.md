@@ -95,7 +95,7 @@ ff-lua/
 │       └── spy.lua              # Test spy utility for call counting
 ├── test.lua                     # Global test runner configuring package.path
 ├── docs/
-│   └── test-guidelines.md       # LuaUnit BDD conventions and migration guide
+│   └── test-guidelines.md       # Testing guidelines.
 ├── scafolds/
 │   └── test.lua                 # Commented example test file
 ├── ff-lua-*.rockspec            # LuaRocks package specification
@@ -140,17 +140,6 @@ Every class module adheres to this structure:
   - All collections provide non-destructive `__pairs` iterators (`pairs(coll)`).
   - Consumer collections (`Heap`, `Queue`, and `Stack`) provide an explicit `:drain()` generator method for destructive consumption until empty.
 - **Validation**: Strict defensive assertions at method entry points (`assert(value ~= nil, "value should not be nil")`, bounds checks, type checks).
-
----
-
-## Testing Standards
-
-Test files follow [docs/test-guidelines.md](docs/test-guidelines.md), return explicit
-suite maps in the form `{ TestName = TestClass }`, and use
-[scafolds/test.lua](scafolds/test.lua) as a commented example. The root
-[test.lua](test.lua) registers suites explicitly with LuaUnit and rejects
-undeclared global reads and new global declarations after LuaRocks and LuaUnit
-initialize.
 
 ---
 
