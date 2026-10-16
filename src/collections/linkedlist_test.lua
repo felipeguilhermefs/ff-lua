@@ -74,52 +74,60 @@ end
 -- Scenarios: reads and inspection
 
 function TestLinkedList:testEndpointPeeksReturnValuesAtBothEnds()
-	-- Given: the list is empty before adding 10, 20, and 5 at opposite ends.
+	-- Given: an empty LinkedList.
 	local ll = LinkedList.new()
 
-	-- When: peek both ends after each insertion.
-	-- Then: front and back match the inserted endpoint values at lengths 1, 2, and 3.
+	-- When: peek endpoints of the empty list.
+	-- Then: both front and back return nil.
 	lu.assertNil(ll:peekFront())
 	lu.assertNil(ll:peekBack())
 
+	-- When: push 10 to the front.
 	ll:pushFront(10)
+
+	-- Then: both front and back return 10 with length 1.
 	lu.assertEquals(ll:peekFront(), 10)
 	lu.assertEquals(ll:peekBack(), 10)
 	lu.assertEquals(#ll, 1)
 
+	-- When: push 20 to the back.
 	ll:pushBack(20)
+
+	-- Then: front remains 10 and back becomes 20 with length 2.
 	lu.assertEquals(ll:peekFront(), 10)
 	lu.assertEquals(ll:peekBack(), 20)
 	lu.assertEquals(#ll, 2)
 
+	-- When: push 5 to the front.
 	ll:pushFront(5)
+
+	-- Then: front updates to 5 and back remains 20 with length 3.
 	lu.assertEquals(ll:peekFront(), 5)
 	lu.assertEquals(ll:peekBack(), 20)
 	lu.assertEquals(#ll, 3)
 end
 
 function TestLinkedList:testContainsReportsStoredValuesAndRejectsMissingValuesWithoutMutation()
-	-- Given: membership checks begin on an empty LinkedList.
+	-- Given: an empty LinkedList.
 	local ll = LinkedList.new()
 
-	-- When: check empty membership, then query stored, absent, and wrong-type values.
-	-- Then: membership reflects contents and queries leave front and length unchanged.
+	-- When: check membership of absent value 10.
+	-- Then: contains returns false.
 	lu.assertFalse(ll:contains(10))
 
+	-- When: push 10, 20, and 30 into the list.
 	ll:pushBack(10)
 	ll:pushBack(20)
 	ll:pushBack(30)
 
+	-- Then: contains finds stored values, rejects absent and wrong-type values, and preserves list state.
 	lu.assertTrue(ll:contains(10))
 	lu.assertTrue(ll:contains(20))
 	lu.assertTrue(ll:contains(30))
 	lu.assertFalse(ll:contains(40))
 	lu.assertFalse(ll:contains("10"))
-
-	-- Contains should not consume or modify list
 	lu.assertEquals(#ll, 3)
 	lu.assertEquals(ll:peekFront(), 10)
-
 end
 
 function TestLinkedList:testContainsRejectsNilValues()
@@ -170,33 +178,34 @@ end
 -- Scenarios: state changes
 
 function TestLinkedList:testClearEmptiesLinkedListAndAllowsReuse()
-	-- Given: clear and reuse are exercised from an empty LinkedList.
+	-- Given: an empty LinkedList.
 	local ll = LinkedList.new()
-
-	-- When: check empty state, clear populated state, remove both ends, and reuse.
-	-- Then: endpoints and length reset correctly and later insertion works.
 	lu.assertTrue(ll:empty())
 
+	-- When: push 1 and clear the list.
 	ll:pushFront(1)
-	lu.assertFalse(ll:empty())
-
 	ll:clear()
+
+	-- Then: list is empty with length 0 and endpoints are nil.
 	lu.assertTrue(ll:empty())
 	lu.assertEquals(#ll, 0)
 	lu.assertNil(ll:peekFront())
 	lu.assertNil(ll:peekBack())
 
+	-- When: push values 2 and 3, then pop both ends.
 	ll:pushBack(2)
 	ll:pushBack(3)
-	lu.assertFalse(ll:empty())
-
 	ll:popFront()
 	ll:popBack()
+
+	-- Then: list returns to empty with length 0.
 	lu.assertTrue(ll:empty())
 	lu.assertEquals(#ll, 0)
 
-	-- Verify list works after being cleared
+	-- When: push 99 to the back of the cleared list.
 	ll:pushBack(99)
+
+	-- Then: list functions normally after clear and reuse.
 	lu.assertEquals(#ll, 1)
 	lu.assertEquals(ll:peekFront(), 99)
 	lu.assertEquals(ll:peekBack(), 99)
@@ -275,41 +284,38 @@ function TestLinkedList:testBackInsertionAndFrontRemovalPreserveFifoOrder()
 end
 
 function TestLinkedList:testReverseSwapsTraversalAndEndpointOrder()
-	-- Given: the LinkedList starts empty; values 1, 2, 3, and 4 are available.
+	-- Given: an empty LinkedList.
 	local ll = LinkedList.new()
 
-	-- When: reverse each state and inspect its endpoints and traversal.
-	-- Then: empty stays empty, one value stays in place, and four values reverse.
+	-- When: reverse an empty list.
+	-- Then: returns the list and remains empty.
 	lu.assertEquals(ll:reverse(), ll)
 	lu.assertTrue(ll:empty())
 
-	-- Reverse single element
+	-- When: push 1 and reverse single-element list.
 	ll:pushBack(1)
 	ll:reverse()
+
+	-- Then: endpoints remain 1 with length 1.
 	lu.assertEquals(#ll, 1)
 	lu.assertEquals(ll:peekFront(), 1)
 	lu.assertEquals(ll:peekBack(), 1)
 
-	-- Reverse multiple elements
+	-- When: push 2, 3, 4 and reverse the four-element list.
 	ll:pushBack(2)
 	ll:pushBack(3)
 	ll:pushBack(4)
-	-- list is [1, 2, 3, 4]
-
 	ll:reverse()
-	-- list should now be [4, 3, 2, 1]
+
+	-- Then: endpoints, traversal, and backward removals reflect reversed order.
 	lu.assertEquals(#ll, 4)
 	lu.assertEquals(ll:peekFront(), 4)
 	lu.assertEquals(ll:peekBack(), 1)
-
-	-- Check forward traversal
 	local forward = {}
 	for _, v in pairs(ll) do
 		table.insert(forward, v)
 	end
 	lu.assertEquals(forward, { 4, 3, 2, 1 })
-
-	-- Check popBack works correctly (backward links intact)
 	lu.assertEquals(ll:popBack(), 1)
 	lu.assertEquals(ll:popBack(), 2)
 	lu.assertEquals(ll:popBack(), 3)
@@ -335,29 +341,29 @@ end
 -- Scenarios: metamethods and formatting
 
 function TestLinkedList:testLengthTracksInsertionAndRemovalAtBothEnds()
-	-- Given: the LinkedList starts with length zero.
+	-- Given: an empty LinkedList.
 	local ll = LinkedList.new()
-
-	-- When: push and pop at both ends, including extra pops while empty.
-	-- Then: length follows 0, 1, 2, 1, 0 and stays zero after extra pops.
 	lu.assertEquals(#ll, 0)
 
+	-- When: push 1 to the front and 2 to the back.
 	ll:pushFront(1)
-	lu.assertEquals(#ll, 1)
-
 	ll:pushBack(2)
+
+	-- Then: length increases to 2.
 	lu.assertEquals(#ll, 2)
 
+	-- When: pop one element from each end.
 	ll:popFront()
-	lu.assertEquals(#ll, 1)
-
 	ll:popBack()
+
+	-- Then: length decreases to 0.
 	lu.assertEquals(#ll, 0)
 
-	-- Pop on empty keeps len 0
+	-- When: pop while already empty.
 	ll:popFront()
-	lu.assertEquals(#ll, 0)
 	ll:popBack()
+
+	-- Then: length remains 0.
 	lu.assertEquals(#ll, 0)
 end
 

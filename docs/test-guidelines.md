@@ -47,28 +47,14 @@ Every `test...` method must contain these comment sections in order:
 Place each marker inside its test method, immediately before the code it labels.
 Give each phase distinct, test-specific content: `Given` describes the input and
 starting state, `When` names the operation performed, and `Then` states the
-observable result or error. Do not repeat the test name across all three
-markers or use generic placeholders. If the behavior call is inside a LuaUnit
-assertion, place `-- When:` and `-- Then:` consecutively above it. For tests that
-check separate behavior steps, additional `-- When:` / `-- Then:` pairs may
-mark each step and its outcome.
-Separate phases with blank lines. Do not narrate obvious statements.
+observable result or error. For tests that check separate behavior steps,
+additional `-- When:` / `-- Then:` pairs may mark each step and its outcome.
 
 Each test should read as one behavior specification. Keep names and assertions
 focused on observable results; split scenarios with unrelated expected results.
 
-## Adding or migrating test files
+## Adding test files
 
-1. Copy [scafolds/test.lua](../scafolds/test.lua) to the source module's
-   `<module>_test.lua` path and adapt imports, suite, scenarios, and assertions.
-2. Preserve existing coverage when migrating. Correct misleading names, declare
-   suites before their methods, add scenario headings, and replace decorative
-   separators with the standard section comments.
-3. Return suites explicitly as `{ TestName = TestClass }`; return `{}` when a
-   module has no tests.
-4. Run focused and full suites:
+Copy [scafolds/test.lua](../scafolds/test.lua) to the source module's 
+`<module>_test.lua` path and adapt imports, suite, scenarios, and assertions.
 
-   ```sh
-   make test MODULE=ff.collections.array
-   make test
-   ```

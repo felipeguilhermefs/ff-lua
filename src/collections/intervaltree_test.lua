@@ -77,27 +77,32 @@ end
 -- Scenarios: reads and inspection
 
 function TestIntervalTree:testContainsReportsValuesInsideInclusiveIntervals()
-	-- Given: the tree contains intervals with inclusive endpoints.
+	-- Given: an IntervalTree containing intervals [1, 3] and [7, 10].
 	local it = IntervalTree.new()
-
-	-- When: query interior, boundary, and outside values.
-	-- Then: both endpoints and interior values match; outside values do not.
-	lu.assertFalse(it:contains(0))
-
 	it:insert(7, 10)
 	it:insert(1, 3)
 
-	lu.assertTrue(it:contains(8))
-	lu.assertTrue(it:contains(10))
-	lu.assertTrue(it:contains(1))
+	-- When: query interior, boundary, and outside values.
+	local has1 = it:contains(1)
+	local has3 = it:contains(3)
+	local has7 = it:contains(7)
+	local has8 = it:contains(8)
+	local has10 = it:contains(10)
+	local has0 = it:contains(0)
+	local has4 = it:contains(4)
+	local has5 = it:contains(5)
+	local has11 = it:contains(11)
 
-	-- Boundaries are inclusive
-	lu.assertTrue(it:contains(7))
-	lu.assertTrue(it:contains(3))
-
-	lu.assertFalse(it:contains(4))
-	lu.assertFalse(it:contains(5))
-	lu.assertFalse(it:contains(11))
+	-- Then: boundary and interior values are contained; outside values are not.
+	lu.assertTrue(has1)
+	lu.assertTrue(has3)
+	lu.assertTrue(has7)
+	lu.assertTrue(has8)
+	lu.assertTrue(has10)
+	lu.assertFalse(has0)
+	lu.assertFalse(has4)
+	lu.assertFalse(has5)
+	lu.assertFalse(has11)
 end
 
 function TestIntervalTree:testContainsRejectsNonNumericValues()
@@ -153,45 +158,47 @@ end
 -- Scenarios: state changes
 
 function TestIntervalTree:testClearEmptiesIntervalTreeAndAllowsReuse()
-	-- Given: the IntervalTree starts empty.
+	-- Given: an empty IntervalTree.
 	local it = IntervalTree.new()
-
-	-- When: check state across insertion, clear, and reuse.
-	-- Then: clear resets length and endpoints; later insertion succeeds.
 	lu.assertTrue(it:empty())
 	lu.assertEquals(#it, 0)
 
+	-- When: insert interval [1, 2].
 	it:insert(1, 2)
+
+	-- Then: tree is not empty and length is 1.
 	lu.assertFalse(it:empty())
 	lu.assertEquals(#it, 1)
 
+	-- When: clear the tree.
 	it:clear()
+
+	-- Then: tree is empty with length 0.
 	lu.assertTrue(it:empty())
 	lu.assertEquals(#it, 0)
 
-	-- Re-use after clear
+	-- When: insert intervals [3, 4] and [8, 9] into cleared tree.
 	it:insert(3, 4)
 	it:insert(8, 9)
+
+	-- Then: tree is reused successfully with length 2.
 	lu.assertFalse(it:empty())
 	lu.assertEquals(#it, 2)
 end
 
-
 function TestIntervalTree:testInsertMergesOverlappingIntervals()
-	-- Given: the IntervalTree is empty; input ranges overlap.
+	-- Given: an IntervalTree storing [1, 3] and merged [4, 10].
 	local it = IntervalTree.new()
-
-	-- When: insert each interval.
 	it:insert(4, 8)
 	it:insert(5, 10)
 	it:insert(1, 3)
-
-	-- Then: overlap is represented by one combined range.
 	lu.assertEquals(#it, 2)
 
+	-- When: insert bridging interval [2, 7].
 	it:insert(2, 7)
-	lu.assertEquals(#it, 1)
 
+	-- Then: all ranges merge into a single interval [1, 10].
+	lu.assertEquals(#it, 1)
 	for low, high in pairs(it) do
 		lu.assertEquals(low, 1)
 		lu.assertEquals(high, 10)
@@ -241,22 +248,18 @@ function TestIntervalTree:testInsertMergesIntervalsThatShareBoundary()
 end
 
 function TestIntervalTree:testInsertMergesMultipleIntervalsConnectedByNewInterval()
-	-- Given: the IntervalTree is empty; ranges 1-2, 5-6, and 9-10 have gaps.
+	-- Given: an IntervalTree storing non-overlapping intervals [1, 2], [5, 6], and [9, 10].
 	local it = IntervalTree.new()
-	-- Insert non-overlapping first
-
-	-- When: insert a range that bridges the gaps.
 	it:insert(1, 2)
 	it:insert(5, 6)
 	it:insert(9, 10)
-
-	-- Then: all connected ranges merge into one interval.
 	lu.assertEquals(#it, 3)
 
-	-- Now bridge all three
+	-- When: insert bridging range [2, 9].
 	it:insert(2, 9)
-	lu.assertEquals(#it, 1)
 
+	-- Then: all intervals merge into a single [1, 10] range.
+	lu.assertEquals(#it, 1)
 	local low, high = pairs(it)()
 	lu.assertEquals(low, 1)
 	lu.assertEquals(high, 10)
@@ -486,21 +489,21 @@ end
 
 
 function TestIntervalTree:testLengthReportsNumberOfDisjointIntervals()
-	-- Given: inserted ranges overlap into a smaller set of disjoint intervals.
+	-- Given: an empty IntervalTree.
 	local it = IntervalTree.new()
-
-	-- When: insert the ranges and inspect length.
-	-- Then: length equals the count of merged disjoint intervals.
 	lu.assertEquals(#it, 0)
 
+	-- When: insert disjoint intervals [1, 2] and [8, 9].
 	it:insert(1, 2)
-	lu.assertEquals(#it, 1)
-
 	it:insert(8, 9)
+
+	-- Then: length reports 2 disjoint intervals.
 	lu.assertEquals(#it, 2)
 
-	-- Overlapping insert reduces count
+	-- When: insert bridging interval [1, 9].
 	it:insert(1, 9)
+
+	-- Then: intervals merge and length drops to 1.
 	lu.assertEquals(#it, 1)
 end
 

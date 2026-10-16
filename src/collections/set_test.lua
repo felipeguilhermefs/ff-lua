@@ -176,17 +176,23 @@ end
 -- Scenarios: state changes
 
 function TestSet:testClearMakesSetEmpty()
-	-- Given: a new Set starts empty before insertion, clear, and reuse.
+	-- Given: an empty Set.
 	local set = Set.new()
 
-	-- When: check each state and clear the populated Set.
-	-- Then: empty is true initially and after clear, false while populated.
+	-- When: check empty state initially.
+	-- Then: empty returns true.
 	lu.assertTrue(set:empty())
 
+	-- When: add "a".
 	set:add("a")
+
+	-- Then: empty returns false.
 	lu.assertFalse(set:empty())
 
+	-- When: clear the set.
 	set:clear()
+
+	-- Then: empty returns true again.
 	lu.assertTrue(set:empty())
 end
 
@@ -207,18 +213,16 @@ function TestSet:testAddReportsWhetherValueWasNew()
 end
 
 function TestSet:testRemoveDeletesOnlyRequestedValue()
-	-- Given: the Set contains f and g.
+	-- Given: a Set containing "f" and "g".
 	local set = Set.new({ "f", "g" })
-
-	-- When: remove f.
-	-- Then: f is absent, g remains, and size decreases by one.
 	lu.assertEquals(#set, 2)
 
+	-- When: remove "f".
 	set:remove("f")
 
+	-- Then: "f" is absent, "g" remains, and size decreases to 1.
 	lu.assertFalse(set:contains("f"))
 	lu.assertTrue(set:contains("g"))
-
 	lu.assertEquals(#set, 1)
 end
 
@@ -244,29 +248,36 @@ end
 -- Scenarios: metamethods and formatting
 
 function TestSet:testConcatAddsDistinctValuesFromIterables()
-	-- Given: the Set contains 10, 20, and 30.
+	-- Given: a Set initialized with { 10, 20, 30 }.
 	local set = Set.new({ 10, 20, 30 })
-
-	-- When: concatenate a table, nil, a Set, and a Queue in sequence.
-	-- Then: each new member is added once and nil leaves size unchanged.
 	lu.assertEquals(#set, 3)
 
+	-- When: concatenate with a table of new values.
 	set = set .. { 40, 50, 60 }
 
+	-- Then: new values are contained and size increases to 6.
 	lu.assertTrue(set:contains(10, 20, 30, 40, 50, 60))
 	lu.assertEquals(#set, 6)
 
+	-- When: concatenate with nil.
 	set = set .. nil
+
+	-- Then: size remains 6.
 	lu.assertEquals(#set, 6)
 
+	-- When: concatenate with another Set containing 70, 80, 90.
 	set = set .. Set.new({ 70, 80, 90 })
+
+	-- Then: values are added and size increases to 9.
 	lu.assertTrue(set:contains(70, 80, 90))
 	lu.assertEquals(#set, 9)
 
+	-- When: concatenate with a Queue containing 100.
 	local q = require("ff.collections.queue").new()
 	q:enqueue(100)
 	set = set .. q
 
+	-- Then: 100 is contained and size increases to 10.
 	lu.assertTrue(set:contains(100))
 	lu.assertEquals(#set, 10)
 end

@@ -79,7 +79,7 @@ end
 -- Scenarios: reads and inspection
 
 function TestRadixTree:testContainsReportsInsertedWordsAndRejectsMissingWords()
-	-- Given: the RadixTree starts empty; cat and category are insertion candidates.
+	-- Given: the RadixTree starts empty.
 	local t = RadixTree.new()
 
 	-- When: check cat and empty-string membership before insertion.
@@ -88,8 +88,9 @@ function TestRadixTree:testContainsReportsInsertedWordsAndRejectsMissingWords()
 	lu.assertFalse(t:contains(""))
 	lu.assertFalse(t:contains("", true))
 
+	-- When: insert "cat" and check exact and prefix queries.
 	t:insert("cat")
-	-- When: check exact words, prefixes, and absent words after insertion.
+
 	-- Then: exact and prefix modes distinguish stored words from prefixes.
 	lu.assertTrue(t:contains("cat"))
 	lu.assertTrue(t:contains("cat", true))
@@ -101,8 +102,9 @@ function TestRadixTree:testContainsReportsInsertedWordsAndRejectsMissingWords()
 	lu.assertFalse(t:contains(""))
 	lu.assertFalse(t:contains("", true))
 
+	-- When: insert "category" and check word and prefix queries.
 	t:insert("category")
-	-- When: check category and its non-word prefix.
+
 	-- Then: full word matches exactly; prefix matches only in prefix mode.
 	lu.assertTrue(t:contains("category", true))
 	lu.assertTrue(t:contains("cate"))
@@ -269,68 +271,70 @@ function TestRadixTree:testInsertAddsWordsAndRejectsDuplicates()
 end
 
 function TestRadixTree:testRemoveDeletesWordsAndPreservesOtherWords()
-	-- Given: the RadixTree is empty and words dog, do, doodle, doggy, hell, and hello are used.
+	-- Given: an empty RadixTree.
 	local t = RadixTree.new()
 
-	-- Removing from empty trie returns false
-
-	-- When: remove one stored word.
-	-- Then: the target is absent and unrelated words remain.
+	-- When: attempt removal on empty tree.
+	-- Then: remove returns 0.
 	lu.assertEquals(t:remove("dog"), 0)
 	lu.assertEquals(t:remove("dog", true), 0)
 
+	-- When: insert words "dog", "do", "doodle", "doggy" and attempt removing non-matching "zebra".
 	t:insert("dog")
 	t:insert("do")
 	t:insert("doodle")
 	t:insert("doggy")
-	lu.assertEquals(#t, 4)
 
-	-- Remove non-matching word returns false
+	-- Then: non-matching removal returns 0 and size remains 4.
 	lu.assertEquals(t:remove("zebra", true), 0)
 	lu.assertEquals(t:remove("zebra", false), 0)
 	lu.assertEquals(#t, 4)
 
-	-- Remove exact word that is prefix of another
-	lu.assertEquals(t:remove("dog", true), 1)
+	-- When: remove exact word "dog" that is a prefix of "doggy".
+	local removedDog = t:remove("dog", true)
+
+	-- Then: only "dog" is removed while "doggy", "do", and "doodle" remain.
+	lu.assertEquals(removedDog, 1)
 	lu.assertEquals(#t, 3)
 	lu.assertFalse(t:contains("dog", true))
 	lu.assertTrue(t:contains("doggy", true))
 	lu.assertTrue(t:contains("do", true))
 	lu.assertTrue(t:contains("doodle", true))
 
-	-- Prefix removal deletes all words under "dog"
+	-- When: re-insert "dog" and perform prefix removal on "dog".
 	t:insert("dog")
-	lu.assertEquals(#t, 4)
-	lu.assertEquals(t:remove("dog", false), 2)
+	local removedPrefix = t:remove("dog", false)
+
+	-- Then: all words under "dog" are deleted.
+	lu.assertEquals(removedPrefix, 2)
 	lu.assertEquals(#t, 2)
 	lu.assertFalse(t:contains("dog", true))
 	lu.assertFalse(t:contains("doggy", true))
 	lu.assertTrue(t:contains("do", true))
 	lu.assertTrue(t:contains("doodle", true))
 
-	-- Remove exact word "do"
-	lu.assertEquals(t:remove("do", true), 1)
-	lu.assertFalse(t:contains("do", true))
-	lu.assertTrue(t:contains("doodle", true))
-	lu.assertEquals(#t, 1)
+	-- When: remove exact words "do" and "doodle".
+	local removedDo = t:remove("do", true)
+	local removedDoodle = t:remove("doodle", true)
 
-	-- Remove final word
-	lu.assertEquals(t:remove("doodle", true), 1)
+	-- Then: both words are removed and tree becomes empty.
+	lu.assertEquals(removedDo, 1)
+	lu.assertEquals(removedDoodle, 1)
 	lu.assertTrue(t:empty())
 	lu.assertEquals(#t, 0)
 
-	-- Remove empty string exact vs prefix
+	-- When: insert "hell" and "hello", then remove exact word "hell" and empty string.
 	t:insert("hell")
 	t:insert("hello")
-	lu.assertEquals(#t, 2)
-	lu.assertEquals(t:remove("hell", true), 1)
+	local removedHell = t:remove("hell", true)
+	local removedEmpty = t:remove("", false)
+
+	-- Then: "hell" is removed, empty string removal does nothing, and "hello" remains.
+	lu.assertEquals(removedHell, 1)
+	lu.assertEquals(removedEmpty, 0)
 	lu.assertEquals(#t, 1)
 	lu.assertFalse(t:contains("hell", true))
 	lu.assertTrue(t:contains("hello", true))
-
-	-- Do not remove when given an empty string
-	lu.assertEquals(t:remove("", false), 0)
-	lu.assertEquals(#t, 1)
 
 	-- Validations
 	lu.assertErrorMsgContains("prefix should be a string", t.remove, t, 123)
@@ -493,38 +497,45 @@ end
 -- Scenarios: metamethods and formatting
 
 function TestRadixTree:testConcatAppendsWordsFromIterableValues()
-	-- Given: the RadixTree is empty; strings and collections provide words to append.
+	-- Given: an empty RadixTree.
 	local t = RadixTree.new()
 
-	-- When: concatenate the supplied strings and collections.
+	-- When: concatenate with table of words.
 	t = t .. { "mouse", "mousse" }
 
-	-- Then: each word from the inputs is searchable afterward.
+	-- Then: words are present and length is 2.
 	lu.assertTrue(t:contains("mouse"))
 	lu.assertTrue(t:contains("mousse"))
 	lu.assertEquals(#t, 2)
 
+	-- When: concatenate with another RadixTree containing "moose".
 	local t2 = RadixTree.new()
 	t2:insert("moose")
-
 	t = t .. t2
+
+	-- Then: all words are present and length is 3.
 	lu.assertTrue(t:contains("mouse"))
 	lu.assertTrue(t:contains("mousse"))
 	lu.assertTrue(t:contains("moose"))
 	lu.assertEquals(#t, 3)
 
-	-- Concat with Set
+	-- When: concatenate with a Set containing "rat" and "rabbit".
 	local s = Set.new({ "rat", "rabbit" })
 	t = t .. s
+
+	-- Then: all five words are present and length is 5.
 	lu.assertEquals(#t, 5)
 	lu.assertTrue(t:contains("rat", true))
 	lu.assertTrue(t:contains("rabbit", true))
 
-	-- Concat with nil
+	-- When: concatenate with nil.
 	t = t .. nil
+
+	-- Then: tree contents and length remain unchanged.
 	lu.assertEquals(#t, 5)
 
-	-- Error on invalid type
+	-- When: concatenate with non-table types.
+	-- Then: each operation raises an iterable table type error.
 	lu.assertErrorMsgContains("iterable should be a table", function()
 		local _ = t .. 123
 	end)
@@ -562,26 +573,33 @@ function TestRadixTree:testRadixTreesWithSameWordsCompareEqual()
 end
 
 function TestRadixTree:testLengthTracksInsertedAndRemovedWords()
-	-- Given: the RadixTree is empty; distinct words and a duplicate are used.
+	-- Given: an empty RadixTree.
 	local t = RadixTree.new()
-
-	-- When: insert words and remove selected entries.
-	-- Then: length counts unique stored words after each change.
 	lu.assertEquals(#t, 0)
 
+	-- When: insert word "a".
 	t:insert("a")
+
+	-- Then: length is 1.
 	lu.assertEquals(#t, 1)
 
+	-- When: insert distinct word "ab" and duplicate "ab".
 	t:insert("ab")
+	t:insert("ab")
+
+	-- Then: length reflects unique words and reports 2.
 	lu.assertEquals(#t, 2)
 
-	t:insert("ab")
-	lu.assertEquals(#t, 2)
-
+	-- When: remove exact word "ab".
 	t:remove("ab", true)
+
+	-- Then: length decreases to 1.
 	lu.assertEquals(#t, 1)
 
+	-- When: clear the tree.
 	t:clear()
+
+	-- Then: length resets to 0.
 	lu.assertEquals(#t, 0)
 end
 

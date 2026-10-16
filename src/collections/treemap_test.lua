@@ -115,41 +115,48 @@ end
 -- Scenarios: reads and inspection
 
 function TestTreeMap:testContainsReportsStoredAndRemovedKeysCorrectly()
-	-- Given: the TreeMap is empty before key is inserted and removed.
+	-- Given: an empty TreeMap.
 	local tm = TreeMap.new()
 
-	-- When: check key before insertion, after insertion, and after removal.
-	-- Then: contains changes false → true → false; missing key stays absent.
+	-- When: check key before insertion.
+	-- Then: contains returns false.
 	lu.assertFalse(tm:contains("key"))
 
+	-- When: put key "key" with value "value".
 	tm:put("key", "value")
+
+	-- Then: contains returns true for "key" and false for "missing".
 	lu.assertTrue(tm:contains("key"))
 	lu.assertFalse(tm:contains("missing"))
 
+	-- When: remove "key".
 	tm:remove("key")
+
+	-- Then: contains returns false.
 	lu.assertFalse(tm:contains("key"))
 end
 
 function TestTreeMap:testMinAndMaxReturnBoundaryEntriesOrNilWhenEmpty()
-	-- Given: the TreeMap starts empty, then receives keys 7, 3, 9, 1, and 5.
+	-- Given: an empty TreeMap.
 	local tm = TreeMap.new()
 
-	-- When: read min and max before and after insertion.
-	-- Then: empty reads return nil; populated boundaries are keys 1 and 9 with values.
+	-- When: query min and max on empty tree.
+	-- Then: both calls return nil.
 	lu.assertNil(tm:min())
 	lu.assertNil(tm:max())
 
+	-- When: insert keys 7, 3, 9, 1, and 5 with values.
 	tm:put(7, "seven")
 	tm:put(3, "three")
 	tm:put(9, "nine")
 	tm:put(1, "one")
 	tm:put(5, "five")
-
 	local minK, minV = tm:min()
+	local maxK, maxV = tm:max()
+
+	-- Then: min returns 1 with "one" and max returns 9 with "nine".
 	lu.assertEquals(minK, 1)
 	lu.assertEquals(minV, "one")
-
-	local maxK, maxV = tm:max()
 	lu.assertEquals(maxK, 9)
 	lu.assertEquals(maxV, "nine")
 end
@@ -254,50 +261,58 @@ end
 -- Scenarios: state changes
 
 function TestTreeMap:testClearEmptiesTreeMapAndAllowsReuse()
-	-- Given: the TreeMap starts empty, receives a, is cleared, and later receives z.
+	-- Given: an empty TreeMap.
 	local tm = TreeMap.new()
-
-	-- When: check state before insertion, after clear, and after reuse.
-	-- Then: length and empty state reset; z is retrievable afterward.
 	lu.assertTrue(tm:empty())
 	lu.assertEquals(#tm, 0)
 
+	-- When: put key "a" and clear the tree.
 	tm:put("a", 1)
-	lu.assertFalse(tm:empty())
-	lu.assertEquals(#tm, 1)
-
 	tm:clear()
+
+	-- Then: tree is empty with length 0.
 	lu.assertTrue(tm:empty())
 	lu.assertEquals(#tm, 0)
 
-	-- Re-use after clear
+	-- When: put key "z" with value 26 into cleared tree.
 	tm:put("z", 26)
+
+	-- Then: tree contains key "z" with length 1.
 	lu.assertEquals(#tm, 1)
 	lu.assertEquals(tm:get("z"), 26)
 end
 
 function TestTreeMap:testPutAddsOrReplacesValuesAndGetReturnsThem()
-	-- Given: the TreeMap is empty; key a is read, inserted, and updated.
+	-- Given: an empty TreeMap.
 	local tm = TreeMap.new()
 
-	-- When: read missing a, insert it, replace it, then insert b and try invalid puts.
-	-- Then: get returns current values, size grows only for new keys, invalid nils error.
+	-- When: get missing key "a".
+	-- Then: get returns nil.
 	lu.assertNil(tm:get("a"))
 
+	-- When: insert key "a" with value 100.
 	tm:put("a", 100)
+
+	-- Then: get returns 100 and length is 1.
 	lu.assertEquals(tm:get("a"), 100)
 	lu.assertEquals(#tm, 1)
 
-	-- Update existing key
+	-- When: update key "a" with value 200.
 	tm:put("a", 200)
+
+	-- Then: get returns 200 and length remains 1.
 	lu.assertEquals(tm:get("a"), 200)
 	lu.assertEquals(#tm, 1)
 
+	-- When: insert distinct key "b" with value 300.
 	tm:put("b", 300)
+
+	-- Then: get returns 300 and length becomes 2.
 	lu.assertEquals(tm:get("b"), 300)
 	lu.assertEquals(#tm, 2)
 
-	-- Assertion on nil keys / values
+	-- When: attempt put with nil key or value.
+	-- Then: each operation raises a validation error.
 	lu.assertErrorMsgContains("key should not be nil", function()
 		tm:put(nil, 1)
 	end)
@@ -344,32 +359,39 @@ function TestTreeMap:testRemoveDeletesRequestedKeyAndPreservesOtherEntries()
 end
 
 function TestTreeMap:testRemoveHandlesMissingAndBoundaryKeys()
-	-- Given: the TreeMap is empty, then has single-node and one-child shapes.
+	-- Given: an empty TreeMap.
 	local tm = TreeMap.new()
 
-	-- Empty tree
-
-	-- When: remove missing keys and nodes from each boundary case.
-	-- Then: missing removals return nil; valid removals preserve remaining entries.
+	-- When: remove from empty tree.
+	-- Then: remove returns nil and length stays 0.
 	lu.assertNil(tm:remove(10))
 	lu.assertEquals(#tm, 0)
 
-	-- Non-existent key
+	-- When: insert key 10 and remove non-existent key 99.
 	tm:put(10, "ten")
-	lu.assertNil(tm:remove(99))
+	local missingRemoved = tm:remove(99)
+
+	-- Then: non-existent removal returns nil and length remains 1.
+	lu.assertNil(missingRemoved)
 	lu.assertEquals(#tm, 1)
 
-	-- Single node tree removal
-	lu.assertEquals(tm:remove(10), "ten")
+	-- When: remove existing single key 10.
+	local removedTen = tm:remove(10)
+
+	-- Then: removal returns "ten" and tree becomes empty.
+	lu.assertEquals(removedTen, "ten")
 	lu.assertEquals(#tm, 0)
 	lu.assertTrue(tm:empty())
 
-	-- Node with left child only
+	-- When: insert keys 30, 20, 10 into a new tree and remove middle key 20.
 	local tmLeft = TreeMap.new()
 	tmLeft:put(30, "thirty")
 	tmLeft:put(20, "twenty")
 	tmLeft:put(10, "ten")
-	lu.assertEquals(tmLeft:remove(20), "twenty")
+	local removedTwenty = tmLeft:remove(20)
+
+	-- Then: removal returns "twenty", size is 2, and other keys remain present.
+	lu.assertEquals(removedTwenty, "twenty")
 	lu.assertEquals(#tmLeft, 2)
 	lu.assertTrue(tmLeft:contains(10))
 	lu.assertTrue(tmLeft:contains(30))

@@ -61,19 +61,17 @@ function TestHeap:testConstructorOrdersIterableValuesByPriority()
 end
 
 function TestHeap:testComparatorConstructorUsesRequestedPriority()
-	-- Given: the Heap uses a reverse-order comparator.
-
-	-- When: construct it, push values, and inspect them through removals.
+	-- Given: an empty Heap constructed with reverse-order comparator.
 	local h = Heap.new(nil, Comparator.reverse(Comparator.natural))
-
-	-- Then: values follow the comparator’s reverse priority.
 	lu.assertTrue(h:empty())
 	lu.assertEquals(#h, 0)
 
+	-- When: push values 10, 30, and 20.
 	h:push(10)
 	h:push(30)
 	h:push(20)
 
+	-- Then: peek and successive pops return values in descending priority order.
 	lu.assertEquals(h:peek(), 30)
 	lu.assertEquals(h:pop(), 30)
 	lu.assertEquals(h:pop(), 20)
@@ -184,45 +182,49 @@ end
 -- Scenarios: reads and inspection
 
 function TestHeap:testContainsFindsStoredValuesWithoutConsumingHeap()
-	-- Given: an empty Heap is queried, populated with 10, 20, 30, then queried again.
+	-- Given: an empty Heap.
 	local h = Heap.new()
 
-	-- When: check absence, add 10, 20, 30, query them, then pop 10.
-	-- Then: contains tracks membership while root and length prove queries do not consume entries.
+	-- When: check membership of absent value 1.
+	-- Then: contains returns false.
 	lu.assertFalse(h:contains(1))
 
+	-- When: push 10, 20, and 30 into the Heap.
 	h:push(10)
 	h:push(20)
 	h:push(30)
 
+	-- Then: contains finds all stored values without consuming elements.
 	lu.assertTrue(h:contains(10))
 	lu.assertTrue(h:contains(20))
 	lu.assertTrue(h:contains(30))
-
 	lu.assertFalse(h:contains(99))
-
-	-- Contains must not modify or consume elements
 	lu.assertEquals(#h, 3)
 	lu.assertEquals(h:peek(), 10)
 
-	-- After popping, element is no longer contained
+	-- When: pop the smallest element 10.
 	h:pop()
+
+	-- Then: popped element is no longer contained while others remain.
 	lu.assertFalse(h:contains(10))
 	lu.assertTrue(h:contains(20))
 	lu.assertTrue(h:contains(30))
 end
 
 function TestHeap:testContainsRejectsNilAndIncomparableValues()
-	-- Given: an empty Heap is queried with nil, then with "10" after storing 10.
+	-- Given: an empty Heap.
 	local h = Heap.new()
 
-	-- When: query nil, then add 10 and query the incomparable string "10".
-	-- Then: each invalid query raises its corresponding validation error.
+	-- When: query nil value.
+	-- Then: validation error is raised.
 	lu.assertErrorMsgContains("value should not be nil", function()
 		h:contains(nil)
 	end)
 
+	-- When: push 10 and query with incomparable string "10".
 	h:push(10)
+
+	-- Then: comparison error is raised.
 	lu.assertErrorMsgContains("attempt to compare string with number", function()
 		h:contains("10")
 	end)
@@ -505,34 +507,43 @@ function TestHeap:testIndexOfRejectsNilValuesAndInvalidStartIndexes()
 end
 
 function TestHeap:testUnboundedHeapsNeverReportFull()
-	-- Given: both Heaps have no capacity limit.
+	-- Given: an unbounded Heap.
 	local h = Heap.new()
 
-	-- When: check fullness before and after inserting values.
-	-- Then: full returns false in every state.
-	lu.assertFalse(h:full())
+	-- When: check fullness initially and after pushes.
+	local fullBefore = h:full()
 	h:push(1)
-	lu.assertFalse(h:full())
+	local fullAfter1 = h:full()
 	h:push(2)
-	lu.assertFalse(h:full())
+	local fullAfter2 = h:full()
 
+	-- Then: full returns false at every step.
+	lu.assertFalse(fullBefore)
+	lu.assertFalse(fullAfter1)
+	lu.assertFalse(fullAfter2)
+
+	-- When: check min and max constructor variants.
 	local minH = Heap.newMin()
-	lu.assertFalse(minH:full())
-
 	local maxH = Heap.newMax()
+
+	-- Then: neither min nor max heap reports full.
+	lu.assertFalse(minH:full())
 	lu.assertFalse(maxH:full())
 end
 
 function TestHeap:testBoundedHeapReportsNotFullBelowCapacity()
-	-- Given: a bounded Heap has unused capacity.
+	-- Given: a bounded Heap with capacity 3.
 	local h = Heap.new(nil, nil, 3)
 
-	-- When: check fullness as values are inserted below the limit.
-	-- Then: full stays false until capacity is reached.
+	-- When: check fullness initially.
+	-- Then: full returns false.
 	lu.assertFalse(h:full())
+
+	-- When: push values below capacity.
 	h:push(1)
-	lu.assertFalse(h:full())
 	h:push(2)
+
+	-- Then: full remains false.
 	lu.assertFalse(h:full())
 end
 
@@ -549,23 +560,28 @@ function TestHeap:testBoundedHeapReportsFullAtCapacity()
 end
 
 function TestHeap:testRemovingValuesOrClearingMakesCapacityAvailable()
-	-- Given: capacity is 2 and the Heap begins empty.
+	-- Given: a bounded Heap with capacity 2, filled to capacity.
 	local h = Heap.new(nil, nil, 2)
-
-	-- When: fill it, pop once, refill it, then clear.
 	h:push(1)
 	h:push(2)
-
-	-- Then: pop and clear each restore available capacity.
 	lu.assertTrue(h:full())
 
+	-- When: pop one element.
 	h:pop()
+
+	-- Then: heap is no longer full.
 	lu.assertFalse(h:full())
 
+	-- When: push another element.
 	h:push(3)
+
+	-- Then: heap becomes full again.
 	lu.assertTrue(h:full())
 
+	-- When: clear the heap.
 	h:clear()
+
+	-- Then: heap is empty and capacity is restored.
 	lu.assertFalse(h:full())
 	lu.assertEquals(#h, 0)
 end
@@ -587,19 +603,31 @@ end
 -- Scenarios: state changes
 
 function TestHeap:testPushMaintainsSmallestValueAtHeapRoot()
-	-- Given: the min-heap starts empty and will receive 4, 5, 1, and 3.
+	-- Given: an empty min-heap.
 	local h = Heap.new()
 
-	-- When: push the values in that order and inspect the root after each insertion.
+	-- When: push 4.
 	h:push(4)
 
-	-- Then: root changes from 4 to 1 when a smaller value arrives, then stays 1.
+	-- Then: root is 4.
 	lu.assertEquals(h:peek(), 4)
+
+	-- When: push larger value 5.
 	h:push(5)
+
+	-- Then: root remains 4.
 	lu.assertEquals(h:peek(), 4)
+
+	-- When: push smaller value 1.
 	h:push(1)
+
+	-- Then: root updates to 1.
 	lu.assertEquals(h:peek(), 1)
+
+	-- When: push 3.
 	h:push(3)
+
+	-- Then: root remains 1.
 	lu.assertEquals(h:peek(), 1)
 end
 
@@ -647,34 +675,34 @@ function TestHeap:testPopAndPeekOnEmptyHeapReturnNil()
 end
 
 function TestHeap:testPopAndClearUpdateEmptyStateAndAllowReuse()
-	-- Given: the Heap starts empty for push, pop, clear, and reuse checks.
+	-- Given: an empty Heap.
 	local h = Heap.new()
-
-	-- When: push and pop values, fill it again, clear it, then push and pop 42.
-	-- Then: empty state and length match contents throughout reuse.
 	lu.assertTrue(h:empty())
 
+	-- When: push two values and pop them both.
 	h:push(2)
-	lu.assertFalse(h:empty())
 	h:push(3)
-	lu.assertFalse(h:empty())
+	h:pop()
+	h:pop()
 
-	h:pop()
-	lu.assertFalse(h:empty())
-	h:pop()
+	-- Then: the heap returns to empty.
 	lu.assertTrue(h:empty())
 
+	-- When: push two values and clear the heap.
 	h:push(10)
 	h:push(20)
-	lu.assertEquals(#h, 2)
 	h:clear()
+
+	-- Then: the heap is empty with length zero and nil peek.
 	lu.assertTrue(h:empty())
 	lu.assertEquals(#h, 0)
 	lu.assertNil(h:peek())
 	lu.assertNil(h:pop())
 
-	-- Verify it works normally after clear
+	-- When: push value 42 into the cleared heap.
 	h:push(42)
+
+	-- Then: heap functions normally after clear.
 	lu.assertEquals(#h, 1)
 	lu.assertEquals(h:peek(), 42)
 	lu.assertEquals(h:pop(), 42)
@@ -869,23 +897,24 @@ end
 -- Scenarios: metamethods and formatting
 
 function TestHeap:testConcatAppendsValuesFromIterableCollections()
-	-- Given: the Heap is combined with supported iterable collections.
+	-- Given: a Heap initialized with { 10, 20, 30 }.
 	local h = Heap.new() .. { 10, 20, 30 }
-
-	-- When: concatenate each source in sequence.
-	-- Then: all source values become available according to Heap priority.
 	lu.assertEquals(#h, 3)
 
+	-- When: concatenate with nil.
 	h = h .. nil
+
+	-- Then: length remains 3.
 	lu.assertEquals(#h, 3)
 
+	-- When: concatenate with a LinkedList containing 40, 50, 60.
 	local ll = require("ff.collections.linkedlist").new()
 	ll:pushBack(40)
 	ll:pushBack(50)
 	ll:pushBack(60)
-
 	h = h .. ll
 
+	-- Then: length becomes 6 and pops yield all values in priority order.
 	lu.assertEquals(#h, 6)
 	lu.assertEquals(h:pop(), 10)
 	lu.assertEquals(h:pop(), 20)
@@ -940,22 +969,28 @@ function TestHeap:testEmptyHeapsCompareEqual()
 end
 
 function TestHeap:testLengthTracksPushPopAndClearOperations()
-	-- Given: the Heap starts empty for length checkpoints.
+	-- Given: an empty Heap.
 	local h = Heap.new()
-
-	-- When: push three values, pop one, clear, and inspect length after each step.
-	-- Then: length matches 0, 1, 3, 2, and 0 at the corresponding checkpoints.
 	lu.assertEquals(#h, 0)
 
+	-- When: push three values.
 	h:push(10)
-	lu.assertEquals(#h, 1)
 	h:push(20)
 	h:push(30)
+
+	-- Then: length increases to 3.
 	lu.assertEquals(#h, 3)
 
+	-- When: pop one value.
 	h:pop()
+
+	-- Then: length decreases to 2.
 	lu.assertEquals(#h, 2)
+
+	-- When: clear the heap.
 	h:clear()
+
+	-- Then: length resets to 0.
 	lu.assertEquals(#h, 0)
 end
 

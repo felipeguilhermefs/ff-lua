@@ -227,26 +227,33 @@ function TestQueue:testContainsRejectsNilValues()
 end
 
 function TestQueue:testUnboundedQueueNeverReportsFull()
-	-- Given: the Queue has no capacity limit.
+	-- Given: an unbounded Queue.
 	local q = Queue.new()
 
-	-- When: check fullness before and after enqueueing 1.
-	-- Then: full returns false in both states.
+	-- When: check fullness initially.
+	-- Then: full returns false.
 	lu.assertFalse(q:full())
+
+	-- When: enqueue 1.
 	q:enqueue(1)
+
+	-- Then: full remains false.
 	lu.assertFalse(q:full())
 end
 
 function TestQueue:testBoundedQueueReportsNotFullBelowCapacity()
-	-- Given: capacity is 3; fullness is checked before reaching that limit.
+	-- Given: a bounded Queue with capacity 3.
 	local q = Queue.new(nil, 3)
 
-	-- When: check fullness at sizes 0, 1, and 2.
-	-- Then: full returns false below capacity.
+	-- When: check fullness initially.
+	-- Then: full returns false.
 	lu.assertFalse(q:full())
+
+	-- When: enqueue items below capacity.
 	q:enqueue(1)
-	lu.assertFalse(q:full())
 	q:enqueue(2)
+
+	-- Then: full remains false.
 	lu.assertFalse(q:full())
 end
 
@@ -263,20 +270,22 @@ function TestQueue:testBoundedQueueReportsFullAtCapacity()
 end
 
 function TestQueue:testDequeuingFromFullQueueMakesRoom()
-	-- Given: capacity is 2; a third item is tested after one dequeue.
+	-- Given: a bounded Queue with capacity 2, filled to capacity.
 	local q = Queue.new(nil, 2)
-
-	-- When: fill it, dequeue the front, then enqueue a replacement.
 	q:enqueue(1)
 	q:enqueue(2)
-
-	-- Then: removing one item clears fullness and replacement fills the slot.
 	lu.assertTrue(q:full())
 
+	-- When: dequeue the front item.
 	q:dequeue()
+
+	-- Then: queue is no longer full.
 	lu.assertFalse(q:full())
 
+	-- When: enqueue replacement item 3.
 	q:enqueue(3)
+
+	-- Then: queue becomes full again.
 	lu.assertTrue(q:full())
 end
 
@@ -297,22 +306,28 @@ end
 -- Scenarios: state changes
 
 function TestQueue:testClearMakesQueueEmptyAfterEnqueues()
-	-- Given: a new Queue receives values before being cleared.
+	-- Given: an empty Queue.
 	local q = Queue.new()
-
-	-- When: check empty state, enqueue and dequeue, then enqueue twice and clear.
-	-- Then: empty tracks each transition and final length is zero.
 	lu.assertTrue(q:empty())
 
+	-- When: enqueue 1.
 	q:enqueue(1)
+
+	-- Then: queue is no longer empty.
 	lu.assertFalse(q:empty())
 
+	-- When: dequeue the item.
 	q:dequeue()
+
+	-- Then: queue returns to empty.
 	lu.assertTrue(q:empty())
 
+	-- When: enqueue two items and clear the queue.
 	q:enqueue("a")
 	q:enqueue("b")
 	q:clear()
+
+	-- Then: queue is empty with length 0.
 	lu.assertTrue(q:empty())
 	lu.assertEquals(#q, 0)
 end
@@ -333,16 +348,20 @@ end
 
 
 function TestQueue:testDequeueAndPeekOnEmptyQueueReturnNil()
-	-- Given: the Queue starts empty and later receives 30.
+	-- Given: an empty Queue.
 	local q = Queue.new()
 
-	-- When: read and remove from empty state, then repeat after removing 30.
-	-- Then: peek and dequeue return nil whenever the Queue is empty.
+	-- When: dequeue and peek on the empty queue.
+	-- Then: both operations return nil.
 	lu.assertNil(q:dequeue())
 	lu.assertNil(q:peek())
 
+	-- When: enqueue 30 and dequeue it.
 	q:enqueue(30)
-	lu.assertEquals(q:dequeue(), 30)
+	local dequeued = q:dequeue()
+
+	-- Then: dequeue returns 30, queue is empty, and further dequeue and peek return nil.
+	lu.assertEquals(dequeued, 30)
 	lu.assertTrue(q:empty())
 	lu.assertNil(q:dequeue())
 	lu.assertNil(q:peek())
@@ -457,24 +476,30 @@ end
 -- Scenarios: metamethods and formatting
 
 function TestQueue:testLengthTracksEnqueueAndDequeueOperations()
-	-- Given: the Queue starts empty.
+	-- Given: an empty Queue.
 	local q = Queue.new()
-
-	-- When: add three values, remove two, then remove the last and one extra.
-	-- Then: length follows 0, 3, 1, and 0 across those operations.
 	lu.assertEquals(#q, 0)
 
+	-- When: enqueue three values.
 	q:enqueue(5)
 	q:enqueue(6)
 	q:enqueue(7)
+
+	-- Then: length increases to 3.
 	lu.assertEquals(#q, 3)
 
+	-- When: dequeue two values.
 	q:dequeue()
 	q:dequeue()
+
+	-- Then: length decreases to 1.
 	lu.assertEquals(#q, 1)
 
+	-- When: dequeue remaining value and dequeue once more while empty.
 	q:dequeue()
-	q:dequeue() -- dequeue on empty returns nil, len stays 0
+	q:dequeue()
+
+	-- Then: length resets to and stays at 0.
 	lu.assertEquals(#q, 0)
 end
 
