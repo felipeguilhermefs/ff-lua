@@ -30,8 +30,8 @@ make install
 `MODULE` must match module name from rockspec, such as `ff.collections.array`.
 Omit `MODULE` to run tests for all modules.
 
-Test conventions, migration steps, and reusable suite scaffold are in
-[`scafolds/test.lua`](scafolds/test.lua).
+Test conventions and migration steps are in [`docs/test-guidelines.md`](docs/test-guidelines.md).
+See [`scafolds/test.lua`](scafolds/test.lua) for a complete commented test-file example.
 
 ## Development & Build Commands
 

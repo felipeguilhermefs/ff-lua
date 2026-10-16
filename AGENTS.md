@@ -94,8 +94,10 @@ ff-lua/
 │   └── test/
 │       └── spy.lua              # Test spy utility for call counting
 ├── test.lua                     # Global test runner configuring package.path
+├── docs/
+│   └── test-guidelines.md       # LuaUnit BDD conventions and migration guide
 ├── scafolds/
-│   └── test.lua                 # BDD conventions, migration guide, and test scaffold
+│   └── test.lua                 # Commented example test file
 ├── ff-lua-*.rockspec            # LuaRocks package specification
 ├── Makefile                     # Make targets for development and release
 └── README.md                    # Public documentation
@@ -143,12 +145,12 @@ Every class module adheres to this structure:
 
 ## Testing Standards
 
-Test files follow the conventions in [scafolds/test.lua](scafolds/test.lua) and
-return explicit suite maps in the form `{ TestName = TestClass }`. The scaffold
-contains BDD naming, structure, Given / When / Then, comment, and migration
-guidance. The root [test.lua](test.lua) registers suites explicitly with
-LuaUnit and rejects undeclared global reads and new global declarations after
-LuaRocks and LuaUnit initialize.
+Test files follow [docs/test-guidelines.md](docs/test-guidelines.md), return explicit
+suite maps in the form `{ TestName = TestClass }`, and use
+[scafolds/test.lua](scafolds/test.lua) as a commented example. The root
+[test.lua](test.lua) registers suites explicitly with LuaUnit and rejects
+undeclared global reads and new global declarations after LuaRocks and LuaUnit
+initialize.
 
 ---
 

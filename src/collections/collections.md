@@ -1,25 +1,25 @@
 # Collection Standards & Architecture in `ff-lua`
 
-This document defines the architecture, design standards, patterns, and conventions extracted from the implementations in [`src/collections`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections). It details the common blueprint shared across all classes, highlights current inconsistencies, presents recommendations for improvement, and provides a canonical template for developing new collections.
+This document defines the architecture, design standards, patterns, and conventions extracted from the implementations in [`src/collections`](.). It details the common blueprint shared across all classes, highlights current inconsistencies, presents recommendations for improvement, and provides a canonical template for developing new collections.
 
 ---
 
 ## 1. Analyzed Classes Overview
 
-The [`src/collections`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections) directory contains 10 primary data structures:
+The [`src/collections`](.) directory contains 10 primary data structures:
 
 | Class | File | Primary Storage | Key Dependencies |
 | :--- | :--- | :--- | :--- |
-| [`Array`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/array.lua#L27) | [`src/collections/array.lua`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/array.lua) | Sequential table array (`_entries`) | None (self-contained) |
-| [`HashMap`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/hashmap.lua#L28) | [`src/collections/hashmap.lua`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/hashmap.lua) | Hash table (`_entries`) + size counter (`_len`) | None (self-contained) |
-| [`Heap`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/heap.lua#L22) | [`src/collections/heap.lua`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/heap.lua) | Binary heap array (`_entries: Array`) | [`Array`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/array.lua#L27), [`Comparator`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/func/comparator.lua) |
-| [`IntervalTree`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/intervaltree.lua#L57) | [`src/collections/intervaltree.lua`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/intervaltree.lua) | Binary search tree of disjoint intervals (`_root: IntervalNode`) | [`Stack`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/stack.lua#L19) |
-| [`LinkedList`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/linkedlist.lua#L50) | [`src/collections/linkedlist.lua`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/linkedlist.lua) | Doubly-linked nodes (`_front`, `_back: LinkNode`) | None (self-contained) |
-| [`Queue`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/queue.lua#L42) | [`src/collections/queue.lua`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/queue.lua) | Singly-linked FIFO nodes (`_front`, `_back: QNode`) | None (self-contained) |
-| [`RadixTree`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/radixtree.lua#L149) | [`src/collections/radixtree.lua`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/radixtree.lua) | Compact trie nodes (`_root: RadixNode`) | [`Array`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/array.lua#L27), [`HashMap`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/hashmap.lua#L28), [`Stack`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/stack.lua#L19) |
-| [`Set`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/set.lua#L28) | [`src/collections/set.lua`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/set.lua) | Keyed table (`_entries[x] = x`) + size (`_len`) | None (self-contained) |
-| [`Stack`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/stack.lua#L19) | [`src/collections/stack.lua`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/stack.lua) | Underlying array (`_entries: Array`) | [`Array`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/array.lua#L27) |
-| [`TreeMap`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/treemap.lua#L130) | [`src/collections/treemap.lua`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/treemap.lua) | Self-balancing AVL tree (`_root: TreeNode`) | [`Comparator`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/func/comparator.lua), [`Stack`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/stack.lua#L19) |
+| [`Array`](array.lua#L27) | [`src/collections/array.lua`](array.lua) | Sequential table array (`_entries`) | None (self-contained) |
+| [`HashMap`](hashmap.lua#L28) | [`src/collections/hashmap.lua`](hashmap.lua) | Hash table (`_entries`) + size counter (`_len`) | None (self-contained) |
+| [`Heap`](heap.lua#L22) | [`src/collections/heap.lua`](heap.lua) | Binary heap array (`_entries: Array`) | [`Array`](array.lua#L27), [`Comparator`](../func/comparator.lua) |
+| [`IntervalTree`](intervaltree.lua#L57) | [`src/collections/intervaltree.lua`](intervaltree.lua) | Binary search tree of disjoint intervals (`_root: IntervalNode`) | [`Stack`](stack.lua#L19) |
+| [`LinkedList`](linkedlist.lua#L50) | [`src/collections/linkedlist.lua`](linkedlist.lua) | Doubly-linked nodes (`_front`, `_back: LinkNode`) | None (self-contained) |
+| [`Queue`](queue.lua#L42) | [`src/collections/queue.lua`](queue.lua) | Singly-linked FIFO nodes (`_front`, `_back: QNode`) | None (self-contained) |
+| [`RadixTree`](radixtree.lua#L149) | [`src/collections/radixtree.lua`](radixtree.lua) | Compact trie nodes (`_root: RadixNode`) | [`Array`](array.lua#L27), [`HashMap`](hashmap.lua#L28), [`Stack`](stack.lua#L19) |
+| [`Set`](set.lua#L28) | [`src/collections/set.lua`](set.lua) | Keyed table (`_entries[x] = x`) + size (`_len`) | None (self-contained) |
+| [`Stack`](stack.lua#L19) | [`src/collections/stack.lua`](stack.lua) | Underlying array (`_entries: Array`) | [`Array`](array.lua#L27) |
+| [`TreeMap`](treemap.lua#L130) | [`src/collections/treemap.lua`](treemap.lua) | Self-balancing AVL tree (`_root: TreeNode`) | [`Comparator`](../func/comparator.lua), [`Stack`](stack.lua#L19) |
 
 ---
 
@@ -34,7 +34,7 @@ Every file in `src/collections` follows a 10-part structure:
 1. **Header & Upvalue Caching (`Cache function references`)**:
    Standard library functions and globals (`string.format`, `table.insert`, `assert`, `type`, `setmetatable`, `getmetatable`, `pairs`, `next`) are localized at the top of the file to eliminate global lookup overhead.
 2. **Private Node Classes & Helper Functions**:
-   Structures requiring node allocations ([`IntervalTree`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/intervaltree.lua#L25), [`LinkedList`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/linkedlist.lua#L20), [`Queue`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/queue.lua#L19), [`RadixTree`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/radixtree.lua#L46), [`TreeMap`](file:///Users/felipeflores/Projects/ffdev/ff-lua/src/collections/treemap.lua#L26)) define a localized helper node table marked with `---@class (private) <Name>Node` with its own minimal constructor `Node.new(...)`.
+   Structures requiring node allocations ([`IntervalTree`](intervaltree.lua#L25), [`LinkedList`](linkedlist.lua#L20), [`Queue`](queue.lua#L19), [`RadixTree`](radixtree.lua#L46), [`TreeMap`](treemap.lua#L26)) define a localized helper node table marked with `---@class (private) <Name>Node` with its own minimal constructor `Node.new(...)`.
 3. **EmmyLua Type Annotations**:
    The primary collection class is documented using `---@class <Name>` along with `---@field private _<field> <type> <description>`.
 4. **Class Table & Dispatch Binding**:
