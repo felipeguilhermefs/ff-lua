@@ -1,9 +1,13 @@
+-- Imports
 local lu = require("luaunit")
 local Array = require("ff.collections.array")
 local Comparator = require("ff.func.comparator")
 local binarysearch = require("ff.search.binarysearch")
 
+-- Suite definitions
 local TestBinarySearch = {}
+
+-- Scenarios: binary search behavior
 function TestBinarySearch:testArrayInputReturnsIndexOfMatchingValue()
 	local a = Array.new({ 1, 2, 3, 4, 5, 6 })
 
@@ -30,4 +34,5 @@ function TestBinarySearch:testTableArrayInputReturnsIndexOfMatchingValue()
 	lu.assertNil(binarysearch(a, 7, cmp))
 end
 
+-- Suite map
 return { TestBinarySearch = TestBinarySearch }

@@ -1,8 +1,12 @@
+-- Imports
 local lu = require("luaunit")
 local factorial = require("ff.math.factorial")
 
+-- Suite definitions
 local TestFactorial = {}
-function TestFactorial:testFactorialOfZeroIsOne()
+
+-- Scenarios: factorial behavior
+function TestFactorial:testFactorialOfZeroReturnsZero()
 	lu.assertEquals(factorial(0), 0)
 end
 
@@ -13,17 +17,17 @@ function TestFactorial:testPositiveIntegerFactorialMatchesExpectedProduct()
 	lu.assertEquals(factorial(25), 7034535277573963776)
 end
 
-function TestFactorial:testNegativeInputReturnsNil()
+function TestFactorial:testNegativeInputRaisesValidationError()
 	lu.assertErrorMsgContains("Should be positive", factorial, -4)
 	lu.assertErrorMsgContains("Should be positive", factorial, -4.2)
 end
 
-function TestFactorial:testNonIntegerInputReturnsNil()
+function TestFactorial:testNonIntegerInputIsTruncatedBeforeFactorial()
 	lu.assertEquals(factorial(4.0), 24)
 	lu.assertEquals(factorial(4.2), 24)
 end
 
-function TestFactorial:testNonNumberInputReturnsNil()
+function TestFactorial:testNonNumberInputRaisesValidationError()
 	lu.assertErrorMsgContains("Should be a number", factorial, nil)
 	lu.assertErrorMsgContains("Should be a number", factorial, true)
 	lu.assertErrorMsgContains("Should be a number", factorial, "something")
@@ -34,4 +38,5 @@ function TestFactorial:testNonNumberInputReturnsNil()
 	end)
 end
 
+-- Suite map
 return { TestFactorial = TestFactorial }

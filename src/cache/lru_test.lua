@@ -1,7 +1,11 @@
+-- Imports
 local lu = require("luaunit")
 local LRUCache = require("ff.cache.lru")
 
+-- Suite definitions
 local TestLRUCache = {}
+
+-- Scenarios: cache behavior
 function TestLRUCache:testCacheRetainsEntriesBelowCapacity()
 	local cache = LRUCache.new(3)
 
@@ -88,4 +92,5 @@ function TestLRUCache:testConstructorRejectsInvalidCapacity()
 	lu.assertErrorMsgContains("Capacity should be positive", LRUCache.new, 0)
 end
 
+-- Suite map
 return { TestLRUCache = TestLRUCache }

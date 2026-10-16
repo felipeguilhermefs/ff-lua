@@ -1,6 +1,8 @@
+-- Imports
 local lu = require("luaunit")
 local Array = require("ff.collections.array")
 
+-- Test helpers
 -- Snapshot values for useful LuaUnit diffs without exposing Array internals.
 local function arrayValues(array)
 	local values = {}
@@ -10,9 +12,10 @@ local function arrayValues(array)
 	return values
 end
 
+-- Suite definitions
 local TestArray = {}
 
--- Type and construction behavior
+-- Scenarios: type and construction behavior
 
 function TestArray:testRecognizesArrayTablesAndInstances()
 	lu.assertTrue(Array.isArray({}))
@@ -64,7 +67,7 @@ function TestArray:testClearedArrayRejectsFormerIndexes()
 	end)
 end
 
--- Empty-state behavior
+-- Scenarios: empty-state behavior
 
 function TestArray:testEmptyReportsFalseAfterInsert()
 	local array = Array.new()
@@ -74,7 +77,7 @@ function TestArray:testEmptyReportsFalseAfterInsert()
 	lu.assertFalse(array:empty())
 end
 
--- Reading behavior
+-- Scenarios: reading and inspection
 
 function TestArray:testGetReturnsValueAtOneBasedIndex()
 	local array = Array.new({ 10, 20, 30 })
@@ -187,7 +190,7 @@ function TestArray:testIterationYieldsOneBasedIndexesAndValues()
 	lu.assertEquals(entries, { 1, 10, 2, 20, 3, 30 })
 end
 
--- Insertion behavior
+-- Scenarios: insertion and removal
 
 function TestArray:testInsertWithoutIndexAppendsValue()
 	local array = Array.new({ 10 })
@@ -279,7 +282,7 @@ function TestArray:testSwapExchangesValuesAtLaterIndexes()
 	lu.assertEquals(arrayValues(array), { 10, 30, 20 })
 end
 
--- Equality and formatting behavior
+-- Scenarios: equality and formatting
 
 function TestArray:testEqualArraysCompareEqual()
 	local first = Array.new({ 10, 20, 30 })
@@ -356,7 +359,7 @@ function TestArray:testExistingMethodsCannotBeReplaced()
 	end)
 end
 
--- Concatenation behavior
+-- Scenarios: concatenation
 
 function TestArray:testConcatAppendsTableValues()
 	local array = Array.new({ 10, 20, 30 })
@@ -392,4 +395,5 @@ function TestArray:testConcatAppendsSetValues()
 	lu.assertEquals(arrayValues(array), { 10, 20, 30, 100 })
 end
 
+-- Suite map
 return { TestArray = TestArray }

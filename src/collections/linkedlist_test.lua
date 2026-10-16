@@ -1,21 +1,11 @@
------------------------------------------------------------------------------
--- 1. Upvalue caching & Imports
------------------------------------------------------------------------------
+-- Imports
 local lu = require("luaunit")
 local LinkedList = require("ff.collections.linkedlist")
 
------------------------------------------------------------------------------
--- 2. Test Suite Table Definition
------------------------------------------------------------------------------
+-- Suite definitions
 local TestLinkedList = {}
------------------------------------------------------------------------------
--- 3. Suite Lifecycle Hooks (Optional)
--- Not needed: each test creates its own fixtures.
------------------------------------------------------------------------------
 
------------------------------------------------------------------------------
--- 4. Constructor & Type Guard Tests
------------------------------------------------------------------------------
+-- Scenarios: construction and type recognition
 
 function TestLinkedList:testTypeGuardRecognizesLinkedListsAndRejectsOtherValues()
 	lu.assertTrue(LinkedList.isLinkedList(LinkedList.new()))
@@ -60,9 +50,7 @@ function TestLinkedList:testConstructorRejectsNonTableIterables()
 	lu.assertErrorMsgContains("iterable should be a table", LinkedList.new, true)
 end
 
------------------------------------------------------------------------------
--- 5. Core Accessor & Inspection Tests
------------------------------------------------------------------------------
+-- Scenarios: reads and inspection
 
 function TestLinkedList:testEndpointPeeksReturnValuesAtBothEnds()
 	local ll = LinkedList.new()
@@ -112,7 +100,6 @@ function TestLinkedList:testContainsRejectsNilValues()
 	end)
 end
 
------------------------------------------------------------------------------
 function TestLinkedList:testIterationYieldsOneBasedIndexesAndValues()
 	local ll = LinkedList.new({ 10, 20, 30 })
 
@@ -138,8 +125,7 @@ function TestLinkedList:testIterationOfEmptyLinkedListYieldsNoValues()
 	lu.assertEquals(count, 0)
 end
 
--- 6. Mutation & Modification Tests
------------------------------------------------------------------------------
+-- Scenarios: state changes
 
 function TestLinkedList:testClearEmptiesLinkedListAndAllowsReuse()
 	local ll = LinkedList.new()
@@ -282,9 +268,7 @@ function TestLinkedList:testPushOperationsRejectNilValues()
 	end)
 end
 
------------------------------------------------------------------------------
--- 7. Metamethod Tests (__len, __eq, __concat, __tostring, __newindex)
------------------------------------------------------------------------------
+-- Scenarios: metamethods and formatting
 
 function TestLinkedList:testLengthTracksInsertionAndRemovalAtBothEnds()
 	local ll = LinkedList.new()
@@ -413,4 +397,5 @@ function TestLinkedList:testNewPropertiesAndMethodsCannotBeAddedOrReplaced()
 	end)
 end
 
+-- Suite map
 return { TestLinkedList = TestLinkedList }

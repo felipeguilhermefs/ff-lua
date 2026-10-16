@@ -1,7 +1,11 @@
+-- Imports
 local lu = require("luaunit")
 local min = require("ff.math.min")
 
+-- Suite definitions
 local TestMin = {}
+
+-- Scenarios: minimum behavior
 function TestMin:testSingleNumberReturnsThatNumber()
 	lu.assertEquals(min(1), 1)
 	lu.assertEquals(min(-2), -2)
@@ -14,7 +18,7 @@ function TestMin:testVariadicInputReturnsSmallestNumber()
 	lu.assertEquals(min(-5, -8, 2), -8)
 end
 
-function TestMin:testArrayInputReturnsSmallestNumber()
+function TestMin:testUnpackedValuesReturnSmallestNumber()
 	lu.assertEquals(min(table.unpack({ 7, 4, 9, 3 })), 3)
 end
 
@@ -29,8 +33,9 @@ function TestMin:testNonNumericInputReturnsNil()
 	end))
 end
 
-function TestMin:testArrayInputIgnoresNonNumbersWhenFindingSmallest()
+function TestMin:testUnpackedValuesIgnoreNonNumbersWhenFindingSmallest()
 	lu.assertEquals(min(table.unpack({ 8, true, "1", 5, {} })), 5)
 end
 
+-- Suite map
 return { TestMin = TestMin }

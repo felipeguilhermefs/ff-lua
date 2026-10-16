@@ -1,21 +1,11 @@
------------------------------------------------------------------------------
--- 1. Upvalue caching & Imports
------------------------------------------------------------------------------
+-- Imports
 local lu = require("luaunit")
 local Set = require("ff.collections.set")
 
------------------------------------------------------------------------------
--- 2. Test Suite Table Definition
------------------------------------------------------------------------------
+-- Suite definitions
 local TestSet = {}
------------------------------------------------------------------------------
--- 3. Suite Lifecycle Hooks (Optional)
--- Not needed: each test creates its own fixtures.
------------------------------------------------------------------------------
 
------------------------------------------------------------------------------
--- 4. Constructor & Type Guard Tests
------------------------------------------------------------------------------
+-- Scenarios: construction and type recognition
 
 function TestSet:testTypeGuardRecognizesSetsAndRejectsOtherValues()
 	lu.assertTrue(Set.isSet(Set.new()))
@@ -26,9 +16,7 @@ function TestSet:testTypeGuardRecognizesSetsAndRejectsOtherValues()
 	lu.assertFalse(Set.isSet(123))
 end
 
------------------------------------------------------------------------------
--- 5. Core Accessor & Inspection Tests
------------------------------------------------------------------------------
+-- Scenarios: reads and inspection
 
 function TestSet:testEmptySetDoesNotContainValues()
 	lu.assertFalse(Set.new():contains("e"))
@@ -130,7 +118,6 @@ function TestSet:testDisjointReportsWhetherSetsShareValues()
 	lu.assertFalse(sub:disjoint(super))
 end
 
------------------------------------------------------------------------------
 function TestSet:testIterationYieldsEveryStoredValue()
 	local set = Set.new({ 1, 2, 3, 4, 5 })
 
@@ -141,8 +128,7 @@ function TestSet:testIterationYieldsEveryStoredValue()
 	lu.assertItemsEquals(res, { 1, 2, 3, 4, 5 })
 end
 
--- 6. Mutation & Modification Tests
------------------------------------------------------------------------------
+-- Scenarios: state changes
 
 function TestSet:testClearMakesSetEmpty()
 	local set = Set.new()
@@ -195,9 +181,7 @@ function TestSet:testFalseCanBeStoredAndRemovedAsAValue()
 	lu.assertFalse(set:remove(false))
 end
 
------------------------------------------------------------------------------
--- 7. Metamethod Tests (__len, __eq, __concat, __tostring, __newindex)
------------------------------------------------------------------------------
+-- Scenarios: metamethods and formatting
 
 function TestSet:testConcatAddsDistinctValuesFromIterables()
 	local set = Set.new({ 10, 20, 30 })
@@ -270,4 +254,5 @@ function TestSet:testNewPropertiesAndMethodsCannotBeAddedOrReplaced()
 	end)
 end
 
+-- Suite map
 return { TestSet = TestSet }

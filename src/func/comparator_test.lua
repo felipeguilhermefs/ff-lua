@@ -1,7 +1,11 @@
+-- Imports
 local lu = require("luaunit")
 local Comparator = require("ff.func.comparator")
 
+-- Suite definitions
 local TestComparator = {}
+
+-- Scenarios: ordering behavior
 function TestComparator:testNaturalComparatorOrdersNumbersAndStrings()
 	local cmp = Comparator.natural
 
@@ -52,4 +56,5 @@ function TestComparator:testReverseComparatorInvertsNaturalOrdering()
 	lu.assertEquals(Comparator.less, cmp("r", "R"))
 end
 
+-- Suite map
 return { TestComparator = TestComparator }

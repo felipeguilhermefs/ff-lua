@@ -1,7 +1,11 @@
+-- Imports
 local lu = require("luaunit")
 local trunc = require("ff.math.trunc")
 
+-- Suite definitions
 local TestTrunc = {}
+
+-- Scenarios: truncation behavior
 function TestTrunc:testZeroInputReturnsZero()
 	lu.assertEquals(trunc(0), 0)
 	lu.assertEquals(trunc(0.5), 0)
@@ -33,4 +37,5 @@ function TestTrunc:testNonNumericInputReturnsNil()
 	end))
 end
 
+-- Suite map
 return { TestTrunc = TestTrunc }

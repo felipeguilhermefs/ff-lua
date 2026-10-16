@@ -1,15 +1,9 @@
------------------------------------------------------------------------------
--- 1. Upvalue caching & Imports
------------------------------------------------------------------------------
+-- Imports
 local lu = require("luaunit")
 local Comparator = require("ff.func.comparator")
 local Heap = require("ff.collections.heap")
 
------------------------------------------------------------------------------
--- 2. Test Suite Table Definition
------------------------------------------------------------------------------
-local TestHeap = {}
-
+-- Test helpers
 local function entriesByIndex(heap)
 	local entries = {}
 	for index, value in pairs(heap) do
@@ -18,14 +12,10 @@ local function entriesByIndex(heap)
 	return entries
 end
 
------------------------------------------------------------------------------
--- 3. Suite Lifecycle Hooks (Optional)
--- Not needed: each test creates its own fixtures.
------------------------------------------------------------------------------
+-- Suite definitions
+local TestHeap = {}
 
------------------------------------------------------------------------------
--- 4. Constructor & Type Guard Tests
------------------------------------------------------------------------------
+-- Scenarios: construction and type recognition
 
 function TestHeap:testTypeGuardRecognizesHeapsAndRejectsOtherValues()
 	local h = Heap.new()
@@ -149,9 +139,7 @@ function TestHeap:testMinAndMaxConstructorsProduceExpectedPriorityOrder()
 	lu.assertNil(maxH:pop())
 end
 
------------------------------------------------------------------------------
--- 5. Core Accessor & Inspection Tests
------------------------------------------------------------------------------
+-- Scenarios: reads and inspection
 
 function TestHeap:testContainsFindsStoredValuesWithoutConsumingHeap()
 	local h = Heap.new()
@@ -478,9 +466,7 @@ function TestHeap:testFullHeapRejectsPush()
 	lu.assertFalse(h:push("d"))
 end
 
------------------------------------------------------------------------------
--- 6. Mutation & Modification Tests
------------------------------------------------------------------------------
+-- Scenarios: state changes
 
 function TestHeap:testPushMaintainsSmallestValueAtHeapRoot()
 	local h = Heap.new()
@@ -714,9 +700,7 @@ function TestHeap:testBoundedHeapRejectsPushAtCapacityAndAcceptsAfterPop()
 	lu.assertTrue(h:full())
 end
 
------------------------------------------------------------------------------
--- 7. Metamethod Tests (__len, __eq, __concat, __tostring, __newindex)
------------------------------------------------------------------------------
+-- Scenarios: metamethods and formatting
 
 function TestHeap:testConcatAppendsValuesFromIterableCollections()
 	local h = Heap.new() .. { 10, 20, 30 }
@@ -827,4 +811,5 @@ function TestHeap:testNewPropertiesAndMethodsCannotBeAddedOrReplaced()
 	end)
 end
 
+-- Suite map
 return { TestHeap = TestHeap }

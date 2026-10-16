@@ -1,9 +1,13 @@
+-- Imports
 local lu = require("luaunit")
 local Array = require("ff.collections.array")
 local Comparator = require("ff.func.comparator")
 local quickselect = require("ff.search.quickselect")
 
+-- Suite definitions
 local TestQuickSelect = {}
+
+-- Scenarios: selection behavior
 function TestQuickSelect:testArrayInputReturnsValueAtRequestedRank()
 	local a = Array.new({ 1, 2, 3, 4, 5, 6 })
 
@@ -30,4 +34,5 @@ function TestQuickSelect:testTableArrayInputReturnsValueAtRequestedRank()
 	lu.assertNil(quickselect(a, 7, cmp))
 end
 
+-- Suite map
 return { TestQuickSelect = TestQuickSelect }

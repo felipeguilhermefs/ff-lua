@@ -1,21 +1,11 @@
------------------------------------------------------------------------------
--- 1. Upvalue caching & Imports
------------------------------------------------------------------------------
+-- Imports
 local lu = require("luaunit")
 local IntervalTree = require("ff.collections.intervaltree")
 
------------------------------------------------------------------------------
--- 2. Test Suite Table Definition
------------------------------------------------------------------------------
+-- Suite definitions
 local TestIntervalTree = {}
------------------------------------------------------------------------------
--- 3. Suite Lifecycle Hooks (Optional)
--- Not needed: each test creates its own fixtures.
------------------------------------------------------------------------------
 
------------------------------------------------------------------------------
--- 4. Constructor & Type Guard Tests
------------------------------------------------------------------------------
+-- Scenarios: construction and type recognition
 
 function TestIntervalTree:testTypeGuardRecognizesIntervalTreesAndRejectsOtherValues()
 	lu.assertTrue(IntervalTree.isIntervalTree(IntervalTree.new()))
@@ -25,7 +15,6 @@ function TestIntervalTree:testTypeGuardRecognizesIntervalTreesAndRejectsOtherVal
 	lu.assertFalse(IntervalTree.isIntervalTree(123))
 end
 
--- ---------------------------------------------------------------------------
 
 function TestIntervalTree:testEmptyConstructorCreatesEmptyIntervalTree()
 	local it = IntervalTree.new()
@@ -61,11 +50,7 @@ function TestIntervalTree:testConstructorRejectsNonTableIterables()
 	lu.assertErrorMsgContains("iterable should be a table", IntervalTree.new, 42)
 end
 
--- ---------------------------------------------------------------------------
-
------------------------------------------------------------------------------
--- 5. Core Accessor & Inspection Tests
------------------------------------------------------------------------------
+-- Scenarios: reads and inspection
 
 function TestIntervalTree:testContainsReportsValuesInsideInclusiveIntervals()
 	local it = IntervalTree.new()
@@ -97,9 +82,7 @@ function TestIntervalTree:testContainsRejectsNonNumericValues()
 	end)
 end
 
--- ---------------------------------------------------------------------------
 
------------------------------------------------------------------------------
 function TestIntervalTree:testIterationYieldsIntervalsInAscendingOrder()
 	local it = IntervalTree.new({ { 10, 20 }, { 1, 3 }, { 50, 60 }, { 30, 40 } })
 	local res = {}
@@ -125,10 +108,7 @@ function TestIntervalTree:testIterationOfEmptyIntervalTreeYieldsNoIntervals()
 	lu.assertEquals(count, 0)
 end
 
--- ---------------------------------------------------------------------------
-
--- 6. Mutation & Modification Tests
------------------------------------------------------------------------------
+-- Scenarios: state changes
 
 function TestIntervalTree:testClearEmptiesIntervalTreeAndAllowsReuse()
 	local it = IntervalTree.new()
@@ -151,7 +131,6 @@ function TestIntervalTree:testClearEmptiesIntervalTreeAndAllowsReuse()
 	lu.assertEquals(#it, 2)
 end
 
--- ---------------------------------------------------------------------------
 
 function TestIntervalTree:testInsertMergesOverlappingIntervals()
 	local it = IntervalTree.new()
@@ -216,7 +195,6 @@ function TestIntervalTree:testInsertMergesMultipleIntervalsConnectedByNewInterva
 	lu.assertEquals(high, 10)
 end
 
--- ---------------------------------------------------------------------------
 
 function TestIntervalTree:testRemoveDeletesExactInterval()
 	local it = IntervalTree.new({ { 1, 3 }, { 7, 10 }, { 20, 25 } })
@@ -307,11 +285,7 @@ function TestIntervalTree:testRemoveRejectsNonNumericBoundaries()
 	end)
 end
 
--- ---------------------------------------------------------------------------
-
------------------------------------------------------------------------------
--- 7. Metamethod Tests (__len, __eq, __concat, __tostring, __newindex)
------------------------------------------------------------------------------
+-- Scenarios: metamethods and formatting
 
 function TestIntervalTree:testConcatCombinesDisjointIntervals()
 	local it = IntervalTree.new() .. { { 1, 3 }, { 7, 10 } }
@@ -347,7 +321,6 @@ function TestIntervalTree:testConcatRejectsNonTableValues()
 	end)
 end
 
--- ---------------------------------------------------------------------------
 
 function TestIntervalTree:testIntervalTreesWithSameIntervalsCompareEqual()
 	local it1 = IntervalTree.new({ { 1, 3 }, { 7, 10 } })
@@ -371,7 +344,6 @@ function TestIntervalTree:testEmptyIntervalTreesCompareEqual()
 	lu.assertTrue(e1 == e2)
 end
 
--- ---------------------------------------------------------------------------
 
 function TestIntervalTree:testLengthReportsNumberOfDisjointIntervals()
 	local it = IntervalTree.new()
@@ -388,7 +360,6 @@ function TestIntervalTree:testLengthReportsNumberOfDisjointIntervals()
 	lu.assertEquals(#it, 1)
 end
 
--- ---------------------------------------------------------------------------
 
 function TestIntervalTree:testToStringFormatsIntervals()
 	local empty = IntervalTree.new()
@@ -420,4 +391,5 @@ function TestIntervalTree:testNewPropertiesAndMethodsCannotBeAddedOrReplaced()
 	end)
 end
 
+-- Suite map
 return { TestIntervalTree = TestIntervalTree }

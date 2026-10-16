@@ -1,8 +1,12 @@
+-- Imports
 local lu = require("luaunit")
 local spy = require("ff.test.spy")
 local memoize = require("ff.func.memoize")
 
+-- Suite definitions
 local TestMemoize = {}
+
+-- Scenarios: memoization behavior
 function TestMemoize:testRepeatedSingleArgumentCallsUseCachedResult()
 	local fn = spy(function()
 		return 1
@@ -68,4 +72,5 @@ function TestMemoize:testMemoizeRejectsNonTableCache()
 	lu.assertNil(memoize(fn, 9))
 end
 
+-- Suite map
 return { TestMemoize = TestMemoize }

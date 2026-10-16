@@ -1,21 +1,11 @@
------------------------------------------------------------------------------
--- 1. Upvalue caching & Imports
------------------------------------------------------------------------------
+-- Imports
 local lu = require("luaunit")
 local Stack = require("ff.collections.stack")
 
------------------------------------------------------------------------------
--- 2. Test Suite Table Definition
------------------------------------------------------------------------------
+-- Suite definitions
 local TestStack = {}
------------------------------------------------------------------------------
--- 3. Suite Lifecycle Hooks (Optional)
--- Not needed: each test creates its own fixtures.
------------------------------------------------------------------------------
 
------------------------------------------------------------------------------
--- 4. Constructor & Type Guard Tests
------------------------------------------------------------------------------
+-- Scenarios: construction and type recognition
 
 function TestStack:testTypeGuardRecognizesStacksAndRejectsOtherValues()
 	local s = Stack.new()
@@ -35,9 +25,7 @@ function TestStack:testConstructorPreservesIterableOrderAndSetsTop()
 	lu.assertEquals(s2:top(), 30)
 end
 
------------------------------------------------------------------------------
--- 5. Core Accessor & Inspection Tests
------------------------------------------------------------------------------
+-- Scenarios: reads and inspection
 
 function TestStack:testEmptyStackDoesNotContainValues()
 	local stack = Stack.new()
@@ -63,7 +51,6 @@ function TestStack:testPoppedValueIsNoLongerContained()
 	lu.assertFalse(stack:contains(30))
 end
 
------------------------------------------------------------------------------
 function TestStack:testIterationYieldsValuesFromTopToBottom()
 	local s = Stack.new()
 
@@ -115,8 +102,7 @@ function TestStack:testRepeatedIterationPreservesStackContents()
 	lu.assertEquals(#s, 3)
 end
 
--- 6. Mutation & Modification Tests
------------------------------------------------------------------------------
+-- Scenarios: state changes
 
 function TestStack:testPopOnEmptyStackReturnsNil()
 	local stack = Stack.new()
@@ -206,9 +192,7 @@ function TestStack:testDrainOnEmptyStackYieldsNoValues()
 	lu.assertTrue(s:empty())
 end
 
------------------------------------------------------------------------------
--- 7. Metamethod Tests (__len, __eq, __concat, __tostring, __newindex)
------------------------------------------------------------------------------
+-- Scenarios: metamethods and formatting
 
 function TestStack:testStacksWithSameValuesCompareEqual()
 	local s1 = Stack.new({ 1, 2, 3 })
@@ -265,4 +249,5 @@ function TestStack:testNewPropertiesAndMethodsCannotBeAddedOrReplaced()
 	end)
 end
 
+-- Suite map
 return { TestStack = TestStack }

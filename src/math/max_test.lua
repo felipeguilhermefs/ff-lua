@@ -1,7 +1,11 @@
+-- Imports
 local lu = require("luaunit")
 local max = require("ff.math.max")
 
+-- Suite definitions
 local TestMax = {}
+
+-- Scenarios: maximum behavior
 function TestMax:testSingleNumberReturnsThatNumber()
 	lu.assertEquals(max(1), 1)
 	lu.assertEquals(max(-2), -2)
@@ -14,7 +18,7 @@ function TestMax:testVariadicInputReturnsLargestNumber()
 	lu.assertEquals(max(-5, -8, -2), -2)
 end
 
-function TestMax:testArrayInputReturnsLargestNumber()
+function TestMax:testUnpackedValuesReturnLargestNumber()
 	lu.assertEquals(max(table.unpack({ 7, 4, 9, 3 })), 9)
 end
 
@@ -29,8 +33,9 @@ function TestMax:testNonNumericInputReturnsNil()
 	end))
 end
 
-function TestMax:testArrayInputIgnoresNonNumbersWhenFindingLargest()
+function TestMax:testUnpackedValuesIgnoreNonNumbersWhenFindingLargest()
 	lu.assertEquals(max(table.unpack({ 8, true, "1", 5, {} })), 8)
 end
 
+-- Suite map
 return { TestMax = TestMax }

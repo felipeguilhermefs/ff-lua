@@ -1,10 +1,14 @@
+-- Imports
 local lu = require("luaunit")
 local Array = require("ff.collections.array")
 local Comparator = require("ff.func.comparator")
 local quicksort = require("ff.sort.quicksort")
 
+-- Suite definitions
 local TestQuickSort = {}
-function TestQuickSort:testArrayInputReturnsValuesInAscendingOrder()
+
+-- Scenarios: quick sort behavior
+function TestQuickSort:testArrayInputSortsValuesInAscendingOrder()
 	local a = Array.new({ 2, 6, 3, 4, 5, 1 })
 
 	quicksort(a)
@@ -15,6 +19,10 @@ function TestQuickSort:testArrayInputReturnsValuesInAscendingOrder()
 	lu.assertEquals(a:get(4), 4)
 	lu.assertEquals(a:get(5), 5)
 	lu.assertEquals(a:get(6), 6)
+end
+
+function TestQuickSort:testArrayInputSortsValuesByReverseComparator()
+	local a = Array.new({ 2, 6, 3, 4, 5, 1 })
 
 	quicksort(a, Comparator.reverse(Comparator.natural))
 
@@ -26,16 +34,21 @@ function TestQuickSort:testArrayInputReturnsValuesInAscendingOrder()
 	lu.assertEquals(a:get(1), 6)
 end
 
-function TestQuickSort:testTableArrayInputReturnsValuesInAscendingOrder()
+function TestQuickSort:testTableArrayInputSortsValuesInAscendingOrder()
 	local a = { 2, 6, 3, 4, 5, 1 }
 
 	quicksort(a)
 
 	lu.assertEquals(a, { 1, 2, 3, 4, 5, 6 })
+end
+
+function TestQuickSort:testTableArrayInputSortsValuesByReverseComparator()
+	local a = { 2, 6, 3, 4, 5, 1 }
 
 	quicksort(a, Comparator.reverse(Comparator.natural))
 
 	lu.assertEquals(a, { 6, 5, 4, 3, 2, 1 })
 end
 
+-- Suite map
 return { TestQuickSort = TestQuickSort }

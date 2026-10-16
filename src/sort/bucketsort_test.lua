@@ -1,8 +1,12 @@
+-- Imports
 local lu = require("luaunit")
 local Array = require("ff.collections.array")
 local bucketsort = require("ff.sort.bucketsort")
 
+-- Suite definitions
 local TestBucketSort = {}
+
+-- Scenarios: bucket sort behavior
 function TestBucketSort:testArrayInputReturnsValuesInAscendingOrder()
 	local a = Array.new({ 2, 6, 3, 4, 5, 1 })
 
@@ -41,4 +45,5 @@ function TestBucketSort:testTableArrayInputReturnsValuesInAscendingOrder()
 	lu.assertEquals(a, { -6, -4, -2, 1, 3, 5 })
 end
 
+-- Suite map
 return { TestBucketSort = TestBucketSort }

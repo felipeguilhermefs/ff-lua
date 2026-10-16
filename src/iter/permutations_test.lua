@@ -1,14 +1,8 @@
+-- Imports
 local lu = require("luaunit")
 local permutations = require("ff.iter.permutations")
 
-local TestPermutations = {}
------------------------------------------------------------------------------
----Helper method to collect the permutations in a array
----
----@param iter  Iterator<number, any>
----
----@return table<any>
------------------------------------------------------------------------------
+-- Test helpers
 local function collect(iter)
 	local res = {}
 	for value in iter do
@@ -17,6 +11,10 @@ local function collect(iter)
 	return res
 end
 
+-- Suite definitions
+local TestPermutations = {}
+
+-- Scenarios: permutation behavior
 function TestPermutations:testStringInputYieldsEveryPermutation()
 	local expected = {
 		"abc",
@@ -66,8 +64,9 @@ function TestPermutations:testFourElementInputYieldsTwentyFourPermutations()
 	lu.assertEquals(#p, 24)
 end
 
-function TestPermutations:testNilInputReturnsNil()
+function TestPermutations:testNilInputRaisesValidationError()
 	lu.assertErrorMsgContains("Only arrays and strings are accepted", permutations, nil)
 end
 
+-- Suite map
 return { TestPermutations = TestPermutations }

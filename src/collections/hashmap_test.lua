@@ -1,21 +1,11 @@
------------------------------------------------------------------------------
--- 1. Upvalue caching & Imports
------------------------------------------------------------------------------
+-- Imports
 local lu = require("luaunit")
 local HashMap = require("ff.collections.hashmap")
 
------------------------------------------------------------------------------
--- 2. Test Suite Table Definition
------------------------------------------------------------------------------
+-- Suite definitions
 local TestHashMap = {}
------------------------------------------------------------------------------
--- 3. Suite Lifecycle Hooks (Optional)
--- Not needed: each test creates its own fixtures.
------------------------------------------------------------------------------
 
------------------------------------------------------------------------------
--- 4. Constructor & Type Guard Tests
------------------------------------------------------------------------------
+-- Scenarios: construction and type recognition
 
 function TestHashMap:testTypeGuardRecognizesHashMapsAndRejectsOtherValues()
 	lu.assertTrue(HashMap.isHashMap(HashMap.new()))
@@ -28,7 +18,6 @@ function TestHashMap:testTypeGuardRecognizesHashMapsAndRejectsOtherValues()
 	lu.assertFalse(HashMap.isHashMap(require("ff.collections.set").new()))
 end
 
------------------------------------------------------------------------------
 
 function TestHashMap:testConstructorCopiesEntriesFromTable()
 	local map = HashMap.new({ x = 1, y = 2, z = 3 })
@@ -52,8 +41,7 @@ function TestHashMap:testConstructorCopiesEntriesFromHashMapIndependently()
 	lu.assertEquals(source:get("a"), 10)
 end
 
--- 5. Core Accessor & Inspection Tests
------------------------------------------------------------------------------
+-- Scenarios: reads and inspection
 
 function TestHashMap:testGetReturnsStoredValuesAndNilForMissingKeys()
 	local map = HashMap.new()
@@ -84,7 +72,6 @@ function TestHashMap:testRemovedKeyIsNoLongerContained()
 	lu.assertFalse(map:contains("e"))
 end
 
------------------------------------------------------------------------------
 function TestHashMap:testIterationYieldsEveryStoredKeyValuePair()
 	local map = HashMap.new()
 
@@ -107,8 +94,7 @@ function TestHashMap:testIterationYieldsEveryStoredKeyValuePair()
 	lu.assertItemsEquals(actual_pairs, expected_pairs)
 end
 
--- 6. Mutation & Modification Tests
------------------------------------------------------------------------------
+-- Scenarios: state changes
 
 function TestHashMap:testClearMakesMapEmpty()
 	local map = HashMap.new()
@@ -184,9 +170,7 @@ function TestHashMap:testMergeCombinesOverlappingAndDistinctKeys()
 	lu.assertEquals(map:get("d"), 4)
 end
 
------------------------------------------------------------------------------
--- 7. Metamethod Tests (__len, __eq, __concat, __tostring, __newindex)
------------------------------------------------------------------------------
+-- Scenarios: metamethods and formatting
 
 function TestHashMap:testConcatAppendsTableAndArrayEntries()
 	local map = HashMap.new() .. { a = 10, b = 20, c = 30 }
@@ -277,4 +261,5 @@ function TestHashMap:testNewPropertiesAndMethodsCannotBeAddedOrReplaced()
 	end)
 end
 
+-- Suite map
 return { TestHashMap = TestHashMap }

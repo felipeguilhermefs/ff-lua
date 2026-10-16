@@ -1,21 +1,11 @@
------------------------------------------------------------------------------
--- 1. Upvalue caching & Imports
------------------------------------------------------------------------------
+-- Imports
 local lu = require("luaunit")
 local Queue = require("ff.collections.queue")
 
------------------------------------------------------------------------------
--- 2. Test Suite Table Definition
------------------------------------------------------------------------------
+-- Suite definitions
 local TestQueue = {}
------------------------------------------------------------------------------
--- 3. Suite Lifecycle Hooks (Optional)
--- Not needed: each test creates its own fixtures.
------------------------------------------------------------------------------
 
------------------------------------------------------------------------------
--- 4. Constructor & Type Guard Tests
------------------------------------------------------------------------------
+-- Scenarios: construction and type recognition
 
 function TestQueue:testTypeGuardRecognizesQueuesAndRejectsOtherValues()
 	lu.assertTrue(Queue.isQueue(Queue.new()))
@@ -37,7 +27,7 @@ function TestQueue:testCapacityConstructorCreatesEmptyQueue()
 	lu.assertEquals(#q, 0)
 end
 
-function TestQueue:testConstructorPreservesIterableOrder()
+function TestQueue:testConstructorLoadsInitialValuesAndSetsFront()
 	local q = Queue.new({ 10, 20, 30 })
 	lu.assertEquals(#q, 3)
 	lu.assertEquals(q:peek(), 10)
@@ -56,9 +46,7 @@ function TestQueue:testConstructorRejectsInvalidCapacity()
 	lu.assertErrorMsgContains("capacity should be positive", Queue.new, nil, 0)
 end
 
------------------------------------------------------------------------------
--- 5. Core Accessor & Inspection Tests
------------------------------------------------------------------------------
+-- Scenarios: reads and inspection
 
 function TestQueue:testCapacityRejectsItemsBeyondLimitAndAllowsReuseAfterDequeue()
 	local q = Queue.new(nil, 2)
@@ -224,9 +212,7 @@ function TestQueue:testFullQueueRejectsEnqueue()
 	lu.assertFalse(q:enqueue("d"))
 end
 
------------------------------------------------------------------------------
--- 6. Mutation & Modification Tests
------------------------------------------------------------------------------
+-- Scenarios: state changes
 
 function TestQueue:testClearMakesQueueEmptyAfterEnqueues()
 	local q = Queue.new()
@@ -350,9 +336,7 @@ function TestQueue:testQueuePreservesOrderAcrossValueTypes()
 	lu.assertTrue(q:empty())
 end
 
------------------------------------------------------------------------------
--- 7. Metamethod Tests (__len, __eq, __concat, __tostring, __newindex)
------------------------------------------------------------------------------
+-- Scenarios: metamethods and formatting
 
 function TestQueue:testLengthTracksEnqueueAndDequeueOperations()
 	local q = Queue.new()
@@ -469,4 +453,5 @@ function TestQueue:testNewPropertiesAndMethodsCannotBeAddedOrReplaced()
 	end)
 end
 
+-- Suite map
 return { TestQueue = TestQueue }

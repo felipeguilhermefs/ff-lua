@@ -1,7 +1,11 @@
+-- Imports
 local lu = require("luaunit")
 local fibonacci = require("ff.math.fibonacci")
 
+-- Suite definitions
 local TestFibonacci = {}
+
+-- Scenarios: sequence behavior
 function TestFibonacci:testZeroInputReturnsOne()
 	lu.assertEquals(fibonacci(0), 1)
 end
@@ -34,4 +38,5 @@ function TestFibonacci:testHundredthInputReturnsExpectedValue()
 	lu.assertEquals(fibonacci(100), 1298777728820984005)
 end
 
+-- Suite map
 return { TestFibonacci = TestFibonacci }

@@ -1,22 +1,12 @@
------------------------------------------------------------------------------
--- 1. Upvalue caching & Imports
------------------------------------------------------------------------------
+-- Imports
 local lu = require("luaunit")
 local TreeMap = require("ff.collections.treemap")
 local Comparator = require("ff.func.comparator")
 
------------------------------------------------------------------------------
--- 2. Test Suite Table Definition
------------------------------------------------------------------------------
+-- Suite definitions
 local TestTreeMap = {}
------------------------------------------------------------------------------
--- 3. Suite Lifecycle Hooks (Optional)
--- Not needed: each test creates its own fixtures.
------------------------------------------------------------------------------
 
------------------------------------------------------------------------------
--- 4. Constructor & Type Guard Tests
------------------------------------------------------------------------------
+-- Scenarios: construction and type recognition
 
 function TestTreeMap:testTypeGuardRecognizesTreeMapsAndRejectsOtherValues()
 	lu.assertTrue(TreeMap.isTreeMap(TreeMap.new()))
@@ -98,9 +88,7 @@ function TestTreeMap:testCustomComparatorOrdersStructuredKeys()
 	lu.assertEquals(maxKey.score, 20)
 end
 
------------------------------------------------------------------------------
--- 5. Core Accessor & Inspection Tests
------------------------------------------------------------------------------
+-- Scenarios: reads and inspection
 
 function TestTreeMap:testContainsReportsStoredAndRemovedKeysCorrectly()
 	local tm = TreeMap.new()
@@ -202,7 +190,6 @@ function TestTreeMap:testRangeYieldsEntriesWithinInclusiveBounds()
 	})
 end
 
------------------------------------------------------------------------------
 function TestTreeMap:testIterationYieldsEntriesInAscendingKeyOrder()
 	local tm = TreeMap.new({ d = 4, b = 2, a = 1, c = 3 })
 
@@ -220,8 +207,7 @@ function TestTreeMap:testIterationYieldsEntriesInAscendingKeyOrder()
 	})
 end
 
--- 6. Mutation & Modification Tests
------------------------------------------------------------------------------
+-- Scenarios: state changes
 
 function TestTreeMap:testClearEmptiesTreeMapAndAllowsReuse()
 	local tm = TreeMap.new()
@@ -382,9 +368,7 @@ function TestTreeMap:testMergeCombinesOverlappingAndDistinctKeys()
 	lu.assertEquals(tm2:get("z"), 30)
 end
 
------------------------------------------------------------------------------
--- 7. Metamethod Tests (__len, __eq, __concat, __tostring, __newindex)
------------------------------------------------------------------------------
+-- Scenarios: metamethods and formatting
 
 function TestTreeMap:testConcatAppendsMapEntries()
 	local tm = TreeMap.new() .. { a = 10, b = 20, c = 30 }
@@ -453,4 +437,5 @@ function TestTreeMap:testNewPropertiesAndMethodsCannotBeAddedOrReplaced()
 	end)
 end
 
+-- Suite map
 return { TestTreeMap = TestTreeMap }

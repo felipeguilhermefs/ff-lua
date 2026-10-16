@@ -1,23 +1,13 @@
------------------------------------------------------------------------------
--- 1. Upvalue caching & Imports
------------------------------------------------------------------------------
+-- Imports
 local lu = require("luaunit")
 local RadixTree = require("ff.collections.radixtree")
 local Array = require("ff.collections.array")
 local Set = require("ff.collections.set")
 
------------------------------------------------------------------------------
--- 2. Test Suite Table Definition
------------------------------------------------------------------------------
+-- Suite definitions
 local TestRadixTree = {}
------------------------------------------------------------------------------
--- 3. Suite Lifecycle Hooks (Optional)
--- Not needed: each test creates its own fixtures.
------------------------------------------------------------------------------
 
------------------------------------------------------------------------------
--- 4. Constructor & Type Guard Tests
------------------------------------------------------------------------------
+-- Scenarios: construction and type recognition
 
 function TestRadixTree:testTypeGuardRecognizesRadixTreesAndRejectsOtherValues()
 	lu.assertTrue(RadixTree.isRadixTree(RadixTree.new()))
@@ -74,9 +64,7 @@ function TestRadixTree:testConstructorPreservesInsertedWords()
 	lu.assertErrorMsgContains("caseSensitive should be a boolean", RadixTree.new, nil, "invalid")
 end
 
------------------------------------------------------------------------------
--- 5. Core Accessor & Inspection Tests
------------------------------------------------------------------------------
+-- Scenarios: reads and inspection
 
 function TestRadixTree:testContainsReportsInsertedWordsAndRejectsMissingWords()
 	local t = RadixTree.new()
@@ -176,7 +164,6 @@ function TestRadixTree:testWordLookupIsCaseSensitive()
 	lu.assertTrue(ti:contains("wolf", true))
 end
 
------------------------------------------------------------------------------
 function TestRadixTree:testIterationYieldsStoredWords()
 	local t = RadixTree.new({ "alpha", "beta", "gamma" })
 
@@ -191,8 +178,7 @@ function TestRadixTree:testIterationYieldsStoredWords()
 	lu.assertItemsEquals(words, { "alpha", "beta", "gamma" })
 end
 
--- 6. Mutation & Modification Tests
------------------------------------------------------------------------------
+-- Scenarios: state changes
 
 function TestRadixTree:testClearRemovesAllWordsAndAllowsReuse()
 	local t = RadixTree.new()
@@ -438,9 +424,7 @@ function TestRadixTree:testSingleCharacterWordsRemainSearchable()
 	lu.assertTrue(t:contains("abcd", true))
 end
 
------------------------------------------------------------------------------
--- 7. Metamethod Tests (__len, __eq, __concat, __tostring, __newindex)
------------------------------------------------------------------------------
+-- Scenarios: metamethods and formatting
 
 function TestRadixTree:testConcatAppendsWordsFromIterableValues()
 	local t = RadixTree.new()
@@ -554,4 +538,5 @@ function TestRadixTree:testNewPropertiesAndMethodsCannotBeAddedOrReplaced()
 	end)
 end
 
+-- Suite map
 return { TestRadixTree = TestRadixTree }
