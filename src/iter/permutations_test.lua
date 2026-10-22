@@ -15,7 +15,7 @@ end
 local TestPermutations = {}
 
 -- Scenarios: permutation behavior
-function TestPermutations:testStringInputYieldsEveryPermutation()
+function TestPermutations:testStringInput_Yields_EveryPermutation()
 	-- Given: "abc" has six expected orderings.
 	local expected = {
 		"abc",
@@ -36,7 +36,7 @@ function TestPermutations:testStringInputYieldsEveryPermutation()
 	end
 end
 
-function TestPermutations:testEmptyStringYieldsOneEmptyPermutation()
+function TestPermutations:testEmptyString_Yields_OneEmptyPermutation()
 	-- Given: the source string has no characters.
 	-- When: collect the permutations generated from an empty string.
 	local p = collect(permutations(""))
@@ -46,7 +46,7 @@ function TestPermutations:testEmptyStringYieldsOneEmptyPermutation()
 	lu.assertEquals(p[1], "")
 end
 
-function TestPermutations:testArrayInputYieldsEveryPermutation()
+function TestPermutations:testArrayInput_Yields_EveryPermutation()
 	-- Given: the three-element input has six expected orderings.
 	local expected = {
 		{ 1, 2, 3 },
@@ -67,7 +67,7 @@ function TestPermutations:testArrayInputYieldsEveryPermutation()
 	end
 end
 
-function TestPermutations:testEmptyArrayYieldsOneEmptyPermutation()
+function TestPermutations:testEmptyArray_Yields_OneEmptyPermutation()
 	-- Given: the source array has no elements.
 	-- When: collect the permutations generated from an empty array.
 	local p = collect(permutations({}))
@@ -77,7 +77,7 @@ function TestPermutations:testEmptyArrayYieldsOneEmptyPermutation()
 	lu.assertEquals(#p[1], 0)
 end
 
-function TestPermutations:testFourElementInputYieldsTwentyFourPermutations()
+function TestPermutations:testFourElementInput_Yields_TwentyFourPermutations()
 	-- Given: the source array contains four distinct elements.
 	-- When: collect every generated ordering.
 	local p = collect(permutations({ 1, 2, 3, 4 }))
@@ -86,7 +86,7 @@ function TestPermutations:testFourElementInputYieldsTwentyFourPermutations()
 	lu.assertEquals(#p, 24)
 end
 
-function TestPermutations:testNilInputRaisesValidationError()
+function TestPermutations:testNilInput_Raises_ValidationError()
 	-- Given: the source value is nil.
 	-- When: pass nil to the permutations generator.
 	-- Then: validation reports that only arrays and strings are accepted.

@@ -8,7 +8,7 @@ local TestTreeMap = {}
 
 -- Scenarios: construction and type recognition
 
-function TestTreeMap:testTypeGuardRecognizesTreeMapsAndRejectsOtherValues()
+function TestTreeMap:testTypeGuard_Recognizes_TreeMapsAndRejectsOtherValues()
 	-- Given: candidates include a TreeMap, a table, and scalar values.
 	-- When: check each candidate with TreeMap.isTreeMap.
 	-- Then: only the TreeMap instance returns true.
@@ -19,7 +19,7 @@ function TestTreeMap:testTypeGuardRecognizesTreeMapsAndRejectsOtherValues()
 	lu.assertFalse(TreeMap.isTreeMap(123))
 end
 
-function TestTreeMap:testEmptyConstructorCreatesEmptyTreeMap()
+function TestTreeMap:testEmptyConstructor_Creates_EmptyTreeMap()
 	-- Given: construction receives no entries.
 
 	-- When: call TreeMap.new without arguments.
@@ -30,7 +30,7 @@ function TestTreeMap:testEmptyConstructorCreatesEmptyTreeMap()
 	lu.assertEquals(#tm, 0)
 end
 
-function TestTreeMap:testConstructorCopiesKeyValueEntries()
+function TestTreeMap:testConstructor_Copies_KeyValueEntries()
 	-- Given: the source table maps a through d to 10 through 40.
 
 	-- When: initialize a TreeMap from that table.
@@ -45,7 +45,7 @@ function TestTreeMap:testConstructorCopiesKeyValueEntries()
 	lu.assertEquals(tm:get("d"), 40)
 end
 
-function TestTreeMap:testComparatorConstructorReversesKeyOrder()
+function TestTreeMap:testComparatorConstructor_Reverses_KeyOrder()
 	-- Given: the TreeMap uses a reverse natural comparator.
 
 	-- When: insert keys 1, 2, and 3, then inspect both boundaries.
@@ -67,7 +67,7 @@ function TestTreeMap:testComparatorConstructorReversesKeyOrder()
 	lu.assertEquals(v, "one")
 end
 
-function TestTreeMap:testConstructorRejectsInvalidComparators()
+function TestTreeMap:testConstructor_Rejects_InvalidComparators()
 	-- Given: comparator inputs include strings, numbers, and booleans.
 	-- When: pass each invalid comparator to TreeMap.new.
 	-- Then: each call reports that comparator must be a function.
@@ -77,7 +77,7 @@ function TestTreeMap:testConstructorRejectsInvalidComparators()
 	lu.assertErrorMsgContains("comparator should be a function", TreeMap.new, { a = 1 }, "not_a_function")
 end
 
-function TestTreeMap:testCustomComparatorOrdersStructuredKeys()
+function TestTreeMap:testCustomComparator_Orders_StructuredKeys()
 	-- Given: object keys have scores 10, 20, and 5.
 	local function ScoreComparator(a, b)
 		if a.score > b.score then
@@ -114,7 +114,7 @@ end
 
 -- Scenarios: reads and inspection
 
-function TestTreeMap:testContainsReportsStoredAndRemovedKeysCorrectly()
+function TestTreeMap:testContains_ReportsStoredAndRemovedKeys_Correctly()
 	-- Given: an empty TreeMap.
 	local tm = TreeMap.new()
 
@@ -136,7 +136,7 @@ function TestTreeMap:testContainsReportsStoredAndRemovedKeysCorrectly()
 	lu.assertFalse(tm:contains("key"))
 end
 
-function TestTreeMap:testMinAndMaxReturnBoundaryEntriesOrNilWhenEmpty()
+function TestTreeMap:testMinAndMax_ReturnBoundaryEntries_OrNilWhenEmpty()
 	-- Given: an empty TreeMap.
 	local tm = TreeMap.new()
 
@@ -161,7 +161,7 @@ function TestTreeMap:testMinAndMaxReturnBoundaryEntriesOrNilWhenEmpty()
 	lu.assertEquals(maxV, "nine")
 end
 
-function TestTreeMap:testFloorAndCeilingReturnNearestKeysWithinBounds()
+function TestTreeMap:testFloorAndCeiling_ReturnNearestKeys_WithinBounds()
 	-- Given: the TreeMap contains keys 10, 20, 30, 40, and 50.
 	local tm = TreeMap.new()
 	tm:put(10, "ten")
@@ -189,7 +189,7 @@ function TestTreeMap:testFloorAndCeilingReturnNearestKeysWithinBounds()
 	lu.assertNil(tm:ceiling(55))
 end
 
-function TestTreeMap:testRangeYieldsEntriesWithinInclusiveBounds()
+function TestTreeMap:testRange_Yields_EntriesWithinInclusiveBounds()
 	-- Given: the TreeMap contains keys 1 through 10 and values ten times each key.
 	local tm = TreeMap.new()
 	for i = 1, 10 do
@@ -236,7 +236,7 @@ function TestTreeMap:testRangeYieldsEntriesWithinInclusiveBounds()
 	})
 end
 
-function TestTreeMap:testIterationYieldsEntriesInAscendingKeyOrder()
+function TestTreeMap:testIteration_Yields_EntriesInAscendingKeyOrder()
 	-- Given: the map is initialized with keys inserted out of order.
 	local tm = TreeMap.new({ d = 4, b = 2, a = 1, c = 3 })
 
@@ -260,7 +260,7 @@ end
 
 -- Scenarios: state changes
 
-function TestTreeMap:testClearEmptiesTreeMapAndAllowsReuse()
+function TestTreeMap:testClear_Empties_TreeMapAndAllowsReuse()
 	-- Given: an empty TreeMap.
 	local tm = TreeMap.new()
 	lu.assertTrue(tm:empty())
@@ -282,7 +282,7 @@ function TestTreeMap:testClearEmptiesTreeMapAndAllowsReuse()
 	lu.assertEquals(tm:get("z"), 26)
 end
 
-function TestTreeMap:testPutAddsOrReplacesValuesAndGetReturnsThem()
+function TestTreeMap:testPutAndGet_AddOrReplaceValues_AndReturnThem()
 	-- Given: an empty TreeMap.
 	local tm = TreeMap.new()
 
@@ -321,7 +321,7 @@ function TestTreeMap:testPutAddsOrReplacesValuesAndGetReturnsThem()
 	end)
 end
 
-function TestTreeMap:testRemoveDeletesRequestedKeyAndPreservesOtherEntries()
+function TestTreeMap:testRemove_DeletesRequestedKey_AndPreservesOtherEntries()
 	-- Given: an empty TreeMap and keys 1 through 7 for leaf, child, and root cases.
 	local tm = TreeMap.new()
 
@@ -358,7 +358,7 @@ function TestTreeMap:testRemoveDeletesRequestedKeyAndPreservesOtherEntries()
 	lu.assertNil(tm:get(4))
 end
 
-function TestTreeMap:testRemoveHandlesMissingAndBoundaryKeys()
+function TestTreeMap:testRemove_Handles_MissingAndBoundaryKeys()
 	-- Given: an empty TreeMap.
 	local tm = TreeMap.new()
 
@@ -398,7 +398,7 @@ function TestTreeMap:testRemoveHandlesMissingAndBoundaryKeys()
 	lu.assertFalse(tmLeft:contains(20))
 end
 
-function TestTreeMap:testComputeStoresOnlyMissingKeys()
+function TestTreeMap:testCompute_Stores_OnlyMissingKeys()
 	-- Given: the TreeMap starts empty and callbacks return values for keys 2 and 3.
 	local tm = TreeMap.new()
 
@@ -425,7 +425,7 @@ function TestTreeMap:testComputeStoresOnlyMissingKeys()
 	end)
 end
 
-function TestTreeMap:testMergeCombinesOverlappingAndDistinctKeys()
+function TestTreeMap:testMerge_Combines_OverlappingAndDistinctKeys()
 	-- Given: maps overlap on a and b; c and d occur in only one map.
 	local function add(a, b)
 		return a + b
@@ -455,7 +455,7 @@ end
 
 -- Scenarios: metamethods and formatting
 
-function TestTreeMap:testConcatAppendsMapEntries()
+function TestTreeMap:testConcat_Appends_MapEntries()
 	-- Given: an empty TreeMap, table entries a through c, and another map with d and e.
 	local tm = TreeMap.new()
 	local other = TreeMap.new({ d = 40, e = 50 })
@@ -478,7 +478,7 @@ function TestTreeMap:testConcatAppendsMapEntries()
 	lu.assertEquals(tm:get("e"), 50)
 end
 
-function TestTreeMap:testTreeMapsWithSameEntriesCompareEqual()
+function TestTreeMap:testTreeMapsWithSameEntries_Compare_Equal()
 	-- Given: maps have matching entries, a changed value, a shorter length, or no entries.
 	local tm1 = TreeMap.new({ a = 1, b = 2, c = 3 })
 	local tm2 = TreeMap.new({ c = 3, a = 1, b = 2 })
@@ -501,7 +501,7 @@ function TestTreeMap:testTreeMapsWithSameEntriesCompareEqual()
 	lu.assertTrue(empty1 == empty2)
 end
 
-function TestTreeMap:testToStringFormatsTreeMapEntries()
+function TestTreeMap:testToString_Formats_TreeMapEntries()
 	-- Given: one TreeMap is empty; another contains keys a, b, and c.
 	local emptyTm = TreeMap.new()
 
@@ -513,7 +513,7 @@ function TestTreeMap:testToStringFormatsTreeMapEntries()
 	lu.assertEquals(tostring(tm), "{ a = 1, b = 2, c = 3 }")
 end
 
-function TestTreeMap:testNewPropertiesAndMethodsCannotBeAddedOrReplaced()
+function TestTreeMap:testNewPropertiesAndMethods_CannotBe_AddedOrReplaced()
 	-- Given: an empty TreeMap defines get and its other public methods.
 	local tm = TreeMap.new()
 

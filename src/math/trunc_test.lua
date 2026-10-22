@@ -6,7 +6,7 @@ local trunc = require("ff.math.trunc")
 local TestTrunc = {}
 
 -- Scenarios: truncation behavior
-function TestTrunc:testZeroInputReturnsZero()
+function TestTrunc:testZeroInput_Returns_Zero()
 	-- Given: inputs are zero and fractions between -1 and 1.
 	-- When: truncate zero and fractions whose magnitude is below one.
 	-- Then: each result is zero.
@@ -15,7 +15,7 @@ function TestTrunc:testZeroInputReturnsZero()
 	lu.assertEquals(trunc(-0.1), 0)
 end
 
-function TestTrunc:testPositiveInputTruncatesTowardZero()
+function TestTrunc:testPositiveInput_Truncates_TowardZero()
 	-- Given: inputs are positive integers and fractions.
 	-- When: truncate positive fractions and preserve positive integers.
 	-- Then: fractional parts are discarded and integers stay unchanged.
@@ -26,7 +26,7 @@ function TestTrunc:testPositiveInputTruncatesTowardZero()
 	lu.assertEquals(trunc(10.6), 10)
 end
 
-function TestTrunc:testNegativeInputTruncatesTowardZero()
+function TestTrunc:testNegativeInput_Truncates_TowardZero()
 	-- Given: inputs are negative integers and fractions.
 	-- When: truncate negative fractions and preserve negative integers.
 	-- Then: fractional parts are discarded toward zero.
@@ -35,7 +35,7 @@ function TestTrunc:testNegativeInputTruncatesTowardZero()
 	lu.assertEquals(trunc(-18), -18)
 end
 
-function TestTrunc:testNonNumericInputReturnsNil()
+function TestTrunc:testNonNumericInput_Returns_Nil()
 	-- Given: inputs include nil, booleans, strings, tables, and a function.
 	-- When: pass each value to trunc.
 	-- Then: every call returns nil.

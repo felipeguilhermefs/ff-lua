@@ -8,7 +8,7 @@ local binarysearch = require("ff.search.binarysearch")
 local TestBinarySearch = {}
 
 -- Scenarios: binary search behavior
-function TestBinarySearch:testArrayInputReturnsIndexOfMatchingValue()
+function TestBinarySearch:testArrayInput_Returns_IndexOfMatchingValue()
 	-- Given: an Array stores integers 1 through 6 in ascending order.
 	local a = Array.new({ 1, 2, 3, 4, 5, 6 })
 
@@ -23,7 +23,7 @@ function TestBinarySearch:testArrayInputReturnsIndexOfMatchingValue()
 	lu.assertNil(binarysearch(a, 7))
 end
 
-function TestBinarySearch:testTableArrayInputReturnsIndexOfMatchingValue()
+function TestBinarySearch:testTableArrayInput_Returns_IndexOfMatchingValue()
 	-- Given: a plain table stores integers 6 through 1 in descending order.
 	local a = { 6, 5, 4, 3, 2, 1 }
 

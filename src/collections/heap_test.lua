@@ -17,7 +17,7 @@ local TestHeap = {}
 
 -- Scenarios: construction and type recognition
 
-function TestHeap:testTypeGuardRecognizesHeapsAndRejectsOtherValues()
+function TestHeap:testTypeGuard_Recognizes_HeapsAndRejectsOtherValues()
 	-- Given: candidates include min/max Heaps, a table, and scalars.
 	local h = Heap.new()
 
@@ -32,7 +32,7 @@ function TestHeap:testTypeGuardRecognizesHeapsAndRejectsOtherValues()
 	lu.assertFalse(Heap.isHeap(123))
 end
 
-function TestHeap:testEmptyConstructorCreatesEmptyHeap()
+function TestHeap:testEmptyConstructor_Creates_EmptyHeap()
 	-- Given: construction receives no values.
 
 	-- When: call Heap.new without arguments.
@@ -45,7 +45,7 @@ function TestHeap:testEmptyConstructorCreatesEmptyHeap()
 	lu.assertNil(h:pop())
 end
 
-function TestHeap:testConstructorOrdersIterableValuesByPriority()
+function TestHeap:testConstructor_Orders_IterableValuesByPriority()
 	-- Given: the iterable is { 30, 10, 20 }, not priority-ordered.
 
 	-- When: initialize a Heap from those values.
@@ -60,7 +60,7 @@ function TestHeap:testConstructorOrdersIterableValuesByPriority()
 	lu.assertTrue(h:empty())
 end
 
-function TestHeap:testComparatorConstructorUsesRequestedPriority()
+function TestHeap:testComparatorConstructor_Uses_RequestedPriority()
 	-- Given: an empty Heap constructed with reverse-order comparator.
 	local h = Heap.new(nil, Comparator.reverse(Comparator.natural))
 	lu.assertTrue(h:empty())
@@ -79,7 +79,7 @@ function TestHeap:testComparatorConstructorUsesRequestedPriority()
 	lu.assertTrue(h:empty())
 end
 
-function TestHeap:testComparatorConstructorOrdersInitialValuesByPriority()
+function TestHeap:testComparatorConstructor_Orders_InitialValuesByPriority()
 	-- Given: initial values { 10, 30, 20 } use a reverse comparator.
 
 	-- When: initialize the Heap with both inputs.
@@ -92,7 +92,7 @@ function TestHeap:testComparatorConstructorOrdersInitialValuesByPriority()
 	lu.assertEquals(h:pop(), 10)
 end
 
-function TestHeap:testCapacityConstructorsCreateEmptyBoundedHeaps()
+function TestHeap:testCapacityConstructors_Create_EmptyBoundedHeaps()
 	-- Given: capacity 5 is supplied without initial values.
 
 	-- When: construct the standard, min, and max Heap variants.
@@ -114,7 +114,7 @@ function TestHeap:testCapacityConstructorsCreateEmptyBoundedHeaps()
 	lu.assertFalse(maxH:full())
 end
 
-function TestHeap:testCapacityConstructorsLoadInitialValuesWithinLimit()
+function TestHeap:testCapacityConstructors_Load_InitialValuesWithinLimit()
 	-- Given: three initial values fit within capacity 5.
 
 	-- When: initialize each Heap variant with those values.
@@ -137,7 +137,7 @@ function TestHeap:testCapacityConstructorsLoadInitialValuesWithinLimit()
 	lu.assertTrue(maxH:full())
 end
 
-function TestHeap:testConstructorsRejectInvalidComparatorAndCapacity()
+function TestHeap:testConstructors_Reject_InvalidComparatorAndCapacity()
 	-- Given: constructor inputs include invalid comparators and capacities.
 	-- When: pass each invalid combination to a Heap constructor.
 	-- Then: errors identify the invalid comparator or capacity.
@@ -156,7 +156,7 @@ function TestHeap:testConstructorsRejectInvalidComparatorAndCapacity()
 	lu.assertErrorMsgContains("capacity should be positive", Heap.newMax, nil, -1)
 end
 
-function TestHeap:testMinAndMaxConstructorsProduceExpectedPriorityOrder()
+function TestHeap:testMinAndMaxConstructors_Produce_ExpectedPriorityOrder()
 	-- Given: both constructors receive the same unordered values.
 
 	-- When: construct each Heap type and pop all values.
@@ -181,7 +181,7 @@ end
 
 -- Scenarios: reads and inspection
 
-function TestHeap:testContainsFindsStoredValuesWithoutConsumingHeap()
+function TestHeap:testContains_FindsStoredValues_WithoutConsumingHeap()
 	-- Given: an empty Heap.
 	local h = Heap.new()
 
@@ -211,7 +211,7 @@ function TestHeap:testContainsFindsStoredValuesWithoutConsumingHeap()
 	lu.assertTrue(h:contains(30))
 end
 
-function TestHeap:testContainsRejectsNilAndIncomparableValues()
+function TestHeap:testContains_Rejects_NilAndIncomparableValues()
 	-- Given: an empty Heap.
 	local h = Heap.new()
 
@@ -230,7 +230,7 @@ function TestHeap:testContainsRejectsNilAndIncomparableValues()
 	end)
 end
 
-function TestHeap:testIterationYieldsHeapValuesInLevelOrder()
+function TestHeap:testIteration_Yields_HeapValuesInLevelOrder()
 	-- Given: the Heap starts empty and receives b, d, c, and a.
 	local h = Heap.new()
 
@@ -255,7 +255,7 @@ function TestHeap:testIterationYieldsHeapValuesInLevelOrder()
 	lu.assertEquals(h:peek(), "a")
 end
 
-function TestHeap:testIterationOfEmptyHeapYieldsNoValues()
+function TestHeap:testEmptyHeapIteration_Yields_NoValues()
 	-- Given: the Heap has no entries.
 	local h = Heap.new()
 
@@ -270,7 +270,7 @@ function TestHeap:testIterationOfEmptyHeapYieldsNoValues()
 	lu.assertEquals(count, 0)
 end
 
-function TestHeap:testRepeatedIterationPreservesHeapContents()
+function TestHeap:testRepeatedIteration_Preserves_HeapContents()
 	-- Given: the Heap contains 10, 20, and 30 for two non-consuming traversals.
 	local h = Heap.new({ 10, 20, 30 })
 
@@ -292,7 +292,7 @@ function TestHeap:testRepeatedIterationPreservesHeapContents()
 	lu.assertEquals(#h, 3)
 end
 
-function TestHeap:testIterationYieldsValuesInLevelOrder()
+function TestHeap:testIteration_Yields_ValuesInLevelOrder()
 	-- Given: the Heap starts empty and receives 10, 30, 20, 50, and 40.
 	local h = Heap.new()
 
@@ -314,7 +314,7 @@ function TestHeap:testIterationYieldsValuesInLevelOrder()
 	lu.assertEquals(#h, 5)
 end
 
-function TestHeap:testIndexOfFindsStoredValuesAndReturnsNilForMissingValues()
+function TestHeap:testIndexOf_FindsStoredValues_AndReturnsNilForMissingValues()
 	-- Given: the Heap contains seven values and one queried value is absent.
 	local h = Heap.new({ 10, 20, 30, 40, 50, 60, 70 })
 	local entries = entriesByIndex(h)
@@ -343,7 +343,7 @@ function TestHeap:testIndexOfFindsStoredValuesAndReturnsNilForMissingValues()
 	lu.assertNil(Heap.new():indexOf(10))
 end
 
-function TestHeap:testIndexOfSearchesOnlyRequestedSubtree()
+function TestHeap:testIndexOf_Searches_OnlyRequestedSubtree()
 	-- Given: distinct values occupy the root and child subtrees.
 	local h = Heap.new({ 10, 20, 30, 40, 50, 60, 70 })
 
@@ -370,7 +370,7 @@ function TestHeap:testIndexOfSearchesOnlyRequestedSubtree()
 	lu.assertNil(h:indexOf(10, 100))
 end
 
-function TestHeap:testMaxHeapIndexOfFindsValuesAndRejectsValuesOutsideHeap()
+function TestHeap:testMaxHeapIndexOf_FindsValues_AndRejectsValuesOutsideHeap()
 	-- Given: the max-heap stores 10 through 70 and an absent value is queried.
 	local maxH = Heap.newMax({ 70, 60, 50, 40, 30, 20, 10 })
 	local entries = entriesByIndex(maxH)
@@ -396,7 +396,7 @@ function TestHeap:testMaxHeapIndexOfFindsValuesAndRejectsValuesOutsideHeap()
 	lu.assertNil(maxH:indexOf(0))
 end
 
-function TestHeap:testMaxHeapIndexOfSearchesOnlyRequestedSubtree()
+function TestHeap:testMaxHeapIndexOf_Searches_OnlyRequestedSubtree()
 	-- Given: the max-heap root and child subtrees contain distinct values.
 	local maxH = Heap.newMax({ 100, 80, 90, 40, 50, 60, 70 })
 
@@ -421,7 +421,7 @@ function TestHeap:testMaxHeapIndexOfSearchesOnlyRequestedSubtree()
 	lu.assertNil(maxH:indexOf(rightVal, 2))
 end
 
-function TestHeap:testMaxHeapIndexOfFindsDuplicateValues()
+function TestHeap:testMaxHeapIndexOf_Finds_DuplicateValues()
 	-- Given: the max-heap stores the same value at multiple indexes.
 	local maxH = Heap.newMax({ 50, 40, 40, 30, 20, 20, 10 })
 	local entries = entriesByIndex(maxH)
@@ -436,7 +436,7 @@ function TestHeap:testMaxHeapIndexOfFindsDuplicateValues()
 	end
 end
 
-function TestHeap:testIndexOfFindsObjectValuesWithEqualPriority()
+function TestHeap:testIndexOf_FindsObjectValues_WithEqualPriority()
 	-- Given: objects share priority but have distinct identities.
 	local function cmp(a, b)
 		return Comparator.natural(a.priority, b.priority)
@@ -458,7 +458,7 @@ function TestHeap:testIndexOfFindsObjectValuesWithEqualPriority()
 	lu.assertFalse(h:contains(c))
 end
 
-function TestHeap:testMaxHeapIndexOfFindsObjectValuesWithEqualPriority()
+function TestHeap:testMaxHeapIndexOf_FindsObjectValues_WithEqualPriority()
 	-- Given: max-heap objects share priority but have distinct identities.
 	local function maxObjCmp(a, b)
 		return Comparator.reverse(Comparator.natural)(a.priority, b.priority)
@@ -483,7 +483,7 @@ function TestHeap:testMaxHeapIndexOfFindsObjectValuesWithEqualPriority()
 	lu.assertFalse(h:contains(d))
 end
 
-function TestHeap:testIndexOfRejectsNilValuesAndInvalidStartIndexes()
+function TestHeap:testIndexOf_Rejects_NilValuesAndInvalidStartIndexes()
 	-- Given: the Heap contains three values; nil and invalid start indexes are queried.
 	local h = Heap.new({ 10, 20, 30 })
 
@@ -506,7 +506,7 @@ function TestHeap:testIndexOfRejectsNilValuesAndInvalidStartIndexes()
 	end)
 end
 
-function TestHeap:testUnboundedHeapsNeverReportFull()
+function TestHeap:testUnboundedHeaps_NeverReport_Full()
 	-- Given: an unbounded Heap.
 	local h = Heap.new()
 
@@ -531,7 +531,7 @@ function TestHeap:testUnboundedHeapsNeverReportFull()
 	lu.assertFalse(maxH:full())
 end
 
-function TestHeap:testBoundedHeapReportsNotFullBelowCapacity()
+function TestHeap:testBoundedHeap_ReportsNotFull_BelowCapacity()
 	-- Given: a bounded Heap with capacity 3.
 	local h = Heap.new(nil, nil, 3)
 
@@ -547,7 +547,7 @@ function TestHeap:testBoundedHeapReportsNotFullBelowCapacity()
 	lu.assertFalse(h:full())
 end
 
-function TestHeap:testBoundedHeapReportsFullAtCapacity()
+function TestHeap:testBoundedHeap_ReportsFull_AtCapacity()
 	-- Given: the Heap has a fixed capacity.
 	local h = Heap.new(nil, nil, 2)
 
@@ -559,7 +559,7 @@ function TestHeap:testBoundedHeapReportsFullAtCapacity()
 	lu.assertTrue(h:full())
 end
 
-function TestHeap:testRemovingValuesOrClearingMakesCapacityAvailable()
+function TestHeap:testRemovingValuesOrClearing_Makes_CapacityAvailable()
 	-- Given: a bounded Heap with capacity 2, filled to capacity.
 	local h = Heap.new(nil, nil, 2)
 	h:push(1)
@@ -586,7 +586,7 @@ function TestHeap:testRemovingValuesOrClearingMakesCapacityAvailable()
 	lu.assertEquals(#h, 0)
 end
 
-function TestHeap:testFullHeapRejectsPush()
+function TestHeap:testFullHeap_Rejects_Push()
 	-- Given: a Heap has capacity 3 and starts empty.
 	local h = Heap.new(nil, nil, 3)
 
@@ -602,7 +602,7 @@ end
 
 -- Scenarios: state changes
 
-function TestHeap:testPushMaintainsSmallestValueAtHeapRoot()
+function TestHeap:testPush_Maintains_SmallestValueAtHeapRoot()
 	-- Given: an empty min-heap.
 	local h = Heap.new()
 
@@ -631,7 +631,7 @@ function TestHeap:testPushMaintainsSmallestValueAtHeapRoot()
 	lu.assertEquals(h:peek(), 1)
 end
 
-function TestHeap:testPushRejectsNilValues()
+function TestHeap:testPush_Rejects_NilValues()
 	-- Given: the min-heap is empty before a nil push.
 	local h = Heap.new()
 
@@ -642,7 +642,7 @@ function TestHeap:testPushRejectsNilValues()
 	end)
 end
 
-function TestHeap:testPopReturnsValuesInAscendingPriorityOrder()
+function TestHeap:testPop_Returns_ValuesInAscendingPriorityOrder()
 	-- Given: the min-heap starts empty and will receive 4, 5, 1, 3, and 2.
 	local h = Heap.new()
 
@@ -662,7 +662,7 @@ function TestHeap:testPopReturnsValuesInAscendingPriorityOrder()
 	lu.assertNil(h:pop())
 end
 
-function TestHeap:testPopAndPeekOnEmptyHeapReturnNil()
+function TestHeap:testEmptyHeapPopAndPeek_Return_Nil()
 	-- Given: an empty Heap is queried through pop and peek.
 	local h = Heap.new()
 
@@ -674,7 +674,7 @@ function TestHeap:testPopAndPeekOnEmptyHeapReturnNil()
 	lu.assertEquals(#h, 0)
 end
 
-function TestHeap:testPopAndClearUpdateEmptyStateAndAllowReuse()
+function TestHeap:testPopAndClear_Update_EmptyStateAndAllowReuse()
 	-- Given: an empty Heap.
 	local h = Heap.new()
 	lu.assertTrue(h:empty())
@@ -709,7 +709,7 @@ function TestHeap:testPopAndClearUpdateEmptyStateAndAllowReuse()
 	lu.assertTrue(h:empty())
 end
 
-function TestHeap:testPopPreservesDuplicateValues()
+function TestHeap:testPop_Preserves_DuplicateValues()
 	-- Given: the Heap starts empty and will receive repeated 2, 5, and 8 values.
 	local h = Heap.new()
 
@@ -734,7 +734,7 @@ function TestHeap:testPopPreservesDuplicateValues()
 	lu.assertNil(h:pop())
 end
 
-function TestHeap:testMaxHeapPopsValuesInDescendingPriorityOrder()
+function TestHeap:testMaxHeapPop_Returns_ValuesInDescendingPriorityOrder()
 	-- Given: a max-heap starts with 5, 7, and 9.
 	local h = Heap.newMax({ 5, 7, 9 })
 
@@ -753,7 +753,7 @@ function TestHeap:testMaxHeapPopsValuesInDescendingPriorityOrder()
 	lu.assertNil(h:pop())
 end
 
-function TestHeap:testHeapOrdersStringValuesByNaturalPriority()
+function TestHeap:testHeap_Orders_StringValuesByNaturalPriority()
 	-- Given: the Heap starts empty and will receive b, e, c, a, and d.
 	local h = Heap.new()
 
@@ -773,7 +773,7 @@ function TestHeap:testHeapOrdersStringValuesByNaturalPriority()
 	lu.assertNil(h:pop())
 end
 
-function TestHeap:testHeapUsesCustomComparatorForObjectPriority()
+function TestHeap:testHeap_Uses_CustomComparatorForObjectPriority()
 	-- Given: objects use a custom comparator on priority; initial priorities are 5, 7, and 9.
 	local function max(a, b)
 		if a.priority < b.priority then
@@ -806,7 +806,7 @@ function TestHeap:testHeapUsesCustomComparatorForObjectPriority()
 	lu.assertNil(h:pop())
 end
 
-function TestHeap:testDrainYieldsValuesInAscendingPriorityOrderAndEmptiesHeap()
+function TestHeap:testDrain_Yields_ValuesInAscendingPriorityOrderAndEmptiesHeap()
 	-- Given: the min-heap starts empty and will receive b, d, c, and a.
 	local h = Heap.new()
 
@@ -831,7 +831,7 @@ function TestHeap:testDrainYieldsValuesInAscendingPriorityOrderAndEmptiesHeap()
 	lu.assertNil(h:pop())
 end
 
-function TestHeap:testMaxHeapDrainYieldsValuesInDescendingPriorityOrder()
+function TestHeap:testMaxHeapDrain_Yields_ValuesInDescendingPriorityOrder()
 	-- Given: the max-heap contains five values.
 	local h = Heap.newMax({ 10, 50, 30, 20, 40 })
 
@@ -850,7 +850,7 @@ function TestHeap:testMaxHeapDrainYieldsValuesInDescendingPriorityOrder()
 	lu.assertEquals(#h, 0)
 end
 
-function TestHeap:testDrainOnEmptyHeapYieldsNoValues()
+function TestHeap:testEmptyHeapDrain_Yields_NoValues()
 	-- Given: the Heap contains no values and is observed through drain.
 	local h = Heap.new()
 
@@ -866,7 +866,7 @@ function TestHeap:testDrainOnEmptyHeapYieldsNoValues()
 	lu.assertTrue(h:empty())
 end
 
-function TestHeap:testBoundedHeapRejectsPushAtCapacityAndAcceptsAfterPop()
+function TestHeap:testBoundedHeap_RejectsPushAtCapacity_AndAcceptsAfterPop()
 	-- Given: capacity is 2 and the Heap begins empty; values 10 and another item will fill it.
 	local h = Heap.new(nil, nil, 2)
 
@@ -896,7 +896,7 @@ end
 
 -- Scenarios: metamethods and formatting
 
-function TestHeap:testConcatAppendsValuesFromIterableCollections()
+function TestHeap:testConcat_Appends_ValuesFromIterableCollections()
 	-- Given: a Heap initialized with { 10, 20, 30 }.
 	local h = Heap.new() .. { 10, 20, 30 }
 	lu.assertEquals(#h, 3)
@@ -924,7 +924,7 @@ function TestHeap:testConcatAppendsValuesFromIterableCollections()
 	lu.assertEquals(h:pop(), 60)
 end
 
-function TestHeap:testConcatRejectsNonTableValues()
+function TestHeap:testConcat_Rejects_NonTableValues()
 	-- Given: the Heap is empty before string and number operands are tried.
 	local h = Heap.new()
 
@@ -938,7 +938,7 @@ function TestHeap:testConcatRejectsNonTableValues()
 	end)
 end
 
-function TestHeap:testHeapsWithSameValuesCompareEqual()
+function TestHeap:testHeapsWithSameValues_Compare_Equal()
 	-- Given: Heaps match, differ by one value, or have different lengths.
 	local h1 = Heap.new({ 1, 2, 3 })
 	local h2 = Heap.new({ 1, 2, 3 })
@@ -957,7 +957,7 @@ function TestHeap:testHeapsWithSameValuesCompareEqual()
 	lu.assertFalse(h1 == 42)
 end
 
-function TestHeap:testEmptyHeapsCompareEqual()
+function TestHeap:testEmptyHeaps_Compare_Equal()
 	-- Given: both Heaps contain no values.
 	local h1 = Heap.new()
 	local h2 = Heap.new()
@@ -968,7 +968,7 @@ function TestHeap:testEmptyHeapsCompareEqual()
 	lu.assertTrue(h1 == h2)
 end
 
-function TestHeap:testLengthTracksPushPopAndClearOperations()
+function TestHeap:testLength_Tracks_PushPopAndClearOperations()
 	-- Given: an empty Heap.
 	local h = Heap.new()
 	lu.assertEquals(#h, 0)
@@ -994,7 +994,7 @@ function TestHeap:testLengthTracksPushPopAndClearOperations()
 	lu.assertEquals(#h, 0)
 end
 
-function TestHeap:testToStringFormatsHeapValues()
+function TestHeap:testToString_Formats_HeapValues()
 	-- Given: the Heap contains three values.
 	local h = Heap.new({ 1, 2, 3 })
 
@@ -1009,7 +1009,7 @@ function TestHeap:testToStringFormatsHeapValues()
 	lu.assertStrContains(str, "]")
 end
 
-function TestHeap:testToStringFormatsEmptyHeap()
+function TestHeap:testToString_Formats_EmptyHeap()
 	-- Given: an empty Heap is prepared for text formatting.
 	local h = Heap.new()
 
@@ -1020,7 +1020,7 @@ function TestHeap:testToStringFormatsEmptyHeap()
 	lu.assertEquals(str, "[  ]")
 end
 
-function TestHeap:testNewPropertiesAndMethodsCannotBeAddedOrReplaced()
+function TestHeap:testNewPropertiesAndMethods_CannotBe_AddedOrReplaced()
 	-- Given: a Heap defines its public methods and has no added fields.
 	local h = Heap.new()
 

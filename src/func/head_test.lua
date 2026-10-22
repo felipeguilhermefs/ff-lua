@@ -7,14 +7,14 @@ local TestHeadString = {}
 local TestHeadNoop = {}
 
 -- Scenarios: string inputs
-function TestHeadString:testHeadOfEmptyStringReturnsEmptyString()
+function TestHeadString:testHeadOfEmptyString_Returns_EmptyString()
 	-- Given: the input contains no characters.
 	-- When: call head with that input.
 	-- Then: the returned string is empty.
 	lu.assertEquals(head(""), "")
 end
 
-function TestHeadString:testHeadOfSingleCharacterStringReturnsThatCharacter()
+function TestHeadString:testHeadOfSingleCharacterString_Returns_ThatCharacter()
 	-- Given: each input contains exactly one character.
 	-- When: call head with each input.
 	-- Then: each result matches its input character.
@@ -22,7 +22,7 @@ function TestHeadString:testHeadOfSingleCharacterStringReturnsThatCharacter()
 	lu.assertEquals(head(" "), " ")
 end
 
-function TestHeadString:testHeadOfStringReturnsFirstCharacter()
+function TestHeadString:testHeadOfString_Returns_FirstCharacter()
 	-- Given: inputs contain several characters, including a leading tab.
 	-- When: call head with each string.
 	-- Then: each result contains only the first character.
@@ -32,7 +32,7 @@ function TestHeadString:testHeadOfStringReturnsFirstCharacter()
 end
 
 -- Scenarios: unsupported inputs
-function TestHeadNoop:testUnsupportedInputsReturnNil()
+function TestHeadNoop:testUnsupportedInputs_Return_Nil()
 	-- Given: inputs include nil, numbers, booleans, and tables.
 	-- When: pass each unsupported value to head.
 	-- Then: every call returns nil.

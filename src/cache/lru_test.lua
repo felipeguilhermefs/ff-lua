@@ -6,7 +6,7 @@ local LRUCache = require("ff.cache.lru")
 local TestLRUCache = {}
 
 -- Scenarios: cache behavior
-function TestLRUCache:testCacheRetainsEntriesBelowCapacity()
+function TestLRUCache:testCache_Retains_EntriesBelowCapacity()
 	-- Given: an empty cache can hold three entries.
 	local cache = LRUCache.new(3)
 
@@ -23,7 +23,7 @@ function TestLRUCache:testCacheRetainsEntriesBelowCapacity()
 	lu.assertEquals(cache:get("a"), 1)
 end
 
-function TestLRUCache:testCacheEvictsLeastRecentlyUsedEntryWhenCapacityIsExceeded()
+function TestLRUCache:testCache_Evicts_LeastRecentlyUsedEntryWhenCapacityIsExceeded()
 	-- Given: cache has capacity 2.
 	local cache = LRUCache.new(2)
 
@@ -42,7 +42,7 @@ function TestLRUCache:testCacheEvictsLeastRecentlyUsedEntryWhenCapacityIsExceede
 	lu.assertEquals(cache:get("b"), 2)
 end
 
-function TestLRUCache:testCacheDropsLeastRecentlyUsedEntry()
+function TestLRUCache:testCache_Drops_LeastRecentlyUsedEntry()
 	-- Given: cache with capacity 2 stores a and b.
 	local cache = LRUCache.new(2)
 	cache:put("a", 1)
@@ -58,7 +58,7 @@ function TestLRUCache:testCacheDropsLeastRecentlyUsedEntry()
 	lu.assertNil(cache:get("b"))
 end
 
-function TestLRUCache:testUpdatingExistingEntryDoesNotEvictAnotherEntry()
+function TestLRUCache:testUpdatingExistingEntry_DoesNotEvict_AnotherEntry()
 	-- Given: cache with capacity 2 stores a and b.
 	local cache = LRUCache.new(2)
 	cache:put("a", 1)
@@ -73,7 +73,7 @@ function TestLRUCache:testUpdatingExistingEntryDoesNotEvictAnotherEntry()
 	lu.assertEquals(cache:get("b"), 2)
 end
 
-function TestLRUCache:testEvictionRemovesRequestedEntry()
+function TestLRUCache:testEviction_Removes_RequestedEntry()
 	-- Given: cache with capacity 2 stores a and b.
 	local cache = LRUCache.new(2)
 	cache:put("a", 1)
@@ -93,7 +93,7 @@ function TestLRUCache:testEvictionRemovesRequestedEntry()
 	lu.assertNil(cache:get("b"))
 end
 
-function TestLRUCache:testCacheRejectsNilKeysAndValues()
+function TestLRUCache:testCache_Rejects_NilKeysAndValues()
 	-- Given: a cache has capacity 2 and no entries.
 	local cache = LRUCache.new(2)
 
@@ -109,7 +109,7 @@ function TestLRUCache:testCacheRejectsNilKeysAndValues()
 	lu.assertFalse(cache:evict(nil))
 end
 
-function TestLRUCache:testConstructorRejectsInvalidCapacity()
+function TestLRUCache:testConstructor_Rejects_InvalidCapacity()
 	-- Given: capacities include strings, nil, booleans, negatives, and zero.
 	-- When: pass each candidate to LRUCache.new.
 	-- Then: errors distinguish non-numeric from non-positive capacity.

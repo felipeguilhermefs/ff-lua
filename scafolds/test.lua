@@ -21,7 +21,7 @@ local TestArray = {}
 
 -- Scenarios: construction behavior.
 -- Test methods start with `test` and describe context, action, and outcome.
-function TestArray:testNewArrayStartsEmpty()
+function TestArray:testNewArray_Starts_Empty()
 	-- Given: construction has no initial values.
 	-- When: create an empty Array.
 	local array = Array.new()
@@ -32,7 +32,7 @@ function TestArray:testNewArrayStartsEmpty()
 end
 
 -- Scenarios: insertion behavior.
-function TestArray:testInsertAppendsValueToArray()
+function TestArray:testInsert_Appends_ValueToArray()
 	-- Given: array contains an existing value.
 	local array = Array.new({ 10 })
 
@@ -45,7 +45,7 @@ function TestArray:testInsertAppendsValueToArray()
 end
 
 -- Scenarios: validation behavior.
-function TestArray:testInsertRejectsNilValue()
+function TestArray:testInsert_Rejects_NilValue()
 	-- Given: an empty Array.
 	local array = Array.new()
 

@@ -7,7 +7,7 @@ local TestStack = {}
 
 -- Scenarios: construction and type recognition
 
-function TestStack:testTypeGuardRecognizesStacksAndRejectsOtherValues()
+function TestStack:testTypeGuard_Recognizes_StacksAndRejectsOtherValues()
 	-- Given: candidates include one Stack, a table, and scalar values.
 	local s = Stack.new()
 
@@ -20,7 +20,7 @@ function TestStack:testTypeGuardRecognizesStacksAndRejectsOtherValues()
 	lu.assertFalse(Stack.isStack(123))
 end
 
-function TestStack:testConstructorPreservesIterableOrderAndSetsTop()
+function TestStack:testConstructor_PreservesIterableOrder_AndSetsTop()
 	-- Given: one construction has no values; another receives { 10, 20, 30 }.
 	-- When: create an empty Stack, then one from the iterable.
 	local s1 = Stack.new()
@@ -38,7 +38,7 @@ end
 
 -- Scenarios: reads and inspection
 
-function TestStack:testEmptyStackDoesNotContainValues()
+function TestStack:testEmptyStack_DoesNotContain_Values()
 	-- Given: the Stack is empty and queried for membership of 1.
 	local stack = Stack.new()
 
@@ -47,7 +47,7 @@ function TestStack:testEmptyStackDoesNotContainValues()
 	lu.assertFalse(stack:contains(1))
 end
 
-function TestStack:testContainsReportsEachStoredValueAsPresent()
+function TestStack:testContains_ReportsEachStoredValue_AsPresent()
 	-- Given: the Stack contains 10, 20, and 30.
 	local stack = Stack.new({ 10, 20, 30 })
 
@@ -58,7 +58,7 @@ function TestStack:testContainsReportsEachStoredValueAsPresent()
 	lu.assertTrue(stack:contains(30))
 end
 
-function TestStack:testContainsReportsUnstoredValuesAsAbsent()
+function TestStack:testContains_ReportsUnstoredValues_AsAbsent()
 	-- Given: the Stack contains numeric values 10, 20, and 30.
 	local stack = Stack.new({ 10, 20, 30 })
 
@@ -68,7 +68,7 @@ function TestStack:testContainsReportsUnstoredValuesAsAbsent()
 	lu.assertFalse(stack:contains("10"))
 end
 
-function TestStack:testPoppedValueIsNoLongerContained()
+function TestStack:testPoppedValue_IsNoLonger_Contained()
 	-- Given: the Stack contains 10, 20, and 30, with 30 on top.
 	local stack = Stack.new({ 10, 20, 30 })
 
@@ -79,7 +79,7 @@ function TestStack:testPoppedValueIsNoLongerContained()
 	lu.assertFalse(stack:contains(30))
 end
 
-function TestStack:testIterationYieldsValuesFromTopToBottom()
+function TestStack:testIteration_Yields_ValuesFromTopToBottom()
 	-- Given: the Stack is populated with a, b, c, and d; d is on top.
 	local s = Stack.new()
 
@@ -104,7 +104,7 @@ function TestStack:testIterationYieldsValuesFromTopToBottom()
 	lu.assertEquals(s:top(), "d")
 end
 
-function TestStack:testIterationOfEmptyStackYieldsNoValues()
+function TestStack:testEmptyStackIteration_Yields_NoValues()
 	-- Given: the Stack contains no entries to traverse.
 	local s = Stack.new()
 
@@ -119,7 +119,7 @@ function TestStack:testIterationOfEmptyStackYieldsNoValues()
 	lu.assertEquals(count, 0)
 end
 
-function TestStack:testRepeatedIterationPreservesStackContents()
+function TestStack:testRepeatedIteration_Preserves_StackContents()
 	-- Given: the Stack contains x, y, and z, with z on top.
 	local s = Stack.new({ "x", "y", "z" })
 
@@ -143,7 +143,7 @@ end
 
 -- Scenarios: state changes
 
-function TestStack:testPopOnEmptyStackReturnsNil()
+function TestStack:testEmptyStack_Pop_ReturnsNil()
 	-- Given: pop is called on a Stack that contains no entries.
 	local stack = Stack.new()
 
@@ -153,7 +153,7 @@ function TestStack:testPopOnEmptyStackReturnsNil()
 	lu.assertNil(stack:pop())
 end
 
-function TestStack:testClearRemovesAllPushedValues()
+function TestStack:testClear_Removes_AllPushedValues()
 	-- Given: the Stack contains one item.
 	local stack = Stack.new({ "item" })
 
@@ -165,7 +165,7 @@ function TestStack:testClearRemovesAllPushedValues()
 	lu.assertEquals(#stack, 0)
 end
 
-function TestStack:testPushAndPopPreserveSingleValue()
+function TestStack:testPushAndPop_Preserve_SingleValue()
 	-- Given: the Stack is empty before pushing 1.
 	local s = Stack.new()
 
@@ -179,7 +179,7 @@ function TestStack:testPushAndPopPreserveSingleValue()
 	lu.assertTrue(s:empty())
 end
 
-function TestStack:testPopReturnsPushedValuesInLastInFirstOutOrder()
+function TestStack:testPop_ReturnsPushedValues_InLastInFirstOutOrder()
 	-- Given: the Stack is empty and will receive four different value types.
 	local s = Stack.new()
 
@@ -199,7 +199,7 @@ function TestStack:testPopReturnsPushedValuesInLastInFirstOutOrder()
 	lu.assertTrue(s:empty())
 end
 
-function TestStack:testPushRejectsNilEntries()
+function TestStack:testPush_Rejects_NilEntries()
 	-- Given: the Stack is empty before a nil push attempt.
 	local s = Stack.new()
 
@@ -210,7 +210,7 @@ function TestStack:testPushRejectsNilEntries()
 	end)
 end
 
-function TestStack:testReverseMakesBottomValuePopFirst()
+function TestStack:testReverse_MakesBottomValue_PopFirst()
 	-- Given: the Stack contains 1, 2, 3, and 4, with 4 on top.
 	local s = Stack.new({ 1, 2, 3, 4 })
 
@@ -224,7 +224,7 @@ function TestStack:testReverseMakesBottomValuePopFirst()
 	lu.assertEquals(s:pop(), 4)
 end
 
-function TestStack:testDrainYieldsValuesInLastInFirstOutOrderAndEmptiesStack()
+function TestStack:testDrain_YieldsValuesInLastInFirstOutOrder_AndEmptiesStack()
 	-- Given: the Stack is populated with a, b, c, and d for destructive draining.
 	local s = Stack.new()
 
@@ -247,7 +247,7 @@ function TestStack:testDrainYieldsValuesInLastInFirstOutOrderAndEmptiesStack()
 	lu.assertNil(s:pop())
 end
 
-function TestStack:testDrainOnEmptyStackYieldsNoValues()
+function TestStack:testEmptyStackDrain_Yields_NoValues()
 	-- Given: the Stack is empty and drain is the iterator under test.
 	local s = Stack.new()
 
@@ -265,7 +265,7 @@ end
 
 -- Scenarios: metamethods and formatting
 
-function TestStack:testStacksWithSameValuesCompareEqual()
+function TestStack:testStacksWithSameValues_Compare_Equal()
 	-- Given: Stacks match, differ at one value, or have different lengths.
 	local s1 = Stack.new({ 1, 2, 3 })
 	local s2 = Stack.new({ 1, 2, 3 })
@@ -283,7 +283,7 @@ function TestStack:testStacksWithSameValuesCompareEqual()
 	lu.assertFalse(s1 == nil)
 end
 
-function TestStack:testConcatAppendsValuesToStack()
+function TestStack:testConcat_Appends_ValuesToStack()
 	-- Given: an empty Stack and another Stack containing 60, 50, and 40.
 	local s = Stack.new()
 	local other = Stack.new({ 60, 50, 40 })
@@ -304,7 +304,7 @@ function TestStack:testConcatAppendsValuesToStack()
 	lu.assertEquals(s:pop(), 10)
 end
 
-function TestStack:testNewPropertiesAndMethodsCannotBeAddedOrReplaced()
+function TestStack:testNewPropertiesAndMethods_CannotBe_AddedOrReplaced()
 	-- Given: a Stack contains 1, 2, and 3 and defines push.
 	local s = Stack.new({ 1, 2, 3 })
 

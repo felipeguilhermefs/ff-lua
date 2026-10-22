@@ -8,7 +8,7 @@ local quickselect = require("ff.search.quickselect")
 local TestQuickSelect = {}
 
 -- Scenarios: selection behavior
-function TestQuickSelect:testArrayInputReturnsValueAtRequestedRank()
+function TestQuickSelect:testArrayInput_Returns_ValueAtRequestedRank()
 	-- Given: an Array stores integers 1 through 6 in ascending order.
 	local a = Array.new({ 1, 2, 3, 4, 5, 6 })
 
@@ -23,7 +23,7 @@ function TestQuickSelect:testArrayInputReturnsValueAtRequestedRank()
 	lu.assertNil(quickselect(a, 7))
 end
 
-function TestQuickSelect:testTableArrayInputReturnsValueAtRequestedRank()
+function TestQuickSelect:testTableArrayInput_Returns_ValueAtRequestedRank()
 	-- Given: a plain table stores integers 6 through 1 in descending order.
 	local a = { 6, 5, 4, 3, 2, 1 }
 

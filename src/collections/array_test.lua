@@ -17,7 +17,7 @@ local TestArray = {}
 
 -- Scenarios: type and construction behavior
 
-function TestArray:testRecognizesArrayTablesAndInstances()
+function TestArray:testTypeGuard_Recognizes_ArrayTablesAndInstances()
 	-- Given: candidates are empty and populated sequences or Array objects.
 	-- When: check empty and populated sequences plus Array objects with Array.isArray.
 	-- Then: every sequence and Array object is accepted.
@@ -27,7 +27,7 @@ function TestArray:testRecognizesArrayTablesAndInstances()
 	lu.assertTrue(Array.isArray(Array.new({ 4, 5, 6 })))
 end
 
-function TestArray:testRejectsValuesThatAreNotArrays()
+function TestArray:testTypeGuard_Rejects_ValuesThatAreNotArrays()
 	-- Given: candidates are nil, scalars, maps, and mixed-key tables.
 	-- When: check nil, scalars, maps, and mixed-key tables with Array.isArray.
 	-- Then: every candidate is rejected as a non-array.
@@ -40,7 +40,7 @@ function TestArray:testRejectsValuesThatAreNotArrays()
 	lu.assertFalse(Array.isArray({ [1] = "a", foo = "bar" }))
 end
 
-function TestArray:testNewArrayStartsEmpty()
+function TestArray:testNewArray_Starts_Empty()
 	-- Given: construction receives no values.
 
 	-- When: create an Array with no arguments.
@@ -51,7 +51,7 @@ function TestArray:testNewArrayStartsEmpty()
 	lu.assertEquals(#array, 0)
 end
 
-function TestArray:testConstructorPreservesInitialValues()
+function TestArray:testConstructor_Preserves_InitialValues()
 	-- Given: the constructor receives { 5, 6, 7 }.
 
 	-- When: initialize an Array from that table.
@@ -62,7 +62,7 @@ function TestArray:testConstructorPreservesInitialValues()
 	lu.assertEquals(arrayValues(array), { 5, 6, 7 })
 end
 
-function TestArray:testClearEmptiesPopulatedArray()
+function TestArray:testClear_Empties_PopulatedArray()
 	-- Given: the Array contains 5, 6, and 7.
 	local array = Array.new({ 5, 6, 7 })
 
@@ -74,7 +74,7 @@ function TestArray:testClearEmptiesPopulatedArray()
 	lu.assertEquals(#array, 0)
 end
 
-function TestArray:testClearedArrayRejectsFormerIndexes()
+function TestArray:testClearedArray_Rejects_FormerIndexes()
 	-- Given: the Array contains values at indexes 1 through 3.
 	local array = Array.new({ 5, 6, 7 })
 
@@ -89,7 +89,7 @@ end
 
 -- Scenarios: empty-state behavior
 
-function TestArray:testEmptyReportsFalseAfterInsert()
+function TestArray:testEmpty_ReportsFalse_AfterInsert()
 	-- Given: the Array has length zero.
 	local array = Array.new()
 
@@ -102,7 +102,7 @@ end
 
 -- Scenarios: reading and inspection
 
-function TestArray:testGetReturnsValueAtOneBasedIndex()
+function TestArray:testGet_Returns_ValueAtOneBasedIndex()
 	-- Given: indexes 1, 2, and 3 contain 10, 20, and 30.
 	local array = Array.new({ 10, 20, 30 })
 
@@ -113,7 +113,7 @@ function TestArray:testGetReturnsValueAtOneBasedIndex()
 	lu.assertEquals(array:get(3), 30)
 end
 
-function TestArray:testGetRejectsIndexesOutsideArrayBounds()
+function TestArray:testGet_Rejects_IndexesOutsideArrayBounds()
 	-- Given: the Array contains three values at indexes 1 through 3.
 	local array = Array.new({ 10, 20, 30 })
 
@@ -130,7 +130,7 @@ function TestArray:testGetRejectsIndexesOutsideArrayBounds()
 	end)
 end
 
-function TestArray:testGetRejectsNonNumericIndexes()
+function TestArray:testGet_Rejects_NonNumericIndexes()
 	-- Given: the Array contains three values at numeric indexes.
 	local array = Array.new({ 10, 20, 30 })
 
@@ -147,7 +147,7 @@ function TestArray:testGetRejectsNonNumericIndexes()
 	end)
 end
 
-function TestArray:testSliceReturnsRequestedRange()
+function TestArray:testSlice_Returns_RequestedRange()
 	-- Given: the Array contains 10, 20, 30, 40, and 50.
 	local array = Array.new({ 10, 20, 30, 40, 50 })
 
@@ -158,7 +158,7 @@ function TestArray:testSliceReturnsRequestedRange()
 	lu.assertEquals(arrayValues(slice), { 20, 30, 40 })
 end
 
-function TestArray:testIndexOfReturnsFirstMatchingPosition()
+function TestArray:testIndexOf_Returns_FirstMatchingPosition()
 	-- Given: 20 appears at indexes 2 and 4 among four values.
 	local array = Array.new({ 10, 20, 30, 20 })
 
@@ -169,7 +169,7 @@ function TestArray:testIndexOfReturnsFirstMatchingPosition()
 	lu.assertEquals(array:indexOf(20), 2)
 end
 
-function TestArray:testIndexOfReturnsNilWhenValueIsMissing()
+function TestArray:testIndexOf_ReturnsNil_WhenValueIsMissing()
 	-- Given: the Array contains 10, 20, and 30; 40 is absent.
 	local array = Array.new({ 10, 20, 30 })
 
@@ -178,7 +178,7 @@ function TestArray:testIndexOfReturnsNilWhenValueIsMissing()
 	lu.assertNil(array:indexOf(40))
 end
 
-function TestArray:testContainsReportsStoredValueAsPresent()
+function TestArray:testContains_Reports_StoredValueAsPresent()
 	-- Given: the Array contains membership target 20.
 	local array = Array.new({ 10, 20, 30 })
 
@@ -187,7 +187,7 @@ function TestArray:testContainsReportsStoredValueAsPresent()
 	lu.assertTrue(array:contains(20))
 end
 
-function TestArray:testContainsReportsUnstoredValueAsAbsent()
+function TestArray:testContains_Reports_UnstoredValueAsAbsent()
 	-- Given: the Array contains 10, 20, and 30; membership target 40 is absent.
 	local array = Array.new({ 10, 20, 30 })
 
@@ -196,7 +196,7 @@ function TestArray:testContainsReportsUnstoredValueAsAbsent()
 	lu.assertFalse(array:contains(40))
 end
 
-function TestArray:testEmptyArrayReportsEveryValueAsAbsent()
+function TestArray:testEmptyArray_Reports_EveryValueAsAbsent()
 	-- Given: an empty Array is queried for membership of 10.
 	local array = Array.new()
 
@@ -205,7 +205,7 @@ function TestArray:testEmptyArrayReportsEveryValueAsAbsent()
 	lu.assertFalse(array:contains(10))
 end
 
-function TestArray:testContainsReportsDuplicateValueAsPresent()
+function TestArray:testContains_Reports_DuplicateValueAsPresent()
 	-- Given: the Array stores 5 at all three indexes.
 	local array = Array.new({ 5, 5, 5 })
 
@@ -216,7 +216,7 @@ function TestArray:testContainsReportsDuplicateValueAsPresent()
 	lu.assertEquals(#array, 3)
 end
 
-function TestArray:testContainsRejectsNilValue()
+function TestArray:testContains_Rejects_NilValue()
 	-- Given: the Array contains values; nil is the invalid membership query.
 	local array = Array.new({ 10, 20, 30 })
 
@@ -227,7 +227,7 @@ function TestArray:testContainsRejectsNilValue()
 	end)
 end
 
-function TestArray:testBracketReadsDoNotExposeStoredValues()
+function TestArray:testBracketReads_DoNotExpose_StoredValues()
 	-- Given: indexes 1 through 3 contain stored values.
 	local array = Array.new({ 10, 20, 30 })
 
@@ -238,7 +238,7 @@ function TestArray:testBracketReadsDoNotExposeStoredValues()
 	lu.assertNil(array[3])
 end
 
-function TestArray:testIterationYieldsOneBasedIndexesAndValues()
+function TestArray:testIteration_Yields_OneBasedIndexesAndValues()
 	-- Given: the Array stores 10, 20, and 30 at indexes 1, 2, and 3.
 	local array = Array.new({ 10, 20, 30 })
 	local entries = {}
@@ -255,7 +255,7 @@ end
 
 -- Scenarios: insertion and removal
 
-function TestArray:testInsertWithoutIndexAppendsValue()
+function TestArray:testInsertWithoutIndex_Appends_Value()
 	-- Given: the Array contains only 10.
 	local array = Array.new({ 10 })
 
@@ -266,7 +266,7 @@ function TestArray:testInsertWithoutIndexAppendsValue()
 	lu.assertEquals(arrayValues(array), { 10, 20 })
 end
 
-function TestArray:testInsertAtFirstPositionShiftsExistingValues()
+function TestArray:testInsertAtFirstPosition_Shifts_ExistingValues()
 	-- Given: the Array holds 10 and 20; insertion target is index 1.
 	local array = Array.new({ 10, 20 })
 
@@ -277,7 +277,7 @@ function TestArray:testInsertAtFirstPositionShiftsExistingValues()
 	lu.assertEquals(arrayValues(array), { 5, 10, 20 })
 end
 
-function TestArray:testInsertAtMiddlePositionShiftsFollowingValues()
+function TestArray:testInsertAtMiddlePosition_Shifts_FollowingValues()
 	-- Given: the Array holds 10, 20, 30; insertion target is index 2.
 	local array = Array.new({ 10, 20, 30 })
 
@@ -288,7 +288,7 @@ function TestArray:testInsertAtMiddlePositionShiftsFollowingValues()
 	lu.assertEquals(arrayValues(array), { 10, 15, 20, 30 })
 end
 
-function TestArray:testInsertAtEndPositionAppendsValue()
+function TestArray:testInsertAtEndPosition_Appends_Value()
 	-- Given: the Array holds 10 and 20; insertion target is the final index.
 	local array = Array.new({ 10, 20 })
 
@@ -299,7 +299,7 @@ function TestArray:testInsertAtEndPositionAppendsValue()
 	lu.assertEquals(arrayValues(array), { 10, 20, 30 })
 end
 
-function TestArray:testInsertRejectsNilValue()
+function TestArray:testInsert_Rejects_NilValue()
 	-- Given: the Array contains three existing values.
 	local array = Array.new({ 10, 20, 30 })
 
@@ -310,7 +310,7 @@ function TestArray:testInsertRejectsNilValue()
 	end)
 end
 
-function TestArray:testInsertRejectsIndexesOutsideValidRange()
+function TestArray:testInsert_Rejects_IndexesOutsideValidRange()
 	-- Given: the Array has length 3; attempted indexes are 0, -1, and 5.
 	local array = Array.new({ 10, 20, 30 })
 
@@ -327,7 +327,7 @@ function TestArray:testInsertRejectsIndexesOutsideValidRange()
 	end)
 end
 
-function TestArray:testInsertRejectsNonNumericIndex()
+function TestArray:testInsert_Rejects_NonNumericIndex()
 	-- Given: the Array has length 3; attempted indexes are "1" and true.
 	local array = Array.new({ 10, 20, 30 })
 
@@ -341,7 +341,7 @@ function TestArray:testInsertRejectsNonNumericIndex()
 	end)
 end
 
-function TestArray:testRemoveReturnsValueAndShiftsFollowingValues()
+function TestArray:testRemove_ReturnsValue_AndShiftsFollowingValues()
 	-- Given: the Array holds 10, 20, 30 before removing index 1.
 	local array = Array.new({ 10, 20, 30 })
 
@@ -353,7 +353,7 @@ function TestArray:testRemoveReturnsValueAndShiftsFollowingValues()
 	lu.assertEquals(arrayValues(array), { 20, 30 })
 end
 
-function TestArray:testSwapExchangesValuesAtFirstIndexes()
+function TestArray:testSwap_Exchanges_ValuesAtFirstIndexes()
 	-- Given: the Array holds 10, 20, 30; the first two indexes are targeted.
 	local array = Array.new({ 10, 20, 30 })
 
@@ -364,7 +364,7 @@ function TestArray:testSwapExchangesValuesAtFirstIndexes()
 	lu.assertEquals(arrayValues(array), { 20, 10, 30 })
 end
 
-function TestArray:testSwapExchangesValuesAtLaterIndexes()
+function TestArray:testSwap_Exchanges_ValuesAtLaterIndexes()
 	-- Given: the Array holds 10, 20, 30; indexes 2 and 3 are targeted.
 	local array = Array.new({ 10, 20, 30 })
 
@@ -377,7 +377,7 @@ end
 
 -- Scenarios: equality and formatting
 
-function TestArray:testEqualArraysCompareEqual()
+function TestArray:testEqualArrays_Compare_Equal()
 	-- Given: both Arrays contain 10, 20, and 30.
 	local first = Array.new({ 10, 20, 30 })
 	local second = Array.new({ 10, 20, 30 })
@@ -388,7 +388,7 @@ function TestArray:testEqualArraysCompareEqual()
 	lu.assertTrue(first == second)
 end
 
-function TestArray:testArraysWithDifferentValuesCompareUnequal()
+function TestArray:testArraysWithDifferentValues_Compare_Unequal()
 	-- Given: the Arrays differ only at their final value.
 	local first = Array.new({ 10, 20, 30 })
 	local second = Array.new({ 10, 20, 40 })
@@ -399,7 +399,7 @@ function TestArray:testArraysWithDifferentValuesCompareUnequal()
 	lu.assertFalse(first == second)
 end
 
-function TestArray:testArrayComparesEqualToPlainTableWithSameValues()
+function TestArray:testArray_ComparesEqualTo_PlainTableWithSameValues()
 	-- Given: an Array and plain table contain the same three values.
 	local array = Array.new({ 10, 20, 30 })
 
@@ -408,7 +408,7 @@ function TestArray:testArrayComparesEqualToPlainTableWithSameValues()
 	lu.assertTrue(array == { 10, 20, 30 })
 end
 
-function TestArray:testArrayDoesNotCompareEqualToOtherValueTypes()
+function TestArray:testArray_DoesNotCompareEqualTo_OtherValueTypes()
 	-- Given: an Array contains three values and the other candidate is a string.
 	local array = Array.new({ 10, 20, 30 })
 
@@ -417,7 +417,7 @@ function TestArray:testArrayDoesNotCompareEqualToOtherValueTypes()
 	lu.assertNotEquals(array, "string")
 end
 
-function TestArray:testToStringFormatsPopulatedArray()
+function TestArray:testToString_Formats_PopulatedArray()
 	-- Given: the Array contains 1, 2, and 3.
 	local array = Array.new({ 1, 2, 3 })
 
@@ -426,7 +426,7 @@ function TestArray:testToStringFormatsPopulatedArray()
 	lu.assertEquals(tostring(array), "[ 1, 2, 3 ]")
 end
 
-function TestArray:testToStringFormatsEmptyArray()
+function TestArray:testToString_Formats_EmptyArray()
 	-- Given: an empty Array is prepared for text formatting.
 	local array = Array.new()
 
@@ -435,7 +435,7 @@ function TestArray:testToStringFormatsEmptyArray()
 	lu.assertEquals(tostring(array), "[  ]")
 end
 
-function TestArray:testNewPropertiesCannotBeAdded()
+function TestArray:testNewProperties_CannotBe_Added()
 	-- Given: an Array contains three values; assignment targets a new string key.
 	local array = Array.new({ 10, 20, 30 })
 
@@ -446,7 +446,7 @@ function TestArray:testNewPropertiesCannotBeAdded()
 	end)
 end
 
-function TestArray:testNumericIndexesCannotBeAdded()
+function TestArray:testNumericIndexes_CannotBe_Added()
 	-- Given: an Array contains three values; assignments target indexes 1 and 4.
 	local array = Array.new({ 10, 20, 30 })
 
@@ -460,7 +460,7 @@ function TestArray:testNumericIndexesCannotBeAdded()
 	end)
 end
 
-function TestArray:testNewMethodsCannotBeAdded()
+function TestArray:testNewMethods_CannotBe_Added()
 	-- Given: an Array contains three values; assignment targets a new function key.
 	local array = Array.new({ 10, 20, 30 })
 
@@ -471,7 +471,7 @@ function TestArray:testNewMethodsCannotBeAdded()
 	end)
 end
 
-function TestArray:testExistingMethodsCannotBeReplaced()
+function TestArray:testExistingMethods_CannotBe_Replaced()
 	-- Given: an Array contains three values and defines get.
 	local array = Array.new({ 10, 20, 30 })
 
@@ -484,7 +484,7 @@ end
 
 -- Scenarios: concatenation
 
-function TestArray:testConcatAppendsTableValues()
+function TestArray:testConcat_Appends_TableValues()
 	-- Given: the left Array contains 10, 20, 30; the right table contains 40, 50, 60.
 	local array = Array.new({ 10, 20, 30 })
 
@@ -495,7 +495,7 @@ function TestArray:testConcatAppendsTableValues()
 	lu.assertEquals(arrayValues(array), { 10, 20, 30, 40, 50, 60 })
 end
 
-function TestArray:testConcatWithNilPreservesArray()
+function TestArray:testConcatWithNil_Preserves_Array()
 	-- Given: the Array contains 10, 20, and 30; the right operand is nil.
 	local array = Array.new({ 10, 20, 30 })
 
@@ -506,7 +506,7 @@ function TestArray:testConcatWithNilPreservesArray()
 	lu.assertEquals(arrayValues(array), { 10, 20, 30 })
 end
 
-function TestArray:testConcatAppendsAnotherArrayValues()
+function TestArray:testConcat_Appends_AnotherArrayValues()
 	-- Given: the Array contains 10, 20, and 30; another Array contains 40, 50, and 60.
 	local array = Array.new({ 10, 20, 30 })
 
@@ -517,7 +517,7 @@ function TestArray:testConcatAppendsAnotherArrayValues()
 	lu.assertEquals(arrayValues(array), { 10, 20, 30, 40, 50, 60 })
 end
 
-function TestArray:testConcatAppendsSetValues()
+function TestArray:testConcat_Appends_SetValues()
 	-- Given: the Array contains 10, 20, and 30; the Set contains 100.
 	local array = Array.new({ 10, 20, 30 })
 	local set = require("ff.collections.set").new()

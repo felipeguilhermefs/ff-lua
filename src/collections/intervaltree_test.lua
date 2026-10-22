@@ -7,7 +7,7 @@ local TestIntervalTree = {}
 
 -- Scenarios: construction and type recognition
 
-function TestIntervalTree:testTypeGuardRecognizesIntervalTreesAndRejectsOtherValues()
+function TestIntervalTree:testTypeGuard_Recognizes_IntervalTreesAndRejectsOtherValues()
 	-- Given: candidates include an IntervalTree, a table, and scalars.
 	-- When: check each candidate with IntervalTree.isIntervalTree.
 	-- Then: only the IntervalTree instance returns true.
@@ -19,7 +19,7 @@ function TestIntervalTree:testTypeGuardRecognizesIntervalTreesAndRejectsOtherVal
 end
 
 
-function TestIntervalTree:testEmptyConstructorCreatesEmptyIntervalTree()
+function TestIntervalTree:testEmptyConstructor_Creates_EmptyIntervalTree()
 	-- Given: construction receives no intervals.
 
 	-- When: call IntervalTree.new without arguments.
@@ -30,7 +30,7 @@ function TestIntervalTree:testEmptyConstructorCreatesEmptyIntervalTree()
 	lu.assertEquals(#it, 0)
 end
 
-function TestIntervalTree:testConstructorPreservesDisjointIntervals()
+function TestIntervalTree:testConstructor_Preserves_DisjointIntervals()
 	-- Given: input intervals do not overlap.
 
 	-- When: initialize from ranges that do not overlap.
@@ -45,7 +45,7 @@ function TestIntervalTree:testConstructorPreservesDisjointIntervals()
 	lu.assertFalse(it:contains(5))
 end
 
-function TestIntervalTree:testConstructorMergesOverlappingIntervals()
+function TestIntervalTree:testConstructor_Merges_OverlappingIntervals()
 	-- Given: input intervals overlap or touch.
 	-- Overlapping pairs in iterable should be merged on insertion
 
@@ -58,7 +58,7 @@ function TestIntervalTree:testConstructorMergesOverlappingIntervals()
 	lu.assertFalse(it:contains(15))
 end
 
-function TestIntervalTree:testConstructorTreatsNilIterableAsEmpty()
+function TestIntervalTree:testConstructor_TreatsNilIterableAs_Empty()
 	-- Given: the iterable argument is nil.
 	-- When: construct an IntervalTree with nil input.
 	-- Then: nil input also produces an empty tree of length zero.
@@ -66,7 +66,7 @@ function TestIntervalTree:testConstructorTreatsNilIterableAsEmpty()
 	lu.assertEquals(#IntervalTree.new(nil), 0)
 end
 
-function TestIntervalTree:testConstructorRejectsNonTableIterables()
+function TestIntervalTree:testConstructor_Rejects_NonTableIterables()
 	-- Given: constructor inputs include a string, number, and boolean.
 	-- When: pass each scalar as the iterable.
 	-- Then: each call reports that iterable must be a table.
@@ -76,7 +76,7 @@ end
 
 -- Scenarios: reads and inspection
 
-function TestIntervalTree:testContainsReportsValuesInsideInclusiveIntervals()
+function TestIntervalTree:testContains_ReportsValuesInside_InclusiveIntervals()
 	-- Given: an IntervalTree containing intervals [1, 3] and [7, 10].
 	local it = IntervalTree.new()
 	it:insert(7, 10)
@@ -105,7 +105,7 @@ function TestIntervalTree:testContainsReportsValuesInsideInclusiveIntervals()
 	lu.assertFalse(has11)
 end
 
-function TestIntervalTree:testContainsRejectsNonNumericValues()
+function TestIntervalTree:testContains_Rejects_NonNumericValues()
 	-- Given: the tree contains numeric intervals.
 	local it = IntervalTree.new()
 
@@ -120,7 +120,7 @@ function TestIntervalTree:testContainsRejectsNonNumericValues()
 end
 
 
-function TestIntervalTree:testIterationYieldsIntervalsInAscendingOrder()
+function TestIntervalTree:testIteration_Yields_IntervalsInAscendingOrder()
 	-- Given: the tree contains four disjoint intervals.
 	local it = IntervalTree.new({ { 10, 20 }, { 1, 3 }, { 50, 60 }, { 30, 40 } })
 	local res = {}
@@ -141,7 +141,7 @@ function TestIntervalTree:testIterationYieldsIntervalsInAscendingOrder()
 	})
 end
 
-function TestIntervalTree:testIterationOfEmptyIntervalTreeYieldsNoIntervals()
+function TestIntervalTree:testEmptyIntervalTreeIteration_Yields_NoIntervals()
 	-- Given: the tree has no intervals to traverse.
 	local it = IntervalTree.new()
 	local count = 0
@@ -157,7 +157,7 @@ end
 
 -- Scenarios: state changes
 
-function TestIntervalTree:testClearEmptiesIntervalTreeAndAllowsReuse()
+function TestIntervalTree:testClear_Empties_IntervalTreeAndAllowsReuse()
 	-- Given: an empty IntervalTree.
 	local it = IntervalTree.new()
 	lu.assertTrue(it:empty())
@@ -186,7 +186,7 @@ function TestIntervalTree:testClearEmptiesIntervalTreeAndAllowsReuse()
 	lu.assertEquals(#it, 2)
 end
 
-function TestIntervalTree:testInsertMergesOverlappingIntervals()
+function TestIntervalTree:testInsert_Merges_OverlappingIntervals()
 	-- Given: an IntervalTree storing [1, 3] and merged [4, 10].
 	local it = IntervalTree.new()
 	it:insert(4, 8)
@@ -205,7 +205,7 @@ function TestIntervalTree:testInsertMergesOverlappingIntervals()
 	end
 end
 
-function TestIntervalTree:testInsertNormalizesReversedBoundaries()
+function TestIntervalTree:testInsert_Normalizes_ReversedBoundaries()
 	-- Given: one interval is supplied with its endpoints reversed.
 	-- insert(high, low) should be normalised to insert(low, high)
 	local it = IntervalTree.new()
@@ -218,7 +218,7 @@ function TestIntervalTree:testInsertNormalizesReversedBoundaries()
 	lu.assertTrue(it:contains(5))
 end
 
-function TestIntervalTree:testInsertRejectsNonNumericBoundaries()
+function TestIntervalTree:testInsert_Rejects_NonNumericBoundaries()
 	-- Given: interval endpoints include non-numeric values.
 	local it = IntervalTree.new()
 
@@ -232,7 +232,7 @@ function TestIntervalTree:testInsertRejectsNonNumericBoundaries()
 	end)
 end
 
-function TestIntervalTree:testInsertMergesIntervalsThatShareBoundary()
+function TestIntervalTree:testInsert_MergesIntervals_ThatShareBoundary()
 	-- Given: two intervals meet at a shared boundary.
 	-- [1,3] and [3,6] share boundary 3 -- they overlap and must merge
 	local it = IntervalTree.new()
@@ -247,7 +247,7 @@ function TestIntervalTree:testInsertMergesIntervalsThatShareBoundary()
 	lu.assertTrue(it:contains(5))
 end
 
-function TestIntervalTree:testInsertMergesMultipleIntervalsConnectedByNewInterval()
+function TestIntervalTree:testInsert_MergesMultipleIntervals_ConnectedByNewInterval()
 	-- Given: an IntervalTree storing non-overlapping intervals [1, 2], [5, 6], and [9, 10].
 	local it = IntervalTree.new()
 	it:insert(1, 2)
@@ -266,7 +266,7 @@ function TestIntervalTree:testInsertMergesMultipleIntervalsConnectedByNewInterva
 end
 
 
-function TestIntervalTree:testRemoveDeletesExactInterval()
+function TestIntervalTree:testRemove_Deletes_ExactInterval()
 	-- Given: the tree contains three disjoint intervals.
 	local it = IntervalTree.new({ { 1, 3 }, { 7, 10 }, { 20, 25 } })
 
@@ -280,7 +280,7 @@ function TestIntervalTree:testRemoveDeletesExactInterval()
 	lu.assertTrue(it:contains(2))
 end
 
-function TestIntervalTree:testRemoveLeavesTreeUnchangedWhenIntervalIsMissing()
+function TestIntervalTree:testRemove_LeavesTreeUnchanged_WhenIntervalIsMissing()
 	-- Given: the tree contains two intervals and the target is absent.
 	local it = IntervalTree.new({ { 1, 3 }, { 7, 10 } })
 
@@ -290,7 +290,7 @@ function TestIntervalTree:testRemoveLeavesTreeUnchangedWhenIntervalIsMissing()
 	lu.assertEquals(#it, 2)
 end
 
-function TestIntervalTree:testRemoveFromEmptyTreeReturnsNoRemoval()
+function TestIntervalTree:testRemoveFromEmptyTree_Returns_NoRemoval()
 	-- Given: the tree is empty when removal is attempted.
 	local it = IntervalTree.new()
 
@@ -300,7 +300,7 @@ function TestIntervalTree:testRemoveFromEmptyTreeReturnsNoRemoval()
 	lu.assertEquals(#it, 0)
 end
 
-function TestIntervalTree:testRemoveNormalizesReversedBoundaries()
+function TestIntervalTree:testRemove_Normalizes_ReversedBoundaries()
 	-- Given: the tree contains one interval and removal bounds are reversed.
 	local it = IntervalTree.new({ { 1, 5 } })
 
@@ -310,7 +310,7 @@ function TestIntervalTree:testRemoveNormalizesReversedBoundaries()
 	lu.assertTrue(it:empty())
 end
 
-function TestIntervalTree:testRemoveTrimsPartiallyOverlappingInterval()
+function TestIntervalTree:testRemove_Trims_PartiallyOverlappingInterval()
 	-- Given: a removal range overlaps only part of a stored interval.
 	local it = IntervalTree.new({ { 1, 5 }, { 10, 15 } })
 
@@ -322,7 +322,7 @@ function TestIntervalTree:testRemoveTrimsPartiallyOverlappingInterval()
 	lu.assertTrue(it:contains(12))
 end
 
-function TestIntervalTree:testRemoveTrimsMultipleOverlappingIntervals()
+function TestIntervalTree:testRemove_Trims_MultipleOverlappingIntervals()
 	-- Given: the removal range crosses several stored intervals.
 	local it = IntervalTree.new({ { 1, 3 }, { 5, 8 }, { 10, 12 }, { 15, 20 } })
 
@@ -339,7 +339,7 @@ function TestIntervalTree:testRemoveTrimsMultipleOverlappingIntervals()
 	lu.assertTrue(it:contains(18))
 end
 
-function TestIntervalTree:testRemovePreservesIntervalsThatOnlyTouchRemovedRange()
+function TestIntervalTree:testRemove_Preserves_IntervalsThatOnlyTouchRemovedRange()
 	-- Given: stored intervals touch the removal range at endpoints.
 	local it = IntervalTree.new({ { 1, 3 }, { 5, 8 } })
 	-- [3, 5] touches upper bound of [1, 3] and lower bound of [5, 8]
@@ -351,7 +351,7 @@ function TestIntervalTree:testRemovePreservesIntervalsThatOnlyTouchRemovedRange(
 	lu.assertTrue(it:empty())
 end
 
-function TestIntervalTree:testRemoveUpdatesIntervalCount()
+function TestIntervalTree:testRemove_Updates_IntervalCount()
 	-- Given: the IntervalTree is empty; inserted ranges create a two-child root.
 	-- Validates the two-child deletion bug is fixed
 	local it = IntervalTree.new()
@@ -378,7 +378,7 @@ function TestIntervalTree:testRemoveUpdatesIntervalCount()
 	lu.assertTrue(it:empty())
 end
 
-function TestIntervalTree:testRemoveRejectsNonNumericBoundaries()
+function TestIntervalTree:testRemove_Rejects_NonNumericBoundaries()
 	-- Given: removal endpoints include non-numeric values.
 	local it = IntervalTree.new()
 
@@ -394,7 +394,7 @@ end
 
 -- Scenarios: metamethods and formatting
 
-function TestIntervalTree:testConcatCombinesDisjointIntervals()
+function TestIntervalTree:testConcat_Combines_DisjointIntervals()
 	-- Given: an empty IntervalTree and disjoint ranges {1, 3} and {7, 10}.
 	local it = IntervalTree.new()
 
@@ -407,7 +407,7 @@ function TestIntervalTree:testConcatCombinesDisjointIntervals()
 	lu.assertTrue(it:contains(9))
 end
 
-function TestIntervalTree:testConcatWithNilPreservesIntervals()
+function TestIntervalTree:testConcatWithNil_Preserves_Intervals()
 	-- Given: an empty IntervalTree.
 	local it = IntervalTree.new()
 
@@ -418,7 +418,7 @@ function TestIntervalTree:testConcatWithNilPreservesIntervals()
 	lu.assertEquals(#it, 0)
 end
 
-function TestIntervalTree:testConcatMergesOverlappingIntervals()
+function TestIntervalTree:testConcat_Merges_OverlappingIntervals()
 	-- Given: the tree contains [1, 5] and the input range is [3, 8].
 	local it = IntervalTree.new({ { 1, 5 } })
 
@@ -430,7 +430,7 @@ function TestIntervalTree:testConcatMergesOverlappingIntervals()
 	lu.assertTrue(it:contains(6))
 end
 
-function TestIntervalTree:testConcatSupportsChainedIntervalAppends()
+function TestIntervalTree:testConcat_Supports_ChainedIntervalAppends()
 	-- Given: an empty IntervalTree and iterables containing [1, 2] and [10, 20].
 	local it = IntervalTree.new()
 
@@ -442,7 +442,7 @@ function TestIntervalTree:testConcatSupportsChainedIntervalAppends()
 	lu.assertEquals(#it, 2)
 end
 
-function TestIntervalTree:testConcatRejectsNonTableValues()
+function TestIntervalTree:testConcat_Rejects_NonTableValues()
 	-- Given: the IntervalTree is empty.
 	local it = IntervalTree.new()
 
@@ -457,7 +457,7 @@ function TestIntervalTree:testConcatRejectsNonTableValues()
 end
 
 
-function TestIntervalTree:testIntervalTreesWithSameIntervalsCompareEqual()
+function TestIntervalTree:testIntervalTreesWithSameIntervals_Compare_Equal()
 	-- Given: trees contain matching ranges, a changed range, or different lengths.
 	local it1 = IntervalTree.new({ { 1, 3 }, { 7, 10 } })
 	local it2 = IntervalTree.new({ { 7, 10 }, { 1, 3 } }) -- insertion order differs
@@ -476,7 +476,7 @@ function TestIntervalTree:testIntervalTreesWithSameIntervalsCompareEqual()
 	lu.assertFalse(it1 == 42)
 end
 
-function TestIntervalTree:testEmptyIntervalTreesCompareEqual()
+function TestIntervalTree:testEmptyIntervalTrees_Compare_Equal()
 	-- Given: both interval trees contain no ranges.
 	local e1 = IntervalTree.new()
 	local e2 = IntervalTree.new()
@@ -488,7 +488,7 @@ function TestIntervalTree:testEmptyIntervalTreesCompareEqual()
 end
 
 
-function TestIntervalTree:testLengthReportsNumberOfDisjointIntervals()
+function TestIntervalTree:testLength_Reports_NumberOfDisjointIntervals()
 	-- Given: an empty IntervalTree.
 	local it = IntervalTree.new()
 	lu.assertEquals(#it, 0)
@@ -508,7 +508,7 @@ function TestIntervalTree:testLengthReportsNumberOfDisjointIntervals()
 end
 
 
-function TestIntervalTree:testToStringFormatsIntervals()
+function TestIntervalTree:testToString_Formats_Intervals()
 	-- Given: the tree contains multiple intervals.
 	local empty = IntervalTree.new()
 
@@ -520,7 +520,7 @@ function TestIntervalTree:testToStringFormatsIntervals()
 	lu.assertEquals(tostring(it), "{ [1, 3], [7, 10] }")
 end
 
-function TestIntervalTree:testNewPropertiesAndMethodsCannotBeAddedOrReplaced()
+function TestIntervalTree:testNewPropertiesAndMethods_CannotBe_AddedOrReplaced()
 	-- Given: an IntervalTree has its public methods and no added fields.
 	local it = IntervalTree.new()
 

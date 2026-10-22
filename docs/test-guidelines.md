@@ -22,8 +22,8 @@ global suite variables; the runner enables strict global checks.
 ## Naming and behavior
 
 - Name suites `Test<Subject>` or `Test<Subject><Context>`.
-- Name methods `test<Context><Action><ExpectedOutcome>` in camelCase. Example:
-  `testEmptyStackPopReturnsNil`.
+- Name methods `test<Context>_<Action>_<ExpectedOutcome>` in camelCase. Example:
+  `testEmptyStack_Pop_ReturnsNil`.
 - Group methods under scenario headings such as construction, reads, state
   changes, iteration, validation, or metamethods.
 - Give each method one behavior and its closely related assertions. Split

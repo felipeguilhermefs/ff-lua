@@ -7,7 +7,7 @@ local TestHashMap = {}
 
 -- Scenarios: construction and type recognition
 
-function TestHashMap:testTypeGuardRecognizesHashMapsAndRejectsOtherValues()
+function TestHashMap:testTypeGuard_Recognizes_HashMapsAndRejectsOtherValues()
 	-- Given: candidates include HashMap instances, a plain table, a Set, and scalars.
 	-- When: check each candidate with HashMap.isHashMap.
 	-- Then: only HashMap instances return true.
@@ -22,7 +22,7 @@ function TestHashMap:testTypeGuardRecognizesHashMapsAndRejectsOtherValues()
 end
 
 
-function TestHashMap:testConstructorCopiesEntriesFromTable()
+function TestHashMap:testConstructor_CopiesEntries_FromTable()
 	-- Given: a source table maps x, y, and z to 1, 2, and 3.
 
 	-- When: initialize a HashMap from the table.
@@ -35,7 +35,7 @@ function TestHashMap:testConstructorCopiesEntriesFromTable()
 	lu.assertEquals(map:get("z"), 3)
 end
 
-function TestHashMap:testConstructorCopiesEntriesFromHashMapIndependently()
+function TestHashMap:testConstructor_CopiesEntries_FromHashMapIndependently()
 	-- Given: a source HashMap maps a to 10 and b to 20.
 	local source = HashMap.new({ a = 10, b = 20 })
 
@@ -56,7 +56,7 @@ end
 
 -- Scenarios: reads and inspection
 
-function TestHashMap:testGetReturnsStoredValuesAndNilForMissingKeys()
+function TestHashMap:testGet_ReturnsStoredValues_AndNilForMissingKeys()
 	-- Given: the map starts empty.
 	local map = HashMap.new()
 
@@ -77,7 +77,7 @@ function TestHashMap:testGetReturnsStoredValuesAndNilForMissingKeys()
 	lu.assertEquals(map:get(1), "a")
 end
 
-function TestHashMap:testContainsReportsMissingKeysAsAbsent()
+function TestHashMap:testContains_Reports_MissingKeysAsAbsent()
 	-- Given: the map is empty and membership target e is absent.
 	local map = HashMap.new()
 
@@ -86,7 +86,7 @@ function TestHashMap:testContainsReportsMissingKeysAsAbsent()
 	lu.assertFalse(map:contains("e"))
 end
 
-function TestHashMap:testContainsReportsKeyWithFalseValueAsPresent()
+function TestHashMap:testContains_ReportsKeyWithFalseValue_AsPresent()
 	-- Given: the map is empty; key e will store false.
 	local map = HashMap.new()
 
@@ -97,7 +97,7 @@ function TestHashMap:testContainsReportsKeyWithFalseValueAsPresent()
 	lu.assertTrue(map:contains("e"))
 end
 
-function TestHashMap:testRemovedKeyIsNoLongerContained()
+function TestHashMap:testRemovedKey_IsNoLonger_Contained()
 	-- Given: the map contains only key e, whose value is false.
 	local map = HashMap.new({ e = false })
 
@@ -108,7 +108,7 @@ function TestHashMap:testRemovedKeyIsNoLongerContained()
 	lu.assertFalse(map:contains("e"))
 end
 
-function TestHashMap:testIterationYieldsEveryStoredKeyValuePair()
+function TestHashMap:testIteration_Yields_EveryStoredKeyValuePair()
 	-- Given: an empty map is prepared with four key-value pairs.
 	local map = HashMap.new()
 
@@ -136,7 +136,7 @@ end
 
 -- Scenarios: state changes
 
-function TestHashMap:testClearMakesMapEmpty()
+function TestHashMap:testClear_Makes_MapEmpty()
 	-- Given: an empty HashMap.
 	local map = HashMap.new()
 
@@ -157,7 +157,7 @@ function TestHashMap:testClearMakesMapEmpty()
 	lu.assertTrue(map:empty())
 end
 
-function TestHashMap:testPutAddsEntriesAndReplacesExistingValues()
+function TestHashMap:testPut_AddsEntries_AndReplacesExistingValues()
 	-- Given: an empty HashMap.
 	local map = HashMap.new()
 
@@ -184,7 +184,7 @@ function TestHashMap:testPutAddsEntriesAndReplacesExistingValues()
 	lu.assertEquals(#map, 2)
 end
 
-function TestHashMap:testRemoveDeletesOnlyRequestedEntry()
+function TestHashMap:testRemove_Deletes_OnlyRequestedEntry()
 	-- Given: a HashMap containing keys "f" and "g".
 	local map = HashMap.new()
 	map:put("f", false)
@@ -200,7 +200,7 @@ function TestHashMap:testRemoveDeletesOnlyRequestedEntry()
 	lu.assertEquals(#map, 1)
 end
 
-function TestHashMap:testComputeStoresOnlyMissingKeys()
+function TestHashMap:testCompute_Stores_OnlyMissingKeys()
 	-- Given: the map starts empty and callbacks are available for keys a and 3.
 	local map = HashMap.new()
 
@@ -217,7 +217,7 @@ function TestHashMap:testComputeStoresOnlyMissingKeys()
 		end), 9)
 end
 
-function TestHashMap:testMergeCombinesOverlappingAndDistinctKeys()
+function TestHashMap:testMerge_Combines_OverlappingAndDistinctKeys()
 	-- Given: maps overlap on a and b; source-only keys are c and d.
 	local function add(a, b)
 		return a + b
@@ -239,7 +239,7 @@ end
 
 -- Scenarios: metamethods and formatting
 
-function TestHashMap:testConcatAppendsTableAndArrayEntries()
+function TestHashMap:testConcat_Appends_TableAndArrayEntries()
 	-- Given: an empty map, a table with a-c, and an Array with d-f.
 	local map = HashMap.new()
 	local arr = require("ff.collections.array").new({ "d", "e", "f" })
@@ -259,7 +259,7 @@ function TestHashMap:testConcatAppendsTableAndArrayEntries()
 	lu.assertEquals(map:get(3), "f")
 end
 
-function TestHashMap:testToStringFormatsKeyValuePairs()
+function TestHashMap:testToString_Formats_KeyValuePairs()
 	-- Given: an empty map receives the key/value entry.
 	local map = HashMap.new()
 	map:put("key", "value")
@@ -271,7 +271,7 @@ function TestHashMap:testToStringFormatsKeyValuePairs()
 	lu.assertEquals(text, "{ key = value }")
 end
 
-function TestHashMap:testMapsWithSameEntriesCompareEqual()
+function TestHashMap:testMapsWithSameEntries_Compare_Equal()
 	-- Given: maps have equal entries, a changed value, or a missing entry.
 	local m1 = HashMap.new({ a = 1, b = 2 })
 	local m2 = HashMap.new({ a = 1, b = 2 })
@@ -287,7 +287,7 @@ function TestHashMap:testMapsWithSameEntriesCompareEqual()
 	lu.assertFalse(m1 == m4)
 end
 
-function TestHashMap:testMapDoesNotCompareEqualToOtherValueTypes()
+function TestHashMap:testMap_DoesNotCompareEqualTo_OtherValueTypes()
 	-- Given: one HashMap is compared with a plain table, nil, and a number.
 	local map = HashMap.new({ a = 1 })
 
@@ -300,7 +300,7 @@ function TestHashMap:testMapDoesNotCompareEqualToOtherValueTypes()
 	lu.assertFalse(map == 42)
 end
 
-function TestHashMap:testEmptyMapsCompareEqual()
+function TestHashMap:testEmptyMaps_Compare_Equal()
 	-- Given: both maps contain no entries.
 	local m1 = HashMap.new()
 	local m2 = HashMap.new()
@@ -311,7 +311,7 @@ function TestHashMap:testEmptyMapsCompareEqual()
 	lu.assertTrue(m1 == m2)
 end
 
-function TestHashMap:testEqualityIncludesFalseValues()
+function TestHashMap:testEquality_Includes_FalseValues()
 	-- Given: two maps each storing key "flag" with value false.
 	local m1 = HashMap.new()
 	local m2 = HashMap.new()
@@ -329,7 +329,7 @@ function TestHashMap:testEqualityIncludesFalseValues()
 	lu.assertFalse(m1 == m2)
 end
 
-function TestHashMap:testNewPropertiesAndMethodsCannotBeAddedOrReplaced()
+function TestHashMap:testNewPropertiesAndMethods_CannotBe_AddedOrReplaced()
 	-- Given: the map contains key a and has existing method get.
 	local m = HashMap.new({ a = 1 })
 

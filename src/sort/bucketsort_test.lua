@@ -7,7 +7,7 @@ local bucketsort = require("ff.sort.bucketsort")
 local TestBucketSort = {}
 
 -- Scenarios: bucket sort behavior
-function TestBucketSort:testArrayInputReturnsValuesInAscendingOrder()
+function TestBucketSort:testArrayInput_Returns_ValuesInAscendingOrder()
 	-- Given: Arrays contain unsorted positive values, then mixed signed values.
 	local a = Array.new({ 2, 6, 3, 4, 5, 1 })
 
@@ -34,7 +34,7 @@ function TestBucketSort:testArrayInputReturnsValuesInAscendingOrder()
 	lu.assertEquals(a:get(6), 5)
 end
 
-function TestBucketSort:testTableArrayInputReturnsValuesInAscendingOrder()
+function TestBucketSort:testTableArrayInput_Returns_ValuesInAscendingOrder()
 	-- Given: plain tables contain unsorted positive and mixed signed values.
 	local a = { 2, 6, 3, 4, 5, 1 }
 

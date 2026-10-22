@@ -7,7 +7,7 @@ local TestQueue = {}
 
 -- Scenarios: construction and type recognition
 
-function TestQueue:testTypeGuardRecognizesQueuesAndRejectsOtherValues()
+function TestQueue:testTypeGuard_Recognizes_QueuesAndRejectsOtherValues()
 	-- Given: candidates include one Queue, a plain table, and scalar values.
 	-- When: check each candidate with Queue.isQueue.
 	-- Then: only the Queue instance returns true.
@@ -18,7 +18,7 @@ function TestQueue:testTypeGuardRecognizesQueuesAndRejectsOtherValues()
 	lu.assertFalse(Queue.isQueue(123))
 end
 
-function TestQueue:testEmptyConstructorCreatesEmptyQueue()
+function TestQueue:testEmptyConstructor_Creates_EmptyQueue()
 	-- Given: construction receives no items and no capacity limit.
 
 	-- When: call Queue.new without arguments.
@@ -29,7 +29,7 @@ function TestQueue:testEmptyConstructorCreatesEmptyQueue()
 	lu.assertEquals(#q, 0)
 end
 
-function TestQueue:testCapacityConstructorCreatesEmptyQueue()
+function TestQueue:testCapacityConstructor_Creates_EmptyQueue()
 	-- Given: construction receives capacity 5 and no items.
 
 	-- When: call Queue.new with that capacity.
@@ -40,7 +40,7 @@ function TestQueue:testCapacityConstructorCreatesEmptyQueue()
 	lu.assertEquals(#q, 0)
 end
 
-function TestQueue:testConstructorLoadsInitialValuesAndSetsFront()
+function TestQueue:testConstructor_LoadsInitialValues_AndSetsFront()
 	-- Given: the source iterable is { 10, 20, 30 }.
 
 	-- When: initialize a Queue from the iterable.
@@ -51,7 +51,7 @@ function TestQueue:testConstructorLoadsInitialValuesAndSetsFront()
 	lu.assertEquals(q:peek(), 10)
 end
 
-function TestQueue:testCapacityConstructorLoadsIterableValues()
+function TestQueue:testCapacityConstructor_Loads_IterableValues()
 	-- Given: values are { 1, 2, 3 } and capacity is 5.
 
 	-- When: initialize the bounded Queue from those values.
@@ -62,7 +62,7 @@ function TestQueue:testCapacityConstructorLoadsIterableValues()
 	lu.assertEquals(q:peek(), 1)
 end
 
-function TestQueue:testConstructorRejectsInvalidCapacity()
+function TestQueue:testConstructor_Rejects_InvalidCapacity()
 	-- Given: capacities include strings, booleans, negative numbers, and zero.
 	-- When: pass each invalid capacity to Queue.new.
 	-- Then: errors distinguish non-numeric from non-positive capacity.
@@ -74,7 +74,7 @@ end
 
 -- Scenarios: reads and inspection
 
-function TestQueue:testCapacityRejectsItemsBeyondLimitAndAllowsReuseAfterDequeue()
+function TestQueue:testCapacity_RejectsItemsBeyondLimit_AndAllowsReuseAfterDequeue()
 	-- Given: capacity is 2; values 1, 2, and 3 exercise overflow and reuse.
 	local q = Queue.new(nil, 2)
 
@@ -96,7 +96,7 @@ function TestQueue:testCapacityRejectsItemsBeyondLimitAndAllowsReuseAfterDequeue
 	lu.assertEquals(#q, 2)
 end
 
-function TestQueue:testIterationYieldsItemsInFifoOrder()
+function TestQueue:testIteration_Yields_ItemsInFifoOrder()
 	-- Given: the Queue receives a, b, c, and d in that order.
 	local q = Queue.new()
 
@@ -121,7 +121,7 @@ function TestQueue:testIterationYieldsItemsInFifoOrder()
 	lu.assertEquals(q:peek(), "a")
 end
 
-function TestQueue:testIterationOfEmptyQueueYieldsNoItems()
+function TestQueue:testEmptyQueueIteration_Yields_NoItems()
 	-- Given: the Queue has no items to traverse.
 	local q = Queue.new()
 
@@ -136,7 +136,7 @@ function TestQueue:testIterationOfEmptyQueueYieldsNoItems()
 	lu.assertEquals(count, 0)
 end
 
-function TestQueue:testRepeatedIterationPreservesQueueContents()
+function TestQueue:testRepeatedIteration_Preserves_QueueContents()
 	-- Given: the Queue contains 1, 2, and 3.
 	local q = Queue.new({ 1, 2, 3 })
 
@@ -158,7 +158,7 @@ function TestQueue:testRepeatedIterationPreservesQueueContents()
 	lu.assertEquals(#q, 3)
 end
 
-function TestQueue:testContainsReportsStoredValuesAsPresent()
+function TestQueue:testContains_ReportsStoredValues_AsPresent()
 	-- Given: the Queue contains 10, 20, and 30.
 	local q = Queue.new({ 10, 20, 30 })
 
@@ -169,7 +169,7 @@ function TestQueue:testContainsReportsStoredValuesAsPresent()
 	lu.assertTrue(q:contains(30))
 end
 
-function TestQueue:testContainsReportsUnstoredValuesAsAbsent()
+function TestQueue:testContains_ReportsUnstoredValues_AsAbsent()
 	-- Given: the Queue contains numeric values 10, 20, and 30.
 	local q = Queue.new({ 10, 20, 30 })
 
@@ -179,7 +179,7 @@ function TestQueue:testContainsReportsUnstoredValuesAsAbsent()
 	lu.assertFalse(q:contains("10"))
 end
 
-function TestQueue:testEmptyQueueDoesNotContainValues()
+function TestQueue:testEmptyQueue_DoesNotContain_Values()
 	-- Given: the Queue is empty and queried for value 1.
 	local q = Queue.new()
 
@@ -188,7 +188,7 @@ function TestQueue:testEmptyQueueDoesNotContainValues()
 	lu.assertFalse(q:contains(1))
 end
 
-function TestQueue:testContainsDoesNotConsumeQueuedValues()
+function TestQueue:testContains_DoesNotConsume_QueuedValues()
 	-- Given: the Queue holds a, b, and c in FIFO order.
 	local q = Queue.new({ "a", "b", "c" })
 
@@ -201,7 +201,7 @@ function TestQueue:testContainsDoesNotConsumeQueuedValues()
 	lu.assertEquals(q:peek(), "a")
 end
 
-function TestQueue:testContainsReportsDuplicateValuesAsPresent()
+function TestQueue:testContains_ReportsDuplicateValues_AsPresent()
 	-- Given: the Queue receives three copies of 5.
 	local q = Queue.new()
 
@@ -215,7 +215,7 @@ function TestQueue:testContainsReportsDuplicateValuesAsPresent()
 	lu.assertEquals(#q, 3) -- still intact
 end
 
-function TestQueue:testContainsRejectsNilValues()
+function TestQueue:testContains_Rejects_NilValues()
 	-- Given: nil is queried against an empty Queue.
 	local q = Queue.new()
 
@@ -226,7 +226,7 @@ function TestQueue:testContainsRejectsNilValues()
 	end)
 end
 
-function TestQueue:testUnboundedQueueNeverReportsFull()
+function TestQueue:testUnboundedQueue_NeverReports_Full()
 	-- Given: an unbounded Queue.
 	local q = Queue.new()
 
@@ -241,7 +241,7 @@ function TestQueue:testUnboundedQueueNeverReportsFull()
 	lu.assertFalse(q:full())
 end
 
-function TestQueue:testBoundedQueueReportsNotFullBelowCapacity()
+function TestQueue:testBoundedQueue_ReportsNotFull_BelowCapacity()
 	-- Given: a bounded Queue with capacity 3.
 	local q = Queue.new(nil, 3)
 
@@ -257,7 +257,7 @@ function TestQueue:testBoundedQueueReportsNotFullBelowCapacity()
 	lu.assertFalse(q:full())
 end
 
-function TestQueue:testBoundedQueueReportsFullAtCapacity()
+function TestQueue:testBoundedQueue_ReportsFull_AtCapacity()
 	-- Given: capacity is 2; x and y fill the two available slots.
 	local q = Queue.new(nil, 2)
 
@@ -269,7 +269,7 @@ function TestQueue:testBoundedQueueReportsFullAtCapacity()
 	lu.assertTrue(q:full())
 end
 
-function TestQueue:testDequeuingFromFullQueueMakesRoom()
+function TestQueue:testDequeuingFromFullQueue_Makes_Room()
 	-- Given: a bounded Queue with capacity 2, filled to capacity.
 	local q = Queue.new(nil, 2)
 	q:enqueue(1)
@@ -289,7 +289,7 @@ function TestQueue:testDequeuingFromFullQueueMakesRoom()
 	lu.assertTrue(q:full())
 end
 
-function TestQueue:testFullQueueRejectsEnqueue()
+function TestQueue:testFullQueue_Rejects_Enqueue()
 	-- Given: capacity is 3; a fourth item is attempted after a, b, and c.
 	local q = Queue.new(nil, 3)
 
@@ -305,7 +305,7 @@ end
 
 -- Scenarios: state changes
 
-function TestQueue:testClearMakesQueueEmptyAfterEnqueues()
+function TestQueue:testClear_MakesQueueEmpty_AfterEnqueues()
 	-- Given: an empty Queue.
 	local q = Queue.new()
 	lu.assertTrue(q:empty())
@@ -332,7 +332,7 @@ function TestQueue:testClearMakesQueueEmptyAfterEnqueues()
 	lu.assertEquals(#q, 0)
 end
 
-function TestQueue:testDequeueReturnsQueuedValuesInFifoOrder()
+function TestQueue:testDequeue_Returns_QueuedValuesInFifoOrder()
 	-- Given: an empty Queue will receive 10 and 20.
 	local q = Queue.new()
 
@@ -347,7 +347,7 @@ function TestQueue:testDequeueReturnsQueuedValuesInFifoOrder()
 end
 
 
-function TestQueue:testDequeueAndPeekOnEmptyQueueReturnNil()
+function TestQueue:testEmptyQueueDequeueAndPeek_Return_Nil()
 	-- Given: an empty Queue.
 	local q = Queue.new()
 
@@ -367,7 +367,7 @@ function TestQueue:testDequeueAndPeekOnEmptyQueueReturnNil()
 	lu.assertNil(q:peek())
 end
 
-function TestQueue:testPeekReturnsFrontWithoutConsumingQueue()
+function TestQueue:testPeek_ReturnsFront_WithoutConsumingQueue()
 	-- Given: the Queue contains 30 followed by 40.
 	local q = Queue.new({ 30, 40 })
 
@@ -378,7 +378,7 @@ function TestQueue:testPeekReturnsFrontWithoutConsumingQueue()
 	lu.assertEquals(q:dequeue(), 30)
 end
 
-function TestQueue:testDrainYieldsQueuedValuesInFifoOrderAndEmptiesQueue()
+function TestQueue:testDrain_YieldsQueuedValuesInFifoOrder_AndEmptiesQueue()
 	-- Given: a new Queue receives a, b, c, and d.
 	local q = Queue.new()
 
@@ -401,7 +401,7 @@ function TestQueue:testDrainYieldsQueuedValuesInFifoOrderAndEmptiesQueue()
 	lu.assertNil(q:dequeue())
 end
 
-function TestQueue:testDrainOnEmptyQueueYieldsNoValues()
+function TestQueue:testEmptyQueueDrain_Yields_NoValues()
 	-- Given: the Queue is empty and observed through drain.
 	local q = Queue.new()
 
@@ -417,7 +417,7 @@ function TestQueue:testDrainOnEmptyQueueYieldsNoValues()
 	lu.assertTrue(q:empty())
 end
 
-function TestQueue:testClearedQueueCanBeReused()
+function TestQueue:testClearedQueue_CanBe_Reused()
 	-- Given: a Queue receives two items and is cleared.
 	local q = Queue.new()
 
@@ -437,7 +437,7 @@ function TestQueue:testClearedQueueCanBeReused()
 	lu.assertEquals(q:peek(), 99)
 end
 
-function TestQueue:testRemovingLastQueuedValueLeavesQueueReusable()
+function TestQueue:testRemovingLastQueuedValue_Leaves_QueueReusable()
 	-- Given: an empty Queue is ready for a single-item enqueue.
 	local q = Queue.new()
 
@@ -454,7 +454,7 @@ function TestQueue:testRemovingLastQueuedValueLeavesQueueReusable()
 	lu.assertTrue(q:empty())
 end
 
-function TestQueue:testQueuePreservesOrderAcrossValueTypes()
+function TestQueue:testQueue_Preserves_OrderAcrossValueTypes()
 	-- Given: a Queue receives a number, string, boolean, and table.
 	local q = Queue.new()
 
@@ -475,7 +475,7 @@ end
 
 -- Scenarios: metamethods and formatting
 
-function TestQueue:testLengthTracksEnqueueAndDequeueOperations()
+function TestQueue:testLength_Tracks_EnqueueAndDequeueOperations()
 	-- Given: an empty Queue.
 	local q = Queue.new()
 	lu.assertEquals(#q, 0)
@@ -503,7 +503,7 @@ function TestQueue:testLengthTracksEnqueueAndDequeueOperations()
 	lu.assertEquals(#q, 0)
 end
 
-function TestQueue:testConcatAppendsIterableValuesInQueueOrder()
+function TestQueue:testConcat_Appends_IterableValuesInQueueOrder()
 	-- Given: an empty Queue and a Stack whose top-to-bottom values are 40, 50, 60.
 	local q = Queue.new()
 	local s = require("ff.collections.stack").new()
@@ -526,7 +526,7 @@ function TestQueue:testConcatAppendsIterableValuesInQueueOrder()
 	lu.assertEquals(q:dequeue(), 60)
 end
 
-function TestQueue:testConcatRejectsNonTableValues()
+function TestQueue:testConcat_Rejects_NonTableValues()
 	-- Given: string and number operands are tried against an empty Queue.
 	local q = Queue.new()
 
@@ -540,7 +540,7 @@ function TestQueue:testConcatRejectsNonTableValues()
 	end)
 end
 
-function TestQueue:testQueuesWithSameValuesCompareEqual()
+function TestQueue:testQueuesWithSameValues_Compare_Equal()
 	-- Given: Queues share values, differ at one value, or have a shorter length.
 	local q1 = Queue.new({ 1, 2, 3 })
 	local q2 = Queue.new({ 1, 2, 3 })
@@ -559,7 +559,7 @@ function TestQueue:testQueuesWithSameValuesCompareEqual()
 	lu.assertFalse(q1 == 42)
 end
 
-function TestQueue:testEmptyQueuesCompareEqual()
+function TestQueue:testEmptyQueues_Compare_Equal()
 	-- Given: both Queues contain no items.
 	local q1 = Queue.new()
 	local q2 = Queue.new()
@@ -570,7 +570,7 @@ function TestQueue:testEmptyQueuesCompareEqual()
 	lu.assertTrue(q1 == q2)
 end
 
-function TestQueue:testToStringFormatsQueueContents()
+function TestQueue:testToString_Formats_QueueContents()
 	-- Given: an empty Queue receives 1, 2, and 3 in FIFO order.
 	local q = Queue.new()
 
@@ -588,7 +588,7 @@ function TestQueue:testToStringFormatsQueueContents()
 	lu.assertStrContains(str, "Front")
 end
 
-function TestQueue:testToStringFormatsEmptyQueue()
+function TestQueue:testToString_Formats_EmptyQueue()
 	-- Given: the Queue has no items to include in its text.
 	local q = Queue.new()
 
@@ -599,7 +599,7 @@ function TestQueue:testToStringFormatsEmptyQueue()
 	lu.assertStrContains(str, "Front")
 end
 
-function TestQueue:testNewPropertiesAndMethodsCannotBeAddedOrReplaced()
+function TestQueue:testNewPropertiesAndMethods_CannotBe_AddedOrReplaced()
 	-- Given: an empty Queue defines method peek.
 	local q = Queue.new()
 

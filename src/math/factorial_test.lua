@@ -6,14 +6,14 @@ local factorial = require("ff.math.factorial")
 local TestFactorial = {}
 
 -- Scenarios: factorial behavior
-function TestFactorial:testFactorialOfZeroReturnsZero()
+function TestFactorial:testFactorialOfZero_Returns_Zero()
 	-- Given: the input is 0.
 	-- When: evaluate factorial(0).
 	-- Then: the result is 0.
 	lu.assertEquals(factorial(0), 0)
 end
 
-function TestFactorial:testPositiveIntegerFactorialMatchesExpectedProduct()
+function TestFactorial:testPositiveIntegerFactorial_Matches_ExpectedProduct()
 	-- Given: inputs are positive integers from 1 through 25.
 	-- When: evaluate factorial for each input.
 	-- Then: results match the corresponding products.
@@ -23,7 +23,7 @@ function TestFactorial:testPositiveIntegerFactorialMatchesExpectedProduct()
 	lu.assertEquals(factorial(25), 7034535277573963776)
 end
 
-function TestFactorial:testNegativeInputRaisesValidationError()
+function TestFactorial:testNegativeInput_Raises_ValidationError()
 	-- Given: inputs are negative integers and fractions.
 	-- When: evaluate factorial for each negative input.
 	-- Then: each call reports that the input must be positive.
@@ -31,7 +31,7 @@ function TestFactorial:testNegativeInputRaisesValidationError()
 	lu.assertErrorMsgContains("Should be positive", factorial, -4.2)
 end
 
-function TestFactorial:testNonIntegerInputIsTruncatedBeforeFactorial()
+function TestFactorial:testNonIntegerInput_IsTruncated_BeforeFactorial()
 	-- Given: inputs are 4.0 and 4.2.
 	-- When: evaluate factorial for each fractional input.
 	-- Then: both calls produce the factorial of 4.
@@ -39,7 +39,7 @@ function TestFactorial:testNonIntegerInputIsTruncatedBeforeFactorial()
 	lu.assertEquals(factorial(4.2), 24)
 end
 
-function TestFactorial:testNonNumberInputRaisesValidationError()
+function TestFactorial:testNonNumberInput_Raises_ValidationError()
 	-- Given: inputs include nil, booleans, strings, tables, and a function.
 	-- When: pass each value to factorial.
 	-- Then: each call reports that the input must be a number.

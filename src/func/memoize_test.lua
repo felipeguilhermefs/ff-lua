@@ -7,7 +7,7 @@ local memoize = require("ff.func.memoize")
 local TestMemoize = {}
 
 -- Scenarios: memoization behavior
-function TestMemoize:testRepeatedSingleArgumentCallsUseCachedResult()
+function TestMemoize:testRepeatedSingleArgumentCalls_Use_CachedResult()
 	-- Given: the spy observes calls keyed by one repeated argument.
 	local fn = spy(function()
 		return 1
@@ -26,7 +26,7 @@ function TestMemoize:testRepeatedSingleArgumentCallsUseCachedResult()
 	lu.assertEquals(fn.calls, 1)
 end
 
-function TestMemoize:testRepeatedMultipleArgumentCallsUseCachedResult()
+function TestMemoize:testRepeatedMultipleArgumentCalls_Use_CachedResult()
 	-- Given: the spy observes calls keyed by one repeated three-argument tuple.
 	local fn = spy(function()
 		return 1
@@ -45,7 +45,7 @@ function TestMemoize:testRepeatedMultipleArgumentCallsUseCachedResult()
 	lu.assertEquals(fn.calls, 1)
 end
 
-function TestMemoize:testCallsWithDifferentArgumentsComputeSeparateResults()
+function TestMemoize:testCallsWithDifferentArguments_Compute_SeparateResults()
 	-- Given: the spy observes calls keyed by three distinct argument tuples.
 	local fn = spy(function()
 		return 1
@@ -63,7 +63,7 @@ function TestMemoize:testCallsWithDifferentArgumentsComputeSeparateResults()
 	lu.assertEquals(fn.calls, 3)
 end
 
-function TestMemoize:testNonCallableInputsReturnNil()
+function TestMemoize:testNonCallableInputs_Return_Nil()
 	-- Given: inputs include nil, booleans, strings, numbers, and tables.
 	-- When: pass each value as memoize's function argument.
 	-- Then: memoize returns nil for every non-callable value.
@@ -74,7 +74,7 @@ function TestMemoize:testNonCallableInputsReturnNil()
 	lu.assertNil(memoize({ 1, 2, 3 }))
 end
 
-function TestMemoize:testMemoizeRejectsNonTableCache()
+function TestMemoize:testMemoize_Rejects_NonTableCache()
 	-- Given: a valid function is paired with boolean, string, and number caches.
 	local fn = function()
 		return 1

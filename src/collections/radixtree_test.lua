@@ -9,7 +9,7 @@ local TestRadixTree = {}
 
 -- Scenarios: construction and type recognition
 
-function TestRadixTree:testTypeGuardRecognizesRadixTreesAndRejectsOtherValues()
+function TestRadixTree:testTypeGuard_Recognizes_RadixTreesAndRejectsOtherValues()
 	-- Given: candidates include a RadixTree, a table, and scalars.
 	-- When: check each candidate with RadixTree.isRadixTree.
 	-- Then: only the RadixTree instance returns true.
@@ -22,7 +22,7 @@ function TestRadixTree:testTypeGuardRecognizesRadixTreesAndRejectsOtherValues()
 	lu.assertFalse(RadixTree.isRadixTree(true))
 end
 
-function TestRadixTree:testConstructorPreservesInsertedWords()
+function TestRadixTree:testConstructor_Preserves_InsertedWords()
 	-- Given: table input has apple, banana, apricot; Array input has cat, dog.
 	-- When: construct a RadixTree without arguments.
 	local t = RadixTree.new()
@@ -78,7 +78,7 @@ end
 
 -- Scenarios: reads and inspection
 
-function TestRadixTree:testContainsReportsInsertedWordsAndRejectsMissingWords()
+function TestRadixTree:testContains_ReportsInsertedWords_AndRejectsMissingWords()
 	-- Given: the RadixTree starts empty.
 	local t = RadixTree.new()
 
@@ -117,7 +117,7 @@ function TestRadixTree:testContainsReportsInsertedWordsAndRejectsMissingWords()
 	lu.assertErrorMsgContains("prefix should be a string", t.contains, t, nil)
 end
 
-function TestRadixTree:testFindReturnsWordsMatchingPrefix()
+function TestRadixTree:testFind_Returns_WordsMatchingPrefix()
 	-- Given: the RadixTree starts empty; cat-related words are used for lookup.
 	local t = RadixTree.new()
 
@@ -167,7 +167,7 @@ function TestRadixTree:testFindReturnsWordsMatchingPrefix()
 	lu.assertErrorMsgContains("prefix should be a string", t.find, t, true)
 end
 
-function TestRadixTree:testWordLookupIsCaseSensitive()
+function TestRadixTree:testWordLookup_Is_CaseSensitive()
 	-- Given: default and case-insensitive trees will store wolf and Wolf.
 	local ts = RadixTree.new()
 
@@ -198,7 +198,7 @@ function TestRadixTree:testWordLookupIsCaseSensitive()
 	lu.assertTrue(ti:contains("wolf", true))
 end
 
-function TestRadixTree:testIterationYieldsStoredWords()
+function TestRadixTree:testIteration_Yields_StoredWords()
 	-- Given: the tree contains three words.
 	local t = RadixTree.new({ "alpha", "beta", "gamma" })
 
@@ -219,7 +219,7 @@ end
 
 -- Scenarios: state changes
 
-function TestRadixTree:testClearRemovesAllWordsAndAllowsReuse()
+function TestRadixTree:testClear_RemovesAllWords_AndAllowsReuse()
 	-- Given: the RadixTree starts empty.
 	local t = RadixTree.new()
 
@@ -246,7 +246,7 @@ function TestRadixTree:testClearRemovesAllWordsAndAllowsReuse()
 	lu.assertTrue(t:contains("banana", true))
 end
 
-function TestRadixTree:testInsertAddsWordsAndRejectsDuplicates()
+function TestRadixTree:testInsert_AddsWords_AndRejectsDuplicates()
 	-- Given: the RadixTree is empty; cat is the word to insert twice.
 	local t = RadixTree.new()
 
@@ -270,7 +270,7 @@ function TestRadixTree:testInsertAddsWordsAndRejectsDuplicates()
 	lu.assertErrorMsgContains("word should be a string", t.insert, t, {})
 end
 
-function TestRadixTree:testRemoveDeletesWordsAndPreservesOtherWords()
+function TestRadixTree:testRemove_DeletesWords_AndPreservesOtherWords()
 	-- Given: an empty RadixTree.
 	local t = RadixTree.new()
 
@@ -341,7 +341,7 @@ function TestRadixTree:testRemoveDeletesWordsAndPreservesOtherWords()
 	lu.assertErrorMsgContains("prefix should be a string", t.remove, t, nil)
 end
 
-function TestRadixTree:testInsertAndRemoveSplitAndMergeSharedPrefixes()
+function TestRadixTree:testInsertAndRemove_SplitAndMerge_SharedPrefixes()
 	-- Given: the RadixTree is empty; input words share ro-, rom-, and rub- prefixes.
 	local t = RadixTree.new()
 
@@ -407,7 +407,7 @@ function TestRadixTree:testInsertAndRemoveSplitAndMergeSharedPrefixes()
 	lu.assertTrue(t:contains("rubens", true))
 end
 
-function TestRadixTree:testRemovingPrefixWordPreservesLongerWords()
+function TestRadixTree:testRemovingPrefixWord_Preserves_LongerWords()
 	-- Given: the tree contains one word that prefixes longer stored words.
 	local t = RadixTree.new({ "test", "testing", "tester", "team", "toast" })
 
@@ -433,7 +433,7 @@ function TestRadixTree:testRemovingPrefixWordPreservesLongerWords()
 	lu.assertEquals(#t, 2)
 end
 
-function TestRadixTree:testLongSharedPrefixesRemainSearchable()
+function TestRadixTree:testLongSharedPrefixes_Remain_Searchable()
 	-- Given: several words share a long initial sequence of characters.
 	local t = RadixTree.new({
 		"internationalization",
@@ -472,7 +472,7 @@ function TestRadixTree:testLongSharedPrefixesRemainSearchable()
 	lu.assertTrue(t:contains("internal", true))
 end
 
-function TestRadixTree:testSingleCharacterWordsRemainSearchable()
+function TestRadixTree:testSingleCharacterWords_Remain_Searchable()
 	-- Given: the tree includes words made of one character and longer forms.
 	local t = RadixTree.new({ "a", "ab", "abc", "abcd", "b", "ba", "bc" })
 
@@ -496,7 +496,7 @@ end
 
 -- Scenarios: metamethods and formatting
 
-function TestRadixTree:testConcatAppendsWordsFromIterableValues()
+function TestRadixTree:testConcat_Appends_WordsFromIterableValues()
 	-- Given: an empty RadixTree.
 	local t = RadixTree.new()
 
@@ -544,7 +544,7 @@ function TestRadixTree:testConcatAppendsWordsFromIterableValues()
 	end)
 end
 
-function TestRadixTree:testRadixTreesWithSameWordsCompareEqual()
+function TestRadixTree:testRadixTreesWithSameWords_Compare_Equal()
 	-- Given: trees have matching words in different orders and differing contents.
 	local t1 = RadixTree.new({ "apple", "banana", "cherry" })
 	local t2 = RadixTree.new({ "cherry", "apple", "banana" })
@@ -572,7 +572,7 @@ function TestRadixTree:testRadixTreesWithSameWordsCompareEqual()
 	lu.assertTrue(empty1 == empty2)
 end
 
-function TestRadixTree:testLengthTracksInsertedAndRemovedWords()
+function TestRadixTree:testLength_Tracks_InsertedAndRemovedWords()
 	-- Given: an empty RadixTree.
 	local t = RadixTree.new()
 	lu.assertEquals(#t, 0)
@@ -603,7 +603,7 @@ function TestRadixTree:testLengthTracksInsertedAndRemovedWords()
 	lu.assertEquals(#t, 0)
 end
 
-function TestRadixTree:testToStringFormatsStoredWords()
+function TestRadixTree:testToString_Formats_StoredWords()
 	-- Given: the RadixTree contains several words.
 	local empty = RadixTree.new()
 
@@ -615,7 +615,7 @@ function TestRadixTree:testToStringFormatsStoredWords()
 	lu.assertEquals(tostring(t), "{ bird, cat, dog }")
 end
 
-function TestRadixTree:testNewPropertiesAndMethodsCannotBeAddedOrReplaced()
+function TestRadixTree:testNewPropertiesAndMethods_CannotBe_AddedOrReplaced()
 	-- Given: a RadixTree defines its public methods and has no added fields.
 	local rt = RadixTree.new()
 

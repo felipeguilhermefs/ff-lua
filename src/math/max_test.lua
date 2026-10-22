@@ -6,7 +6,7 @@ local max = require("ff.math.max")
 local TestMax = {}
 
 -- Scenarios: maximum behavior
-function TestMax:testSingleNumberReturnsThatNumber()
+function TestMax:testSingleNumber_Returns_ThatNumber()
 	-- Given: each call receives one numeric argument.
 	-- When: evaluate max with each single value.
 	-- Then: each result equals its sole argument.
@@ -15,7 +15,7 @@ function TestMax:testSingleNumberReturnsThatNumber()
 	lu.assertEquals(max(45.9), 45.9)
 end
 
-function TestMax:testVariadicInputReturnsLargestNumber()
+function TestMax:testVariadicInput_Returns_LargestNumber()
 	-- Given: calls receive positive and negative numeric tuples.
 	-- When: evaluate max for each tuple.
 	-- Then: each result is the greatest value in its tuple.
@@ -24,14 +24,14 @@ function TestMax:testVariadicInputReturnsLargestNumber()
 	lu.assertEquals(max(-5, -8, -2), -2)
 end
 
-function TestMax:testUnpackedValuesReturnLargestNumber()
+function TestMax:testUnpackedValues_Return_LargestNumber()
 	-- Given: a table contains four numbers for unpacking.
 	-- When: pass the unpacked values to max.
 	-- Then: the result is 9, greatest value in the table.
 	lu.assertEquals(max(table.unpack({ 7, 4, 9, 3 })), 9)
 end
 
-function TestMax:testNonNumericInputReturnsNil()
+function TestMax:testNonNumericInput_Returns_Nil()
 	-- Given: inputs include nil, booleans, strings, tables, and a function.
 	-- When: pass each value to max.
 	-- Then: every call returns nil.
@@ -45,7 +45,7 @@ function TestMax:testNonNumericInputReturnsNil()
 	end))
 end
 
-function TestMax:testUnpackedValuesIgnoreNonNumbersWhenFindingLargest()
+function TestMax:testUnpackedValues_Ignore_NonNumbersWhenFindingLargest()
 	-- Given: the unpacked table mixes numbers with non-numeric values.
 	-- When: pass all unpacked values to max.
 	-- Then: non-numbers are ignored and result is 8.

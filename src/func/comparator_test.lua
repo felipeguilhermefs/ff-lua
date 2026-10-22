@@ -6,7 +6,7 @@ local Comparator = require("ff.func.comparator")
 local TestComparator = {}
 
 -- Scenarios: ordering behavior
-function TestComparator:testNaturalComparatorOrdersNumbersAndStrings()
+function TestComparator:testNaturalComparator_Orders_NumbersAndStrings()
 	-- Given: numeric and string pairs cover less, equal, and greater cases.
 	local cmp = Comparator.natural
 
@@ -34,7 +34,7 @@ function TestComparator:testNaturalComparatorOrdersNumbersAndStrings()
 	lu.assertEquals(Comparator.greater, cmp("r", "R"))
 end
 
-function TestComparator:testReverseComparatorInvertsNaturalOrdering()
+function TestComparator:testReverseComparator_Inverts_NaturalOrdering()
 	-- Given: the natural comparator and the same ordered pairs are used.
 	local cmp = Comparator.reverse(Comparator.natural)
 

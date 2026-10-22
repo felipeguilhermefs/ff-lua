@@ -7,14 +7,14 @@ local TestTailString = {}
 local TestTailNoop = {}
 
 -- Scenarios: string inputs
-function TestTailString:testTailOfEmptyStringReturnsEmptyString()
+function TestTailString:testTailOfEmptyString_Returns_EmptyString()
 	-- Given: the input contains no characters.
 	-- When: call tail with that input.
 	-- Then: the returned string is empty.
 	lu.assertEquals(tail(""), "")
 end
 
-function TestTailString:testTailOfSingleCharacterStringReturnsEmptyString()
+function TestTailString:testTailOfSingleCharacterString_Returns_EmptyString()
 	-- Given: each input contains exactly one character.
 	-- When: call tail with each input.
 	-- Then: removing the first character leaves an empty string.
@@ -22,7 +22,7 @@ function TestTailString:testTailOfSingleCharacterStringReturnsEmptyString()
 	lu.assertEquals(tail(" "), "")
 end
 
-function TestTailString:testTailOfStringReturnsCharactersAfterFirst()
+function TestTailString:testTailOfString_Returns_CharactersAfterFirst()
 	-- Given: inputs contain several characters, including a leading tab.
 	-- When: call tail with each string.
 	-- Then: each result contains all characters after the first.
@@ -32,7 +32,7 @@ function TestTailString:testTailOfStringReturnsCharactersAfterFirst()
 end
 
 -- Scenarios: unsupported inputs
-function TestTailNoop:testUnsupportedInputsReturnNil()
+function TestTailNoop:testUnsupportedInputs_Return_Nil()
 	-- Given: inputs include nil, numbers, booleans, and tables.
 	-- When: pass each unsupported value to tail.
 	-- Then: every call returns nil.

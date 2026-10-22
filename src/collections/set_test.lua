@@ -7,7 +7,7 @@ local TestSet = {}
 
 -- Scenarios: construction and type recognition
 
-function TestSet:testTypeGuardRecognizesSetsAndRejectsOtherValues()
+function TestSet:testTypeGuard_Recognizes_SetsAndRejectsOtherValues()
 	-- Given: candidates include Set instances, a table, and scalars.
 	-- When: check each candidate with Set.isSet.
 	-- Then: only Set instances return true.
@@ -21,14 +21,14 @@ end
 
 -- Scenarios: reads and inspection
 
-function TestSet:testEmptySetDoesNotContainValues()
+function TestSet:testEmptySet_DoesNotContain_Values()
 	-- Given: a new Set has no members.
 	-- When: check membership of e.
 	-- Then: contains returns false for e when the Set is empty.
 	lu.assertFalse(Set.new():contains("e"))
 end
 
-function TestSet:testContainsReturnsTrueWhenEveryRequestedValueIsPresent()
+function TestSet:testContains_ReturnsTrue_WhenEveryRequestedValueIsPresent()
 	-- Given: the first Set has a, b, c; the second has b, c, d.
 	local set = Set.new({ "f", "g", "h" })
 
@@ -38,7 +38,7 @@ function TestSet:testContainsReturnsTrueWhenEveryRequestedValueIsPresent()
 	lu.assertTrue(set:contains("f", "h"))
 end
 
-function TestSet:testContainsReturnsFalseWhenAnyRequestedValueIsMissing()
+function TestSet:testContains_ReturnsFalse_WhenAnyRequestedValueIsMissing()
 	-- Given: the Set contains f, g, h; query also includes absent i.
 	local set = Set.new({ "f", "g", "h" })
 
@@ -47,14 +47,14 @@ function TestSet:testContainsReturnsFalseWhenAnyRequestedValueIsMissing()
 	lu.assertFalse(set:contains("f", "i"))
 end
 
-function TestSet:testContainsWithoutValuesReturnsFalse()
+function TestSet:testContainsWithoutValues_Returns_False()
 	-- Given: a Set contains f and the membership call has no arguments.
 	-- When: call contains with an empty argument list.
 	-- Then: contains returns false when called with no query values.
 	lu.assertFalse(Set.new({ "f" }):contains())
 end
 
-function TestSet:testDiffReturnsValuesPresentOnlyInEachSet()
+function TestSet:testDiff_Returns_ValuesPresentOnlyInEachSet()
 	-- Given: A contains a,b,c; B contains b,c,d; empty Set is a third case.
 	local set1 = Set.new({ "a", "b", "c" })
 	local set2 = Set.new({ "b", "c", "d" })
@@ -75,7 +75,7 @@ function TestSet:testDiffReturnsValuesPresentOnlyInEachSet()
 	lu.assertEquals(#setDiff3, 3)
 end
 
-function TestSet:testIntersectionReturnsOnlySharedValues()
+function TestSet:testIntersection_Returns_OnlySharedValues()
 	-- Given: A and B share b,c and each has one unique member.
 	local set1 = Set.new({ "a", "b", "c" })
 	local set2 = Set.new({ "b", "c", "d" })
@@ -95,7 +95,7 @@ function TestSet:testIntersectionReturnsOnlySharedValues()
 	lu.assertEquals(#setInter3, 0)
 end
 
-function TestSet:testUnionReturnsDistinctValuesFromBothSets()
+function TestSet:testUnion_Returns_DistinctValuesFromBothSets()
 	-- Given: A and B overlap on b,c and contribute unique a,d.
 	local set1 = Set.new({ "a", "b", "c" })
 	local set2 = Set.new({ "b", "c", "d" })
@@ -116,7 +116,7 @@ function TestSet:testUnionReturnsDistinctValuesFromBothSets()
 	lu.assertEquals(#setUnion3, 3)
 end
 
-function TestSet:testSymmetricDiffReturnsValuesPresentInOnlyOneSet()
+function TestSet:testSymmetricDiff_Returns_ValuesPresentInOnlyOneSet()
 	-- Given: sets overlap on 3 and 4; remaining members are unique.
 	local set1 = Set.new({ 1, 2, 3, 4 })
 	local set2 = Set.new({ 3, 4, 5, 6 })
@@ -131,7 +131,7 @@ function TestSet:testSymmetricDiffReturnsValuesPresentInOnlyOneSet()
 	lu.assertFalse(sym:contains(4))
 end
 
-function TestSet:testSubsetAndSupersetReportSetContainment()
+function TestSet:testSubsetAndSuperset_Report_SetContainment()
 	-- Given: one Set is a subset of another; a third Set is disjoint.
 	local sub = Set.new({ 1, 2 })
 	local super = Set.new({ 1, 2, 3, 4 })
@@ -146,7 +146,7 @@ function TestSet:testSubsetAndSupersetReportSetContainment()
 
 end
 
-function TestSet:testDisjointReportsWhetherSetsShareValues()
+function TestSet:testDisjoint_Reports_WhetherSetsShareValues()
 	-- Given: two Sets share 1 and 2; a third contains 5 and 6.
 	local sub = Set.new({ 1, 2 })
 	local super = Set.new({ 1, 2, 3, 4 })
@@ -158,7 +158,7 @@ function TestSet:testDisjointReportsWhetherSetsShareValues()
 	lu.assertFalse(sub:disjoint(super))
 end
 
-function TestSet:testIterationYieldsEveryStoredValue()
+function TestSet:testIteration_Yields_EveryStoredValue()
 	-- Given: the Set contains integers 1 through 5.
 	local set = Set.new({ 1, 2, 3, 4, 5 })
 
@@ -175,7 +175,7 @@ end
 
 -- Scenarios: state changes
 
-function TestSet:testClearMakesSetEmpty()
+function TestSet:testClear_Makes_SetEmpty()
 	-- Given: an empty Set.
 	local set = Set.new()
 
@@ -196,7 +196,7 @@ function TestSet:testClearMakesSetEmpty()
 	lu.assertTrue(set:empty())
 end
 
-function TestSet:testAddReportsWhetherValueWasNew()
+function TestSet:testAdd_Reports_WhetherValueWasNew()
 	-- Given: a new Set has no members; c and d are the candidate values.
 	local set = Set.new()
 
@@ -212,7 +212,7 @@ function TestSet:testAddReportsWhetherValueWasNew()
 	lu.assertTrue(set:contains("d", "c"))
 end
 
-function TestSet:testRemoveDeletesOnlyRequestedValue()
+function TestSet:testRemove_Deletes_OnlyRequestedValue()
 	-- Given: a Set containing "f" and "g".
 	local set = Set.new({ "f", "g" })
 	lu.assertEquals(#set, 2)
@@ -226,7 +226,7 @@ function TestSet:testRemoveDeletesOnlyRequestedValue()
 	lu.assertEquals(#set, 1)
 end
 
-function TestSet:testFalseCanBeStoredAndRemovedAsAValue()
+function TestSet:testFalseValue_CanBeStoredAndRemovedAs_Value()
 	-- Given: a new Set starts empty; false is the value under test.
 	local set = Set.new()
 
@@ -247,7 +247,7 @@ end
 
 -- Scenarios: metamethods and formatting
 
-function TestSet:testConcatAddsDistinctValuesFromIterables()
+function TestSet:testConcat_Adds_DistinctValuesFromIterables()
 	-- Given: a Set initialized with { 10, 20, 30 }.
 	local set = Set.new({ 10, 20, 30 })
 	lu.assertEquals(#set, 3)
@@ -282,7 +282,7 @@ function TestSet:testConcatAddsDistinctValuesFromIterables()
 	lu.assertEquals(#set, 10)
 end
 
-function TestSet:testSetsCompareEqualRegardlessOfInsertionOrder()
+function TestSet:testSetsWithSameValues_Compare_EqualRegardlessOfInsertionOrder()
 	-- Given: Sets have equal members in different orders, one difference, and one size mismatch.
 	local s1 = Set.new({ 1, 2, 3 })
 	local s2 = Set.new({ 3, 2, 1 })
@@ -302,7 +302,7 @@ function TestSet:testSetsCompareEqualRegardlessOfInsertionOrder()
 	lu.assertFalse(s1 == 42)
 end
 
-function TestSet:testToStringIncludesStoredValues()
+function TestSet:testToString_Includes_StoredValues()
 	-- Given: the Set contains a string, number, and boolean.
 	local set = Set.new({ "hello", 123, true })
 
@@ -315,7 +315,7 @@ function TestSet:testToStringIncludesStoredValues()
 	lu.assertStrContains(str, "true")
 end
 
-function TestSet:testNewPropertiesAndMethodsCannotBeAddedOrReplaced()
+function TestSet:testNewPropertiesAndMethods_CannotBe_AddedOrReplaced()
 	-- Given: the Set contains 1, 2, and 3 and already defines add.
 	local s = Set.new({ 1, 2, 3 })
 

@@ -7,7 +7,7 @@ local TestLinkedList = {}
 
 -- Scenarios: construction and type recognition
 
-function TestLinkedList:testTypeGuardRecognizesLinkedListsAndRejectsOtherValues()
+function TestLinkedList:testTypeGuard_Recognizes_LinkedListsAndRejectsOtherValues()
 	-- Given: candidates include a LinkedList, a table, and scalar values.
 	-- When: check each candidate with LinkedList.isLinkedList.
 	-- Then: only the LinkedList instance returns true.
@@ -18,7 +18,7 @@ function TestLinkedList:testTypeGuardRecognizesLinkedListsAndRejectsOtherValues(
 	lu.assertFalse(LinkedList.isLinkedList(123))
 end
 
-function TestLinkedList:testEmptyConstructorCreatesEmptyLinkedList()
+function TestLinkedList:testEmptyConstructor_Creates_EmptyLinkedList()
 	-- Given: construction receives no values.
 
 	-- When: call LinkedList.new without arguments.
@@ -33,7 +33,7 @@ function TestLinkedList:testEmptyConstructorCreatesEmptyLinkedList()
 	lu.assertNil(ll:popBack())
 end
 
-function TestLinkedList:testConstructorPreservesIterableOrder()
+function TestLinkedList:testConstructor_Preserves_IterableOrder()
 	-- Given: the iterable is { 10, 20, 30 }.
 
 	-- When: initialize a LinkedList from that table.
@@ -49,7 +49,7 @@ function TestLinkedList:testConstructorPreservesIterableOrder()
 	lu.assertTrue(ll:empty())
 end
 
-function TestLinkedList:testConstructorCopiesValuesFromAnotherLinkedList()
+function TestLinkedList:testConstructor_CopiesValues_FromAnotherLinkedList()
 	-- Given: the source list contains 1, 2, and 3.
 	local ll1 = LinkedList.new({ 1, 2, 3 })
 
@@ -62,7 +62,7 @@ function TestLinkedList:testConstructorCopiesValuesFromAnotherLinkedList()
 	lu.assertTrue(ll1 == ll2)
 end
 
-function TestLinkedList:testConstructorRejectsNonTableIterables()
+function TestLinkedList:testConstructor_Rejects_NonTableIterables()
 	-- Given: constructor inputs include a string, number, and boolean.
 	-- When: pass each scalar as the iterable.
 	-- Then: each call reports that iterable must be a table.
@@ -73,7 +73,7 @@ end
 
 -- Scenarios: reads and inspection
 
-function TestLinkedList:testEndpointPeeksReturnValuesAtBothEnds()
+function TestLinkedList:testEndpointPeeks_Return_ValuesAtBothEnds()
 	-- Given: an empty LinkedList.
 	local ll = LinkedList.new()
 
@@ -107,7 +107,7 @@ function TestLinkedList:testEndpointPeeksReturnValuesAtBothEnds()
 	lu.assertEquals(#ll, 3)
 end
 
-function TestLinkedList:testContainsReportsStoredValuesAndRejectsMissingValuesWithoutMutation()
+function TestLinkedList:testContains_ReportsStoredValues_AndRejectsMissingValuesWithoutMutation()
 	-- Given: an empty LinkedList.
 	local ll = LinkedList.new()
 
@@ -130,7 +130,7 @@ function TestLinkedList:testContainsReportsStoredValuesAndRejectsMissingValuesWi
 	lu.assertEquals(ll:peekFront(), 10)
 end
 
-function TestLinkedList:testContainsRejectsNilValues()
+function TestLinkedList:testContains_Rejects_NilValues()
 	-- Given: nil is queried against an empty LinkedList.
 	local ll = LinkedList.new()
 
@@ -141,7 +141,7 @@ function TestLinkedList:testContainsRejectsNilValues()
 	end)
 end
 
-function TestLinkedList:testIterationYieldsOneBasedIndexesAndValues()
+function TestLinkedList:testIteration_Yields_OneBasedIndexesAndValues()
 	-- Given: indexes 1 through 3 contain 10, 20, and 30.
 	local ll = LinkedList.new({ 10, 20, 30 })
 
@@ -161,7 +161,7 @@ function TestLinkedList:testIterationYieldsOneBasedIndexesAndValues()
 	lu.assertEquals(#ll, 3)
 end
 
-function TestLinkedList:testIterationOfEmptyLinkedListYieldsNoValues()
+function TestLinkedList:testEmptyLinkedListIteration_Yields_NoValues()
 	-- Given: the LinkedList contains no nodes.
 	local ll = LinkedList.new()
 	local count = 0
@@ -177,7 +177,7 @@ end
 
 -- Scenarios: state changes
 
-function TestLinkedList:testClearEmptiesLinkedListAndAllowsReuse()
+function TestLinkedList:testClear_Empties_LinkedListAndAllowsReuse()
 	-- Given: an empty LinkedList.
 	local ll = LinkedList.new()
 	lu.assertTrue(ll:empty())
@@ -213,7 +213,7 @@ function TestLinkedList:testClearEmptiesLinkedListAndAllowsReuse()
 	lu.assertTrue(ll:empty())
 end
 
-function TestLinkedList:testFrontInsertionAndRemovalPreserveLifoOrder()
+function TestLinkedList:testFrontInsertionAndRemoval_Preserve_LifoOrder()
 	-- Given: an empty list will receive 1, 2, and 3 at the front.
 	local ll = LinkedList.new()
 
@@ -231,7 +231,7 @@ function TestLinkedList:testFrontInsertionAndRemovalPreserveLifoOrder()
 	lu.assertTrue(ll:empty())
 end
 
-function TestLinkedList:testBackInsertionAndRemovalPreserveLifoOrder()
+function TestLinkedList:testBackInsertionAndRemoval_Preserve_LifoOrder()
 	-- Given: an empty list will receive 1, 2, and 3 at the back.
 	local ll = LinkedList.new()
 
@@ -249,7 +249,7 @@ function TestLinkedList:testBackInsertionAndRemovalPreserveLifoOrder()
 	lu.assertTrue(ll:empty())
 end
 
-function TestLinkedList:testFrontInsertionAndBackRemovalPreserveOppositeOrder()
+function TestLinkedList:testFrontInsertionAndBackRemoval_Preserve_OppositeOrder()
 	-- Given: an empty list receives 1, 2, and 3 at the front.
 	local ll = LinkedList.new()
 
@@ -266,7 +266,7 @@ function TestLinkedList:testFrontInsertionAndBackRemovalPreserveOppositeOrder()
 	lu.assertTrue(ll:empty())
 end
 
-function TestLinkedList:testBackInsertionAndFrontRemovalPreserveFifoOrder()
+function TestLinkedList:testBackInsertionAndFrontRemoval_Preserve_FifoOrder()
 	-- Given: an empty list receives 1, 2, and 3 at the back.
 	local ll = LinkedList.new()
 
@@ -283,7 +283,7 @@ function TestLinkedList:testBackInsertionAndFrontRemovalPreserveFifoOrder()
 	lu.assertTrue(ll:empty())
 end
 
-function TestLinkedList:testReverseSwapsTraversalAndEndpointOrder()
+function TestLinkedList:testReverse_Swaps_TraversalAndEndpointOrder()
 	-- Given: an empty LinkedList.
 	local ll = LinkedList.new()
 
@@ -324,7 +324,7 @@ function TestLinkedList:testReverseSwapsTraversalAndEndpointOrder()
 	lu.assertTrue(ll:empty())
 end
 
-function TestLinkedList:testPushOperationsRejectNilValues()
+function TestLinkedList:testPushOperations_Reject_NilValues()
 	-- Given: front and back nil pushes target an empty LinkedList.
 	local ll = LinkedList.new()
 
@@ -340,7 +340,7 @@ end
 
 -- Scenarios: metamethods and formatting
 
-function TestLinkedList:testLengthTracksInsertionAndRemovalAtBothEnds()
+function TestLinkedList:testLength_Tracks_InsertionAndRemovalAtBothEnds()
 	-- Given: an empty LinkedList.
 	local ll = LinkedList.new()
 	lu.assertEquals(#ll, 0)
@@ -367,7 +367,7 @@ function TestLinkedList:testLengthTracksInsertionAndRemovalAtBothEnds()
 	lu.assertEquals(#ll, 0)
 end
 
-function TestLinkedList:testConcatAppendsValuesFromMultipleIterableTypes()
+function TestLinkedList:testConcat_Appends_ValuesFromMultipleIterableTypes()
 	-- Given: an empty list plus a LinkedList, TreeMap, and Stack with values 40-80.
 	local ll = LinkedList.new()
 	local other = LinkedList.new({ 40, 50, 60 })
@@ -398,7 +398,7 @@ function TestLinkedList:testConcatAppendsValuesFromMultipleIterableTypes()
 	lu.assertTrue(ll:empty())
 end
 
-function TestLinkedList:testConcatRejectsNonTableValues()
+function TestLinkedList:testConcat_Rejects_NonTableValues()
 	-- Given: non-table operands are concatenated with an empty LinkedList.
 	local ll = LinkedList.new()
 
@@ -415,7 +415,7 @@ function TestLinkedList:testConcatRejectsNonTableValues()
 	end)
 end
 
-function TestLinkedList:testListsWithSameValuesCompareEqual()
+function TestLinkedList:testListsWithSameValues_Compare_Equal()
 	-- Given: lists match, differ in one value, or have different lengths.
 	local ll1 = LinkedList.new({ 1, 2, 3 })
 	local ll2 = LinkedList.new({ 1, 2, 3 })
@@ -435,7 +435,7 @@ function TestLinkedList:testListsWithSameValuesCompareEqual()
 	lu.assertFalse(ll1 == "123")
 end
 
-function TestLinkedList:testEmptyLinkedListsCompareEqual()
+function TestLinkedList:testEmptyLinkedLists_Compare_Equal()
 	-- Given: both LinkedLists contain no nodes.
 	local ll1 = LinkedList.new()
 	local ll2 = LinkedList.new()
@@ -446,7 +446,7 @@ function TestLinkedList:testEmptyLinkedListsCompareEqual()
 	lu.assertTrue(ll1 == ll2)
 end
 
-function TestLinkedList:testToStringFormatsLinkedListInOrder()
+function TestLinkedList:testToString_Formats_LinkedListInOrder()
 	-- Given: the list contains 1, 2, and 3 from front to back.
 	local ll = LinkedList.new({ 1, 2, 3 })
 
@@ -455,7 +455,7 @@ function TestLinkedList:testToStringFormatsLinkedListInOrder()
 	lu.assertEquals(tostring(ll), "[ 1 -> 2 -> 3 ]")
 end
 
-function TestLinkedList:testToStringFormatsEmptyLinkedList()
+function TestLinkedList:testToString_Formats_EmptyLinkedList()
 	-- Given: the LinkedList has no nodes.
 	local ll = LinkedList.new()
 
@@ -464,7 +464,7 @@ function TestLinkedList:testToStringFormatsEmptyLinkedList()
 	lu.assertEquals(tostring(ll), "[  ]")
 end
 
-function TestLinkedList:testNewPropertiesAndMethodsCannotBeAddedOrReplaced()
+function TestLinkedList:testNewPropertiesAndMethods_CannotBe_AddedOrReplaced()
 	-- Given: a list contains 1, 2, and 3 and defines pushBack.
 	local ll = LinkedList.new({ 1, 2, 3 })
 

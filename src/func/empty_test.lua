@@ -24,19 +24,19 @@ end
 -- Suite definitions
 local TestEmptyString = {}
 local TestEmptyArray = {}
-local TestMap = {}
-local TestDelegate = {}
+local TestEmptyMap = {}
+local TestEmptyDelegate = {}
 local TestEmptyNoop = {}
 
 -- Scenarios: string inputs
-function TestEmptyString:testEmptyInputReturnsTrue()
+function TestEmptyString:testEmptyInput_Returns_True()
 	-- Given: the string contains no characters.
 	-- When: check whether the string contains characters.
 	-- Then: empty returns true for the string.
 	lu.assertTrue(empty(""))
 end
 
-function TestEmptyString:testNonEmptyInputReturnsFalse()
+function TestEmptyString:testNonEmptyInput_Returns_False()
 	-- Given: the strings contain a letter or a space.
 	-- When: check both strings, including the single-space case.
 	-- Then: empty returns false for both strings.
@@ -45,7 +45,7 @@ function TestEmptyString:testNonEmptyInputReturnsFalse()
 end
 
 -- Scenarios: array inputs
-function TestEmptyArray:testEmptyInputReturnsTrue()
+function TestEmptyArray:testEmptyInput_Returns_True()
 	-- Given: the array has no indexed elements.
 	-- When: check whether the array contains indexed elements.
 	-- Then: empty returns true for the array.
@@ -53,7 +53,7 @@ function TestEmptyArray:testEmptyInputReturnsTrue()
 	lu.assertTrue(empty({ nil }))
 end
 
-function TestEmptyArray:testNonEmptyInputReturnsFalse()
+function TestEmptyArray:testNonEmptyInput_Returns_False()
 	-- Given: arrays contain falsey, empty, nested, and mixed values.
 	-- When: check arrays with falsey, nested, and mixed values.
 	-- Then: empty returns false for every populated array.
@@ -65,7 +65,7 @@ function TestEmptyArray:testNonEmptyInputReturnsFalse()
 end
 
 -- Scenarios: map inputs
-function TestMap:testEmptyInputReturnsTrue()
+function TestEmptyMap:testEmptyInput_Returns_True()
 	-- Given: the map has no key-value entries.
 	-- When: check whether the map contains key-value entries.
 	-- Then: empty returns true for the map.
@@ -73,7 +73,7 @@ function TestMap:testEmptyInputReturnsTrue()
 	lu.assertTrue(empty({ ["a"] = nil }))
 end
 
-function TestMap:testNonEmptyInputReturnsFalse()
+function TestEmptyMap:testNonEmptyInput_Returns_False()
 	-- Given: maps contain entries with falsey, empty, or nested values.
 	-- When: check maps with falsey, nested, and mixed values.
 	-- Then: empty returns false for every populated map.
@@ -85,7 +85,7 @@ function TestMap:testNonEmptyInputReturnsFalse()
 end
 
 -- Scenarios: delegated emptiness
-function TestDelegate:testEmptyInputReturnsTrue()
+function TestEmptyDelegate:testEmptyInput_Returns_True()
 	-- Given: the delegate starts without a stored value.
 	local d = delegate()
 
@@ -99,7 +99,7 @@ function TestDelegate:testEmptyInputReturnsTrue()
 	lu.assertTrue(empty(d))
 end
 
-function TestDelegate:testNonEmptyInputReturnsFalse()
+function TestEmptyDelegate:testNonEmptyInput_Returns_False()
 	-- Given: the delegate starts empty before insert stores a value.
 	local d = delegate()
 
@@ -111,7 +111,7 @@ function TestDelegate:testNonEmptyInputReturnsFalse()
 end
 
 -- Scenarios: unsupported inputs
-function TestEmptyNoop:testUnsupportedInputsReturnNil()
+function TestEmptyNoop:testUnsupportedInputs_Return_Nil()
 	-- Given: inputs include nil, numbers, and a boolean.
 	-- When: evaluate each unsupported input.
 	-- Then: every call returns nil.
@@ -125,7 +125,7 @@ end
 return {
 	TestEmptyString = TestEmptyString,
 	TestEmptyArray = TestEmptyArray,
-	TestMap = TestMap,
-	TestDelegate = TestDelegate,
+	TestEmptyMap = TestEmptyMap,
+	TestEmptyDelegate = TestEmptyDelegate,
 	TestEmptyNoop = TestEmptyNoop,
 }

@@ -8,7 +8,7 @@ local quicksort = require("ff.sort.quicksort")
 local TestQuickSort = {}
 
 -- Scenarios: quick sort behavior
-function TestQuickSort:testArrayInputSortsValuesInAscendingOrder()
+function TestQuickSort:testArrayInput_Sorts_ValuesInAscendingOrder()
 	-- Given: an Array contains six unsorted integers for natural ordering.
 	local a = Array.new({ 2, 6, 3, 4, 5, 1 })
 
@@ -24,7 +24,7 @@ function TestQuickSort:testArrayInputSortsValuesInAscendingOrder()
 	lu.assertEquals(a:get(6), 6)
 end
 
-function TestQuickSort:testArrayInputSortsValuesByReverseComparator()
+function TestQuickSort:testArrayInput_Sorts_ValuesByReverseComparator()
 	-- Given: an Array contains six unsorted integers for reverse ordering.
 	local a = Array.new({ 2, 6, 3, 4, 5, 1 })
 
@@ -40,7 +40,7 @@ function TestQuickSort:testArrayInputSortsValuesByReverseComparator()
 	lu.assertEquals(a:get(1), 6)
 end
 
-function TestQuickSort:testTableArrayInputSortsValuesInAscendingOrder()
+function TestQuickSort:testTableArrayInput_Sorts_ValuesInAscendingOrder()
 	-- Given: a plain table contains six unsorted integers for natural ordering.
 	local a = { 2, 6, 3, 4, 5, 1 }
 
@@ -51,7 +51,7 @@ function TestQuickSort:testTableArrayInputSortsValuesInAscendingOrder()
 	lu.assertEquals(a, { 1, 2, 3, 4, 5, 6 })
 end
 
-function TestQuickSort:testTableArrayInputSortsValuesByReverseComparator()
+function TestQuickSort:testTableArrayInput_Sorts_ValuesByReverseComparator()
 	-- Given: a plain table contains six unsorted integers for reverse ordering.
 	local a = { 2, 6, 3, 4, 5, 1 }
 
