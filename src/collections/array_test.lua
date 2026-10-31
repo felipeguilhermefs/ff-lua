@@ -96,14 +96,22 @@ end
 function TestArray:testGet_Rejects_NonNumericIndexes()
 	local array = Array.new({ 10, 20, 30 })
 
-	lu.assertErrorMsgContains("index should be a number", function()
+	lu.assertErrorMsgContains("index should be an integer", function()
 		array:get("1")
 	end)
-	lu.assertErrorMsgContains("index should be a number", function()
+	lu.assertErrorMsgContains("index should be an integer", function()
 		array:get(nil)
 	end)
-	lu.assertErrorMsgContains("index should be a number", function()
+	lu.assertErrorMsgContains("index should be an integer", function()
 		array:get(true)
+	end)
+end
+
+function TestArray:testGet_RejectsFractionalIndex()
+	local array = Array.new({ 10, 20 })
+
+	lu.assertErrorMsgContains("index should be an integer", function()
+		array:get(1.5)
 	end)
 end
 
@@ -247,7 +255,7 @@ end
 function TestArray:testPut_RejectsInvalidIndexAndNilValue()
 	local array = Array.new({ 10, 20 })
 
-	lu.assertErrorMsgContains("index should be a number", function()
+	lu.assertErrorMsgContains("index should be an integer", function()
 		array:put("1", 1)
 	end)
 	lu.assertErrorMsgContains("index should be an integer", function()
@@ -283,11 +291,49 @@ end
 function TestArray:testInsert_RejectsNonNumericIndex()
 	local array = Array.new({ 10, 20, 30 })
 
-	lu.assertErrorMsgContains("index should be a number", function()
+	lu.assertErrorMsgContains("index should be an integer", function()
 		array:insert(40, "1")
 	end)
-	lu.assertErrorMsgContains("index should be a number", function()
+	lu.assertErrorMsgContains("index should be an integer", function()
 		array:insert(40, true)
+	end)
+end
+
+function TestArray:testInsert_RejectsFractionalIndex()
+	local array = Array.new({ 10, 20 })
+
+	lu.assertErrorMsgContains("index should be an integer", function()
+		array:insert(15, 1.5)
+	end)
+end
+
+function TestArray:testRemove_RejectsFractionalIndex()
+	local array = Array.new({ 10, 20 })
+
+	lu.assertErrorMsgContains("index should be an integer", function()
+		array:remove(1.5)
+	end)
+end
+
+function TestArray:testSlice_RejectsFractionalBounds()
+	local array = Array.new({ 10, 20, 30 })
+
+	lu.assertErrorMsgContains("index should be an integer", function()
+		array:slice(1.5, 3)
+	end)
+	lu.assertErrorMsgContains("index should be an integer", function()
+		array:slice(1, 2.5)
+	end)
+end
+
+function TestArray:testSwap_RejectsFractionalIndexes()
+	local array = Array.new({ 10, 20 })
+
+	lu.assertErrorMsgContains("index should be an integer", function()
+		array:swap(1.5, 2)
+	end)
+	lu.assertErrorMsgContains("index should be an integer", function()
+		array:swap(1, 1.5)
 	end)
 end
 

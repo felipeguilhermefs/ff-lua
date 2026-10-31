@@ -14,10 +14,13 @@ local tremove = table.remove
 local assert = assert
 local error = error
 local getmetatable = getmetatable
-local next = next
 local pairs = pairs
 local setmetatable = setmetatable
 local type = type
+
+local function assertInteger(index)
+	assert(type(index) == "number" and index % 1 == 0, "index should be an integer")
+end
 
 ----------------------------------------------------------------------------------
 ---@class Array
@@ -86,7 +89,7 @@ end
 ---@return any
 -----------------------------------------------------------------------------
 function Array:get(index)
-	assert(type(index) == "number", "index should be a number")
+	assertInteger(index)
 	assert(index > 0 and index <= #self, "index out of bounds")
 
 	return self._entries[index]
@@ -138,7 +141,7 @@ function Array:insert(value, index)
 		return
 	end
 
-	assert(type(index) == "number", "index should be a number")
+	assertInteger(index)
 	-- check for boundaries, but allow strictly over higher boundary
 	assert(index > 0 and index <= #self + 1, "index out of bounds")
 
@@ -166,8 +169,7 @@ end
 ---@param value any Non-nil value to store.
 -----------------------------------------------------------------------------
 function Array:put(index, value)
-	assert(type(index) == "number", "index should be a number")
-	assert(index % 1 == 0, "index should be an integer")
+	assertInteger(index)
 	assert(index > 0 and index <= #self + 1, "index out of bounds")
 	assert(value ~= nil, "value should not be nil")
 
@@ -182,7 +184,7 @@ end
 ---@return any
 -----------------------------------------------------------------------------
 function Array:remove(index)
-	assert(type(index) == "number", "index should be a number")
+	assertInteger(index)
 	assert(index > 0 and index <= #self, "index out of bounds")
 
 	return tremove(self._entries, index)
@@ -198,11 +200,11 @@ end
 -----------------------------------------------------------------------------
 function Array:slice(start, finish)
 	start = start or 1
-	assert(type(start) == "number", "start index should be a number")
+	assertInteger(start)
 	assert(start > 0 and start <= #self, "start index out of bounds")
 
 	finish = finish or #self._entries
-	assert(type(finish) == "number", "finish index should be a number")
+	assertInteger(finish)
 	assert(finish > 0 and finish <= #self, "finish index out of bounds")
 
 	assert(start <= finish, "start index must be lesser or equal to finish index")
@@ -224,10 +226,10 @@ end
 ---@param  other number
 -----------------------------------------------------------------------------
 function Array:swap(index, other)
-	assert(type(index) == "number", "index should be a number")
+	assertInteger(index)
 	assert(index > 0 and index <= #self, "index out of bounds")
 
-	assert(type(other) == "number", "other index should be a number")
+	assertInteger(other)
 	assert(other > 0 and other <= #self, "other index out of bounds")
 
 	self._entries[index], self._entries[other] = self._entries[other], self._entries[index]
