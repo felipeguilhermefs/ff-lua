@@ -2,21 +2,21 @@ local Array = require("ff.collections.array")
 local Comparator = require("ff.func.comparator")
 
 local function partition(array, low, high, cmp)
-	local pivot = array[(high + low) // 2]
+	local pivot = array:get((high + low) // 2)
 
 	local i = low - 1
 	local j = high + 1
 	while true do
 		while true do
 			i = i + 1
-			if cmp(array[i], pivot) ~= Comparator.less then
+			if cmp(array:get(i), pivot) ~= Comparator.less then
 				break
 			end
 		end
 
 		while true do
 			j = j - 1
-			if cmp(array[j], pivot) ~= Comparator.greater then
+			if cmp(array:get(j), pivot) ~= Comparator.greater then
 				break
 			end
 		end
@@ -25,7 +25,7 @@ local function partition(array, low, high, cmp)
 			return j
 		end
 
-		array[i], array[j] = array[j], array[i]
+		array:swap(i, j)
 	end
 end
 
@@ -34,23 +34,21 @@ local function quickselect(array, kth, cmp)
 
 	cmp = cmp or Comparator.natural
 
-	local collection = array._entries
-
 	local low = 1
-	local high = #collection
+	local high = #array
 	while true do
 		if high == low then
 			if high == kth then
-				return collection[high]
+				return array:get(high)
 			else
 				return nil
 			end
 		end
 
-		local pivot = partition(collection, low, high, cmp)
+		local pivot = partition(array, low, high, cmp)
 
 		if pivot == kth then
-			return collection[pivot]
+			return array:get(pivot)
 		end
 
 		if kth < pivot then

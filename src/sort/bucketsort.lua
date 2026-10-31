@@ -12,10 +12,8 @@ local Array = require("ff.collections.array")
 local function bucketsort(array, min, max)
 	assert(Array.isArray(array), "Should be an array")
 
-	local collection = array._entries
-
 	if not min or not max then
-		for _, value in pairs(collection) do
+		for _, value in pairs(array) do
 			assert(type(value) == "number", "Should only contain numbers")
 			if not min or value < min then
 				min = value
@@ -34,14 +32,14 @@ local function bucketsort(array, min, max)
 		table.insert(buckets, 0)
 	end
 
-	for _, value in pairs(collection) do
+	for _, value in pairs(array) do
 		buckets[value + offset] = buckets[value + offset] + 1
 	end
 
 	local index = 1
 	for value, count in pairs(buckets) do
 		for _ = 1, count do
-			collection[index] = value - offset
+			array:put(index, value - offset)
 			index = index + 1
 		end
 	end
