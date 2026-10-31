@@ -3,8 +3,6 @@ local RadixTree = require("ff.collections.radixtree")
 local Array = require("ff.collections.array")
 local Set = require("ff.collections.set")
 
-local append = table.insert
-
 local TestRadixTree = {}
 
 function TestRadixTree:testTypeGuard_RecognizesRadixTreesAndRejectsOtherValues()
@@ -156,7 +154,7 @@ function TestRadixTree:testIteration_YieldsStoredWords()
 		count = count + 1
 
 		lu.assertEquals(i, count)
-		append(words, word)
+		table.insert(words, word)
 	end
 	lu.assertEquals(count, 3)
 	lu.assertItemsEquals(words, { "alpha", "beta", "gamma" })

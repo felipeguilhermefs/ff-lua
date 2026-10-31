@@ -1,22 +1,5 @@
 local Array = require("ff.collections.array")
 
-------------------------------
--- Cache function references
-------------------------------
-
--- String
-local sfmt = string.format
-
--- Table
-local tconcat = table.concat
-
--- General
-local assert = assert
-local getmetatable = getmetatable
-local pairs = pairs
-local setmetatable = setmetatable
-local type = type
-
 ----------------------------------------------------------------------------------
 ---@class Stack
 ---@field private _entries Array<any> Array that holds the entries.
@@ -235,7 +218,7 @@ end
 ---@return string
 -----------------------------------------------------------------------------
 function Stack:__tostring()
-	return sfmt("[ %s <- Top ]", tconcat(self._entries, ", "))
+	return string.format("[ %s <- Top ]", table.concat(self._entries, ", "))
 end
 
 return Stack

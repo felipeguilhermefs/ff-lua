@@ -1,23 +1,3 @@
-------------------------------
--- Cache function references
-------------------------------
-
--- String
-local sfmt = string.format
-
--- Table
-local tconcat = table.concat
-local tinsert = table.insert
-
--- General
-local assert = assert
-local getmetatable = getmetatable
-local pairs = pairs
-local rawset = rawset
-local setmetatable = setmetatable
-local tostring = tostring
-local type = type
-
 ---@class (private) LinkNode
 ---@field value any        Stores the value of this node.
 ---@field prev  LinkNode?  Points to the previous node in the list.
@@ -363,10 +343,10 @@ function LinkedList:__tostring()
 	local sb = {}
 	local cur = self._front
 	while cur ~= nil do
-		tinsert(sb, tostring(cur.value))
+		table.insert(sb, tostring(cur.value))
 		cur = cur.next
 	end
-	return sfmt("[ %s ]", tconcat(sb, " -> "))
+	return string.format("[ %s ]", table.concat(sb, " -> "))
 end
 
 return LinkedList

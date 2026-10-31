@@ -1,8 +1,6 @@
 local lu = require("luaunit")
 local LinkedList = require("ff.collections.linkedlist")
 
-local append = table.insert
-
 local TestLinkedList = {}
 
 function TestLinkedList:testTypeGuard_RecognizesLinkedListsAndRejectsOtherValues()
@@ -109,8 +107,8 @@ function TestLinkedList:testIteration_YieldsOneBasedIndexesAndValues()
 	local values = {}
 
 	for idx, val in pairs(ll) do
-		append(indices, idx)
-		append(values, val)
+		table.insert(indices, idx)
+		table.insert(values, val)
 	end
 
 	lu.assertEquals(indices, { 1, 2, 3 })
@@ -239,7 +237,7 @@ function TestLinkedList:testReverse_SwapsTraversalAndEndpointOrder()
 	lu.assertEquals(ll:peekBack(), 1)
 	local forward = {}
 	for _, v in pairs(ll) do
-		append(forward, v)
+		table.insert(forward, v)
 	end
 	lu.assertEquals(forward, { 4, 3, 2, 1 })
 	lu.assertEquals(ll:popBack(), 1)

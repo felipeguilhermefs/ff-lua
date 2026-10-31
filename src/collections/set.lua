@@ -1,24 +1,3 @@
-------------------------------
--- Cache function references
-------------------------------
-
--- String
-local sfmt = string.format
-
--- Table
-local tconcat = table.concat
-local tinsert = table.insert
-
--- General
-local assert = assert
-local getmetatable = getmetatable
-local next = next
-local pairs = pairs
-local select = select
-local setmetatable = setmetatable
-local tostring = tostring
-local type = type
-
 --------------------------------------------------------------------------------------
 ---@class Set
 ---@field private _entries table<any, boolean> Table that holds the entries.
@@ -377,9 +356,9 @@ end
 function Set:__tostring()
 	local entries = {}
 	for item in pairs(self._entries) do
-		tinsert(entries, tostring(item))
+		table.insert(entries, tostring(item))
 	end
-	return sfmt("{ %s }", tconcat(entries, ", "))
+	return string.format("{ %s }", table.concat(entries, ", "))
 end
 
 return Set

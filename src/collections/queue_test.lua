@@ -1,8 +1,6 @@
 local lu = require("luaunit")
 local Queue = require("ff.collections.queue")
 
-local append = table.insert
-
 local TestQueue = {}
 
 function TestQueue:testTypeGuard_RecognizesQueuesAndRejectsOtherValues()
@@ -78,8 +76,8 @@ function TestQueue:testIteration_YieldsItemsInFifoOrder()
 	local keys = {}
 	local res = {}
 	for i, item in pairs(q) do
-		append(keys, i)
-		append(res, item)
+		table.insert(keys, i)
+		table.insert(res, item)
 	end
 
 	lu.assertEquals(keys, { 1, 2, 3, 4 })
@@ -107,12 +105,12 @@ function TestQueue:testRepeatedIteration_PreservesQueueContents()
 	local firstRun = {}
 
 	for _, item in pairs(q) do
-		append(firstRun, item)
+		table.insert(firstRun, item)
 	end
 
 	local secondRun = {}
 	for _, item in pairs(q) do
-		append(secondRun, item)
+		table.insert(secondRun, item)
 	end
 
 	lu.assertEquals(firstRun, { 1, 2, 3 })
@@ -288,7 +286,7 @@ function TestQueue:testDrain_YieldsQueuedValuesInFifoOrderAndEmptiesQueue()
 
 	local res = {}
 	for item in q:drain() do
-		append(res, item)
+		table.insert(res, item)
 	end
 
 	lu.assertEquals(res, { "a", "b", "c", "d" })

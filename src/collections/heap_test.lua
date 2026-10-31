@@ -2,8 +2,6 @@ local lu = require("luaunit")
 local Comparator = require("ff.func.comparator")
 local Heap = require("ff.collections.heap")
 
-local append = table.insert
-
 local function entriesByIndex(heap)
 	local entries = {}
 	for index, value in pairs(heap) do
@@ -191,8 +189,8 @@ function TestHeap:testIteration_YieldsHeapValuesInLevelOrder()
 	local keys = {}
 	local res = {}
 	for i, item in pairs(h) do
-		append(keys, i)
-		append(res, item)
+		table.insert(keys, i)
+		table.insert(res, item)
 	end
 
 	lu.assertEquals(keys, { 1, 2, 3, 4 })
@@ -220,12 +218,12 @@ function TestHeap:testRepeatedIteration_PreservesHeapContents()
 	local firstRun = {}
 
 	for _, item in pairs(h) do
-		append(firstRun, item)
+		table.insert(firstRun, item)
 	end
 
 	local secondRun = {}
 	for _, item in pairs(h) do
-		append(secondRun, item)
+		table.insert(secondRun, item)
 	end
 
 	lu.assertEquals(firstRun, { 10, 20, 30 })
@@ -244,7 +242,7 @@ function TestHeap:testIteration_YieldsValuesInLevelOrder()
 
 	local levelOrder = {}
 	for _, item in pairs(h) do
-		append(levelOrder, item)
+		table.insert(levelOrder, item)
 	end
 
 	lu.assertEquals(levelOrder, { 10, 30, 20, 50, 40 })
@@ -648,7 +646,7 @@ function TestHeap:testDrain_YieldsValuesInAscendingPriorityOrderAndEmptiesHeap()
 
 	local res = {}
 	for item in h:drain() do
-		append(res, item)
+		table.insert(res, item)
 	end
 
 	lu.assertEquals(res, { "a", "b", "c", "d" })
@@ -664,7 +662,7 @@ function TestHeap:testMaxHeapDrain_YieldsValuesInDescendingPriorityOrder()
 	local res = {}
 
 	for item in h:drain() do
-		append(res, item)
+		table.insert(res, item)
 	end
 
 	lu.assertEquals(res, { 50, 40, 30, 20, 10 })

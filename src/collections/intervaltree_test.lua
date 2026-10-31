@@ -1,8 +1,6 @@
 local lu = require("luaunit")
 local IntervalTree = require("ff.collections.intervaltree")
 
-local append = table.insert
-
 local TestIntervalTree = {}
 
 function TestIntervalTree:testTypeGuard_RecognizesIntervalTreesAndRejectsOtherValues()
@@ -91,7 +89,7 @@ function TestIntervalTree:testIteration_YieldsIntervalsInAscendingOrder()
 	local res = {}
 
 	for low, high in pairs(it) do
-		append(res, { low, high })
+		table.insert(res, { low, high })
 	end
 
 	lu.assertEquals(res, {

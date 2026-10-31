@@ -1,8 +1,6 @@
 local lu = require("luaunit")
 local min = require("ff.math.min")
 
-local unpack = table.unpack
-
 local TestMin = {}
 
 function TestMin:testSingleNumber_IsMinValue()
@@ -18,7 +16,7 @@ function TestMin:testVariadicInput_FindMinValue()
 end
 
 function TestMin:testUnpackedNumbers_FindMinValue()
-	lu.assertEquals(min(unpack({ 7, 4, 9, 3 })), 3)
+	lu.assertEquals(min(table.unpack({ 7, 4, 9, 3 })), 3)
 end
 
 function TestMin:testNonNumericInput_ReturnsNil()
@@ -33,7 +31,7 @@ function TestMin:testNonNumericInput_ReturnsNil()
 end
 
 function TestMin:testUnpackedMixNumbersAndNonNumbers_FindMinValueIgnoringNonNumeric()
-	lu.assertEquals(min(unpack({ 8, true, "1", 5, {} })), 5)
+	lu.assertEquals(min(table.unpack({ 8, true, "1", 5, {} })), 5)
 end
 
 return { TestMin = TestMin }

@@ -1,8 +1,6 @@
 local lu = require("luaunit")
 local Stack = require("ff.collections.stack")
 
-local append = table.insert
-
 local TestStack = {}
 
 function TestStack:testTypeGuard_RecognizesStacksAndRejectsOtherValues()
@@ -66,8 +64,8 @@ function TestStack:testIteration_YieldsValuesFromTopToBottom()
 	local keys = {}
 	local res = {}
 	for i, item in pairs(s) do
-		append(keys, i)
-		append(res, item)
+		table.insert(keys, i)
+		table.insert(res, item)
 	end
 
 	lu.assertEquals(keys, { 1, 2, 3, 4 })
@@ -95,12 +93,12 @@ function TestStack:testRepeatedIteration_PreservesStackContents()
 	local firstRun = {}
 
 	for _, item in pairs(s) do
-		append(firstRun, item)
+		table.insert(firstRun, item)
 	end
 
 	local secondRun = {}
 	for _, item in pairs(s) do
-		append(secondRun, item)
+		table.insert(secondRun, item)
 	end
 
 	lu.assertEquals(firstRun, { "z", "y", "x" })
@@ -181,7 +179,7 @@ function TestStack:testDrain_YieldsValuesInLastInFirstOutOrderAndEmptiesStack()
 
 	local res = {}
 	for item in s:drain() do
-		append(res, item)
+		table.insert(res, item)
 	end
 
 	lu.assertEquals(res, { "d", "c", "b", "a" })

@@ -1,28 +1,5 @@
 local Stack = require("ff.collections.stack")
 
-------------------------------
--- Cache function references
-------------------------------
-
--- String
-local sfmt = string.format
-
--- Table
-local tconcat = table.concat
-local tinsert = table.insert
-
--- Math
-local mmax = math.max
-local mmin = math.min
-
--- General
-local assert = assert
-local getmetatable = getmetatable
-local pairs = pairs
-local rawset = rawset
-local setmetatable = setmetatable
-local type = type
-
 ---@class (private) IntervalNode
 ---@field low   number        Lower boundary of this interval.
 ---@field high  number        Upper boundary of this interval.
@@ -162,8 +139,8 @@ function IntervalTree:insert(low, high)
 		end
 
 		-- Union boundaries
-		low = mmin(low, overlap.low)
-		high = mmax(high, overlap.high)
+		low = math.min(low, overlap.low)
+		high = math.max(high, overlap.high)
 
 		-- Remove overlapping node
 		rawset(self, "_root", self:_delete(self._root, overlap.low))
@@ -434,9 +411,9 @@ end
 function IntervalTree:__tostring()
 	local rep = {}
 	for low, high in pairs(self) do
-		tinsert(rep, sfmt("[%d, %d]", low, high))
+		table.insert(rep, string.format("[%d, %d]", low, high))
 	end
-	return sfmt("{ %s }", tconcat(rep, ", "))
+	return string.format("{ %s }", table.concat(rep, ", "))
 end
 
 return IntervalTree

@@ -1,23 +1,3 @@
-------------------------------
--- Cache function references
-------------------------------
-
--- String
-local sfmt = string.format
-
--- Table
-local tconcat = table.concat
-local tinsert = table.insert
-local tremove = table.remove
-
--- General
-local assert = assert
-local error = error
-local getmetatable = getmetatable
-local pairs = pairs
-local setmetatable = setmetatable
-local type = type
-
 local function assertInteger(index)
 	assert(type(index) == "number" and index % 1 == 0, "index should be an integer")
 end
@@ -137,7 +117,7 @@ function Array:insert(value, index)
 	assert(value ~= nil, "value should not be nil")
 
 	if index == nil then
-		tinsert(self._entries, value)
+		table.insert(self._entries, value)
 		return
 	end
 
@@ -145,7 +125,7 @@ function Array:insert(value, index)
 	-- check for boundaries, but allow strictly over higher boundary
 	assert(index > 0 and index <= #self + 1, "index out of bounds")
 
-	tinsert(self._entries, index, value)
+	table.insert(self._entries, index, value)
 end
 
 -----------------------------------------------------------------------------
@@ -187,7 +167,7 @@ function Array:remove(index)
 	assertInteger(index)
 	assert(index > 0 and index <= #self, "index out of bounds")
 
-	return tremove(self._entries, index)
+	return table.remove(self._entries, index)
 end
 
 -----------------------------------------------------------------------------
@@ -315,7 +295,7 @@ end
 ---@return string
 -----------------------------------------------------------------------------
 function Array:__tostring()
-	return sfmt("[ %s ]", tconcat(self._entries, ", "))
+	return string.format("[ %s ]", table.concat(self._entries, ", "))
 end
 
 return Array

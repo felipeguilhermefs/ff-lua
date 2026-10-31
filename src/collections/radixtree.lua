@@ -2,29 +2,6 @@ local Array = require("ff.collections.array")
 local HashMap = require("ff.collections.hashmap")
 local Stack = require("ff.collections.stack")
 
-------------------------------
--- Cache function references
-------------------------------
-
--- Math
-local mmax = math.max
-
--- String
-local sfmt = string.format
-
--- Table
-local tconcat = table.concat
-local tinsert = table.insert
-local tsort = table.sort
-
--- General
-local assert = assert
-local getmetatable = getmetatable
-local pairs = pairs
-local setmetatable = setmetatable
-local tostring = tostring
-local type = type
-
 -----------------------------------------------------------------------------
 ---Calculates the length of the common prefix between two strings.
 ---
@@ -34,7 +11,7 @@ local type = type
 ---@return number Length of matching prefix.
 -----------------------------------------------------------------------------
 local function commonPrefixLength(a, b)
-	local maxLen = mmax(#a, #b)
+	local maxLen = math.max(#a, #b)
 	local i = 1
 	while i <= maxLen and a:byte(i) == b:byte(i) do
 		i = i + 1
@@ -134,7 +111,7 @@ end
 ---@return string
 -----------------------------------------------------------------------------
 function RadixNode:__tostring()
-	return sfmt(
+	return string.format(
 		"{ prefix = %s, word = %s, children = %s }",
 		tostring(self._prefix),
 		tostring(self._word),
@@ -616,10 +593,10 @@ end
 function RadixTree:__tostring()
 	local words = {}
 	for _, word in pairs(self) do
-		tinsert(words, word)
+		table.insert(words, word)
 	end
-	tsort(words)
-	return sfmt("{ %s }", tconcat(words, ", "))
+	table.sort(words)
+	return string.format("{ %s }", table.concat(words, ", "))
 end
 
 return RadixTree

@@ -1,12 +1,10 @@
 local lu = require("luaunit")
 local permutations = require("ff.iter.permutations")
 
-local append = table.insert
-
 local function collect(iter)
 	local res = {}
 	for value in iter do
-		append(res, value)
+		table.insert(res, value)
 	end
 	return res
 end

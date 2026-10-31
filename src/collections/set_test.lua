@@ -1,8 +1,6 @@
 local lu = require("luaunit")
 local Set = require("ff.collections.set")
 
-local append = table.insert
-
 local TestSet = {}
 
 function TestSet:testTypeGuard_RecognizesSetsAndRejectsOtherValues()
@@ -125,7 +123,7 @@ function TestSet:testIteration_YieldsEveryStoredValue()
 	local res = {}
 
 	for item in pairs(set) do
-		append(res, item)
+		table.insert(res, item)
 	end
 
 	lu.assertItemsEquals(res, { 1, 2, 3, 4, 5 })

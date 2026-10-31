@@ -1,28 +1,6 @@
 local Comparator = require("ff.func.comparator")
 local Stack = require("ff.collections.stack")
 
-------------------------------
--- Cache function references
-------------------------------
-
--- Math
-local mmax = math.max
-
--- String
-local sfmt = string.format
-
--- Table
-local tconcat = table.concat
-local tinsert = table.insert
-
--- General
-local assert = assert
-local getmetatable = getmetatable
-local pairs = pairs
-local rawset = rawset
-local setmetatable = setmetatable
-local type = type
-
 ---@class (private) TreeNode
 ---@field key     any       Stores the key of this node.
 ---@field value   any       Stores the value of this node.
@@ -71,7 +49,7 @@ function TreeNode:recalculateHeight()
 	local lh = self.left and self.left.height or 0
 	local rh = self.right and self.right.height or 0
 
-	self.height = mmax(lh, rh) + 1
+	self.height = math.max(lh, rh) + 1
 end
 
 -----------------------------------------------------------------------------
@@ -112,7 +90,7 @@ end
 ---@return string
 -----------------------------------------------------------------------------
 function TreeNode:__tostring()
-	return sfmt(
+	return string.format(
 		"{ key = %s, value = %s, left = %s, right = %s }",
 		tostring(self.key),
 		tostring(self.value),
@@ -713,9 +691,9 @@ end
 function TreeMap:__tostring()
 	local sb = {}
 	for k, v in pairs(self) do
-		tinsert(sb, sfmt("%s = %s", k, v))
+		table.insert(sb, string.format("%s = %s", k, v))
 	end
-	return sfmt("{ %s }", tconcat(sb, ", "))
+	return string.format("{ %s }", table.concat(sb, ", "))
 end
 
 return TreeMap

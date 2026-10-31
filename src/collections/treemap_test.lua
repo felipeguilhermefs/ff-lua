@@ -2,8 +2,6 @@ local lu = require("luaunit")
 local TreeMap = require("ff.collections.treemap")
 local Comparator = require("ff.func.comparator")
 
-local append = table.insert
-
 local TestTreeMap = {}
 
 function TestTreeMap:testTypeGuard_RecognizesTreeMapsAndRejectsOtherValues()
@@ -154,7 +152,7 @@ function TestTreeMap:testRange_YieldsEntriesWithinInclusiveBounds()
 
 	local r1 = {}
 	for k, v in tm:range(3, 7) do
-		append(r1, { k, v })
+		table.insert(r1, { k, v })
 	end
 
 	lu.assertEquals(r1, {
@@ -167,7 +165,7 @@ function TestTreeMap:testRange_YieldsEntriesWithinInclusiveBounds()
 
 	local r2 = {}
 	for k, v in tm:range(nil, 4) do
-		append(r2, { k, v })
+		table.insert(r2, { k, v })
 	end
 	lu.assertEquals(r2, {
 		{ 1, 10 },
@@ -178,7 +176,7 @@ function TestTreeMap:testRange_YieldsEntriesWithinInclusiveBounds()
 
 	local r3 = {}
 	for k, v in tm:range(8, nil) do
-		append(r3, { k, v })
+		table.insert(r3, { k, v })
 	end
 	lu.assertEquals(r3, {
 		{ 8, 80 },
@@ -193,7 +191,7 @@ function TestTreeMap:testIteration_YieldsEntriesInAscendingKeyOrder()
 	local res = {}
 
 	for k, v in pairs(tm) do
-		append(res, { key = k, value = v })
+		table.insert(res, { key = k, value = v })
 	end
 
 	lu.assertEquals(res, {

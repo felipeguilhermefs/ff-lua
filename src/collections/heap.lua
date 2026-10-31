@@ -1,18 +1,6 @@
 local Array = require("ff.collections.array")
 local Comparator = require("ff.func.comparator")
 
-------------------------------
--- Cache function references
-------------------------------
-
--- General
-local assert = assert
-local getmetatable = getmetatable
-local pairs = pairs
-local setmetatable = setmetatable
-local tostring = tostring
-local type = type
-
 --------------------------------------------------------------------------------------
 ---@class Heap
 ---@field private _capacity   number?                     Maximum number of items allowed in the heap.

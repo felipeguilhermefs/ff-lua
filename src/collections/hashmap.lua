@@ -1,23 +1,3 @@
-------------------------------
--- Cache function references
-------------------------------
-
--- String
-local sfmt = string.format
-
--- Table
-local tconcat = table.concat
-local tinsert = table.insert
-
--- General
-local assert = assert
-local error = error
-local getmetatable = getmetatable
-local next = next
-local pairs = pairs
-local setmetatable = setmetatable
-local type = type
-
 --------------------------------------------------------------------------------------
 ---@class HashMap
 ---@field private _entries table<any, any> Table that holds the values.
@@ -287,9 +267,9 @@ end
 function HashMap:__tostring()
 	local sb = {}
 	for k, v in pairs(self) do
-		tinsert(sb, sfmt("%s = %s", k, v))
+		table.insert(sb, string.format("%s = %s", k, v))
 	end
-	return sfmt("{ %s }", tconcat(sb, ", "))
+	return string.format("{ %s }", table.concat(sb, ", "))
 end
 
 return HashMap

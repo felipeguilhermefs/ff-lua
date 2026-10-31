@@ -1,8 +1,6 @@
 local lu = require("luaunit")
 local Array = require("ff.collections.array")
 
-local append = table.insert
-
 local function arrayValues(array)
 	local values = {}
 	for index, value in pairs(array) do
@@ -184,8 +182,8 @@ function TestArray:testIteration_YieldsOneBasedIndexesAndValues()
 	local entries = {}
 
 	for index, value in pairs(array) do
-		append(entries, index)
-		append(entries, value)
+		table.insert(entries, index)
+		table.insert(entries, value)
 	end
 
 	lu.assertEquals(entries, { 1, 10, 2, 20, 3, 30 })

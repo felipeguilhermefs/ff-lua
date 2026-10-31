@@ -1,8 +1,6 @@
 local lu = require("luaunit")
 local max = require("ff.math.max")
 
-local unpack = table.unpack
-
 local TestMax = {}
 
 function TestMax:testSingleNumber_IsMaxValue()
@@ -18,7 +16,7 @@ function TestMax:testVariadicInput_FindMaxValue()
 end
 
 function TestMax:testUnpackedNumbers_FindMaxValue()
-	lu.assertEquals(max(unpack({ 7, 4, 9, 3 })), 9)
+	lu.assertEquals(max(table.unpack({ 7, 4, 9, 3 })), 9)
 end
 
 function TestMax:testNonNumericInput_ReturnsNil()
@@ -33,7 +31,7 @@ function TestMax:testNonNumericInput_ReturnsNil()
 end
 
 function TestMax:testUnpackedMixNumbersAndNonNumbers_FindMaxValueIgnoringNonNumeric()
-	lu.assertEquals(max(unpack({ 8, true, "1", 5, {} })), 8)
+	lu.assertEquals(max(table.unpack({ 8, true, "1", 5, {} })), 8)
 end
 
 return { TestMax = TestMax }

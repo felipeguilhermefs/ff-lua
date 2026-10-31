@@ -26,21 +26,6 @@
 require("luarocks.loader")
 
 -----------------------------------------------------------------------------
--- Cache function references
------------------------------------------------------------------------------
-
--- General
-local error = error
-local setmetatable = setmetatable
-local tostring = tostring
-
--- String
-local fmt = string.format
-
--- Table
-local append = table.insert
-
------------------------------------------------------------------------------
 ---Loads and validates the rockspec manifest in an isolated environment.
 ---
 ---We load the rockspec into an empty sandbox table (`env`) to capture these
@@ -52,7 +37,7 @@ local append = table.insert
 -----------------------------------------------------------------------------
 local function loadRockspec(filepath)
 	if filepath == nil or not filepath:match("rockspec$") then
-		error(fmt("rockspec '%s' not found", filepath))
+		error(string.format("rockspec '%s' not found", filepath))
 	end
 
 	local env = {}
@@ -60,7 +45,7 @@ local function loadRockspec(filepath)
 	-- Load the rockspec chunk in text-only mode ("t") using env as its _ENV
 	local load, err = loadfile(filepath, "t", env)
 	if load == nil or err then
-		error(fmt("could not load rockspec %s: %s.", filepath, err))
+		error(string.format("could not load rockspec %s: %s.", filepath, err))
 	end
 
 	-- Execute the rockspec chunk to populate the env table
@@ -68,23 +53,23 @@ local function loadRockspec(filepath)
 
 	-- Validate structural requirements needed by this test harness
 	if type(env.build) ~= "table" then
-		error(fmt("rockspec '%s' has no 'build' table", filepath))
+		error(string.format("rockspec '%s' has no 'build' table", filepath))
 	end
 
 	if type(env.build.modules) ~= "table" then
-		error(fmt("rockspec '%s' has no 'build.modules' table", filepath))
+		error(string.format("rockspec '%s' has no 'build.modules' table", filepath))
 	end
 
 	if next(env.build.modules) == nil then
-		error(fmt("rockspec '%s' has no build.modules entries", filepath))
+		error(string.format("rockspec '%s' has no build.modules entries", filepath))
 	end
 
 	if type(env.dependencies) ~= "table" then
-		error(fmt("rockspec '%s' has no 'dependencies' table", filepath))
+		error(string.format("rockspec '%s' has no 'dependencies' table", filepath))
 	end
 
 	if next(env.dependencies) == nil then
-		error(fmt("rockspec '%s' has no dependency entries", filepath))
+		error(string.format("rockspec '%s' has no dependency entries", filepath))
 	end
 
 	return env
@@ -125,7 +110,7 @@ local function checkVersion(dependencies)
 
 	-- Assert current version meets or exceeds the minimum required version
 	if cmajor < rmajor or (cmajor == rmajor and cminor < rminor) then
-		error(fmt("rockspec requires Lua %d.%d or higher. Current version: %s", rmajor, rminor, _VERSION))
+		error(string.format("rockspec requires Lua %d.%d or higher. Current version: %s", rmajor, rminor, _VERSION))
 	end
 end
 
@@ -141,7 +126,7 @@ local lu = require("luaunit")
 local function lockGlobals()
 	setmetatable(_G, {
 		__newindex = function(_, key)
-			error(fmt("attempt to declare global variable '%s'", tostring(key)))
+			error(string.format("attempt to declare global variable '%s'", tostring(key)))
 		end,
 	})
 end
@@ -191,7 +176,7 @@ local function loadTestSuites(modules, selectedModule)
 	if selectedModule then
 		local srcPath = modules[selectedModule]
 		if srcPath == nil then
-			error(fmt("module '%s' not found in rockspec", selectedModule))
+			error(string.format("module '%s' not found in rockspec", selectedModule))
 		end
 
 		modules = { [selectedModule] = srcPath }
@@ -204,26 +189,26 @@ local function loadTestSuites(modules, selectedModule)
 
 		local testFile, err = loadfile(testPath)
 		if testFile == nil then
-			error(fmt("could not load test file %s: %s", testPath, err))
+			error(string.format("could not load test file %s: %s", testPath, err))
 		end
 
 		local testSuiteMap = testFile()
 		if type(testSuiteMap) ~= "table" then
-			error(fmt("test file %s should return a suite map", testPath))
+			error(string.format("test file %s should return a suite map", testPath))
 		end
 
 		for name, suite in pairs(testSuiteMap) do
 			if type(name) ~= "string" or not name:match("^Test") then
-				error(fmt("invalid test suite name in %s: %s", testPath, tostring(name)))
+				error(string.format("invalid test suite name in %s: %s", testPath, tostring(name)))
 			end
 
 			if type(suite) ~= "table" then
-				error(fmt("test suite %s in %s should return a table class", name, testPath))
+				error(string.format("test suite %s in %s should return a table class", name, testPath))
 			end
 
 			if registeredSuites[name] then
 				error(
-					fmt(
+					string.format(
 						"duplicate test suite name '%s' in %s (already declared in %s)",
 						name,
 						testPath,
@@ -233,7 +218,7 @@ local function loadTestSuites(modules, selectedModule)
 			end
 
 			registeredSuites[name] = testPath
-			append(suites, { name, suite })
+			table.insert(suites, { name, suite })
 		end
 	end
 

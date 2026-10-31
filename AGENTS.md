@@ -51,9 +51,8 @@ ff-lua/
 │   ├── cache/
 │   │   ├── lru.lua              # LRU Cache (doubly linked list + HashMap)
 │   │   └── lru_test.lua
-│   ├── collections/             # Core data structures (see collections.md)
+│   ├── collections/             # Core data structures
 │   │   ├── array.lua            # Dynamic array wrapper
-│   │   ├── collections.md       # Architecture spec & canonical template for collections
 │   │   ├── hashmap.lua          # Hash table map
 │   │   ├── heap.lua             # Binary min/max heap
 │   │   ├── intervaltree.lua     # Augmented binary search tree for intervals
@@ -107,20 +106,17 @@ ff-lua/
 
 ## Code Standards & Design Conventions
 
-Reference document: `src/collections/collections.md`.
-
 ### 1. File Anatomy (10-Part Standard)
 Every class module adheres to this structure:
-1. **Upvalue caching**: Local aliases for Lua stdlib functions (`sfmt = string.format`, `tinsert = table.insert`, `assert`, `pairs`, `type`, `setmetatable`, etc.) to minimize global lookup overhead.
-2. **Private Node Classes & Helpers**: Internal node structures (e.g. `LinkNode`, `TreeNode`, `LRUNode`, `QNode`, `RadixNode`) defined locally with minimal constructors.
-3. **EmmyLua Type Annotations**: Clear `---@class <Name>` and `---@field private _<field> <type>` annotations.
-4. **Class Table & Dispatch Binding**: `local Class = {}` immediately followed by `Class.__index = Class`.
-5. **Static Type Guard**: `Class.isClass(maybe)` verifying `getmetatable(maybe) == Class`.
-6. **Constructor**: `Class.new(iterable, ...)` using the fluent initialization idiom `return setmetatable({...}, Class) .. iterable`.
-7. **Public Methods**: Object methods using colon syntax (`function Class:method()`), strictly in **alphabetical order**.
-8. **Private Methods**: Prefixed with single underscore `_`, annotated with `---@private`, strictly in **alphabetical order**.
-9. **Metamethods**: Metamethod implementations prefixed with `__`, strictly in **alphabetical order** (`__concat`, `__eq`, `__len`, `__newindex`, `__pairs`, `__tostring`).
-10. **Module Return**: Single export via `return Class`.
+1. **Private Node Classes & Helpers**: Internal node structures (e.g. `LinkNode`, `TreeNode`, `LRUNode`, `QNode`, `RadixNode`) defined locally with minimal constructors.
+2. **EmmyLua Type Annotations**: Clear `---@class <Name>` and `---@field private _<field> <type>` annotations.
+3. **Class Table & Dispatch Binding**: `local Class = {}` immediately followed by `Class.__index = Class`.
+4. **Static Type Guard**: `Class.isClass(maybe)` verifying `getmetatable(maybe) == Class`.
+5. **Constructor**: `Class.new(iterable, ...)` using the fluent initialization idiom `return setmetatable({...}, Class) .. iterable`.
+6. **Public Methods**: Object methods using colon syntax (`function Class:method()`), strictly in **alphabetical order**.
+7. **Private Methods**: Prefixed with single underscore `_`, annotated with `---@private`, strictly in **alphabetical order**.
+8. **Metamethods**: Metamethod implementations prefixed with `__`, strictly in **alphabetical order** (`__concat`, `__eq`, `__len`, `__newindex`, `__pairs`, `__tostring`).
+9. **Module Return**: Single export via `return Class`.
 
 ### 2. Encapsulation & Mutability Protection
 - Instance state is stored in private fields prefixed with `_` (`_entries`, `_len`, `_root`, `_cap`).
