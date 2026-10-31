@@ -376,4 +376,21 @@ function TestLinkedList:testNewPropertiesAndMethods_CannotBeAddedOrReplaced()
 	end)
 end
 
+function TestLinkedList:testConcat_CreatesNewListAndPushBackAllMutates()
+	local source = LinkedList.new({ 1 })
+	local joined = source .. { 2 }
+	lu.assertNotIs(joined, source)
+	lu.assertEquals(#source, 1)
+	lu.assertEquals(#joined, 2)
+	source:pushBackAll({ 3 })
+	lu.assertEquals(#source, 2)
+end
+
+function TestLinkedList:testPushBackAllRejectsNil()
+	local collection = LinkedList.new()
+	lu.assertErrorMsgContains("iterable should be a table", function()
+		collection:pushBackAll(nil)
+	end)
+end
+
 return { TestLinkedList = TestLinkedList }

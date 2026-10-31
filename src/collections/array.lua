@@ -63,7 +63,11 @@ end
 ---@return Array
 -----------------------------------------------------------------------------
 function Array.new(iterable)
-	return setmetatable({ _entries = {} }, Array) .. iterable
+	local new = setmetatable({ _entries = {} }, Array)
+	if iterable ~= nil then
+		new:insertAll(iterable)
+	end
+	return new
 end
 
 -----------------------------------------------------------------------------
@@ -150,6 +154,19 @@ function Array:insert(value, index)
 end
 
 -----------------------------------------------------------------------------
+---Inserts values from the iterable to the end of the array.
+---
+---@param iterable table<any, any> Entries to add.
+-----------------------------------------------------------------------------
+function Array:insertAll(iterable)
+	assert(type(iterable) == "table", "iterable should be a table")
+
+	for _, item in pairs(iterable) do
+		self:insert(item)
+	end
+end
+
+-----------------------------------------------------------------------------
 ---Removes a value at a given index.
 ---
 ---@param  index number
@@ -209,23 +226,19 @@ function Array:swap(index, other)
 end
 
 -----------------------------------------------------------------------------
----Concatenate a given iterable to this array (in-place modification).
+---Returns a new Array containing this collection and iterable entries.
+---Does not mutate either operand.
 ---
----@param iterable? table<any, any> Any table that can be iterated over.
----                                 Defaults to an empty table if `nil`.
----
+---@param iterable table<any, any> Entries to add.
 ---@return Array
 -----------------------------------------------------------------------------
 function Array:__concat(iterable)
-	if iterable ~= nil then
-		assert(type(iterable) == "table", "iterable should be a table")
-
-		for _, item in pairs(iterable) do
-			self:insert(item)
-		end
+	local result = Array.new(self)
+	if iterable == nil then
+		return result
 	end
-
-	return self
+	result:insertAll(iterable)
+	return result
 end
 
 -----------------------------------------------------------------------------

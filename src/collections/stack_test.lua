@@ -254,4 +254,22 @@ function TestStack:testNewPropertiesAndMethods_CannotBeAddedOrReplaced()
 	end)
 end
 
+function TestStack:testConcat_CreatesNewStackAndPushAllMutates()
+	local source = Stack.new({ 1 })
+	local joined = source .. { 2 }
+	lu.assertNotIs(joined, source)
+	lu.assertEquals(source:top(), 1)
+	lu.assertEquals(joined:pop(), 2)
+	lu.assertEquals(joined:pop(), 1)
+	source:pushAll({ 3 })
+	lu.assertEquals(source:top(), 3)
+end
+
+function TestStack:testPushAllRejectsNil()
+	local collection = Stack.new()
+	lu.assertErrorMsgContains("iterable should be a table", function()
+		collection:pushAll(nil)
+	end)
+end
+
 return { TestStack = TestStack }

@@ -79,12 +79,16 @@ function Queue.new(iterable, capacity)
 		assert(capacity > 0, "capacity should be positive")
 	end
 
-	return setmetatable({
+	local new = setmetatable({
 		_back = nil,
 		_front = nil,
 		_capacity = capacity,
 		_len = 0,
-	}, Queue) .. iterable
+	}, Queue)
+	if iterable ~= nil then
+		new:enqueueAll(iterable)
+	end
+	return new
 end
 
 -----------------------------------------------------------------------------
@@ -187,6 +191,19 @@ function Queue:enqueue(value)
 end
 
 -----------------------------------------------------------------------------
+---Adds values from iterable to the back of the queue.
+---
+---@param iterable table<any, any> Entries to add.
+-----------------------------------------------------------------------------
+function Queue:enqueueAll(iterable)
+	assert(type(iterable) == "table", "iterable should be a table")
+
+	for _, item in pairs(iterable) do
+		self:enqueue(item)
+	end
+end
+
+-----------------------------------------------------------------------------
 ---Check if the queue is at capacity. If the queue does not have a limit
 ---this will always return false.
 ---
@@ -210,24 +227,19 @@ function Queue:peek()
 end
 
 -----------------------------------------------------------------------------
----Enqueues all items from a given iterable into this Queue (in-place
----modification).
+---Returns a new Queue containing this collection and iterable entries.
+---Does not mutate either operand.
 ---
----@param iterable? table<any, any> Any table that can be iterated over.
----                                 Defaults to an empty table if `nil`.
----
----@return Queue Returns this Queue instance.
+---@param iterable table<any, any> Entries to add.
+---@return Queue
 -----------------------------------------------------------------------------
 function Queue:__concat(iterable)
-	if iterable ~= nil then
-		assert(type(iterable) == "table", "iterable should be a table")
-
-		for _, item in pairs(iterable) do
-			self:enqueue(item)
-		end
+	local result = Queue.new(self, self._capacity)
+	if iterable == nil then
+		return result
 	end
-
-	return self
+	result:enqueueAll(iterable)
+	return result
 end
 
 -----------------------------------------------------------------------------
@@ -294,7 +306,9 @@ function Queue:__pairs()
 			index = index + 1
 			return index, node.value
 		end
-	end, self, nil
+	end,
+		self,
+		nil
 end
 
 -----------------------------------------------------------------------------

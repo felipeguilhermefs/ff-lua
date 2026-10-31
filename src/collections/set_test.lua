@@ -255,4 +255,21 @@ function TestSet:testNewPropertiesAndMethods_CannotBeAddedOrReplaced()
 	end)
 end
 
+function TestSet:testConcat_CreatesNewSetAndAddAllMutates()
+	local source = Set.new({ 1 })
+	local joined = source .. { 2 }
+	lu.assertNotIs(joined, source)
+	lu.assertFalse(source:contains(2))
+	lu.assertTrue(joined:contains(1, 2))
+	source:addAll({ 3 })
+	lu.assertTrue(source:contains(3))
+end
+
+function TestSet:testAddAllRejectsNil()
+	local collection = Set.new()
+	lu.assertErrorMsgContains("iterable should be a table", function()
+		collection:addAll(nil)
+	end)
+end
+
 return { TestSet = TestSet }

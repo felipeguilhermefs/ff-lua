@@ -821,4 +821,21 @@ function TestHeap:testNewPropertiesAndMethods_CannotBeAddedOrReplaced()
 	end)
 end
 
+function TestHeap:testConcat_CreatesNewHeapAndPushAllMutates()
+	local source = Heap.new({ 1 })
+	local joined = source .. { 2 }
+	lu.assertNotIs(joined, source)
+	lu.assertEquals(#source, 1)
+	lu.assertEquals(#joined, 2)
+	source:pushAll({ 3 })
+	lu.assertEquals(#source, 2)
+end
+
+function TestHeap:testPushAllRejectsNil()
+	local collection = Heap.new()
+	lu.assertErrorMsgContains("iterable should be a table", function()
+		collection:pushAll(nil)
+	end)
+end
+
 return { TestHeap = TestHeap }

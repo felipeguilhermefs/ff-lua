@@ -56,10 +56,14 @@ end
 ---@return Set
 -----------------------------------------------------------------------------
 function Set.new(iterable)
-	return setmetatable({
+	local new = setmetatable({
 		_entries = {},
 		_len = 0,
-	}, Set) .. iterable
+	}, Set)
+	if iterable ~= nil then
+		new:addAll(iterable)
+	end
+	return new
 end
 
 -----------------------------------------------------------------------------
@@ -79,6 +83,19 @@ function Set:add(entry)
 	self._entries[entry] = entry
 	self._len = self._len + 1
 	return true
+end
+
+-----------------------------------------------------------------------------
+---Adds every value in the iterable to the set.
+---
+---@param iterable table<any, any> Entries to add.
+-----------------------------------------------------------------------------
+function Set:addAll(iterable)
+	assert(type(iterable) == "table", "iterable should be a table")
+
+	for _, item in pairs(iterable) do
+		self:add(item)
+	end
 end
 
 -----------------------------------------------------------------------------
@@ -281,23 +298,19 @@ function Set:union(other)
 end
 
 -----------------------------------------------------------------------------
----Concatenate a given iterable into this Set (in-place modification).
+---Returns a new Set containing this collection and iterable entries.
+---Does not mutate either operand.
 ---
----@param  iterable? table<any, any>|Set Any table or Set that can be iterated over.
----                                      Defaults to an empty table if `nil`.
----
----@return Set                           Returns this Set instance.
+---@param iterable table<any, any> Entries to add.
+---@return Set
 -----------------------------------------------------------------------------
 function Set:__concat(iterable)
-	if iterable ~= nil then
-		assert(type(iterable) == "table", "iterable should be a table")
-
-		for _, item in pairs(iterable) do
-			self:add(item)
-		end
+	local result = Set.new(self)
+	if iterable == nil then
+		return result
 	end
-
-	return self
+	result:addAll(iterable)
+	return result
 end
 
 -----------------------------------------------------------------------------

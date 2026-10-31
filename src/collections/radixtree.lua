@@ -188,11 +188,15 @@ function RadixTree.new(iterable, caseSensitive)
 
 	assert(type(caseSensitive) == "boolean", "caseSensitive should be a boolean")
 
-	return setmetatable({
+	local new = setmetatable({
 		_root = RadixNode.new(),
 		_len = 0,
 		_caseSensitive = caseSensitive,
-	}, RadixTree) .. iterable
+	}, RadixTree)
+	if iterable ~= nil then
+		new:insertAll(iterable)
+	end
+	return new
 end
 
 -----------------------------------------------------------------------------
@@ -283,7 +287,7 @@ function RadixTree:find(prefix, exact)
 end
 
 -----------------------------------------------------------------------------
----Adds a word to the radix tree.
+---Inserts a word into the radix tree.
 ---
 ---@param  word string Word to add.
 ---
@@ -351,6 +355,19 @@ function RadixTree:insert(word)
 		-- Case 4: Word continues past child edge
 		cur = child
 		remaining = remaining:sub(commonLen + 1)
+	end
+end
+
+-----------------------------------------------------------------------------
+---Insert all words in the iterable into the tree.
+---
+---@param iterable table<any, any> Entries to add.
+-----------------------------------------------------------------------------
+function RadixTree:insertAll(iterable)
+	assert(type(iterable) == "table", "iterable should be a table")
+
+	for _, item in pairs(iterable) do
+		self:insert(item)
 	end
 end
 
@@ -518,23 +535,19 @@ function RadixTree:_traverse(node)
 end
 
 -----------------------------------------------------------------------------
----Concatenate a given iterable of strings into this RadixTree (in-place modification).
+---Returns a new RadixTree containing this collection and iterable entries.
+---Does not mutate either operand.
 ---
----@param  iterable? table<any, any> Any table of strings to insert.
----                                  Defaults to no-op if `nil`.
----
----@return RadixTree                 Returns this RadixTree instance.
+---@param iterable table<any, any> Entries to add.
+---@return RadixTree
 -----------------------------------------------------------------------------
 function RadixTree:__concat(iterable)
-	if iterable ~= nil then
-		assert(type(iterable) == "table", "iterable should be a table")
-
-		for _, item in pairs(iterable) do
-			self:insert(item)
-		end
+	local result = RadixTree.new(self, self._caseSensitive)
+	if iterable == nil then
+		return result
 	end
-
-	return self
+	result:insertAll(iterable)
+	return result
 end
 
 -----------------------------------------------------------------------------

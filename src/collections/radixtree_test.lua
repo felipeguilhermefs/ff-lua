@@ -492,4 +492,21 @@ function TestRadixTree:testNewPropertiesAndMethods_CannotBeAddedOrReplaced()
 	end)
 end
 
+function TestRadixTree:testConcat_CreatesNewTreeAndInsertAllMutates()
+	local source = RadixTree.new({ "one" })
+	local joined = source .. { "two" }
+	lu.assertNotIs(joined, source)
+	lu.assertFalse(source:contains("two"))
+	lu.assertTrue(joined:contains("two"))
+	source:insertAll({ "three" })
+	lu.assertTrue(source:contains("three"))
+end
+
+function TestRadixTree:testInsertAllRejectsNil()
+	local collection = RadixTree.new()
+	lu.assertErrorMsgContains("iterable should be a table", function()
+		collection:insertAll(nil)
+	end)
+end
+
 return { TestRadixTree = TestRadixTree }

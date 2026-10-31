@@ -79,11 +79,11 @@ end
 ---@return LinkedList
 -----------------------------------------------------------------------------
 function LinkedList.new(iterable)
-	return setmetatable({
-		_back = nil,
-		_front = nil,
-		_len = 0,
-	}, LinkedList) .. iterable
+	local new = setmetatable({ _back = nil, _front = nil, _len = 0 }, LinkedList)
+	if iterable ~= nil then
+		new:pushBackAll(iterable)
+	end
+	return new
 end
 
 -----------------------------------------------------------------------------
@@ -198,7 +198,7 @@ function LinkedList:popFront()
 end
 
 -----------------------------------------------------------------------------
----Adds an entry to the back of the list.
+---Pushes an entry to the back of the list.
 ---
 ---@param  entry any Entry to be added.
 -----------------------------------------------------------------------------
@@ -213,6 +213,19 @@ function LinkedList:pushBack(entry)
 	end
 	rawset(self, "_back", node)
 	self._len = self._len + 1
+end
+
+-----------------------------------------------------------------------------
+---Pushes every value in the iterable to the back of the list.
+---
+---@param iterable table<any, any> Entries to add.
+-----------------------------------------------------------------------------
+function LinkedList:pushBackAll(iterable)
+	assert(type(iterable) == "table", "iterable should be a table")
+
+	for _, item in pairs(iterable) do
+		self:pushBack(item)
+	end
 end
 
 -----------------------------------------------------------------------------
@@ -257,24 +270,19 @@ function LinkedList:reverse()
 end
 
 -----------------------------------------------------------------------------
----Concatenate a given iterable into this LinkedList (in-place modification).
+---Returns a new LinkedList containing this collection and iterable entries.
+---Does not mutate either operand.
 ---
----@param  iterable? table<any, any>  Any table or LinkedList that
----                                   can be iterated over. Defaults
----                                   to an empty list if `nil`.
----
----@return LinkedList                 Returns this LinkedList instance.
+---@param iterable table<any, any> Entries to add.
+---@return LinkedList
 -----------------------------------------------------------------------------
 function LinkedList:__concat(iterable)
-	if iterable ~= nil then
-		assert(type(iterable) == "table", "iterable should be a table")
-
-		for _, item in pairs(iterable) do
-			self:pushBack(item)
-		end
+	local result = LinkedList.new(self)
+	if iterable == nil then
+		return result
 	end
-
-	return self
+	result:pushBackAll(iterable)
+	return result
 end
 
 -----------------------------------------------------------------------------

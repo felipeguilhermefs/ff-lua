@@ -165,11 +165,15 @@ function TreeMap.new(iterable, comparator)
 		assert(type(comparator) == "function", "comparator should be a function")
 	end
 
-	return setmetatable({
+	local new = setmetatable({
 		_comparator = comparator or Comparator.natural,
 		_len = 0,
 		_root = nil,
-	}, TreeMap) .. iterable
+	}, TreeMap)
+	if iterable ~= nil then
+		new:putAll(iterable)
+	end
+	return new
 end
 
 -----------------------------------------------------------------------------
@@ -364,8 +368,7 @@ function TreeMap:min()
 end
 
 -----------------------------------------------------------------------------
----Stores a value under the given key. Increments the entry count when key
----is new.
+---Stores a value under the given key.
 ---
 ---@param key   any Key to store under, should not be nil.
 ---@param value any Value to store, should not be nil.
@@ -375,6 +378,19 @@ function TreeMap:put(key, value)
 	assert(value ~= nil, "value should not be nil")
 
 	rawset(self, "_root", self:_insert(self._root, key, value))
+end
+
+-----------------------------------------------------------------------------
+---Stores every vkey/value from iterable into the tree.
+---
+---@param iterable table<any, any> Entries to add.
+-----------------------------------------------------------------------------
+function TreeMap:putAll(iterable)
+	assert(type(iterable) == "table", "iterable should be a table")
+
+	for key, value in pairs(iterable) do
+		self:put(key, value)
+	end
 end
 
 -----------------------------------------------------------------------------
@@ -595,23 +611,20 @@ function TreeMap:_remove(node, key)
 end
 
 -----------------------------------------------------------------------------
----Concatenate a given iterable to this TreeMap (in-place modification).
+---Returns a new TreeMap containing this collection and iterable entries.
+---Does not mutate either operand.
 ---
----@param  iterable? table<any, any> Entries to be concatenated.
----                                  Defaults to an empty list if `nil`.
----
----@return TreeMap Returns this map instance.
+---@param iterable table<any, any> Entries to add.
+---@return TreeMap
 -----------------------------------------------------------------------------
 function TreeMap:__concat(iterable)
-	if iterable ~= nil then
-		assert(type(iterable) == "table", "iterable should be a table")
-
-		for key, value in pairs(iterable) do
-			self:put(key, value)
-		end
+	-- `..` is non-mutating: preserve comparator and merge into a fresh map.
+	local result = TreeMap.new(self, self._comparator)
+	if iterable == nil then
+		return result
 	end
-
-	return self
+	result:putAll(iterable)
+	return result
 end
 
 -----------------------------------------------------------------------------
@@ -687,7 +700,9 @@ function TreeMap:__pairs()
 		local node = stack:pop()
 		cur = node.right
 		return node.key, node.value
-	end, self, nil
+	end,
+		self,
+		nil
 end
 
 -----------------------------------------------------------------------------

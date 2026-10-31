@@ -53,7 +53,11 @@ end
 ---@return Stack
 -----------------------------------------------------------------------------
 function Stack.new(iterable)
-	return setmetatable({ _entries = Array.new() }, Stack) .. iterable
+	local new = setmetatable({ _entries = Array.new() }, Stack)
+	if iterable ~= nil then
+		new:pushAll(iterable)
+	end
+	return new
 end
 
 -----------------------------------------------------------------------------
@@ -109,13 +113,26 @@ function Stack:pop()
 end
 
 -----------------------------------------------------------------------------
----Adds an entry to the top of the stack.
+---Pushes an entry to the top of the stack.
 ---
 ---@param  entry any Entry to be added.
 -----------------------------------------------------------------------------
 function Stack:push(entry)
 	assert(entry ~= nil, "entry should not be nil")
 	self._entries:insert(entry)
+end
+
+-----------------------------------------------------------------------------
+---Pushes every value in the iterable to the top of the stack
+---
+---@param iterable table<any, any> Entries to add.
+-----------------------------------------------------------------------------
+function Stack:pushAll(iterable)
+	assert(type(iterable) == "table", "iterable should be a table")
+
+	for _, item in pairs(iterable) do
+		self:push(item)
+	end
 end
 
 -----------------------------------------------------------------------------
@@ -143,23 +160,19 @@ function Stack:top()
 end
 
 -----------------------------------------------------------------------------
----Pushes all items from a given iterable into this Stack (in-place modification).
+---Returns a new Stack containing this collection and iterable entries.
+---Does not mutate either operand.
 ---
----@param iterable? table<any, any> Any table that can be iterated over.
----                                 Defaults to an empty table if `nil`.
----
----@return Stack Returns this Stack instance.
+---@param iterable table<any, any> Entries to add.
+---@return Stack
 -----------------------------------------------------------------------------
 function Stack:__concat(iterable)
-	if iterable ~= nil then
-		assert(type(iterable) == "table", "iterable should be a table")
-
-		for _, item in pairs(iterable) do
-			self:push(item)
-		end
+	local result = Stack.new(self)
+	if iterable == nil then
+		return result
 	end
-
-	return self
+	result:pushAll(iterable)
+	return result
 end
 
 -----------------------------------------------------------------------------
@@ -211,7 +224,9 @@ function Stack:__pairs()
 			index = index + 1
 			return index, self._entries:get(i)
 		end
-	end, self, nil
+	end,
+		self,
+		nil
 end
 
 -----------------------------------------------------------------------------

@@ -472,4 +472,21 @@ function TestQueue:testNewPropertiesAndMethods_CannotBeAddedOrReplaced()
 	end)
 end
 
+function TestQueue:testConcat_CreatesNewQueueAndEnqueueAllMutates()
+	local source = Queue.new({ 1 })
+	local joined = source .. { 2 }
+	lu.assertNotIs(joined, source)
+	lu.assertEquals(#source, 1)
+	lu.assertEquals(#joined, 2)
+	source:enqueueAll({ 3 })
+	lu.assertEquals(#source, 2)
+end
+
+function TestQueue:testEnqueueAllRejectsNil()
+	local collection = Queue.new()
+	lu.assertErrorMsgContains("iterable should be a table", function()
+		collection:enqueueAll(nil)
+	end)
+end
+
 return { TestQueue = TestQueue }

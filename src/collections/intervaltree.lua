@@ -89,10 +89,11 @@ end
 ---@return IntervalTree
 -----------------------------------------------------------------------------
 function IntervalTree.new(iterable)
-	return setmetatable({
-		_root = nil,
-		_len = 0,
-	}, IntervalTree) .. iterable
+	local new = setmetatable({ _root = nil, _len = 0 }, IntervalTree)
+	if iterable ~= nil then
+		new:insertAll(iterable)
+	end
+	return new
 end
 
 -----------------------------------------------------------------------------
@@ -170,6 +171,20 @@ function IntervalTree:insert(low, high)
 
 	-- Finally add the merged interval
 	rawset(self, "_root", self:_insert(self._root, low, high))
+end
+
+-----------------------------------------------------------------------------
+---Inserts all intervals in the iterable to the tree following single insert
+---rules.
+---
+---@param iterable table<any, any> Entries to add.
+-----------------------------------------------------------------------------
+function IntervalTree:insertAll(iterable)
+	assert(type(iterable) == "table", "iterable should be a table")
+
+	for low, high in pairs(iterable) do
+		self:insert(low, high)
+	end
 end
 
 -----------------------------------------------------------------------------
@@ -317,27 +332,19 @@ function IntervalTree:_min(node)
 end
 
 -----------------------------------------------------------------------------
----Concatenate a given iterable of `{low, high}` pairs into this IntervalTree
----(in-place modification). Each entry in the iterable must be a two-element
----table `{ low, high }`.
+---Returns a new IntervalTree containing this collection and iterable entries.
+---Does not mutate either operand.
 ---
----@param  iterable? table<any, {[1]: number, [2]: number}>
----                            Entries to be inserted.
----                            Defaults to an empty table if `nil`.
----
----@return IntervalTree        Returns this IntervalTree instance.
+---@param iterable table<any, any> Entries to add.
+---@return IntervalTree
 -----------------------------------------------------------------------------
 function IntervalTree:__concat(iterable)
-	if iterable ~= nil then
-		assert(type(iterable) == "table", "iterable should be a table")
-
-		for _, interval in pairs(iterable) do
-			assert(type(interval) == "table", "each entry in iterable should be a {low, high} table")
-			self:insert(interval[1], interval[2])
-		end
+	local result = IntervalTree.new(self)
+	if iterable == nil then
+		return result
 	end
-
-	return self
+	result:insertAll(iterable)
+	return result
 end
 
 -----------------------------------------------------------------------------
@@ -414,7 +421,9 @@ function IntervalTree:__pairs()
 		local node = stack:pop()
 		cur = node.right
 		return node.low, node.high
-	end, self, nil
+	end,
+		self,
+		nil
 end
 
 -----------------------------------------------------------------------------

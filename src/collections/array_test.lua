@@ -383,4 +383,21 @@ function TestArray:testConcat_AppendsSetValues()
 	lu.assertEquals(arrayValues(array), { 10, 20, 30, 100 })
 end
 
+function TestArray:testConcat_CreatesNewArrayAndInsertAllMutates()
+	local source = Array.new({ 1, 2 })
+	local joined = source .. { 3 }
+	lu.assertNotIs(joined, source)
+	lu.assertEquals(arrayValues(source), { 1, 2 })
+	lu.assertEquals(arrayValues(joined), { 1, 2, 3 })
+	source:insertAll({ 4 })
+	lu.assertEquals(arrayValues(source), { 1, 2, 4 })
+end
+
+function TestArray:testInsertAllRejectsNil()
+	local collection = Array.new()
+	lu.assertErrorMsgContains("iterable should be a table", function()
+		collection:insertAll(nil)
+	end)
+end
+
 return { TestArray = TestArray }

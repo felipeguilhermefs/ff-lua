@@ -433,4 +433,21 @@ function TestTreeMap:testNewPropertiesAndMethods_CannotBe_AddedOrReplaced()
 	end)
 end
 
+function TestTreeMap:testConcat_CreatesNewMapAndPutAllMutates()
+	local source = TreeMap.new({ a = 1 })
+	local joined = source .. { b = 2 }
+	lu.assertNotIs(joined, source)
+	lu.assertEquals(source:get("b"), nil)
+	lu.assertEquals(joined:get("b"), 2)
+	source:putAll({ c = 3 })
+	lu.assertEquals(source:get("c"), 3)
+end
+
+function TestTreeMap:testPutAllRejectsNil()
+	local collection = TreeMap.new()
+	lu.assertErrorMsgContains("iterable should be a table", function()
+		collection:putAll(nil)
+	end)
+end
+
 return { TestTreeMap = TestTreeMap }

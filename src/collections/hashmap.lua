@@ -55,10 +55,11 @@ end
 ---@return HashMap
 -----------------------------------------------------------------------------
 function HashMap.new(iterable)
-	return setmetatable({
-		_entries = {},
-		_len = 0,
-	}, HashMap) .. iterable
+	local new = setmetatable({ _entries = {}, _len = 0 }, HashMap)
+	if iterable ~= nil then
+		new:putAll(iterable)
+	end
+	return new
 end
 
 -----------------------------------------------------------------------------
@@ -159,8 +160,7 @@ function HashMap:merge(other, fn)
 end
 
 -----------------------------------------------------------------------------
----Stores a value under the given key. Increments the entry count when key
----is new.
+---Stores a value under the given key.
 ---
 ---@param key   any Key to store under, should not be nil.
 ---@param value any Value to store, should not be nil.
@@ -173,6 +173,19 @@ function HashMap:put(key, value)
 		self._len = self._len + 1
 	end
 	self._entries[key] = value
+end
+
+-----------------------------------------------------------------------------
+---Stores key/values from iterable.
+---
+---@param iterable table<any, any> Entries to add.
+-----------------------------------------------------------------------------
+function HashMap:putAll(iterable)
+	assert(type(iterable) == "table", "iterable should be a table")
+
+	for key, value in pairs(iterable) do
+		self:put(key, value)
+	end
 end
 
 -----------------------------------------------------------------------------
@@ -195,23 +208,19 @@ function HashMap:remove(key)
 end
 
 -----------------------------------------------------------------------------
----Concatenate a given iterable into this HashMap (in-place modification).
+---Returns a new HashMap containing this collection and iterable entries.
+---Does not mutate either operand.
 ---
----@param iterable? table<any, any> Entries to concatenate.
----                                 Defaults to an empty list if `nil`.
----
----@return HashMap Returns this map instance.
+---@param iterable table<any, any> Entries to add.
+---@return HashMap
 -----------------------------------------------------------------------------
 function HashMap:__concat(iterable)
-	if iterable ~= nil then
-		assert(type(iterable) == "table", "iterable should be a table")
-
-		for key, value in pairs(iterable) do
-			self:put(key, value)
-		end
+	local result = HashMap.new(self)
+	if iterable == nil then
+		return result
 	end
-
-	return self
+	result:putAll(iterable)
+	return result
 end
 
 -----------------------------------------------------------------------------

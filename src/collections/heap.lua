@@ -62,11 +62,15 @@ function Heap.new(iterable, comparator, capacity)
 		assert(capacity > 0, "capacity should be positive")
 	end
 
-	return setmetatable({
+	local new = setmetatable({
 		_capacity = capacity,
 		_comparator = comparator or Comparator.natural,
 		_entries = Array.new(),
-	}, Heap) .. iterable
+	}, Heap)
+	if iterable ~= nil then
+		new:pushAll(iterable)
+	end
+	return new
 end
 
 -----------------------------------------------------------------------------
@@ -221,7 +225,7 @@ function Heap:pop()
 end
 
 -----------------------------------------------------------------------------
----Adds a value to the heap.
+---Pushes a value to the heap.
 ---
 ---@param  value any Value to be added to the heap.
 ---
@@ -237,6 +241,19 @@ function Heap:push(value)
 	self._entries:insert(value)
 	self:_siftUp(#self)
 	return true
+end
+
+-----------------------------------------------------------------------------
+---Pushes every value from iterable to the heap.
+---
+---@param iterable table<any, any> Entries to add.
+-----------------------------------------------------------------------------
+function Heap:pushAll(iterable)
+	assert(type(iterable) == "table", "iterable should be a table")
+
+	for _, item in pairs(iterable) do
+		self:push(item)
+	end
 end
 
 -----------------------------------------------------------------------------
@@ -294,23 +311,19 @@ function Heap:_siftUp(index)
 end
 
 -----------------------------------------------------------------------------
----Pushes all items from a given iterable into this Heap (in-place modification).
+---Returns a new Heap containing this collection and iterable entries.
+---Does not mutate either operand.
 ---
----@param  iterable? table<any, any> Any table that can be iterated over.
----                                 Defaults to an empty table if `nil`.
----
----@return Heap                     Returns this Heap instance.
+---@param iterable table<any, any> Entries to add.
+---@return Heap
 -----------------------------------------------------------------------------
 function Heap:__concat(iterable)
-	if iterable ~= nil then
-		assert(type(iterable) == "table", "iterable should be a table")
-
-		for _, item in pairs(iterable) do
-			self:push(item)
-		end
+	local result = Heap.new(self, self._comparator, self._capacity)
+	if iterable == nil then
+		return result
 	end
-
-	return self
+	result:pushAll(iterable)
+	return result
 end
 
 -----------------------------------------------------------------------------

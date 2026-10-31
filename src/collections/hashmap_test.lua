@@ -267,4 +267,22 @@ function TestHashMap:testNewPropertiesAndMethods_CannotBeAddedOrReplaced()
 	end)
 end
 
+function TestHashMap:testConcat_CreatesNewMapAndPutAllMutates()
+	local source = HashMap.new({ a = 1 })
+	local joined = source .. { b = 2 }
+	lu.assertNotIs(joined, source)
+	lu.assertEquals(source:get("b"), nil)
+	lu.assertEquals(joined:get("a"), 1)
+	lu.assertEquals(joined:get("b"), 2)
+	source:putAll({ c = 3 })
+	lu.assertEquals(source:get("c"), 3)
+end
+
+function TestHashMap:testPutAllRejectsNil()
+	local collection = HashMap.new()
+	lu.assertErrorMsgContains("iterable should be a table", function()
+		collection:putAll(nil)
+	end)
+end
+
 return { TestHashMap = TestHashMap }
