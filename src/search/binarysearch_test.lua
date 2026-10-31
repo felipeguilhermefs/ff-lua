@@ -18,7 +18,7 @@ function TestBinarySearch:testArrayInput_ReturnsIndexOfMatchingValue()
 end
 
 function TestBinarySearch:testTableArrayInput_ReturnsIndexOfMatchingValue()
-	local a = { 6, 5, 4, 3, 2, 1 }
+	local a = Array.new({ 6, 5, 4, 3, 2, 1 })
 
 	local cmp = Comparator.reverse(Comparator.natural)
 

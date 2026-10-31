@@ -28,18 +28,4 @@ function TestBucketSort:testArrayInput_ReturnsValuesInAscendingOrder()
 	lu.assertEquals(a:get(6), 5)
 end
 
-function TestBucketSort:testTableArrayInput_ReturnsValuesInAscendingOrder()
-	local a = { 2, 6, 3, 4, 5, 1 }
-
-	bucketsort(a)
-
-	lu.assertEquals(a, { 1, 2, 3, 4, 5, 6 })
-
-	a = { -2, -6, 3, -4, 5, 1 }
-
-	bucketsort(a, -6, 5)
-
-	lu.assertEquals(a, { -6, -4, -2, 1, 3, 5 })
-end
-
 return { TestBucketSort = TestBucketSort }

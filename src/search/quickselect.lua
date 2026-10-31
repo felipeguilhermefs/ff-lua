@@ -34,7 +34,7 @@ local function quickselect(array, kth, cmp)
 
 	cmp = cmp or Comparator.natural
 
-	local collection = array._entries or array
+	local collection = array._entries
 
 	local low = 1
 	local high = #collection

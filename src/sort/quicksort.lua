@@ -43,14 +43,14 @@ end
 -----------------------------------------------------------------------------
 ---Sorts an Array or Table Array In-Place. Uses Hoare's QuickSort.
 ---
----@param array       Array|table<any> Collection to be sorted.
----@param comparator? Comparator       Defaults to natural order.
+---@param array       Array      Collection to be sorted.
+---@param comparator? Comparator Defaults to natural order.
 -----------------------------------------------------------------------------
 local function quicksort(array, comparator)
 	assert(Array.isArray(array), "Should be an array")
 	comparator = comparator or Comparator.natural
 
-	local collection = array._entries or array
+	local collection = array._entries
 
 	sort(collection, 1, #collection, comparator)
 end

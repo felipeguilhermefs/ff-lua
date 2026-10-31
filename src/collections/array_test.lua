@@ -14,8 +14,6 @@ end
 local TestArray = {}
 
 function TestArray:testTypeGuard_RecognizesArrayTablesAndInstances()
-	lu.assertTrue(Array.isArray({}))
-	lu.assertTrue(Array.isArray({ 1, 2, 3 }))
 	lu.assertTrue(Array.isArray(Array.new()))
 	lu.assertTrue(Array.isArray(Array.new({ 4, 5, 6 })))
 end
@@ -25,6 +23,8 @@ function TestArray:testTypeGuard_RejectsValuesThatAreNotArrays()
 	lu.assertFalse(Array.isArray(true))
 	lu.assertFalse(Array.isArray(123))
 	lu.assertFalse(Array.isArray("abc"))
+	lu.assertFalse(Array.isArray({}))
+	lu.assertFalse(Array.isArray({ 1, 2, 3 }))
 	lu.assertFalse(Array.isArray({ a = 1, b = 2, c = 3 }))
 	lu.assertFalse(Array.isArray({ 1, 2, 3, a = 1, b = 2, c = 3 }))
 	lu.assertFalse(Array.isArray({ [1] = "a", foo = "bar" }))
@@ -281,18 +281,19 @@ function TestArray:testEqualArrays_CompareEqual()
 	lu.assertTrue(first == second)
 end
 
+function TestArray:testEqualArraysContainingFalse_CompareEqual()
+	local first = Array.new({ false, 1 })
+	local second = Array.new({ false, 1 })
+
+	lu.assertTrue(first == second)
+end
+
 function TestArray:testArraysWithDifferentValues_CompareUnequal()
 	local first = Array.new({ 10, 20, 30 })
 	local second = Array.new({ 10, 20, 40 })
 
 	lu.assertNotEquals(arrayValues(first), arrayValues(second))
 	lu.assertFalse(first == second)
-end
-
-function TestArray:testArray_ComparesEqualTo_PlainTableWithSameValues()
-	local array = Array.new({ 10, 20, 30 })
-
-	lu.assertTrue(array == { 10, 20, 30 })
 end
 
 function TestArray:testArray_DoesNotCompareEqualToOtherValueTypes()

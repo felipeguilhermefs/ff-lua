@@ -43,15 +43,7 @@ function Array.isArray(maybe)
 		return false
 	end
 
-	if getmetatable(maybe) == Array then
-		return true
-	end
-
-	if next(maybe) == nil then
-		return true
-	end
-
-	return #maybe > 0 and next(maybe, #maybe) == nil
+	return getmetatable(maybe) == Array
 end
 
 -----------------------------------------------------------------------------
@@ -258,8 +250,7 @@ function Array:__eq(other)
 	end
 
 	for i = 1, #self._entries do
-		local otherVal = other._entries and other._entries[i] or other[i]
-		if self._entries[i] ~= otherVal then
+		if self._entries[i] ~= other._entries[i] then
 			return false
 		end
 	end

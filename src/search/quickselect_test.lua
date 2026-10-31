@@ -18,7 +18,7 @@ function TestQuickSelect:testArrayInput_ReturnsValueAtRequestedRank()
 end
 
 function TestQuickSelect:testTableArrayInput_Returns_ValueAtRequestedRank()
-	local a = { 6, 5, 4, 3, 2, 1 }
+	local a = Array.new({ 6, 5, 4, 3, 2, 1 })
 
 	local cmp = Comparator.reverse(Comparator.natural)
 

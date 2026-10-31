@@ -3,16 +3,16 @@ local Array = require("ff.collections.array")
 -----------------------------------------------------------------------------
 ---Sorts a NUMERIC Array or Table Array.
 ---
----@param array   Array<number>|table<number> Collection to be sorted.
----@param min?    number                      Mininum value in the array.
----                                           Calculated if not provided.
----@param max?    number                      Maximum value in the array.
----                                           Calculated if not provided.
+---@param array   Array<number>  Array to be sorted.
+---@param min?    number         Mininum value in the array.
+---                              Calculated if not provided.
+---@param max?    number         Maximum value in the array.
+---                              Calculated if not provided.
 -----------------------------------------------------------------------------
 local function bucketsort(array, min, max)
 	assert(Array.isArray(array), "Should be an array")
 
-	local collection = array._entries or array
+	local collection = array._entries
 
 	if not min or not max then
 		for _, value in pairs(collection) do

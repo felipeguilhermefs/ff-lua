@@ -31,20 +31,4 @@ function TestQuickSort:testArrayInput_SortsValuesByReverseComparator()
 	lu.assertEquals(a:get(1), 6)
 end
 
-function TestQuickSort:testTableArrayInput_SortsValuesInAscendingOrder()
-	local a = { 2, 6, 3, 4, 5, 1 }
-
-	quicksort(a)
-
-	lu.assertEquals(a, { 1, 2, 3, 4, 5, 6 })
-end
-
-function TestQuickSort:testTableArrayInput_SortsValuesByReverseComparator()
-	local a = { 2, 6, 3, 4, 5, 1 }
-
-	quicksort(a, Comparator.reverse(Comparator.natural))
-
-	lu.assertEquals(a, { 6, 5, 4, 3, 2, 1 })
-end
-
 return { TestQuickSort = TestQuickSort }
