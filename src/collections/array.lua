@@ -11,7 +11,7 @@ local Array = {}
 Array.__index = Array
 
 -----------------------------------------------------------------------------
----Checks if it is (probably) an array, considers an empty table an array.
+---Checks if it is an Array instance.
 ---
 ---@param maybe any
 ---
