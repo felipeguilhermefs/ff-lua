@@ -159,6 +159,22 @@ function Array:insertAll(iterable)
 end
 
 -----------------------------------------------------------------------------
+---Stores a value at an existing index or appends it at the next index.
+---Does not shift existing values.
+---
+---@param index number Index in the range 1..#self + 1.
+---@param value any Non-nil value to store.
+-----------------------------------------------------------------------------
+function Array:put(index, value)
+	assert(type(index) == "number", "index should be a number")
+	assert(index % 1 == 0, "index should be an integer")
+	assert(index > 0 and index <= #self + 1, "index out of bounds")
+	assert(value ~= nil, "value should not be nil")
+
+	self._entries[index] = value
+end
+
+-----------------------------------------------------------------------------
 ---Removes a value at a given index.
 ---
 ---@param  index number

@@ -215,6 +215,49 @@ function TestArray:testInsertAtEndPosition_AppendsValue()
 	lu.assertEquals(arrayValues(array), { 10, 20, 30 })
 end
 
+function TestArray:testPut_OverwritesValueWithoutShifting()
+	local array = Array.new({ 10, 20, 30 })
+
+	array:put(2, 99)
+
+	lu.assertEquals(arrayValues(array), { 10, 99, 30 })
+	lu.assertEquals(#array, 3)
+end
+
+function TestArray:testPutAtNextIndex_AppendsValue()
+	local array = Array.new({ 10, 20 })
+
+	array:put(3, 30)
+
+	lu.assertEquals(arrayValues(array), { 10, 20, 30 })
+	lu.assertEquals(#array, 3)
+end
+
+function TestArray:testPut_RejectsIndexesOutsideAllowedBounds()
+	local array = Array.new({ 10, 20 })
+
+	lu.assertErrorMsgContains("index out of bounds", function()
+		array:put(0, 1)
+	end)
+	lu.assertErrorMsgContains("index out of bounds", function()
+		array:put(4, 1)
+	end)
+end
+
+function TestArray:testPut_RejectsInvalidIndexAndNilValue()
+	local array = Array.new({ 10, 20 })
+
+	lu.assertErrorMsgContains("index should be a number", function()
+		array:put("1", 1)
+	end)
+	lu.assertErrorMsgContains("index should be an integer", function()
+		array:put(1.5, 1)
+	end)
+	lu.assertErrorMsgContains("value should not be nil", function()
+		array:put(1, nil)
+	end)
+end
+
 function TestArray:testInsert_RejectsNilValue()
 	local array = Array.new({ 10, 20, 30 })
 
