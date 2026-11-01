@@ -1,3 +1,12 @@
+local function assertValidKey(key)
+	assert(key ~= nil, "key should not be nil")
+	assert(type(key) ~= "number" or key == key, "key should not be NaN")
+end
+
+local function defaultMerge(_, incoming)
+	return incoming
+end
+
 --------------------------------------------------------------------------------------
 ---@class HashMap
 ---@field private _entries table<any, any> Table that holds the values.
@@ -60,7 +69,7 @@ end
 ---@return any                    Value associated with key, or newly computed.
 -----------------------------------------------------------------------------
 function HashMap:compute(key, fn)
-	assert(key ~= nil, "key should not be nil")
+	assertValidKey(key)
 	assert(type(fn) == "function", "fn should be a function")
 
 	local value = self._entries[key]
@@ -79,7 +88,7 @@ end
 ---@return boolean
 -----------------------------------------------------------------------------
 function HashMap:contains(key)
-	assert(key ~= nil, "key should not be nil")
+	assertValidKey(key)
 	return self._entries[key] ~= nil
 end
 
@@ -100,7 +109,7 @@ end
 ---@return any?   Value stored under key, or nil when absent.
 -----------------------------------------------------------------------------
 function HashMap:get(key)
-	assert(key ~= nil, "key should not be nil")
+	assertValidKey(key)
 	return self._entries[key]
 end
 
@@ -122,9 +131,7 @@ function HashMap:merge(other, fn)
 	assert(type(other) == "table", "other should be a table")
 	assert(fn == nil or type(fn) == "function", "fn should be a function")
 
-	fn = fn or function(_, b)
-		return b
-	end
+	fn = fn or defaultMerge
 
 	for k, v in pairs(other) do
 		local thisValue = self:get(k)
@@ -146,7 +153,7 @@ end
 ---@param value any Value to store, should not be nil.
 -----------------------------------------------------------------------------
 function HashMap:put(key, value)
-	assert(key ~= nil, "key should not be nil")
+	assertValidKey(key)
 	assert(value ~= nil, "value should not be nil")
 
 	if self._entries[key] == nil then
@@ -176,7 +183,7 @@ end
 ---@return any?    Previous value associated with key, or `nil` if not found.
 -----------------------------------------------------------------------------
 function HashMap:remove(key)
-	assert(key ~= nil, "key should not be nil")
+	assertValidKey(key)
 
 	local value = self:get(key)
 	if value ~= nil then
@@ -254,9 +261,7 @@ end
 ---@return nil
 -----------------------------------------------------------------------------
 function HashMap:__pairs()
-	return function(_, index)
-		return next(self._entries, index)
-	end, self, nil
+	return next, self._entries, nil
 end
 
 -----------------------------------------------------------------------------

@@ -51,6 +51,32 @@ function TestHashMap:testGet_ReturnsStoredValuesAndNilForMissingKeys()
 	lu.assertEquals(map:get(1), "a")
 end
 
+function TestHashMap:testNaNKeys_AreRejectedByKeyOperations()
+	local nan = 0 / 0
+	local map = HashMap.new({ existing = "value" })
+
+	lu.assertErrorMsgContains("key should not be NaN", function()
+		map:put(nan, "value")
+	end)
+	lu.assertErrorMsgContains("key should not be NaN", function()
+		map:get(nan)
+	end)
+	lu.assertErrorMsgContains("key should not be NaN", function()
+		map:contains(nan)
+	end)
+	lu.assertErrorMsgContains("key should not be NaN", function()
+		map:compute(nan, function()
+			return "value"
+		end)
+	end)
+	lu.assertErrorMsgContains("key should not be NaN", function()
+		map:remove(nan)
+	end)
+
+	lu.assertEquals(#map, 1)
+	lu.assertEquals(map:get("existing"), "value")
+end
+
 function TestHashMap:testContains_ReportsMissingKeysAsAbsent()
 	local map = HashMap.new()
 
@@ -94,6 +120,21 @@ function TestHashMap:testIteration_YieldsEveryStoredKeyValuePair()
 	}
 
 	lu.assertItemsEquals(actual_pairs, expected_pairs)
+end
+
+function TestHashMap:testIteration_ContinuesOverCapturedTableAfterClear()
+	local map = HashMap.new({ a = 1, b = 2 })
+	local count = 0
+
+	for _ in pairs(map) do
+		count = count + 1
+		if count == 1 then
+			map:clear()
+		end
+	end
+
+	lu.assertEquals(count, 2)
+	lu.assertTrue(map:empty())
 end
 
 function TestHashMap:testClear_MakesMapEmpty()
@@ -181,6 +222,17 @@ function TestHashMap:testMerge_CombinesOverlappingAndDistinctKeys()
 	lu.assertEquals(map:get("b"), 22)
 	lu.assertEquals(map:get("c"), 30)
 	lu.assertEquals(map:get("d"), 4)
+end
+
+function TestHashMap:testMerge_DefaultsToIncomingValues()
+	local map = HashMap.new({ a = 1, b = 2 })
+
+	map:merge({ a = 3, c = 4 })
+
+	lu.assertEquals(map:get("a"), 3)
+	lu.assertEquals(map:get("b"), 2)
+	lu.assertEquals(map:get("c"), 4)
+	lu.assertEquals(#map, 3)
 end
 
 function TestHashMap:testConcat_AppendsTableAndArrayEntries()
