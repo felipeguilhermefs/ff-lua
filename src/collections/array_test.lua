@@ -1,7 +1,7 @@
 local lu = require("luaunit")
 local Array = require("ff.collections.array")
 
-local function arrayValues(array)
+local function valuesOf(array)
 	local values = {}
 	for index, value in pairs(array) do
 		values[index] = value
@@ -9,67 +9,250 @@ local function arrayValues(array)
 	return values
 end
 
-local TestArray = {}
+local TestArrayClear = {}
+local TestArrayConcat = {}
+local TestArrayContains = {}
+local TestArrayEmpty = {}
+local TestArrayEq = {}
+local TestArrayGet = {}
+local TestArrayIndexOf = {}
+local TestArrayInsert = {}
+local TestArrayInsertAll = {}
+local TestArrayIsArray = {}
+local TestArrayLen = {}
+local TestArrayNew = {}
+local TestArrayNewIndex = {}
+local TestArrayPairs = {}
+local TestArrayPut = {}
+local TestArrayRemove = {}
+local TestArraySlice = {}
+local TestArraySwap = {}
+local TestArrayToString = {}
 
-function TestArray:testTypeGuard_RecognizesArrayTablesAndInstances()
-	lu.assertTrue(Array.isArray(Array.new()))
-	lu.assertTrue(Array.isArray(Array.new({ 4, 5, 6 })))
+function TestArrayClear:testAllowsReuse()
+	local array = Array.new({ 1, 2 })
+
+	array:clear()
+	array:insert(3)
+
+	lu.assertEquals(valuesOf(array), { 3 })
 end
 
-function TestArray:testTypeGuard_RejectsValuesThatAreNotArrays()
-	lu.assertFalse(Array.isArray(nil))
-	lu.assertFalse(Array.isArray(true))
-	lu.assertFalse(Array.isArray(123))
-	lu.assertFalse(Array.isArray("abc"))
-	lu.assertFalse(Array.isArray({}))
-	lu.assertFalse(Array.isArray({ 1, 2, 3 }))
-	lu.assertFalse(Array.isArray({ a = 1, b = 2, c = 3 }))
-	lu.assertFalse(Array.isArray({ 1, 2, 3, a = 1, b = 2, c = 3 }))
-	lu.assertFalse(Array.isArray({ [1] = "a", foo = "bar" }))
+function TestArrayClear:testCanClearRepeatedly()
+	local array = Array.new({ 1 })
+
+	array:clear()
+	array:clear()
+
+	lu.assertTrue(array:empty())
 end
 
-function TestArray:testNewArray_StartsEmpty()
+function TestArrayClear:testEmptiesPopulatedArray()
+	local array = Array.new({ 1, 2, 3 })
+
+	array:clear()
+
+	lu.assertTrue(array:empty())
+	lu.assertEquals(#array, 0)
+	lu.assertEquals(valuesOf(array), {})
+end
+
+function TestArrayClear:testIsSafeOnEmptyArray()
 	local array = Array.new()
 
-	lu.assertTrue(array:empty())
-	lu.assertEquals(#array, 0)
-end
-
-function TestArray:testConstructor_PreservesInitialValues()
-	local array = Array.new({ 5, 6, 7 })
-
-	lu.assertFalse(array:empty())
-	lu.assertEquals(arrayValues(array), { 5, 6, 7 })
-end
-
-function TestArray:testClear_EmptiesPopulatedArray()
-	local array = Array.new({ 5, 6, 7 })
-
 	array:clear()
 
 	lu.assertTrue(array:empty())
-	lu.assertEquals(#array, 0)
 end
 
-function TestArray:testClearedArray_RejectsFormerIndexes()
-	local array = Array.new({ 5, 6, 7 })
+function TestArrayConcat:testAppendsAnotherArray()
+	local left = Array.new({ 1, 2 })
+	local right = Array.new({ 3, 4 })
 
-	array:clear()
+	local result = left .. right
 
-	lu.assertErrorMsgContains("index out of bounds", function()
-		array:get(1)
+	lu.assertEquals(valuesOf(result), { 1, 2, 3, 4 })
+	lu.assertEquals(valuesOf(left), { 1, 2 })
+	lu.assertEquals(valuesOf(right), { 3, 4 })
+end
+
+function TestArrayConcat:testAppendsPlainTableValues()
+	local array = Array.new({ 1, 2 })
+
+	local result = array .. { 3, 4 }
+
+	lu.assertEquals(valuesOf(result), { 1, 2, 3, 4 })
+end
+
+function TestArrayConcat:testEmptyOperandsProduceIndependentEmptyResult()
+	local left = Array.new()
+	local right = Array.new()
+	local result = left .. right
+
+	lu.assertTrue(result:empty())
+	lu.assertFalse(rawequal(result, left))
+	lu.assertFalse(rawequal(result, right))
+end
+
+function TestArrayConcat:testNilReturnsUnchangedCopy()
+	local source = Array.new({ 1, 2 })
+
+	local result = source .. nil
+
+	lu.assertFalse(rawequal(result, source))
+	lu.assertEquals(valuesOf(result), { 1, 2 })
+	lu.assertEquals(valuesOf(source), { 1, 2 })
+end
+
+function TestArrayConcat:testPreservesFalseValues()
+	local result = Array.new({ false }) .. { true, false }
+
+	lu.assertEquals(valuesOf(result), { false, true, false })
+end
+
+function TestArrayConcat:testRejectsNonTableRightOperand()
+	local array = Array.new({ 1 })
+
+	lu.assertErrorMsgContains("iterable should be a table", function()
+		local _ = array .. 2
+	end)
+	lu.assertErrorMsgContains("iterable should be a table", function()
+		local _ = array .. "text"
 	end)
 end
 
-function TestArray:testEmpty_ReportsFalseAfterInsert()
-	local array = Array.new()
+function TestArrayConcat:testSelfConcatenationProducesFiniteCopy()
+	local source = Array.new({ 1, 2 })
 
-	array:insert("first")
+	local result = source .. source
 
-	lu.assertFalse(array:empty())
+	lu.assertEquals(valuesOf(source), { 1, 2 })
+	lu.assertEquals(valuesOf(result), { 1, 2, 1, 2 })
 end
 
-function TestArray:testGet_ReturnsValueAtOneBasedIndex()
+function TestArrayContains:testDoesNotChangeArray()
+	local array = Array.new({ 1, 2, 3 })
+
+	lu.assertTrue(array:contains(2))
+	lu.assertEquals(valuesOf(array), { 1, 2, 3 })
+end
+
+function TestArrayContains:testFindsPresentValue()
+	lu.assertTrue(Array.new({ "a", "b" }):contains("b"))
+end
+
+function TestArrayContains:testHandlesDuplicatesAndFalse()
+	local array = Array.new({ false, false, true })
+
+	lu.assertTrue(array:contains(false))
+	lu.assertTrue(array:contains(true))
+	lu.assertEquals(#array, 3)
+end
+
+function TestArrayContains:testRejectsNil()
+	lu.assertErrorMsgContains("value should not be nil", function()
+		Array.new():contains(nil)
+	end)
+end
+
+function TestArrayContains:testReturnsFalseForMissingValue()
+	lu.assertFalse(Array.new({ "a", "b" }):contains("c"))
+end
+
+function TestArrayEmpty:testReportsFalseAfterInsertion()
+	lu.assertFalse(Array.new({ 1 }):empty())
+end
+
+function TestArrayEmpty:testReportsTrueAfterRemovalOfLastValue()
+	local array = Array.new({ 1 })
+	array:remove(1)
+
+	lu.assertTrue(array:empty())
+end
+
+function TestArrayEmpty:testReportsTrueForEmptyArray()
+	lu.assertTrue(Array.new():empty())
+end
+
+function TestArrayEq:testComparesFalseAndTrueAsDifferentValues()
+	lu.assertFalse(Array.new({ false }) == Array.new({ true }))
+end
+
+function TestArrayEq:testComparesSameInstanceEqual()
+	local array = Array.new({ 1, false })
+
+	lu.assertTrue(array == array)
+end
+
+function TestArrayEq:testDifferentLengthsCompareFalse()
+	lu.assertFalse(Array.new({ 1 }) == Array.new({ 1, 2 }))
+end
+
+function TestArrayEq:testDifferentValuesCompareFalse()
+	lu.assertFalse(Array.new({ 1, 2 }) == Array.new({ 1, 3 }))
+end
+
+function TestArrayEq:testEqualArraysCompareTrue()
+	lu.assertTrue(Array.new({ 1, 2 }) == Array.new({ 1, 2 }))
+end
+
+function TestArrayEq:testEqualArraysWithFalseCompareTrue()
+	lu.assertTrue(Array.new({ false, 1 }) == Array.new({ false, 1 }))
+end
+
+function TestArrayEq:testNonArrayOperandsCompareFalse()
+	local array = Array.new({ 1, 2 })
+
+	lu.assertFalse(array == {})
+	lu.assertFalse(array == { 1, 2 })
+	lu.assertFalse(array == "array")
+	lu.assertFalse(array == nil)
+end
+
+function TestArrayGet:testRejectsAnyIndexOnEmptyArray()
+	lu.assertErrorMsgContains("index out of bounds", function()
+		Array.new():get(1)
+	end)
+end
+
+function TestArrayGet:testRejectsIndexesOutsideArrayBounds()
+	local array = Array.new({ 10, 20 })
+
+	for _, index in ipairs({ 0, -1, 3 }) do
+		lu.assertErrorMsgContains("index out of bounds", function()
+			array:get(index)
+		end)
+	end
+end
+
+function TestArrayGet:testRejectsNonIntegerIndexes()
+	local array = Array.new({ 10, 20 })
+
+	for _, index in ipairs({ "1", true, 1.5, math.huge, 0 / 0 }) do
+		lu.assertErrorMsgContains("index should be an integer", function()
+			array:get(index)
+		end)
+	end
+	lu.assertErrorMsgContains("index should be an integer", function()
+		array:get(nil)
+	end)
+end
+
+function TestArrayGet:testRejectsOtherInvalidIndexTypes()
+	local array = Array.new({ 10 })
+
+	for _, index in ipairs({ {}, function() end }) do
+		lu.assertErrorMsgContains("index should be an integer", function()
+			array:get(index)
+		end)
+	end
+end
+
+function TestArrayGet:testReturnsFalseValue()
+	lu.assertFalse(Array.new({ false }):get(1))
+end
+
+function TestArrayGet:testReturnsFirstMiddleAndLastValues()
 	local array = Array.new({ 10, 20, 30 })
 
 	lu.assertEquals(array:get(1), 10)
@@ -77,244 +260,497 @@ function TestArray:testGet_ReturnsValueAtOneBasedIndex()
 	lu.assertEquals(array:get(3), 30)
 end
 
-function TestArray:testGet_RejectsIndexesOutsideArrayBounds()
-	local array = Array.new({ 10, 20, 30 })
+function TestArrayIndexOf:testDoesNotChangeArray()
+	local array = Array.new({ "a", "b" })
 
-	lu.assertErrorMsgContains("index out of bounds", function()
-		array:get(0)
-	end)
-	lu.assertErrorMsgContains("index out of bounds", function()
-		array:get(4)
-	end)
-	lu.assertErrorMsgContains("index out of bounds", function()
-		array:get(-1)
-	end)
+	array:indexOf("b")
+
+	lu.assertEquals(valuesOf(array), { "a", "b" })
 end
 
-function TestArray:testGet_Rejects_NonNumericIndexes()
-	local array = Array.new({ 10, 20, 30 })
-
-	lu.assertErrorMsgContains("index should be an integer", function()
-		array:get("1")
-	end)
-	lu.assertErrorMsgContains("index should be an integer", function()
-		array:get(nil)
-	end)
-	lu.assertErrorMsgContains("index should be an integer", function()
-		array:get(true)
+function TestArrayIndexOf:testRejectsNil()
+	lu.assertErrorMsgContains("value should not be nil", function()
+		Array.new():indexOf(nil)
 	end)
 end
 
-function TestArray:testGet_RejectsFractionalIndex()
-	local array = Array.new({ 10, 20 })
-
-	lu.assertErrorMsgContains("index should be an integer", function()
-		array:get(1.5)
-	end)
+function TestArrayIndexOf:testReturnsFirstDuplicatePosition()
+	lu.assertEquals(Array.new({ "x", "y", "x" }):indexOf("x"), 1)
 end
 
-function TestArray:testSlice_ReturnsRequestedRange()
-	local array = Array.new({ 10, 20, 30, 40, 50 })
-
-	local slice = array:slice(2, 4)
-
-	lu.assertEquals(arrayValues(slice), { 20, 30, 40 })
+function TestArrayIndexOf:testReturnsFirstPositionWhenFalseIsDuplicated()
+	lu.assertEquals(Array.new({ false, true, false }):indexOf(false), 1)
 end
 
-function TestArray:testIndexOf_ReturnsFirstMatchingPosition()
-	local array = Array.new({ 10, 20, 30, 20 })
-
-	lu.assertEquals(array:indexOf(10), 1)
-	lu.assertEquals(array:indexOf(30), 3)
-	lu.assertEquals(array:indexOf(20), 2)
+function TestArrayIndexOf:testReturnsNilForEmptyArray()
+	lu.assertNil(Array.new():indexOf("missing"))
 end
 
-function TestArray:testIndexOf_ReturnsNilWhenValueIsMissing()
-	local array = Array.new({ 10, 20, 30 })
-
-	lu.assertNil(array:indexOf(40))
+function TestArrayIndexOf:testReturnsNilWhenValueIsMissing()
+	lu.assertNil(Array.new({ 1, 2 }):indexOf(3))
 end
 
-function TestArray:testContains_ReportsStoredValueAsPresent()
-	local array = Array.new({ 10, 20, 30 })
-
-	lu.assertTrue(array:contains(20))
+function TestArrayIndexOf:testReturnsPositionOfFalse()
+	lu.assertEquals(Array.new({ true, false }):indexOf(false), 2)
 end
 
-function TestArray:testContains_ReportsUnstoredValueAsAbsent()
-	local array = Array.new({ 10, 20, 30 })
-
-	lu.assertFalse(array:contains(40))
-end
-
-function TestArray:testEmptyArray_ReportsEveryValueAsAbsent()
+function TestArrayInsert:testAcceptsFalseValue()
 	local array = Array.new()
 
-	lu.assertFalse(array:contains(10))
+	array:insert(false)
+
+	lu.assertEquals(#array, 1)
+	lu.assertFalse(array:get(1))
 end
 
-function TestArray:testContains_ReportsDuplicateValueAsPresent()
-	local array = Array.new({ 5, 5, 5 })
+function TestArrayInsert:testAppendsWhenIndexIsOmitted()
+	local array = Array.new({ 1 })
 
-	lu.assertTrue(array:contains(5))
-	lu.assertFalse(array:contains(1))
-	lu.assertEquals(#array, 3)
+	array:insert(2)
+
+	lu.assertEquals(valuesOf(array), { 1, 2 })
 end
 
-function TestArray:testContains_RejectsNilValue()
-	local array = Array.new({ 10, 20, 30 })
+function TestArrayInsert:testRejectsIndexesOutsideInsertionBounds()
+	local array = Array.new({ 1, 2 })
 
+	for _, index in ipairs({ 0, -1, 4 }) do
+		lu.assertErrorMsgContains("index out of bounds", function()
+			array:insert(3, index)
+		end)
+	end
+end
+
+function TestArrayInsert:testRejectsInvalidIndexTypesAndFractions()
+	local array = Array.new({ 1, 2 })
+
+	for _, index in ipairs({ "1", true, 1.5, math.huge, 0 / 0 }) do
+		lu.assertErrorMsgContains("index should be an integer", function()
+			array:insert(3, index)
+		end)
+	end
+end
+
+function TestArrayInsert:testRejectsNilValue()
 	lu.assertErrorMsgContains("value should not be nil", function()
-		array:contains(nil)
+		Array.new():insert(nil)
 	end)
 end
 
-function TestArray:testBracketReads_DoNotExposeStoredValues()
-	local array = Array.new({ 10, 20, 30 })
+function TestArrayInsert:testRejectsNonNumericIndexTypes()
+	local array = Array.new({ 1 })
 
-	lu.assertNil(array[1])
-	lu.assertNil(array[2])
-	lu.assertNil(array[3])
+	for _, index in ipairs({ {}, function() end }) do
+		lu.assertErrorMsgContains("index should be an integer", function()
+			array:insert(2, index)
+		end)
+	end
 end
 
-function TestArray:testIteration_YieldsOneBasedIndexesAndValues()
-	local array = Array.new({ 10, 20, 30 })
-	local entries = {}
+function TestArrayInsert:testShiftsValuesAtBeginningMiddleAndEnd()
+	local first = Array.new({ 2, 3 })
+	local middle = Array.new({ 1, 3 })
+	local last = Array.new({ 1, 2 })
 
-	for index, value in pairs(array) do
-		table.insert(entries, index)
-		table.insert(entries, value)
+	first:insert(1, 1)
+	middle:insert(2, 2)
+	last:insert(3, 3)
+
+	lu.assertEquals(valuesOf(first), { 1, 2, 3 })
+	lu.assertEquals(valuesOf(middle), { 1, 2, 3 })
+	lu.assertEquals(valuesOf(last), { 1, 2, 3 })
+end
+
+function TestArrayInsert:testWorksOnEmptyArrayAtIndexOne()
+	local array = Array.new()
+
+	array:insert("first", 1)
+
+	lu.assertEquals(valuesOf(array), { "first" })
+end
+
+function TestArrayInsertAll:testAcceptsArrayAsEmptyInput()
+	local array = Array.new({ 1, 2 })
+
+	array:insertAll(Array.new())
+
+	lu.assertEquals(valuesOf(array), { 1, 2 })
+end
+
+function TestArrayInsertAll:testAppendsValuesInSequenceOrder()
+	local array = Array.new({ 1 })
+
+	array:insertAll({ 2, 3, 4 })
+
+	lu.assertEquals(valuesOf(array), { 1, 2, 3, 4 })
+end
+
+function TestArrayInsertAll:testCopiesValuesFromAnotherArray()
+	local source = Array.new({ 2, 3 })
+	local target = Array.new({ 1 })
+
+	target:insertAll(source)
+
+	lu.assertEquals(valuesOf(target), { 1, 2, 3 })
+	lu.assertEquals(valuesOf(source), { 2, 3 })
+end
+
+function TestArrayInsertAll:testEmptyInputLeavesArrayUnchanged()
+	local array = Array.new({ 1, 2 })
+
+	array:insertAll({})
+
+	lu.assertEquals(valuesOf(array), { 1, 2 })
+end
+
+function TestArrayInsertAll:testPreservesFalseValues()
+	local array = Array.new({ 1 })
+
+	array:insertAll({ false, true })
+
+	lu.assertEquals(#array, 3)
+	lu.assertEquals(array:get(1), 1)
+	lu.assertFalse(array:get(2))
+	lu.assertTrue(array:get(3))
+end
+
+function TestArrayInsertAll:testRejectsNonTableInputs()
+	local array = Array.new()
+
+	for _, input in ipairs({ "text", 42, true }) do
+		lu.assertErrorMsgContains("iterable should be a table", function()
+			array:insertAll(input)
+		end)
+	end
+	lu.assertErrorMsgContains("iterable should be a table", function()
+		array:insertAll(nil)
+	end)
+end
+
+function TestArrayIsArray:testRecognizesEmptyAndPopulatedInstances()
+	lu.assertTrue(Array.isArray(Array.new()))
+	lu.assertTrue(Array.isArray(Array.new({ 1, 2 })))
+end
+
+function TestArrayIsArray:testRejectsNonInstances()
+	for _, value in ipairs({ {}, { 1, 2 }, "text", 42, true }) do
+		lu.assertFalse(Array.isArray(value))
+	end
+	lu.assertFalse(Array.isArray(nil))
+end
+
+function TestArrayIsArray:testRejectsTableWithDifferentMetatable()
+	lu.assertFalse(Array.isArray(setmetatable({}, {})))
+end
+
+function TestArrayLen:testTracksEmptyAndPopulatedArrays()
+	local array = Array.new()
+	lu.assertEquals(#array, 0)
+
+	array:insert(1)
+	array:insert(2)
+	lu.assertEquals(#array, 2)
+
+	array:remove(1)
+	lu.assertEquals(#array, 1)
+	array:clear()
+	lu.assertEquals(#array, 0)
+end
+
+function TestArrayNew:testConstructsIndependentArraysFromSameSource()
+	local source = { 1, 2 }
+	local first = Array.new(source)
+	local second = Array.new(source)
+
+	first:put(1, 9)
+
+	lu.assertEquals(valuesOf(second), { 1, 2 })
+	lu.assertEquals(source, { 1, 2 })
+end
+
+function TestArrayNew:testCopiesAnotherArrayIndependently()
+	local source = Array.new({ 1, 2 })
+	local copy = Array.new(source)
+	copy:put(1, 9)
+
+	lu.assertEquals(valuesOf(source), { 1, 2 })
+	lu.assertEquals(valuesOf(copy), { 9, 2 })
+end
+
+function TestArrayNew:testCopiesPlainTableValues()
+	local source = { 1, 2, 3 }
+	local array = Array.new(source)
+
+	source[1] = 99
+	lu.assertEquals(valuesOf(array), { 1, 2, 3 })
+end
+
+function TestArrayNew:testDefaultsToEmptyArray()
+	local array = Array.new()
+
+	lu.assertTrue(array:empty())
+	lu.assertEquals(#array, 0)
+end
+
+function TestArrayNew:testNilIterableCreatesEmptyArray()
+	lu.assertTrue(Array.new(nil):empty())
+end
+
+function TestArrayNew:testRejectsFunctionIterable()
+	lu.assertErrorMsgContains("iterable should be a table", function()
+		Array.new(function() end)
+	end)
+end
+
+function TestArrayNew:testRejectsNonTableIterables()
+	for _, input in ipairs({ "text", 42, true }) do
+		lu.assertErrorMsgContains("iterable should be a table", function()
+			Array.new(input)
+		end)
+	end
+end
+
+function TestArrayNewIndex:testRejectsArbitraryProperties()
+	local array = Array.new()
+
+	lu.assertErrorMsgContains("cannot add new properties, methods or functions to Array", function()
+		array.extra = true
+	end)
+end
+
+function TestArrayNewIndex:testRejectsMethodReplacement()
+	local array = Array.new()
+
+	lu.assertErrorMsgContains("cannot add new properties, methods or functions to Array", function()
+		array.get = function() end
+	end)
+end
+
+function TestArrayNewIndex:testRejectsNumericWrites()
+	local array = Array.new({ 1 })
+
+	lu.assertErrorMsgContains("cannot add new properties, methods or functions to Array", function()
+		array[1] = 2
+	end)
+	lu.assertErrorMsgContains("cannot add new properties, methods or functions to Array", function()
+		array[2] = 3
+	end)
+end
+
+function TestArrayPairs:testEmptyArrayYieldsNothing()
+	local count = 0
+	for _ in pairs(Array.new()) do
+		count = count + 1
+	end
+	lu.assertEquals(count, 0)
+end
+
+function TestArrayPairs:testRepeatedTraversalDoesNotConsumeArray()
+	local array = Array.new({ 1, 2 })
+	local firstPass = valuesOf(array)
+	local secondPass = valuesOf(array)
+
+	lu.assertEquals(firstPass, { 1, 2 })
+	lu.assertEquals(secondPass, { 1, 2 })
+	lu.assertEquals(#array, 2)
+end
+
+function TestArrayPairs:testStopsAfterLastEntry()
+	local array = Array.new({ "only" })
+	local iterator, state, key = pairs(array)
+
+	local firstIndex, firstValue = iterator(state, key)
+	local nextIndex, nextValue = iterator(state, firstIndex)
+
+	lu.assertEquals(firstIndex, 1)
+	lu.assertEquals(firstValue, "only")
+	lu.assertNil(nextIndex)
+	lu.assertNil(nextValue)
+end
+
+function TestArrayPairs:testYieldsOneBasedIndexesInOrder()
+	local array = Array.new({ "a", "b", "c" })
+	local keys, values = {}, {}
+
+	for key, value in pairs(array) do
+		table.insert(keys, key)
+		table.insert(values, value)
 	end
 
-	lu.assertEquals(entries, { 1, 10, 2, 20, 3, 30 })
+	lu.assertEquals(keys, { 1, 2, 3 })
+	lu.assertEquals(values, { "a", "b", "c" })
 end
 
-function TestArray:testInsertWithoutIndex_AppendsValue()
-	local array = Array.new({ 10 })
+function TestArrayPut:testAcceptsFalseValue()
+	local array = Array.new({ true })
+	array:put(1, false)
 
-	array:insert(20)
-
-	lu.assertEquals(arrayValues(array), { 10, 20 })
+	lu.assertFalse(array:get(1))
 end
 
-function TestArray:testInsertAtFirstPosition_ShiftsExistingValues()
-	local array = Array.new({ 10, 20 })
+function TestArrayPut:testAtNextIndexAppends()
+	local array = Array.new({ 1, 2 })
 
-	array:insert(5, 1)
+	array:put(3, 3)
 
-	lu.assertEquals(arrayValues(array), { 5, 10, 20 })
+	lu.assertEquals(valuesOf(array), { 1, 2, 3 })
 end
 
-function TestArray:testInsertAtMiddlePosition_ShiftsFollowingValues()
-	local array = Array.new({ 10, 20, 30 })
-
-	array:insert(15, 2)
-
-	lu.assertEquals(arrayValues(array), { 10, 15, 20, 30 })
-end
-
-function TestArray:testInsertAtEndPosition_AppendsValue()
-	local array = Array.new({ 10, 20 })
-
-	array:insert(30, 3)
-
-	lu.assertEquals(arrayValues(array), { 10, 20, 30 })
-end
-
-function TestArray:testPut_OverwritesValueWithoutShifting()
+function TestArrayPut:testOverwritesWithoutShifting()
 	local array = Array.new({ 10, 20, 30 })
 
 	array:put(2, 99)
 
-	lu.assertEquals(arrayValues(array), { 10, 99, 30 })
+	lu.assertEquals(valuesOf(array), { 10, 99, 30 })
 	lu.assertEquals(#array, 3)
 end
 
-function TestArray:testPutAtNextIndex_AppendsValue()
-	local array = Array.new({ 10, 20 })
+function TestArrayPut:testRejectsInvalidIndexesAndNilValues()
+	local array = Array.new({ 1, 2 })
 
-	array:put(3, 30)
-
-	lu.assertEquals(arrayValues(array), { 10, 20, 30 })
-	lu.assertEquals(#array, 3)
-end
-
-function TestArray:testPut_RejectsIndexesOutsideAllowedBounds()
-	local array = Array.new({ 10, 20 })
-
-	lu.assertErrorMsgContains("index out of bounds", function()
-		array:put(0, 1)
-	end)
-	lu.assertErrorMsgContains("index out of bounds", function()
-		array:put(4, 1)
-	end)
-end
-
-function TestArray:testPut_RejectsInvalidIndexAndNilValue()
-	local array = Array.new({ 10, 20 })
-
-	lu.assertErrorMsgContains("index should be an integer", function()
-		array:put("1", 1)
-	end)
-	lu.assertErrorMsgContains("index should be an integer", function()
-		array:put(1.5, 1)
-	end)
+	for _, index in ipairs({ 0, -1, 4 }) do
+		lu.assertErrorMsgContains("index out of bounds", function()
+			array:put(index, 3)
+		end)
+	end
+	for _, index in ipairs({ "1", true, 1.5, math.huge, 0 / 0 }) do
+		lu.assertErrorMsgContains("index should be an integer", function()
+			array:put(index, 3)
+		end)
+	end
 	lu.assertErrorMsgContains("value should not be nil", function()
 		array:put(1, nil)
 	end)
 end
 
-function TestArray:testInsert_RejectsNilValue()
-	local array = Array.new({ 10, 20, 30 })
+function TestArrayPut:testRejectsOtherInvalidIndexTypes()
+	local array = Array.new({ 1 })
 
-	lu.assertErrorMsgContains("value should not be nil", function()
-		array:insert(nil)
-	end)
+	for _, index in ipairs({ {}, function() end }) do
+		lu.assertErrorMsgContains("index should be an integer", function()
+			array:put(index, 2)
+		end)
+	end
 end
 
-function TestArray:testInsert_Rejects_IndexesOutsideValidRange()
-	local array = Array.new({ 10, 20, 30 })
+function TestArrayPut:testReplacesFirstAndLastValues()
+	local array = Array.new({ 1, 2, 3 })
 
+	array:put(1, 10)
+	array:put(3, 30)
+
+	lu.assertEquals(valuesOf(array), { 10, 2, 30 })
+end
+
+function TestArrayPut:testWritesAtFirstIndexOfEmptyArray()
+	local array = Array.new()
+	array:put(1, "first")
+
+	lu.assertEquals(valuesOf(array), { "first" })
+end
+
+function TestArrayRemove:testRejectsIndexesOutsideBounds()
+	local array = Array.new({ 1, 2 })
+
+	for _, index in ipairs({ 0, -1, 3 }) do
+		lu.assertErrorMsgContains("index out of bounds", function()
+			array:remove(index)
+		end)
+	end
 	lu.assertErrorMsgContains("index out of bounds", function()
-		array:insert(40, 0)
-	end)
-	lu.assertErrorMsgContains("index out of bounds", function()
-		array:insert(40, -1)
-	end)
-	lu.assertErrorMsgContains("index out of bounds", function()
-		array:insert(40, 5)
+		Array.new():remove(1)
 	end)
 end
 
-function TestArray:testInsert_RejectsNonNumericIndex()
-	local array = Array.new({ 10, 20, 30 })
+function TestArrayRemove:testRejectsNonIntegerIndexes()
+	local array = Array.new({ 1, 2 })
 
+	for _, index in ipairs({ "1", true, 1.5, math.huge, 0 / 0 }) do
+		lu.assertErrorMsgContains("index should be an integer", function()
+			array:remove(index)
+		end)
+	end
 	lu.assertErrorMsgContains("index should be an integer", function()
-		array:insert(40, "1")
-	end)
-	lu.assertErrorMsgContains("index should be an integer", function()
-		array:insert(40, true)
-	end)
-end
-
-function TestArray:testInsert_RejectsFractionalIndex()
-	local array = Array.new({ 10, 20 })
-
-	lu.assertErrorMsgContains("index should be an integer", function()
-		array:insert(15, 1.5)
+		array:remove(nil)
 	end)
 end
 
-function TestArray:testRemove_RejectsFractionalIndex()
-	local array = Array.new({ 10, 20 })
+function TestArrayRemove:testRejectsOtherInvalidIndexTypes()
+	local array = Array.new({ 1 })
 
-	lu.assertErrorMsgContains("index should be an integer", function()
-		array:remove(1.5)
+	for _, index in ipairs({ {}, function() end }) do
+		lu.assertErrorMsgContains("index should be an integer", function()
+			array:remove(index)
+		end)
+	end
+end
+
+function TestArrayRemove:testRemovesOnlyEntry()
+	local array = Array.new({ "only" })
+
+	lu.assertEquals(array:remove(1), "only")
+	lu.assertTrue(array:empty())
+	lu.assertEquals(#array, 0)
+end
+
+function TestArrayRemove:testReturnsAndRemovesFirstMiddleAndLastValues()
+	local first = Array.new({ 1, 2, 3 })
+	local middle = Array.new({ 1, 2, 3 })
+	local last = Array.new({ 1, 2, 3 })
+
+	lu.assertEquals(first:remove(1), 1)
+	lu.assertEquals(middle:remove(2), 2)
+	lu.assertEquals(last:remove(3), 3)
+	lu.assertEquals(valuesOf(first), { 2, 3 })
+	lu.assertEquals(valuesOf(middle), { 1, 3 })
+	lu.assertEquals(valuesOf(last), { 1, 2 })
+end
+
+function TestArrayRemove:testReturnsFalseValue()
+	local array = Array.new({ false, true })
+
+	lu.assertFalse(array:remove(1))
+	lu.assertEquals(valuesOf(array), { true })
+end
+
+function TestArraySlice:testCopiesInclusiveRange()
+	local source = Array.new({ 10, 20, 30, 40 })
+	local slice = source:slice(2, 3)
+	slice:put(1, 99)
+
+	lu.assertEquals(valuesOf(slice), { 99, 30 })
+	lu.assertEquals(valuesOf(source), { 10, 20, 30, 40 })
+end
+
+function TestArraySlice:testDefaultsStartAndFinish()
+	local array = Array.new({ 1, 2, 3 })
+
+	lu.assertEquals(valuesOf(array:slice()), { 1, 2, 3 })
+	lu.assertEquals(valuesOf(array:slice(2)), { 2, 3 })
+	lu.assertEquals(valuesOf(array:slice(nil, 2)), { 1, 2 })
+end
+
+function TestArraySlice:testEmptySourceCurrentlyRejectsDefaultRange()
+	lu.assertErrorMsgContains("start index out of bounds", function()
+		Array.new():slice()
 	end)
 end
 
-function TestArray:testSlice_RejectsFractionalBounds()
-	local array = Array.new({ 10, 20, 30 })
+function TestArraySlice:testRejectsInvalidStartAndFinishTypes()
+	local array = Array.new({ 1, 2, 3 })
+
+	for _, index in ipairs({ "1", true, {}, function() end, math.huge, 0 / 0 }) do
+		lu.assertErrorMsgContains("index should be an integer", function()
+			array:slice(index, 2)
+		end)
+		lu.assertErrorMsgContains("index should be an integer", function()
+			array:slice(1, index)
+		end)
+	end
+end
+
+function TestArraySlice:testRejectsNonIntegerBounds()
+	local array = Array.new({ 1, 2, 3 })
 
 	lu.assertErrorMsgContains("index should be an integer", function()
 		array:slice(1.5, 3)
@@ -324,8 +760,48 @@ function TestArray:testSlice_RejectsFractionalBounds()
 	end)
 end
 
-function TestArray:testSwap_RejectsFractionalIndexes()
-	local array = Array.new({ 10, 20 })
+function TestArraySlice:testRejectsOutOfBoundsAndReversedRanges()
+	local array = Array.new({ 1, 2, 3 })
+
+	lu.assertErrorMsgContains("start index out of bounds", function()
+		array:slice(0, 2)
+	end)
+	lu.assertErrorMsgContains("start index out of bounds", function()
+		array:slice(4, 4)
+	end)
+	lu.assertErrorMsgContains("finish index out of bounds", function()
+		array:slice(1, 0)
+	end)
+	lu.assertErrorMsgContains("start index must be lesser or equal to finish index", function()
+		array:slice(3, 2)
+	end)
+end
+
+function TestArraySlice:testSingleElementRangeReturnsSingleElement()
+	local slice = Array.new({ 1, 2, 3 }):slice(2, 2)
+
+	lu.assertEquals(valuesOf(slice), { 2 })
+end
+
+function TestArraySwap:testAcceptsFalseValues()
+	local array = Array.new({ false, true })
+
+	array:swap(1, 2)
+
+	lu.assertTrue(array:get(1))
+	lu.assertFalse(array:get(2))
+end
+
+function TestArraySwap:testExchangesValues()
+	local array = Array.new({ 1, 2, 3 })
+
+	array:swap(1, 3)
+
+	lu.assertEquals(valuesOf(array), { 3, 2, 1 })
+end
+
+function TestArraySwap:testRejectsNonIntegerIndexes()
+	local array = Array.new({ 1, 2 })
 
 	lu.assertErrorMsgContains("index should be an integer", function()
 		array:swap(1.5, 2)
@@ -335,157 +811,79 @@ function TestArray:testSwap_RejectsFractionalIndexes()
 	end)
 end
 
-function TestArray:testRemove_ReturnsValueAndShiftsFollowingValues()
-	local array = Array.new({ 10, 20, 30 })
+function TestArraySwap:testRejectsOtherInvalidIndexTypes()
+	local array = Array.new({ 1, 2 })
 
-	local removed = array:remove(1)
-
-	lu.assertEquals(removed, 10)
-	lu.assertEquals(arrayValues(array), { 20, 30 })
+	for _, index in ipairs({ "1", true, {}, function() end, math.huge, 0 / 0 }) do
+		lu.assertErrorMsgContains("index should be an integer", function()
+			array:swap(index, 2)
+		end)
+		lu.assertErrorMsgContains("index should be an integer", function()
+			array:swap(1, index)
+		end)
+	end
 end
 
-function TestArray:testSwap_ExchangesValuesAtFirstIndexes()
-	local array = Array.new({ 10, 20, 30 })
+function TestArraySwap:testRejectsOutOfBoundsIndexes()
+	local array = Array.new({ 1, 2 })
 
-	array:swap(1, 2)
-
-	lu.assertEquals(arrayValues(array), { 20, 10, 30 })
-end
-
-function TestArray:testSwap_ExchangesValuesAtLaterIndexes()
-	local array = Array.new({ 10, 20, 30 })
-
-	array:swap(2, 3)
-
-	lu.assertEquals(arrayValues(array), { 10, 30, 20 })
-end
-
-function TestArray:testEqualArrays_CompareEqual()
-	local first = Array.new({ 10, 20, 30 })
-	local second = Array.new({ 10, 20, 30 })
-
-	lu.assertEquals(arrayValues(first), arrayValues(second))
-	lu.assertTrue(first == second)
-end
-
-function TestArray:testEqualArraysContainingFalse_CompareEqual()
-	local first = Array.new({ false, 1 })
-	local second = Array.new({ false, 1 })
-
-	lu.assertTrue(first == second)
-end
-
-function TestArray:testArraysWithDifferentValues_CompareUnequal()
-	local first = Array.new({ 10, 20, 30 })
-	local second = Array.new({ 10, 20, 40 })
-
-	lu.assertNotEquals(arrayValues(first), arrayValues(second))
-	lu.assertFalse(first == second)
-end
-
-function TestArray:testArray_DoesNotCompareEqualToOtherValueTypes()
-	local array = Array.new({ 10, 20, 30 })
-
-	lu.assertNotEquals(array, "string")
-end
-
-function TestArray:testToString_FormatsPopulatedArray()
-	local array = Array.new({ 1, 2, 3 })
-
-	lu.assertEquals(tostring(array), "[ 1, 2, 3 ]")
-end
-
-function TestArray:testToString_FormatsEmptyArray()
-	local array = Array.new()
-
-	lu.assertEquals(tostring(array), "[  ]")
-end
-
-function TestArray:testNewProperties_CannotBeAdded()
-	local array = Array.new({ 10, 20, 30 })
-
-	lu.assertErrorMsgContains("cannot add new properties, methods or functions to Array", function()
-		array.foo = "bar"
+	lu.assertErrorMsgContains("index out of bounds", function()
+		array:swap(0, 1)
+	end)
+	lu.assertErrorMsgContains("other index out of bounds", function()
+		array:swap(1, 3)
+	end)
+	lu.assertErrorMsgContains("index out of bounds", function()
+		Array.new():swap(1, 1)
 	end)
 end
 
-function TestArray:testNumericIndexes_CannotBeAdded()
-	local array = Array.new({ 10, 20, 30 })
+function TestArraySwap:testSameIndexLeavesArrayUnchanged()
+	local array = Array.new({ 1, 2 })
+	array:swap(2, 2)
 
-	lu.assertErrorMsgContains("cannot add new properties, methods or functions to Array", function()
-		array[1] = 99
+	lu.assertEquals(valuesOf(array), { 1, 2 })
+end
+
+function TestArrayToString:testFormatsEmptyArray()
+	lu.assertEquals(tostring(Array.new()), "[  ]")
+end
+
+function TestArrayToString:testFormatsMultipleNumbers()
+	lu.assertEquals(tostring(Array.new({ 0, -2, 3.5 })), "[ 0, -2, 3.5 ]")
+end
+
+function TestArrayToString:testFormatsStringAndNumberValues()
+	lu.assertEquals(tostring(Array.new({ "one", 2, "three" })), "[ one, 2, three ]")
+end
+
+function TestArrayToString:testUnsupportedValuesRaiseFromTableConcat()
+	lu.assertErrorMsgContains("invalid value", function()
+		tostring(Array.new({ false }))
 	end)
-	lu.assertErrorMsgContains("cannot add new properties, methods or functions to Array", function()
-		array[4] = 40
-	end)
-end
-
-function TestArray:testNewMethods_CannotBeAdded()
-	local array = Array.new({ 10, 20, 30 })
-
-	lu.assertErrorMsgContains("cannot add new properties, methods or functions to Array", function()
-		array.myFunc = function() end
-	end)
-end
-
-function TestArray:testExistingMethods_CannotBeReplaced()
-	local array = Array.new({ 10, 20, 30 })
-
-	lu.assertErrorMsgContains("cannot add new properties, methods or functions to Array", function()
-		array.get = function() end
-	end)
-end
-
-function TestArray:testConcat_Appends_TableValues()
-	local array = Array.new({ 10, 20, 30 })
-
-	array = array .. { 40, 50, 60 }
-
-	lu.assertEquals(arrayValues(array), { 10, 20, 30, 40, 50, 60 })
-end
-
-function TestArray:testConcatWithNil_PreservesArray()
-	local array = Array.new({ 10, 20, 30 })
-
-	array = array .. nil
-
-	lu.assertEquals(arrayValues(array), { 10, 20, 30 })
-end
-
-function TestArray:testConcat_AppendsAnotherArrayValues()
-	local array = Array.new({ 10, 20, 30 })
-
-	array = array .. Array.new({ 40, 50, 60 })
-
-	lu.assertEquals(arrayValues(array), { 10, 20, 30, 40, 50, 60 })
-end
-
-function TestArray:testConcat_AppendsSetValues()
-	local array = Array.new({ 10, 20, 30 })
-	local set = require("ff.collections.set").new()
-
-	set:add(100)
-
-	array = array .. set
-
-	lu.assertEquals(arrayValues(array), { 10, 20, 30, 100 })
-end
-
-function TestArray:testConcat_CreatesNewArrayAndInsertAllMutates()
-	local source = Array.new({ 1, 2 })
-	local joined = source .. { 3 }
-	lu.assertNotIs(joined, source)
-	lu.assertEquals(arrayValues(source), { 1, 2 })
-	lu.assertEquals(arrayValues(joined), { 1, 2, 3 })
-	source:insertAll({ 4 })
-	lu.assertEquals(arrayValues(source), { 1, 2, 4 })
-end
-
-function TestArray:testInsertAllRejectsNil()
-	local collection = Array.new()
-	lu.assertErrorMsgContains("iterable should be a table", function()
-		collection:insertAll(nil)
+	lu.assertErrorMsgContains("invalid value", function()
+		tostring(Array.new({ {} }))
 	end)
 end
 
-return { TestArray = TestArray }
+return {
+	TestArrayClear = TestArrayClear,
+	TestArrayConcat = TestArrayConcat,
+	TestArrayContains = TestArrayContains,
+	TestArrayEmpty = TestArrayEmpty,
+	TestArrayEq = TestArrayEq,
+	TestArrayGet = TestArrayGet,
+	TestArrayIndexOf = TestArrayIndexOf,
+	TestArrayInsert = TestArrayInsert,
+	TestArrayInsertAll = TestArrayInsertAll,
+	TestArrayIsArray = TestArrayIsArray,
+	TestArrayLen = TestArrayLen,
+	TestArrayNew = TestArrayNew,
+	TestArrayNewIndex = TestArrayNewIndex,
+	TestArrayPairs = TestArrayPairs,
+	TestArrayPut = TestArrayPut,
+	TestArrayRemove = TestArrayRemove,
+	TestArraySlice = TestArraySlice,
+	TestArraySwap = TestArraySwap,
+	TestArrayToString = TestArrayToString,
+}
