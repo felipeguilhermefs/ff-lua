@@ -3,10 +3,6 @@ local function assertValidKey(key)
 	assert(type(key) ~= "number" or key == key, "key should not be NaN")
 end
 
-local function defaultMerge(_, incoming)
-	return incoming
-end
-
 --------------------------------------------------------------------------------------
 ---@class HashMap
 ---@field private _entries table<any, any> Table that holds the values.
@@ -114,39 +110,6 @@ function HashMap:get(key)
 end
 
 -----------------------------------------------------------------------------
----Merge an iterable into this HashMap. When keys conflict a merge function
----is called to resolve the new value.
----
----@param  other table<any, any> Other table to merge into this.
----@param  fn    fun(a: any, b: any): any?
----                                Merge function called on conflict.
----                                Receives (existing, incoming); its return
----                                value becomes the new stored value.
----                                Defaults to an override function
----                                (returns `incoming`).
----
----@return HashMap                 Returns this HashMap after the merge.
------------------------------------------------------------------------------
-function HashMap:merge(other, fn)
-	assert(type(other) == "table", "other should be a table")
-	assert(fn == nil or type(fn) == "function", "fn should be a function")
-
-	fn = fn or defaultMerge
-
-	for k, v in pairs(other) do
-		local thisValue = self:get(k)
-		if thisValue == nil then
-			self:put(k, v)
-		else
-			local resolved = fn(thisValue, v)
-			self:put(k, resolved)
-		end
-	end
-
-	return self
-end
-
------------------------------------------------------------------------------
 ---Stores a value under the given key.
 ---
 ---@param key   any Key to store under, should not be nil.
@@ -163,15 +126,30 @@ function HashMap:put(key, value)
 end
 
 -----------------------------------------------------------------------------
----Stores key/values from iterable.
+---Stores key/values from iterable. When keys conflict, an optional resolver
+---computes the value to store.
 ---
 ---@param iterable table<any, any> Entries to add.
+---@param fn? fun(existing: any, incoming: any): any
+---                                  Resolver called only for existing keys.
+---                                  Defaults to incoming value.
 -----------------------------------------------------------------------------
-function HashMap:putAll(iterable)
+function HashMap:putAll(iterable, fn)
 	assert(type(iterable) == "table", "iterable should be a table")
+	assert(fn == nil or type(fn) == "function", "fn should be a function")
 
-	for key, value in pairs(iterable) do
-		self:put(key, value)
+	fn = fn or function(_, incoming)
+		return incoming
+	end
+
+	for k, v in pairs(iterable) do
+		local thisValue = self:get(k)
+		if thisValue == nil then
+			self:put(k, v)
+		else
+			local resolved = fn(thisValue, v)
+			self:put(k, resolved)
+		end
 	end
 end
 

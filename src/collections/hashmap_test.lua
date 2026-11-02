@@ -19,7 +19,6 @@ local TestHashMapEq = {}
 local TestHashMapGet = {}
 local TestHashMapIsHashMap = {}
 local TestHashMapLen = {}
-local TestHashMapMerge = {}
 local TestHashMapNew = {}
 local TestHashMapNewIndex = {}
 local TestHashMapPairs = {}
@@ -310,95 +309,6 @@ function TestHashMapLen:testLengthTracksInsertionsReplacementsRemovalsAndClear()
 	lu.assertEquals(#map, 0)
 end
 
-function TestHashMapMerge:testCustomResolverReceivesConflictValuesAndPreservesDistinctEntries()
-	local map = HashMap.new({ a = 10, flag = false, kept = 5 })
-	local resolverCalls = 0
-
-	map:merge({ a = 2, flag = true, added = 3 }, function(existing, incoming)
-		resolverCalls = resolverCalls + 1
-		if type(existing) == "number" then
-			return existing + incoming
-		end
-		return incoming
-	end)
-
-	lu.assertEquals(resolverCalls, 2)
-	lu.assertEquals(mapSnapshot(map), { a = 12, flag = true, kept = 5, added = 3 })
-end
-
-function TestHashMapMerge:testDefaultResolverUsesIncomingValues()
-	local map = HashMap.new({ a = 1, kept = 2 })
-
-	map:merge({ a = 3, added = 4 })
-
-	lu.assertEquals(mapSnapshot(map), { a = 3, kept = 2, added = 4 })
-end
-
-function TestHashMapMerge:testMergeReturnsThisMap()
-	local map = HashMap.new({ a = 1 })
-
-	lu.assertIs(map:merge({ b = 2 }), map)
-end
-
-function TestHashMapMerge:testMergesHashMapEntries()
-	local map = HashMap.new({ a = 1 })
-	local other = HashMap.new({ b = false })
-
-	map:merge(other)
-
-	lu.assertEquals(mapSnapshot(map), { a = 1, b = false })
-end
-
-function TestHashMapMerge:testRejectsInvalidResolver()
-	local map = HashMap.new({ a = 1 })
-
-	lu.assertErrorMsgContains("fn should be a function", function()
-		map:merge({ a = 2 }, false)
-	end)
-	lu.assertErrorMsgContains("fn should be a function", function()
-		map:merge({ a = 2 }, "resolver")
-	end)
-	lu.assertEquals(map:get("a"), 1)
-end
-
-function TestHashMapMerge:testRejectsNonTableInput()
-	local map = HashMap.new({ a = 1 })
-
-	lu.assertErrorMsgContains("other should be a table", function()
-		map:merge(nil)
-	end)
-	lu.assertErrorMsgContains("other should be a table", function()
-		map:merge("invalid")
-	end)
-	lu.assertEquals(mapSnapshot(map), { a = 1 })
-end
-
-function TestHashMapMerge:testResolverCannotStoreNilResult()
-	local map = HashMap.new({ a = 1 })
-
-	lu.assertErrorMsgContains("value should not be nil", function()
-		map:merge({ a = 2 }, function()
-			return nil
-		end)
-	end)
-
-	lu.assertEquals(map:get("a"), 1)
-	lu.assertEquals(#map, 1)
-end
-
-function TestHashMapMerge:testResolverErrorLeavesConflictingEntryUnchanged()
-	local map = HashMap.new({ a = 1 })
-
-	lu.assertErrorMsgContains("merge failed", function()
-		map:merge({ a = 2 }, function()
-			error("merge failed")
-		end)
-	end)
-
-	lu.assertEquals(map:get("a"), 1)
-	lu.assertEquals(#map, 1)
-end
-
 function TestHashMapNew:testCopiesEntriesFromHashMap()
 	local source = HashMap.new({ a = 1, flag = false })
 
@@ -535,6 +445,30 @@ function TestHashMapPutAll:testCopiesAndOverwritesEntries()
 	lu.assertEquals(#map, 3)
 end
 
+function TestHashMapPutAll:testCustomResolverReceivesConflictValuesAndPreservesDistinctEntries()
+	local map = HashMap.new({ a = 10, flag = false, kept = 5 })
+	local resolverCalls = 0
+
+	map:putAll({ a = 2, flag = true, added = 3 }, function(existing, incoming)
+		resolverCalls = resolverCalls + 1
+		if type(existing) == "number" then
+			return existing + incoming
+		end
+		return incoming
+	end)
+
+	lu.assertEquals(resolverCalls, 2)
+	lu.assertEquals(mapSnapshot(map), { a = 12, flag = true, kept = 5, added = 3 })
+end
+
+function TestHashMapPutAll:testDefaultResolverUsesIncomingValues()
+	local map = HashMap.new({ a = 1, kept = 2 })
+
+	map:putAll({ a = 3, added = 4 })
+
+	lu.assertEquals(mapSnapshot(map), { a = 3, kept = 2, added = 4 })
+end
+
 function TestHashMapPutAll:testMergesHashMapEntries()
 	local map = HashMap.new({ a = 1 })
 	local source = HashMap.new({ b = false })
@@ -543,6 +477,18 @@ function TestHashMapPutAll:testMergesHashMapEntries()
 
 	lu.assertEquals(mapSnapshot(map), { a = 1, b = false })
 	lu.assertEquals(mapSnapshot(source), { b = false })
+end
+
+function TestHashMapPutAll:testRejectsInvalidResolver()
+	local map = HashMap.new({ a = 1 })
+
+	lu.assertErrorMsgContains("fn should be a function", function()
+		map:putAll({ a = 2 }, false)
+	end)
+	lu.assertErrorMsgContains("fn should be a function", function()
+		map:putAll({ a = 2 }, "resolver")
+	end)
+	lu.assertEquals(map:get("a"), 1)
 end
 
 function TestHashMapPutAll:testRejectsNonTableIterable()
@@ -555,6 +501,32 @@ function TestHashMapPutAll:testRejectsNonTableIterable()
 		map:putAll(42)
 	end)
 	lu.assertTrue(map:empty())
+end
+
+function TestHashMapPutAll:testResolverCannotStoreNilResult()
+	local map = HashMap.new({ a = 1 })
+
+	lu.assertErrorMsgContains("value should not be nil", function()
+		map:putAll({ a = 2 }, function()
+			return nil
+		end)
+	end)
+
+	lu.assertEquals(map:get("a"), 1)
+	lu.assertEquals(#map, 1)
+end
+
+function TestHashMapPutAll:testResolverErrorLeavesConflictingEntryUnchanged()
+	local map = HashMap.new({ a = 1 })
+
+	lu.assertErrorMsgContains("merge failed", function()
+		map:putAll({ a = 2 }, function()
+			error("merge failed")
+		end)
+	end)
+
+	lu.assertEquals(map:get("a"), 1)
+	lu.assertEquals(#map, 1)
 end
 
 function TestHashMapRemove:testRejectsInvalidKeys()
@@ -614,7 +586,6 @@ return {
 	TestHashMapGet = TestHashMapGet,
 	TestHashMapIsHashMap = TestHashMapIsHashMap,
 	TestHashMapLen = TestHashMapLen,
-	TestHashMapMerge = TestHashMapMerge,
 	TestHashMapNew = TestHashMapNew,
 	TestHashMapNewIndex = TestHashMapNewIndex,
 	TestHashMapPairs = TestHashMapPairs,
