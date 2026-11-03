@@ -230,7 +230,7 @@ end
 ---
 ---@param  value any Value to be added to the heap.
 ---
----@return boolean   `true` if value was added to the heap.
+---@return boolean   `true` if added; `false` if rejected at capacity.
 -----------------------------------------------------------------------------
 function Heap:push(value)
 	assert(value ~= nil, "value should not be nil")
@@ -251,9 +251,21 @@ end
 -----------------------------------------------------------------------------
 function Heap:pushAll(iterable)
 	assert(type(iterable) == "table", "iterable should be a table")
+	assert(not rawequal(iterable, self), "iterable should not be self")
 
-	for _, item in pairs(iterable) do
-		self:push(item)
+	for _, value in pairs(iterable) do
+		assert(value ~= nil, "value should not be nil")
+
+		if self:full() then
+			break
+		end
+
+		self._entries:insert(value)
+	end
+
+	-- Heapify
+	for i = #self // 2, 1, -1 do
+		self:_siftDown(i)
 	end
 end
 

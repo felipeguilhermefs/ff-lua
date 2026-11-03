@@ -10,6 +10,20 @@ local function entriesByIndex(heap)
 	return entries
 end
 
+local function orderedIterable(values)
+	return setmetatable({}, {
+		__pairs = function()
+			local index = 0
+			return function()
+				index = index + 1
+				if values[index] ~= nil then
+					return index, values[index]
+				end
+			end
+		end,
+	})
+end
+
 local TestHeap = {}
 
 function TestHeap:testTypeGuard_RecognizesHeapsAndRejectsOtherValues()
@@ -104,6 +118,14 @@ function TestHeap:testCapacityConstructors_LoadInitialValuesWithinLimit()
 	local maxH = Heap.newMax({ 5, 3, 8 }, 3)
 	lu.assertEquals(#maxH, 3)
 	lu.assertTrue(maxH:full())
+end
+
+function TestHeap:testBoundedConstructor_DropsValuesAfterCapacity()
+	local h = Heap.new(orderedIterable({ 3, 1, 2, 0 }), nil, 2)
+
+	lu.assertEquals(#h, 2)
+	lu.assertEquals(h:pop(), 1)
+	lu.assertEquals(h:pop(), 3)
 end
 
 function TestHeap:testConstructors_RejectInvalidComparatorAndCapacity()
@@ -500,6 +522,15 @@ function TestHeap:testFullHeap_RejectsPush()
 	lu.assertFalse(h:push("d"))
 end
 
+function TestHeap:testFullBoundedHeap_RejectsPushEvenWhenPriorityIsBetter()
+	local h = Heap.new({ 1, 3 }, nil, 2)
+
+	lu.assertFalse(h:push(0))
+	lu.assertEquals(h:pop(), 1)
+	lu.assertEquals(h:pop(), 3)
+	lu.assertNil(h:pop())
+end
+
 function TestHeap:testPush_MaintainsSmallestValueAtHeapRoot()
 	local h = Heap.new()
 
@@ -737,6 +768,37 @@ function TestHeap:testBoundedHeap_RejectsPushAtCapacityAndAcceptsAfterPop()
 	lu.assertTrue(h:full())
 end
 
+function TestHeap:testPushAll_DropsValuesAfterCapacity()
+	local h = Heap.new(nil, nil, 2)
+	h:pushAll(orderedIterable({ 3, 1, 2, 0 }))
+
+	lu.assertEquals(#h, 2)
+	lu.assertEquals(h:pop(), 1)
+	lu.assertEquals(h:pop(), 3)
+end
+
+function TestHeap:testPushAll_UnboundedHeapAcceptsEveryEntryAndHeapifies()
+	local h = Heap.new({ 20, 10 })
+	h:pushAll({ 50, 30, 40, 5 })
+	lu.assertEquals(h:pop(), 5)
+	lu.assertEquals(h:pop(), 10)
+	lu.assertEquals(h:pop(), 20)
+	lu.assertEquals(h:pop(), 30)
+	lu.assertEquals(h:pop(), 40)
+	lu.assertEquals(h:pop(), 50)
+end
+
+function TestHeap:testPushAll_RejectsSelfInsertionWithoutChangingHeap()
+	local h = Heap.new({ 4, 1, 3, 2 })
+	local before = entriesByIndex(h)
+
+	lu.assertErrorMsgContains("iterable should not be self", function()
+		h:pushAll(h)
+	end)
+
+	lu.assertEquals(entriesByIndex(h), before)
+end
+
 function TestHeap:testConcat_AppendsValuesFromIterableCollections()
 	local h = Heap.new() .. { 10, 20, 30 }
 	lu.assertEquals(#h, 3)
@@ -769,6 +831,17 @@ function TestHeap:testConcat_RejectsNonTableValues()
 	lu.assertErrorMsgContains("iterable should be a table", function()
 		h = h .. 42
 	end)
+end
+
+function TestHeap:testConcat_DropsValuesWhenCopiedHeapIsAtCapacity()
+	local h = Heap.new({ 1, 3 }, nil, 2)
+	local joined = h .. { 0, 5 }
+
+	lu.assertEquals(#joined, 2)
+	lu.assertEquals(joined:pop(), 1)
+	lu.assertEquals(joined:pop(), 3)
+	lu.assertEquals(h:pop(), 1)
+	lu.assertEquals(h:pop(), 3)
 end
 
 function TestHeap:testHeapsWithSameValues_CompareEqual()
