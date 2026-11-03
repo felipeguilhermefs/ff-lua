@@ -48,6 +48,7 @@ function Heap.new(iterable, comparator, capacity)
 	if capacity ~= nil then
 		assert(type(capacity) == "number", "capacity should be a number")
 		assert(capacity > 0, "capacity should be positive")
+		assert(capacity < math.huge and capacity % 1 == 0, "capacity should be an integer")
 	end
 
 	local new = setmetatable({
@@ -154,6 +155,7 @@ function Heap:indexOf(value, index)
 	index = index or 1
 	assert(type(index) == "number", "index should be a number")
 	assert(index > 0, "index should be positive")
+	assert(index < math.huge and index % 1 == 0, "index should be an integer")
 
 	if index > #self then
 		return nil
