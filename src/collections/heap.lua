@@ -1,5 +1,6 @@
 local Array = require("ff.collections.array")
 local Comparator = require("ff.func.comparator")
+local Stack = require("ff.collections.stack")
 
 --------------------------------------------------------------------------------------
 ---@class Heap
@@ -144,7 +145,7 @@ end
 ---It will return `nil` if nothing is found.
 ---
 ---@param  value  any     Value to search.
----@param  index? number  Index to start searching from.
+---@param  index? number  Positive finite integer index to start searching from.
 ---                       Defaults to 1 if not provided.
 ---
 ---@return number|nil
@@ -152,7 +153,9 @@ end
 function Heap:indexOf(value, index)
 	assert(value ~= nil, "value should not be nil")
 
-	index = index or 1
+	if index == nil then
+		index = 1
+	end
 	assert(type(index) == "number", "index should be a number")
 	assert(index > 0, "index should be positive")
 	assert(index < math.huge and index % 1 == 0, "index should be an integer")
@@ -161,27 +164,30 @@ function Heap:indexOf(value, index)
 		return nil
 	end
 
-	local entry = self._entries:get(index)
-	if value == entry then
-		return index
+	local stack = Stack.new()
+	stack:push(index)
+	while not stack:empty() do
+		local currentIndex = stack:pop()
+		if currentIndex <= #self then
+			local entry = self._entries:get(currentIndex)
+			if value == entry then
+				return currentIndex
+			end
+
+			if self._comparator(value, entry) ~= Comparator.less then
+				local left = currentIndex * 2
+				local right = left + 1
+
+				-- Push right first so the left subtree is searched first.
+				if right <= #self then
+					stack:push(right)
+				end
+				if left <= #self then
+					stack:push(left)
+				end
+			end
+		end
 	end
-
-	local comp = self._comparator(value, entry)
-	if comp == Comparator.less then
-		-- when it is before the current index then it is not in the heap
-		return nil
-	end
-
-	-- When it is greater then the current index, we can check the children
-
-	-- search in the left side first
-	local left = self:indexOf(value, index * 2)
-	if left ~= nil then
-		return left
-	end
-
-	-- then we can check the right side
-	return self:indexOf(value, index * 2 + 1)
 end
 -----------------------------------------------------------------------------
 ---Returns the first entry of the heap, or `nil` if empty.

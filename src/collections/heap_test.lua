@@ -337,6 +337,25 @@ function TestHeap:testMaxHeapIndexOf_FindsDuplicateValues()
 	end
 end
 
+function TestHeap:testIndexOf_IterativeSearchPreservesLeftFirstDepthFirstOrder()
+	local function cmp(a, b)
+		return Comparator.natural(a.priority, b.priority)
+	end
+
+	local h = Heap.new(nil, cmp)
+	local root = { priority = 1 }
+	local parent = { priority = 2 }
+	local target = { priority = 2 }
+
+	h:push(root)
+	h:push(parent)
+	h:push(target)
+	h:push(target)
+
+	-- Index 3 also matches, but left-first depth-first traversal visits 4 first.
+	lu.assertEquals(h:indexOf(target), 4)
+end
+
 function TestHeap:testIndexOf_FindsObjectValuesWithEqualPriority()
 	local function cmp(a, b)
 		return Comparator.natural(a.priority, b.priority)
@@ -389,12 +408,24 @@ function TestHeap:testIndexOf_RejectsNilValuesAndInvalidStartIndexes()
 		h:indexOf(10, "bad")
 	end)
 
+	lu.assertErrorMsgContains("index should be a number", function()
+		h:indexOf(10, false)
+	end)
+
 	lu.assertErrorMsgContains("index should be positive", function()
 		h:indexOf(10, 0)
 	end)
 
 	lu.assertErrorMsgContains("index should be positive", function()
 		h:indexOf(10, -1)
+	end)
+
+	lu.assertErrorMsgContains("index should be an integer", function()
+		h:indexOf(10, 1.5)
+	end)
+
+	lu.assertErrorMsgContains("index should be an integer", function()
+		h:indexOf(10, math.huge)
 	end)
 end
 
