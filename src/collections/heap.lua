@@ -167,26 +167,31 @@ function Heap:indexOf(value, index)
 	local stack = Stack.new()
 	stack:push(index)
 	while not stack:empty() do
-		local currentIndex = stack:pop()
-		if currentIndex <= #self then
-			local entry = self._entries:get(currentIndex)
-			if value == entry then
-				return currentIndex
-			end
-
-			if self._comparator(value, entry) ~= Comparator.less then
-				local left = currentIndex * 2
-				local right = left + 1
-
-				-- Push right first so the left subtree is searched first.
-				if right <= #self then
-					stack:push(right)
-				end
-				if left <= #self then
-					stack:push(left)
-				end
-			end
+		local cur = stack:pop()
+		if cur > #self then
+			goto continue
 		end
+
+		local entry = self._entries:get(cur)
+		if value == entry then
+			return cur
+		end
+
+		if self._comparator(value, entry) == Comparator.less then
+			goto continue
+		end
+
+		local left = cur * 2
+		local right = left + 1
+
+		if right <= #self then
+			stack:push(right)
+		end
+		if left <= #self then
+			stack:push(left)
+		end
+
+		::continue::
 	end
 end
 -----------------------------------------------------------------------------
