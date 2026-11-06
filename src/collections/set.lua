@@ -1,7 +1,7 @@
 --------------------------------------------------------------------------------------
 ---@class Set
----@field private _entries table<any, boolean> Table that holds the entries.
----                                        Delegates most of the implementation to it.
+---@field private _entries table<any, any> Table that holds entries as both keys and values.
+---                                      pairs(set) yields each entry as both key and value.
 ---@field private _len     number          Number of entries in the set.
 --------------------------------------------------------------------------------------
 local Set = {}
@@ -119,7 +119,7 @@ function Set:diff(other)
 
 	local res = Set.new()
 
-	for entry in pairs(self) do
+	for entry in pairs(self._entries) do
 		if other._entries[entry] == nil then
 			res:add(entry)
 		end
@@ -141,7 +141,7 @@ function Set:disjoint(other)
 	local source = self._len <= other._len and self or other
 	local target = source == self and other or self
 
-	for entry in pairs(source) do
+	for entry in pairs(source._entries) do
 		if target._entries[entry] ~= nil then
 			return false
 		end
@@ -174,7 +174,7 @@ function Set:intersection(other)
 	local source = self._len <= other._len and self or other
 	local target = source == self and other or self
 
-	for entry in pairs(source) do
+	for entry in pairs(source._entries) do
 		if target._entries[entry] ~= nil then
 			res:add(entry)
 		end
@@ -215,7 +215,7 @@ function Set:subset(other)
 		return false
 	end
 
-	for entry in pairs(self) do
+	for entry in pairs(self._entries) do
 		if other._entries[entry] == nil then
 			return false
 		end
@@ -267,13 +267,16 @@ end
 -----------------------------------------------------------------------------
 ---Returns a set containing the union between this set and the given.
 ---
----@param  other Set Set or table to unite with this.
+---@param  other Set Set to unite with this.
 ---
 ---@return Set   A new Set with elements from both sets.
 -----------------------------------------------------------------------------
 function Set:union(other)
 	assert(Set.isSet(other), "other should also be a Set")
-	return Set.new(self) .. other
+
+	local result = Set.new(self)
+	result:addAll(other)
+	return result
 end
 
 -----------------------------------------------------------------------------
@@ -309,7 +312,7 @@ function Set:__eq(other)
 		return false
 	end
 
-	for entry in pairs(self) do
+	for entry in pairs(self._entries) do
 		if other._entries[entry] == nil then
 			return false
 		end
@@ -337,15 +340,15 @@ end
 
 -----------------------------------------------------------------------------
 ---Iterates through the set in an undefined order.
+---Yields each entry as both key and value, matching `_entries[entry] = entry`.
+---Binds iteration to the current backing table, even if `clear()` replaces it.
 ---
----@return fun(state: table, key: any): any?, boolean?
+---@return fun(state: table, key: any): any?, any?
 ---@return table
 ---@return nil
 -----------------------------------------------------------------------------
 function Set:__pairs()
-	return function(_, index)
-		return next(self._entries, index)
-	end, self, nil
+	return next, self._entries, nil
 end
 
 -----------------------------------------------------------------------------
