@@ -38,7 +38,11 @@ end
 function Stack.new(iterable)
 	local new = setmetatable({ _entries = Array.new() }, Stack)
 	if iterable ~= nil then
-		new:pushAll(iterable)
+		if Stack.isStack(iterable) then
+			new:pushAll(iterable._entries)
+		else
+			new:pushAll(iterable)
+		end
 	end
 	return new
 end
@@ -151,10 +155,13 @@ end
 -----------------------------------------------------------------------------
 function Stack:__concat(iterable)
 	local result = Stack.new(self)
-	if iterable == nil then
-		return result
+	if iterable ~= nil then
+		if Stack.isStack(iterable) then
+			result:pushAll(iterable._entries)
+		else
+			result:pushAll(iterable)
+		end
 	end
-	result:pushAll(iterable)
 	return result
 end
 
@@ -218,7 +225,11 @@ end
 ---@return string
 -----------------------------------------------------------------------------
 function Stack:__tostring()
-	return string.format("[ %s <- Top ]", table.concat(self._entries, ", "))
+	local entries = {}
+	for _, entry in pairs(self._entries) do
+		table.insert(entries, tostring(entry))
+	end
+	return string.format("[ %s <- Top ]", table.concat(entries, ", "))
 end
 
 return Stack
