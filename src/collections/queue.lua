@@ -83,7 +83,7 @@ end
 
 -----------------------------------------------------------------------------
 ---Check the queue sequentially O(n), and returns "true" the entry is found.
----Does not consume or modify the stack.
+---Does not consume or modify the queue.
 ---
 ---@param  value  any  Value to search for (compared with `==`).
 ---
@@ -155,7 +155,7 @@ end
 function Queue:enqueue(value)
 	assert(value ~= nil, "value should not be nil")
 
-	if self._capacity ~= nil and self._len >= self._capacity then
+	if self:full() then
 		return false
 	end
 
@@ -175,13 +175,19 @@ end
 ---Adds values from iterable to the back of the queue.
 ---
 ---@param iterable table<any, any> Entries to add.
+---
+---@return boolean   `true` if successfully enqueued all itens.
 -----------------------------------------------------------------------------
 function Queue:enqueueAll(iterable)
 	assert(type(iterable) == "table", "iterable should be a table")
 
 	for _, item in pairs(iterable) do
-		self:enqueue(item)
+		if not self:enqueue(item) then
+			return false
+		end
 	end
+
+	return true
 end
 
 -----------------------------------------------------------------------------
