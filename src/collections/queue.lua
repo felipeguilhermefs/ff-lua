@@ -58,6 +58,7 @@ function Queue.new(iterable, capacity)
 	if capacity ~= nil then
 		assert(type(capacity) == "number", "capacity should be a number")
 		assert(capacity > 0, "capacity should be positive")
+		assert(capacity < math.huge and capacity % 1 == 0, "capacity should be an integer")
 	end
 
 	local new = setmetatable({
