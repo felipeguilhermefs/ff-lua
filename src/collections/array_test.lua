@@ -427,6 +427,14 @@ function TestArrayInsertAll:testRejectsNonTableInputs()
 	end)
 end
 
+function TestArrayInsertAll:testIgnoreSelfInsert()
+	local array = Array.new({ 1, 2, 3 })
+
+	array:insertAll(array)
+
+	lu.assertEquals(#array, 3)
+end
+
 function TestArrayIsArray:testRecognizesEmptyAndPopulatedInstances()
 	lu.assertTrue(Array.isArray(Array.new()))
 	lu.assertTrue(Array.isArray(Array.new({ 1, 2 })))
