@@ -138,6 +138,10 @@ function HashMap:putAll(iterable, fn)
 	assert(type(iterable) == "table", "iterable should be a table")
 	assert(fn == nil or type(fn) == "function", "fn should be a function")
 
+	if rawequal(self, iterable) then
+		return
+	end
+
 	fn = fn or function(_, incoming)
 		return incoming
 	end

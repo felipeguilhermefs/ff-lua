@@ -529,6 +529,14 @@ function TestHashMapPutAll:testResolverErrorLeavesConflictingEntryUnchanged()
 	lu.assertEquals(#map, 1)
 end
 
+function TestHashMapPutAll:testIgnoresSelfPut()
+	local map = HashMap.new({ a = 1, b = 2, c = 3 })
+
+	map:putAll(map)
+
+	lu.assertEquals(#map, 3)
+end
+
 function TestHashMapRemove:testRejectsInvalidKeys()
 	local map = HashMap.new()
 	local nan = 0 / 0
