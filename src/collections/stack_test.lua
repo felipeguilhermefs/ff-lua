@@ -451,6 +451,14 @@ function TestStackPushAll:testPushAllRejectsNonTableInputs()
 	lu.assertTrue(stack:empty())
 end
 
+function TestStackPushAll:testIgnoreIfPushSelf()
+	local stack = Stack.new({ 1, 2, 3 })
+
+	stack:pushAll(stack)
+
+	lu.assertEquals(#stack, 3)
+end
+
 function TestStackReverse:testReverseEmptyAndSingleValueStacks()
 	local empty = Stack.new()
 	local single = Stack.new()

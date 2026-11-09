@@ -172,6 +172,14 @@ function TestSetAddAll:testReturnsNoValue()
 	lu.assertEquals(set:addAll({ "entry" }), nil)
 end
 
+function TestSetAddAll:testIgnoresIfAddSelf()
+	local set = Set.new({ 1, 2, 3 })
+
+	set:addAll(set)
+
+	lu.assertEquals(#set, 3)
+end
+
 function TestSetClear:testClearingEmptySetIsSafe()
 	local set = Set.new()
 

@@ -159,6 +159,10 @@ end
 function IntervalTree:insertAll(iterable)
 	assert(type(iterable) == "table", "iterable should be a table")
 
+	if rawequal(self, iterable) then
+		return
+	end
+
 	for low, high in pairs(iterable) do
 		self:insert(low, high)
 	end

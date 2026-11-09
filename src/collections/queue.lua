@@ -182,6 +182,10 @@ end
 function Queue:enqueueAll(iterable)
 	assert(type(iterable) == "table", "iterable should be a table")
 
+	if rawequal(self, iterable) then
+		return false
+	end
+
 	for _, item in pairs(iterable) do
 		if not self:enqueue(item) then
 			return false

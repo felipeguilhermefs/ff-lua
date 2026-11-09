@@ -343,6 +343,10 @@ end
 function RadixTree:insertAll(iterable)
 	assert(type(iterable) == "table", "iterable should be a table")
 
+	if rawequal(self, iterable) then
+		return
+	end
+
 	for _, item in pairs(iterable) do
 		self:insert(item)
 	end

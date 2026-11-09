@@ -366,6 +366,10 @@ end
 function TreeMap:putAll(iterable)
 	assert(type(iterable) == "table", "iterable should be a table")
 
+	if rawequal(self, iterable) then
+		return
+	end
+
 	for key, value in pairs(iterable) do
 		self:put(key, value)
 	end
