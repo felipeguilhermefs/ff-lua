@@ -62,8 +62,8 @@ function TreeNode:rotateLeft()
 	self.right = newbase.left
 	newbase.left = self
 
-	newbase:recalculateHeight()
 	self:recalculateHeight()
+	newbase:recalculateHeight()
 
 	return newbase
 end
@@ -78,8 +78,8 @@ function TreeNode:rotateRight()
 	self.left = newbase.right
 	newbase.right = self
 
-	newbase:recalculateHeight()
 	self:recalculateHeight()
+	newbase:recalculateHeight()
 
 	return newbase
 end

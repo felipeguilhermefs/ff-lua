@@ -448,4 +448,124 @@ function TestTreeMap:testPutAllRejectsNil()
 	end)
 end
 
+function TestTreeMap:testAVLInsertionRebalancesAllFourRotationShapes()
+	local cases = {
+		{ keys = { 3, 2, 1 }, expected = { 1, 2, 3 } }, -- LL
+		{ keys = { 3, 1, 2 }, expected = { 1, 2, 3 } }, -- LR
+		{ keys = { 1, 2, 3 }, expected = { 1, 2, 3 } }, -- RR
+		{ keys = { 1, 3, 2 }, expected = { 1, 2, 3 } }, -- RL
+	}
+
+	for _, case in ipairs(cases) do
+		local tm = TreeMap.new()
+		for _, key in ipairs(case.keys) do
+			tm:put(key, key)
+		end
+
+		local actual = {}
+		for key in pairs(tm) do
+			table.insert(actual, key)
+		end
+
+		lu.assertEquals(actual, case.expected)
+		lu.assertEquals(#tm, #case.expected)
+	end
+end
+
+function TestTreeMap:testAVLDeletionRebalancesAllFourRotationShapes()
+	local cases = {
+		{
+			keys = { 4, 2, 6, 1, 3, 5, 0 },
+			remove = 5,
+			expected = { 0, 1, 2, 3, 4, 6 },
+		}, -- LL
+		{
+			keys = { 4, 6, 2, 7, 5, 3, 8 },
+			remove = 3,
+			expected = { 2, 4, 5, 6, 7, 8 },
+		}, -- RR
+		{
+			keys = { 5, 2, 6, 7, 1, 4, 3 },
+			remove = 7,
+			expected = { 1, 2, 3, 4, 5, 6 },
+		}, -- LR
+		{
+			keys = { 5, 8, 4, 3, 9, 6, 7 },
+			remove = 3,
+			expected = { 4, 5, 6, 7, 8, 9 },
+		}, -- RL
+	}
+
+	for _, case in ipairs(cases) do
+		local tm = TreeMap.new()
+		for _, key in ipairs(case.keys) do
+			tm:put(key, key)
+		end
+
+		lu.assertEquals(tm:remove(case.remove), case.remove)
+
+		local actual = {}
+		for key in pairs(tm) do
+			table.insert(actual, key)
+		end
+
+		lu.assertEquals(actual, case.expected)
+		lu.assertEquals(#tm, #case.expected)
+	end
+end
+
+function TestTreeMap:testAVLStressKeepsOrderedContentsAndLogarithmicSearchDepth()
+	local comparisonCount = 0
+	local function comparator(a, b)
+		comparisonCount = comparisonCount + 1
+		if a < b then
+			return Comparator.less
+		elseif a > b then
+			return Comparator.greater
+		end
+		return Comparator.equal
+	end
+
+	local function log2Ceiling(value)
+		local result = 0
+		local power = 1
+		while power < value do
+			power = power * 2
+			result = result + 1
+		end
+		return result
+	end
+
+	local tm = TreeMap.new(nil, comparator)
+	local count = 128
+	for key = 1, count do
+		comparisonCount = 0
+		tm:put(key, key * 10)
+		lu.assertTrue(comparisonCount <= 4 * log2Ceiling(key + 1) + 4)
+	end
+
+	for key = 1, count do
+		lu.assertEquals(tm:get(key), key * 10)
+	end
+
+	for key = 2, count, 2 do
+		comparisonCount = 0
+		tm:remove(key)
+		lu.assertTrue(comparisonCount <= 8 * log2Ceiling(count + 1) + 8)
+	end
+
+	local actual = {}
+	for key, value in pairs(tm) do
+		lu.assertEquals(value, key * 10)
+		table.insert(actual, key)
+	end
+
+	local expected = {}
+	for key = 1, count, 2 do
+		table.insert(expected, key)
+	end
+	lu.assertEquals(actual, expected)
+	lu.assertEquals(#tm, #expected)
+end
+
 return { TestTreeMap = TestTreeMap }
