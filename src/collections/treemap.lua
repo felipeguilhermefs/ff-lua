@@ -425,13 +425,11 @@ end
 function TreeMap:remove(key)
 	assert(key ~= nil, "key should not be nil")
 
-	local node = self:_lookup(key)
-
-	if node ~= nil then
-		local prevValue = node.value
-		self._root = self:_remove(self._root, key)
-		return prevValue
+	local root, removedValue = self:_remove(self._root, key)
+	if removedValue ~= nil then
+		rawset(self, "_root", root)
 	end
+	return removedValue
 end
 
 -----------------------------------------------------------------------------
@@ -536,30 +534,34 @@ end
 ---@param  node TreeNode? The node where to start the traversal.
 ---@param  key  any       Key to remove.
 ---
----@return TreeNode?      New node at the position or `nil` if key not found.
+---@return TreeNode?      New subtree root.
+---@return any?           Removed value, or `nil` if key was not found.
 ---
 ---@private
 -----------------------------------------------------------------------------
 function TreeMap:_remove(node, key)
 	if node == nil then
-		return nil
+		return nil, nil
 	end
 
 	local comp = self._comparator(key, node.key)
+	local removedValue
 
 	if comp == Comparator.less then
-		node.left = self:_remove(node.left, key)
+		node.left, removedValue = self:_remove(node.left, key)
 	elseif comp == Comparator.greater then
-		node.right = self:_remove(node.right, key)
+		node.right, removedValue = self:_remove(node.right, key)
 	else
+		removedValue = node.value
+
 		if node.left == nil then
 			self._len = self._len - 1
-			return node.right
+			return node.right, removedValue
 		end
 
 		if node.right == nil then
 			self._len = self._len - 1
-			return node.left
+			return node.left, removedValue
 		end
 
 		local minNode = assert(self:_min(node.right))
@@ -579,17 +581,17 @@ function TreeMap:_remove(node, key)
 		if node.left:balance() < 0 then
 			node.left = node.left:rotateLeft()
 		end
-		return node:rotateRight()
+		return node:rotateRight(), removedValue
 	end
 
 	if balance < -1 then
 		if node.right:balance() > 0 then
 			node.right = node.right:rotateRight()
 		end
-		return node:rotateLeft()
+		return node:rotateLeft(), removedValue
 	end
 
-	return node
+	return node, removedValue
 end
 
 -----------------------------------------------------------------------------
