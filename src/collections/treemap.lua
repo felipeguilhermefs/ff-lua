@@ -300,40 +300,6 @@ function TreeMap:max()
 end
 
 -----------------------------------------------------------------------------
----Merge an iterable into this TreeMap. When keys conflict a merge function
----is called to resolve the new value.
----
----@param  other table<any, any> Other table or map to merge into this.
----@param  fn?   fun(a: any, b: any): any?
----                              Merge function called on conflict.
----                              Receives (existing, incoming); its return
----                              value becomes the new stored value.
----                              Defaults to an override function (returns `incoming`).
----
----@return TreeMap               Returns this TreeMap after the merge.
------------------------------------------------------------------------------
-function TreeMap:merge(other, fn)
-	assert(type(other) == "table", "other should be a table")
-	assert(fn == nil or type(fn) == "function", "fn should be a function")
-
-	fn = fn or function(_, b)
-		return b
-	end
-
-	for k, v in pairs(other) do
-		local node = self:_lookup(k)
-		if node == nil then
-			self:put(k, v)
-		else
-			local resolved = fn(node.value, v)
-			self:put(k, resolved)
-		end
-	end
-
-	return self
-end
-
------------------------------------------------------------------------------
 ---Returns the minimum key and value (leftmost) from the tree, `nil` if empty.
 ---
 ---@return any? key, any? value
@@ -359,19 +325,34 @@ function TreeMap:put(key, value)
 end
 
 -----------------------------------------------------------------------------
----Stores every vkey/value from iterable into the tree.
+---Stores every key/value from iterable into the tree. When keys conflict, `fn`
+---computes the value to store.
 ---
 ---@param iterable table<any, any> Entries to add.
+---@param fn?      fun(existing: any, incoming: any): any?
+---                                Resolver called only for existing keys.
+---                                Defaults to incoming value.
 -----------------------------------------------------------------------------
-function TreeMap:putAll(iterable)
+function TreeMap:putAll(iterable, fn)
 	assert(type(iterable) == "table", "iterable should be a table")
+	assert(fn == nil or type(fn) == "function", "fn should be a function")
 
 	if rawequal(self, iterable) then
 		return
 	end
 
+	fn = fn or function(_, incoming)
+		return incoming
+	end
+
 	for key, value in pairs(iterable) do
-		self:put(key, value)
+		local node = self:_lookup(key)
+		if node == nil then
+			self:put(key, value)
+		else
+			local resolved = fn(node.value, value)
+			self:put(key, resolved)
+		end
 	end
 end
 
